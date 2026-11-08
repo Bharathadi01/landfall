@@ -39,3 +39,4 @@ export const env = envSchema.parse({
   JUDGE_MODE_ENABLED: process.env.JUDGE_MODE_ENABLED,
   APP_URL: process.env.APP_URL,
 });
+

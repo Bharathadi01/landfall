@@ -72,3 +72,4 @@ export function shouldUpdatePayoutStatus(
   const incomingRank = PAYOUT_STATUS_PRECEDENCE[incomingStatus.toUpperCase()] ?? 0;
   return incomingRank >= currentRank;
 }
+

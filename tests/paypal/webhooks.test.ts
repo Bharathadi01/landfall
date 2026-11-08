@@ -24,3 +24,4 @@ describe("PayPal Webhook Status Precedence", () => {
     expect(shouldUpdatePayoutStatus(undefined, "SUCCESS")).toBe(true);
   });
 });
+

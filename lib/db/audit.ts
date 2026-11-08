@@ -27,3 +27,4 @@ export async function logAuditEvent({
     console.error("[audit_events] Failed to write audit event:", err);
   }
 }
+

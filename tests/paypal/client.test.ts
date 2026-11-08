@@ -50,3 +50,4 @@ describe("PayPal Client Token Caching & Fetch Wrapper", () => {
     ).rejects.toThrowError(PayPalError);
   });
 });
+

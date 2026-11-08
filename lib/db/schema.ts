@@ -168,3 +168,4 @@ export const auditEvents = pgTable("audit_events", {
   debugId: text("debug_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
