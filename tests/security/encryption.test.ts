@@ -43,3 +43,4 @@ describe("AES-256-GCM PII Encryption", () => {
     expect(() => decryptPII(tampered)).toThrow();
   });
 });
+

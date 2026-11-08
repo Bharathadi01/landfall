@@ -103,3 +103,4 @@ describe("Two-Key Passkey Approval Validation", () => {
     expect(result.error).toContain("Approval plan hash mismatch");
   });
 });
+
