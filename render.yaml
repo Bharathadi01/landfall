@@ -50,7 +50,7 @@ services:
     runtime: node
     schedule: "*/5 * * * *"
     buildCommand: pnpm install
-    startCommand: node -e "fetch(process.env.APP_URL + '/api/alerts/poll', { method: 'POST', headers: { Authorization: 'Bearer ' + process.env.CRON_SECRET } }).then(r => console.log('Polled:', r.status)).catch(console.error)"
+    startCommand: pnpm run cron:poll
     envVars:
       - key: APP_URL
         sync: false
