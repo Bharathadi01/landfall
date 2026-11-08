@@ -73,3 +73,4 @@ Run the spike test suite against PayPal Sandbox at any time:
 pnpm spike:paypal
 ```
 Or open the `/spike` route in your browser to inspect real-time audit logs and PayPal `debug_id`s.
+

@@ -1,0 +1,35 @@
+:root {
+  /* Brand Palette */
+  --color-ocean: #0B3D91;
+  --color-ocean-light: #1A54BD;
+  --color-ocean-dark: #041633;
+  --color-storm-amber: #F5A524;
+  --color-storm-amber-dark: #B8720A;
+  --color-safe-green: #10B981;
+  --color-alert-red: #EF4444;
+
+  /* Neutrals */
+  --color-bg-light: #F8FAFC;
+  --color-text-dark: #0F172A;
+  --color-bg-dark: #020617;
+  --color-card-dark: #0B1329;
+  --color-border-dark: #1E293B;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+  }
+}

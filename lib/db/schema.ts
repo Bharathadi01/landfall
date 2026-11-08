@@ -1,4 +1,59 @@
-import { pgTable, text, timestamp, boolean, doublePrecision, integer, jsonb, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, doublePrecision, integer, jsonb, uuid, numeric } from "drizzle-orm/pg-core";
+
+// 1. Host Legal Entity & Governance Configuration
+export const hosts = pgTable("hosts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  legalName: text("legal_name").notNull(),
+  entityType: text("entity_type", { enum: ["501c3", "fiscal_sponsor", "mutual_aid_fund"] }).notNull(),
+  paypalAccountOwner: text("paypal_account_owner").notNull(),
+  financeOfficers: text("finance_officers").array().notNull(), // emails or user IDs of finance role holders
+  donorRestrictionNotes: text("donor_restriction_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// 2. Double-Entry Storm Treasury Ledger
+export const ledgerAccounts = pgTable("ledger_accounts", {
+  id: text("id").primaryKey(), // e.g. 'paypal_available', 'reserve_protected', 'allocatable', 'committed:plan1'
+  name: text("name").notNull(),
+  accountType: text("account_type", { enum: ["ASSET", "LIABILITY", "EQUITY"] }).notNull(),
+  balance: numeric("balance", { precision: 14, scale: 2 }).default("0.00").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const ledgerEntries = pgTable("ledger_entries", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  transactionId: text("transaction_id").notNull(),
+  accountId: text("account_id").references(() => ledgerAccounts.id).notNull(),
+  direction: text("direction", { enum: ["DEBIT", "CREDIT"] }).notNull(),
+  amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+  description: text("description").notNull(),
+  correlationId: text("correlation_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// 3. WebAuthn Passkey Credentials
+export const passkeyCredentials = pgTable("passkey_credentials", {
+  id: text("id").primaryKey(), // base64url credential ID
+  userId: text("user_id").notNull(),
+  userName: text("user_name").notNull(),
+  userRole: text("user_role", { enum: ["resident", "volunteer", "coordinator", "finance", "admin"] }).notNull(),
+  publicKey: text("public_key").notNull(),
+  counter: integer("counter").default(0).notNull(),
+  transports: text("transports").array(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// 4. PII Access Audit Log (Immutable)
+export const piiAccessLog = pgTable("pii_access_log", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  actorId: text("actor_id").notNull(),
+  actorRole: text("actor_role").notNull(),
+  resourceType: text("resource_type").notNull(), // 'household', 'document'
+  resourceId: text("resource_id").notNull(),
+  accessedFields: text("accessed_fields").array().notNull(),
+  reason: text("reason").default("plan_review").notNull(),
+  accessedAt: timestamp("accessed_at").defaultNow().notNull(),
+});
 
 export const funds = pgTable("funds", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -11,22 +66,26 @@ export const funds = pgTable("funds", {
 export const policies = pgTable("policies", {
   id: uuid("id").primaryKey().defaultRandom(),
   fundId: uuid("fund_id").references(() => funds.id).notNull(),
+  version: text("version").notNull().default("1.0.0"),
   plainText: text("plain_text").notNull(),
   rulesJson: jsonb("rules_json").notNull(),
-  confirmedBy: text("confirmed_by"),
+  confirmedByCoordinator: text("confirmed_by_coordinator"),
+  confirmedByFinance: text("confirmed_by_finance"),
   confirmedAt: timestamp("confirmed_at"),
 });
 
 export const households = pgTable("households", {
   id: uuid("id").primaryKey().defaultRandom(),
   fundId: uuid("fund_id").references(() => funds.id).notNull(),
-  status: text("status", { enum: ["draft", "verified", "needs_review", "rejected"] }).default("draft").notNull(),
-  caseJson: jsonb("case_json").notNull(),
+  status: text("status", { enum: ["draft", "submitted", "verified", "needs_review", "rejected"] }).default("draft").notNull(),
+  recipientPath: text("recipient_path", { enum: ["LINKED_PAYPAL", "EMAIL_CLAIM", "ASSISTED", "MANUAL_CHANNEL"] }).default("LINKED_PAYPAL").notNull(),
+  caseJson: jsonb("case_json").notNull(), // Contains encrypted PII fields
   lat: doublePrecision("lat"),
   lng: doublePrecision("lng"),
   language: text("language").default("en").notNull(),
   wallet: text("wallet", { enum: ["PAYPAL", "VENMO"] }).default("PAYPAL").notNull(),
   receiver: text("receiver").notNull(),
+  reconfirmedAt: timestamp("reconfirmed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -70,16 +129,17 @@ export const activations = pgTable("activations", {
   fundId: uuid("fund_id").references(() => funds.id).notNull(),
   alertId: uuid("alert_id").references(() => alerts.id).notNull(),
   activationJson: jsonb("activation_json").notNull(),
-  status: text("status", { enum: ["open", "planned", "audited", "approved", "paid", "closed"] }).default("open").notNull(),
+  status: text("status", { enum: ["open", "planned", "audited", "approved", "paid", "closed", "voided"] }).default("open").notNull(),
 });
 
 export const payoutPlans = pgTable("payout_plans", {
   id: uuid("id").primaryKey().defaultRandom(),
   activationId: uuid("activation_id").references(() => activations.id).notNull(),
+  tranche: text("tranche", { enum: ["TRANCHE_1", "TRANCHE_2"] }).default("TRANCHE_1").notNull(),
   planJson: jsonb("plan_json").notNull(),
   planHash: text("plan_hash").notNull(),
   rulesVersion: text("rules_version").notNull(),
-  status: text("status").default("draft").notNull(),
+  status: text("status", { enum: ["draft", "rules_valid", "explained", "approved_1", "approved_2", "submitting", "submitted", "settled_partial", "settled", "closed", "voided"] }).default("draft").notNull(),
 });
 
 export const auditVerdicts = pgTable("audit_verdicts", {
@@ -94,7 +154,9 @@ export const approvals = pgTable("approvals", {
   id: uuid("id").primaryKey().defaultRandom(),
   planId: uuid("plan_id").references(() => payoutPlans.id).notNull(),
   planHash: text("plan_hash").notNull(),
-  approver: text("approver").notNull(),
+  approverId: text("approver_id").notNull(),
+  approverRole: text("approver_role", { enum: ["coordinator", "finance", "admin"] }).notNull(),
+  passkeySignature: text("passkey_signature").notNull(),
   approvedAt: timestamp("approved_at").defaultNow().notNull(),
 });
 
@@ -117,6 +179,17 @@ export const payoutItems = pgTable("payout_items", {
   wallet: text("wallet").notNull(),
   status: text("status").notNull(),
   lastEventAt: timestamp("last_event_at").defaultNow().notNull(),
+});
+
+export const stormPledges = pgTable("storm_pledges", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  donorEmail: text("donor_email").notNull(),
+  vaultPaymentToken: text("vault_payment_token").notNull(),
+  amountPerEvent: numeric("amount_per_event", { precision: 10, scale: 2 }).notNull(),
+  seasonCap: numeric("season_cap", { precision: 10, scale: 2 }).notNull(),
+  chargedThisSeason: numeric("charged_this_season", { precision: 10, scale: 2 }).default("0.00").notNull(),
+  status: text("status", { enum: ["ACTIVE", "PAUSED", "REVOKED"] }).default("ACTIVE").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const donations = pgTable("donations", {
@@ -153,7 +226,7 @@ export const agentEvents = pgTable("agent_events", {
 export const messages = pgTable("messages", {
   id: uuid("id").primaryKey().defaultRandom(),
   householdId: uuid("household_id").references(() => households.id).notNull(),
-  channel: text("channel", { enum: ["email", "sms"] }).notNull(),
+  channel: text("channel", { enum: ["email", "sms", "in_app"] }).notNull(),
   language: text("language").notNull(),
   body: text("body").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -168,4 +241,3 @@ export const auditEvents = pgTable("audit_events", {
   debugId: text("debug_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
-

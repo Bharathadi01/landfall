@@ -8,3 +8,4 @@ export async function GET(req: NextRequest) {
   const authUrl = buildPayPalAuthUrl(state, redirectUri);
   return NextResponse.redirect(authUrl);
 }
+
