@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "storm": "Hurricane Milton",
+    "year": 2024,
+    "wfo": "TBW",
+    "source": "NWS via Iowa Environmental Mesonet (IEM) VTEC Archive",
+    "disclaimer": "HISTORICAL REPLAY · Hurricane Milton, Oct 2024 · Source: NWS via IEM archive · Deterministic replay to demonstrate the workflow · Not a current warning."
+  },
+  "radarFrames": [
+    {
+      "timestamp": "2024-10-09T18:00:00Z",
+      "tileUrl": "https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q-t.cgi?time=2024-10-09T18:00:00Z",
+      "headline": "Milton approaching Florida Gulf Coast as Category 4 hurricane"
+    },
+    {
+      "timestamp": "2024-10-09T21:00:00Z",
+      "tileUrl": "https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q-t.cgi?time=2024-10-09T21:00:00Z",
+      "headline": "Core of Hurricane Milton making landfall near Siesta Key / Tampa Bay"
+    },
+    {
+      "timestamp": "2024-10-10T00:00:00Z",
+      "tileUrl": "https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q-t.cgi?time=2024-10-10T00:00:00Z",
+      "headline": "Catastrophic storm surge and flash flood emergency ongoing across Tampa Bay"
+    }
+  ],
+  "alerts": [
+    {
+      "id": "urn:oid:2.49.0.1.840.0.98a12c8e.2024.TBW.HU.W.0009",
+      "eventKey": "TBW:HU.W:0009",
+      "vtec": "/O.NEW.KTBW.HU.W.0009.241009T1200Z-241010T1800Z/",
+      "phenomena": "HU",
+      "significance": "W",
+      "wfo": "TBW",
+      "etn": "0009",
+      "event": "Hurricane Warning",
+      "headline": "Hurricane Warning issued October 9 at 8:00AM EDT until October 10 at 2:00PM EDT by NWS Tampa Bay",
+      "status": "Actual",
+      "messageType": "Alert",
+      "severity": "Extreme",
+      "urgency": "Expected",
+      "certainty": "Observed",
+      "effective": "2024-10-09T12:00:00Z",
+      "expires": "2024-10-10T18:00:00Z",
+      "areaDesc": "Coastal Hillsborough; Coastal Manatee; Coastal Sarasota; Pinellas",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-82.85, 27.65],
+            [-82.35, 27.65],
+            [-82.35, 28.15],
+            [-82.85, 28.15],
+            [-82.85, 27.65]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "urn:oid:2.49.0.1.840.0.98a12c8e.2024.TBW.SS.W.0009",
+      "eventKey": "TBW:SS.W.0009",
+      "vtec": "/O.NEW.KTBW.SS.W.0009.241009T1200Z-241010T1800Z/",
+      "phenomena": "SS",
+      "significance": "W",
+      "wfo": "TBW",
+      "etn": "0009",
+      "event": "Storm Surge Warning",
+      "headline": "Storm Surge Warning issued October 9 by NWS Tampa Bay: 9 to 13 feet of inundation expected",
+      "status": "Actual",
+      "messageType": "Alert",
+      "severity": "Extreme",
+      "urgency": "Expected",
+      "certainty": "Observed",
+      "effective": "2024-10-09T12:00:00Z",
+      "expires": "2024-10-10T18:00:00Z",
+      "areaDesc": "Tampa Bay coastal surge zones",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-82.75, 27.75],
+            [-82.45, 27.75],
+            [-82.45, 28.05],
+            [-82.75, 28.05],
+            [-82.75, 27.75]
+          ]
+        ]
+      }
+    }
+  ]
+}
