@@ -35,12 +35,18 @@ describe("AES-256-GCM PII Encryption", () => {
     const text = "Confidential note";
     const encrypted = encryptPII(text)!;
     const parts = encrypted.split(":");
-    // Tamper with the ciphertext (last part)
-    const tamperedParts = [...parts];
-    tamperedParts[3] = tamperedParts[3].replace(/^[0-9a-f]/, "e");
-    const tampered = tamperedParts.join(":");
 
-    expect(() => decryptPII(tampered)).toThrow();
+    // 1. Tamper with ciphertext by flipping a character
+    const tamperedCiphertextParts = [...parts];
+    const firstChar = tamperedCiphertextParts[3][0];
+    tamperedCiphertextParts[3] = (firstChar === "a" ? "b" : "a") + tamperedCiphertextParts[3].slice(1);
+    expect(() => decryptPII(tamperedCiphertextParts.join(":"))).toThrow();
+
+    // 2. Tamper with auth tag by flipping a character
+    const tamperedTagParts = [...parts];
+    const firstTagChar = tamperedTagParts[2][0];
+    tamperedTagParts[2] = (firstTagChar === "0" ? "1" : "0") + tamperedTagParts[2].slice(1);
+    expect(() => decryptPII(tamperedTagParts.join(":"))).toThrow();
   });
 });
 

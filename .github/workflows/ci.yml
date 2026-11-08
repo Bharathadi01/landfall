@@ -9,6 +9,30 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: landfall
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/landfall
+      NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID || 'test_client_id' }}
+      PAYPAL_CLIENT_ID: ${{ secrets.PAYPAL_CLIENT_ID || 'test_client_id' }}
+      PAYPAL_CLIENT_SECRET: ${{ secrets.PAYPAL_CLIENT_SECRET || 'test_secret' }}
+      PII_ENCRYPTION_KEY: landfall-test-secret-key-32-bytes-min
+      SESSION_SECRET: test-session-secret-at-least-32-chars-long
+      WEBAUTHN_RP_ID: localhost
+      WEBAUTHN_ORIGIN: http://localhost:3000
+
     steps:
       - uses: actions/checkout@v4
 
@@ -29,13 +53,11 @@ jobs:
       - name: Typecheck
         run: pnpm exec tsc --noEmit
 
+      - name: Push Database Schema
+        run: pnpm db:push
+
       - name: Build
         run: pnpm build
-        env:
-          NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID || 'test_client_id' }}
-          PAYPAL_CLIENT_ID: ${{ secrets.PAYPAL_CLIENT_ID || 'test_client_id' }}
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/landfall
 
-      - name: Run Tests
-        run: pnpm test
-
+      - name: Run Tests with Coverage
+        run: pnpm vitest run --coverage
