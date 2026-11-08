@@ -8,7 +8,7 @@ services:
     startCommand: pnpm start
     envVars:
       - key: NODE_VERSION
-        value: 22.20.0
+        value: 22
       - key: DATABASE_URL
         fromDatabase:
           name: landfall-db
@@ -49,22 +49,19 @@ services:
     name: landfall-sentinel-cron
     runtime: node
     schedule: "*/5 * * * *"
-    buildCommand: echo "Cron ready"
-    startCommand: curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/alerts/poll"
+    buildCommand: pnpm install
+    startCommand: node -e "fetch(process.env.APP_URL + '/api/alerts/poll', { method: 'POST', headers: { Authorization: 'Bearer ' + process.env.CRON_SECRET } }).then(r => console.log('Polled:', r.status)).catch(console.error)"
     envVars:
       - key: APP_URL
-        fromService:
-          type: web
-          name: landfall-web
-          property: host
+        sync: false
       - key: CRON_SECRET
         fromService:
           type: web
           name: landfall-web
-          property: envVar:CRON_SECRET
+          envVarKey: CRON_SECRET
 
 databases:
   - name: landfall-db
     databaseName: landfall
-    user: landfall
+    databaseUser: landfall
     plan: starter
