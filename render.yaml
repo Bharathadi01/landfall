@@ -63,5 +63,4 @@ services:
 databases:
   - name: landfall-db
     databaseName: landfall
-    databaseUser: landfall
     plan: starter
