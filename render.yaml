@@ -1,0 +1,70 @@
+services:
+  # Web Application
+  - type: web
+    name: landfall-web
+    runtime: node
+    plan: starter
+    buildCommand: pnpm install && pnpm build
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.20.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: landfall-db
+          property: connectionString
+      - key: PAYPAL_ENV
+        value: sandbox
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: NEXT_PUBLIC_PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_LIPP_REDIRECT
+        sync: false
+      - key: GOOGLE_GENERATIVE_AI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: MODEL_FAST
+        value: gemini-1.5-flash
+      - key: MODEL_SMART
+        value: gemini-1.5-flash
+      - key: MODEL_AUDITOR
+        value: llama-3.3-70b-versatile
+      - key: CRON_SECRET
+        generateValue: true
+      - key: JUDGE_MODE_ENABLED
+        value: "true"
+      - key: NWS_USER_AGENT
+        value: "Landfall mutual-aid hackathon app (contact: bharathadithya)"
+      - key: APP_URL
+        sync: false
+
+  # Sentinel Cron Poller (Every 5 Minutes)
+  - type: cron
+    name: landfall-sentinel-cron
+    runtime: node
+    schedule: "*/5 * * * *"
+    buildCommand: echo "Cron ready"
+    startCommand: curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/alerts/poll"
+    envVars:
+      - key: APP_URL
+        fromService:
+          type: web
+          name: landfall-web
+          property: host
+      - key: CRON_SECRET
+        fromService:
+          type: web
+          name: landfall-web
+          property: envVar:CRON_SECRET
+
+databases:
+  - name: landfall-db
+    databaseName: landfall
+    user: landfall
+    plan: starter

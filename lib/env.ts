@@ -9,15 +9,17 @@ const envSchema = z.object({
   PAYPAL_LIPP_REDIRECT: z.string().url().default("http://127.0.0.1:3000/api/auth/paypal/callback"),
   DATABASE_URL: z.string().min(1).default("postgres://postgres:postgres@localhost:5432/landfall"),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional().default(""),
+  GROQ_API_KEY: z.string().optional().default(""),
   ANTHROPIC_API_KEY: z.string().optional(),
   MODEL_FAST: z.string().default("gemini-1.5-flash"),
-  MODEL_SMART: z.string().default("gemini-1.5-pro"),
-  MODEL_AUDITOR: z.string().default("claude-3-5-sonnet-20241022"),
+  MODEL_SMART: z.string().default("gemini-1.5-flash"),
+  MODEL_AUDITOR: z.string().default("llama-3.3-70b-versatile"),
   NEXT_PUBLIC_AG_STUDIO_LICENSE: z.string().optional(),
   NWS_USER_AGENT: z.string().default("Landfall hackathon app (contact: contact@landfall.local)"),
   CRON_SECRET: z.string().default("dev-cron-secret"),
   JUDGE_MODE_ENABLED: z.string().transform((v) => v === "true").default("true"),
   APP_URL: z.string().url().default("http://127.0.0.1:3000"),
+  SANDBOX_RESIDENT_EMAIL: z.string().optional(),
 });
 
 export const env = envSchema.parse({
@@ -29,6 +31,7 @@ export const env = envSchema.parse({
   PAYPAL_LIPP_REDIRECT: process.env.PAYPAL_LIPP_REDIRECT,
   DATABASE_URL: process.env.DATABASE_URL,
   GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+  GROQ_API_KEY: process.env.GROQ_API_KEY,
   ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
   MODEL_FAST: process.env.MODEL_FAST,
   MODEL_SMART: process.env.MODEL_SMART,
@@ -38,5 +41,5 @@ export const env = envSchema.parse({
   CRON_SECRET: process.env.CRON_SECRET,
   JUDGE_MODE_ENABLED: process.env.JUDGE_MODE_ENABLED,
   APP_URL: process.env.APP_URL,
+  SANDBOX_RESIDENT_EMAIL: process.env.SANDBOX_RESIDENT_EMAIL,
 });
-
