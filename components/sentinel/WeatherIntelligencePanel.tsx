@@ -121,7 +121,7 @@ export function WeatherIntelligencePanel({
         {/* Fund Selector */}
         <div className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Target Community Relief Fund (§6)
+            Target Community Relief Fund
           </span>
           <div className="flex flex-col gap-1.5">
             {COMMUNITY_FUNDS_GEO.map((fund) => {

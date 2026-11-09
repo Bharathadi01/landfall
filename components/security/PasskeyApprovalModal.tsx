@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { browserSupportsPasskeys, startAuthentication } from "@simplewebauthn/browser";
 import { type ApprovalKeyVerification, validateTwoKeyApproval } from "@/lib/security/passkeys";
+import { KeyRound, X, Fingerprint, AlertTriangle, Check, ShieldCheck, Send } from "lucide-react";
 
 export interface PasskeyApprovalModalProps {
   isOpen: boolean;
@@ -40,6 +41,7 @@ export function PasskeyApprovalModal({
   const [signingApprover, setSigningApprover] = useState<1 | 2 | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [collectedApprovals, setCollectedApprovals] = useState<ApprovalKeyVerification[]>([]);
+  const [released, setReleased] = useState(false);
 
   const handleClose = onClose || onCancel || (() => {});
   const handleSuccess = (approvals: ApprovalKeyVerification[]) => {
@@ -114,7 +116,9 @@ export function PasskeyApprovalModal({
       if (updated.length >= 2) {
         const validation = validateTwoKeyApproval(updated, planHash);
         if (validation.valid) {
-          handleSuccess(updated);
+          // Let the "plan released" moment register before handing control back.
+          setReleased(true);
+          window.setTimeout(() => handleSuccess(updated), 1600);
         } else {
           setErrorMsg(validation.error || "Dual approval validation failed");
         }
@@ -126,112 +130,126 @@ export function PasskeyApprovalModal({
     }
   };
 
+  const signers = [
+    { idx: 1 as const, name: "Elena Rostova", role: "Relief coordinator", key: "Key 1", signed: approver1Signed, tone: "paypal" },
+    { idx: 2 as const, name: "Marcus Vance", role: "Finance director · required", key: "Key 2", signed: approver2Signed, tone: "amber" },
+  ];
+  const signedCount = Number(approver1Signed) + Number(approver2Signed);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md animate-field-fade"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="passkey-title"
+    >
+      <div className="glass-strong relative w-full max-w-lg overflow-hidden p-6 sm:p-7 animate-field-scale">
+        <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-80 -translate-x-1/2 rounded-full bg-amber/15 blur-[80px]" aria-hidden />
+
         {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
-              DUAL-CUSTODY GOVERNANCE (§4.6)
+        <div className="relative flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <span className="icon-tile icon-tile-lg tone-amber">
+              <KeyRound />
             </span>
-            <h2 className="text-lg font-bold text-white mt-1">WebAuthn Two-Key Authorization</h2>
-            <p className="text-xs text-slate-400">
-              Two distinct approvers (1 Finance) must sign the canonical plan hash with passkeys before money moves.
-            </p>
+            <div>
+              <div className="eyebrow text-amber">Two-person approval</div>
+              <h2 id="passkey-title" className="mt-1 text-[20px] font-semibold tracking-[-0.02em] text-ink">
+                Two keys release the money
+              </h2>
+              <p className="mt-1 text-[13px] text-ink-3">Each person signs this exact plan with a passkey. Change anything and both must sign again.</p>
+            </div>
           </div>
-          <button
-            onClick={onCancel}
-            className="text-slate-500 hover:text-slate-300 text-lg leading-none"
-          >
-            ✕
+          <button onClick={handleClose} className="rounded-lg p-1.5 text-ink-3 transition-colors hover:bg-white/5 hover:text-ink" aria-label="Close">
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Plan Hash & Summary Box */}
-        <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs space-y-1.5 font-mono">
-          <div className="flex justify-between">
-            <span className="text-slate-400">Target Plan:</span>
-            <span className="text-white font-bold">{summary.title}</span>
+        {/* Plan */}
+        <div className="relative mt-6 rounded-2xl border border-white/[0.07] bg-black/25 p-4">
+          <div className="text-[13px] text-ink-2">{summary.title}</div>
+          <div className="mt-1 flex items-baseline justify-between gap-3">
+            <span className="text-[30px] font-semibold tracking-[-0.035em] text-accent-strong tabular">{summary.totalAmountFormatted.replace(" USD", "")}</span>
+            <span className="text-[13px] text-ink-2">{summary.householdsCount} households</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-slate-400">Total Release Amount:</span>
-            <span className="text-emerald-400 font-bold">{summary.totalAmountFormatted}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-400">Recipients Count:</span>
-            <span className="text-slate-200">{summary.householdsCount} households</span>
-          </div>
-          <div className="flex justify-between pt-1 border-t border-slate-800 text-[10px]">
-            <span className="text-slate-500">Plan Canonical SHA-256:</span>
-            <span className="text-sky-400 truncate max-w-[200px]" title={planHash}>
-              {planHash}
-            </span>
+          <div className="mt-3 flex items-center gap-2 border-t border-white/[0.06] pt-3 font-mono text-[10.5px] text-ink-3">
+            <Fingerprint className="h-3.5 w-3.5 shrink-0" />
+            <span className="shrink-0">Plan hash</span>
+            <span className="truncate text-paypal" title={planHash}>{planHash}</span>
           </div>
         </div>
 
         {errorMsg && (
-          <div className="p-3 bg-rose-950/60 border border-rose-800 rounded-xl text-xs text-rose-200">
-            ⚠️ {errorMsg}
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 p-3 text-[12.5px] text-danger">
+            <AlertTriangle className="h-4 w-4 shrink-0" /> {errorMsg}
           </div>
         )}
 
-        {/* Dual Passkey Signers */}
-        <div className="space-y-3">
-          {/* Signer 1: Relief Operations Coordinator */}
-          <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
-            <div>
-              <span className="font-bold text-white block">Elena Rostova [DEMO PERSONA]</span>
-              <span className="text-[11px] text-slate-400">Relief Operations Coordinator (Key 1)</span>
+        {/* Signers */}
+        <div className="relative mt-4 space-y-2.5">
+          {signers.map((s) => (
+            <div
+              key={s.idx}
+              className={`flex items-center justify-between gap-3 rounded-2xl border p-3.5 transition-all duration-500 ${
+                s.signed ? "border-accent/35 bg-accent/[0.08]" : "border-white/[0.07] bg-white/[0.02]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  className={`flex h-10 w-10 items-center justify-center rounded-full text-[13px] font-semibold ${
+                    s.signed ? "bg-accent text-on-accent" : s.tone === "amber" ? "bg-amber/15 text-amber" : "bg-paypal/15 text-paypal"
+                  }`}
+                >
+                  {s.signed ? <Check className="h-5 w-5" strokeWidth={2.5} /> : s.name.split(" ").map((n) => n[0]).join("")}
+                </span>
+                <div>
+                  <div className="text-[14px] font-semibold text-ink">
+                    {s.name} <span className="ml-1 font-mono text-[9.5px] font-normal uppercase tracking-wider text-ink-3">demo persona</span>
+                  </div>
+                  <div className="text-[12px] text-ink-3">{s.role}</div>
+                </div>
+              </div>
+              {s.signed ? (
+                <span className="flex items-center gap-1.5 text-[12.5px] font-semibold text-accent-strong">
+                  <ShieldCheck className="h-4 w-4" /> Signed
+                </span>
+              ) : (
+                <button
+                  onClick={() => handleSignApprover(s.idx)}
+                  disabled={signingApprover !== null || released}
+                  className={`field-btn px-3.5 py-2 text-[13px] ${s.tone === "amber" ? "field-btn-secondary !border-amber/40 !text-amber" : "field-btn-paypal"}`}
+                >
+                  <KeyRound className="h-4 w-4" />
+                  {signingApprover === s.idx ? "Signing…" : `Sign ${s.key}`}
+                </button>
+              )}
             </div>
-            {approver1Signed ? (
-              <span className="px-3 py-1 rounded bg-emerald-950 text-emerald-300 font-bold border border-emerald-800 text-xs">
-                ✓ PASSKEY SIGNED
-              </span>
-            ) : (
-              <button
-                onClick={() => handleSignApprover(1)}
-                disabled={signingApprover !== null}
-                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all flex items-center gap-1.5"
-              >
-                <span>🔑</span>
-                <span>{signingApprover === 1 ? "Signing..." : "Sign Key 1"}</span>
-              </button>
-            )}
-          </div>
-
-          {/* Signer 2: Finance Director */}
-          <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
-            <div>
-              <span className="font-bold text-white block">Marcus Vance [DEMO PERSONA]</span>
-              <span className="text-[11px] text-slate-400">Finance Director (Fiduciary Key 2 - Required)</span>
-            </div>
-            {approver2Signed ? (
-              <span className="px-3 py-1 rounded bg-emerald-950 text-emerald-300 font-bold border border-emerald-800 text-xs">
-                ✓ PASSKEY SIGNED
-              </span>
-            ) : (
-              <button
-                onClick={() => handleSignApprover(2)}
-                disabled={signingApprover !== null}
-                className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition-all flex items-center gap-1.5"
-              >
-                <span>🔒</span>
-                <span>{signingApprover === 2 ? "Signing..." : "Sign Key 2 (Finance)"}</span>
-              </button>
-            )}
-          </div>
+          ))}
         </div>
 
-        {/* Footer info */}
-        <div className="flex items-center justify-between pt-2 text-[11px] text-slate-500 border-t border-slate-800">
-          <span>Browser FIDO2 Passkeys: {hasPasskeySupport ? "Supported" : "Simulated Mode"}</span>
-          <button
-            onClick={handleClose}
-            className="text-slate-400 hover:text-white transition-all font-medium"
-          >
-            Cancel
-          </button>
+        {/* Progress / release */}
+        <div className="relative mt-5">
+          {released ? (
+            <div className="flex items-center gap-3 rounded-2xl border border-accent/40 bg-accent/10 p-4 animate-field-scale" style={{ boxShadow: "var(--glow-accent)" }}>
+              <span className="icon-tile tone-accent"><Send /></span>
+              <div>
+                <div className="text-[14px] font-semibold text-ink">Plan released to PayPal Payouts</div>
+                <div className="text-[12px] text-ink-3">Both signatures verified against the plan hash.</div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between text-[12px] text-ink-3">
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                  {[0, 1].map((i) => (
+                    <span key={i} className={`h-1.5 w-8 rounded-full transition-colors duration-500 ${i < signedCount ? "bg-accent" : "bg-white/10"}`} />
+                  ))}
+                </div>
+                {signedCount} of 2 signed
+              </div>
+              <span>Passkeys: {hasPasskeySupport ? "supported" : "simulated"}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

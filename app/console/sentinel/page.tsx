@@ -1,5 +1,8 @@
 "use client";
 
+
+import { PageTitle } from "@/components/ui/primitives";
+import { Radar as __HeaderIcon } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import type { NormalizedAlert, ServiceHealth } from "@/lib/sentinel/types";
 import { WeatherMap } from "@/components/sentinel/WeatherMap";
@@ -111,16 +114,16 @@ export default function StormIntelligenceConsolePage() {
     <div className="space-y-6">
       {/* Historical Replay Banner */}
       {(replayPackage || activeMode === "HISTORICAL_REPLAY") && (
-        <div className="field-paper p-4 border-[#D99B43] bg-[#FDF8EE] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="field-paper p-4 border-amber bg-amber-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="p-2 rounded-lg bg-[#D99B43]/20 text-[#D99B43] font-bold text-lg">
+            <span className="p-2 rounded-lg bg-amber/20 text-amber font-bold text-lg">
               ⚠️
             </span>
             <div>
-              <p className="font-bold text-xs font-mono uppercase tracking-wider text-[#D99B43]">
+              <p className="font-bold text-xs font-mono uppercase tracking-wider text-amber">
                 Historical Replay · Hurricane Milton (Oct 2024 Archive)
               </p>
-              <p className="text-xs text-[#58665F] mt-0.5">
+              <p className="text-xs text-ink-2 mt-0.5">
                 Iowa Environmental Mesonet (IEM) VTEC official archive feed. Replay telemetry is tagged; zero live disbursements executed.
               </p>
             </div>
@@ -139,21 +142,15 @@ export default function StormIntelligenceConsolePage() {
       )}
 
       {/* Editorial Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-[#DEDCD3]">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="field-badge-evergreen">Sentinel Geospatial Engine</span>
-            <span className="field-badge-neutral font-mono text-[11px]">NWS & NOAA nowCOAST WMS</span>
-            <span className="field-badge-warning font-mono text-[11px]">Turf.js Point-in-Polygon</span>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-serif text-[#192A24] tracking-tight">
-            Disaster Intelligence & Hazard Map
-          </h1>
-          <p className="text-sm text-[#58665F] mt-1.5 max-w-2xl leading-relaxed">
-            Real-time US meteorological telemetry, storm trajectory predictions, and deterministic household
-            exposure mapping for immediate anticipatory capital release.
-          </p>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
+        <PageTitle
+          eyebrow="Storm Map · NOAA & NWS"
+          icon={__HeaderIcon}
+          tone="storm"
+          title="Who is in the storm’s path?"
+          accent="Answered by official data."
+          description="Live radar, the forecast cone and official warning areas, laid over enrolled households. Homes are clustered so no one’s exact address is shown."
+        />
 
         <div className="flex items-center gap-2">
           <button
@@ -177,7 +174,7 @@ export default function StormIntelligenceConsolePage() {
       </div>
 
       {error && (
-        <div className="field-paper p-4 border-[#D76E4B] bg-[#FDF4F0] flex items-center gap-3 text-sm text-[#D76E4B]">
+        <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
           <AlertTriangle className="w-5 h-5 flex-shrink-0" />
           <div>
             <strong className="font-semibold">Weather Engine Error:</strong> {error}
@@ -186,23 +183,23 @@ export default function StormIntelligenceConsolePage() {
       )}
 
       {/* Signature Feature: Interactive Storm Atlas Weather & Exposure Map */}
-      <div className="field-paper p-3 md:p-4 shadow-sm border border-[#DEDCD3] space-y-3">
+      <div className="field-paper p-3 md:p-4 shadow-sm border border-line space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#175B47] animate-pulse"></span>
-            <h2 className="text-base font-serif font-bold text-[#192A24]">
+            <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse"></span>
+            <h2 className="text-base font-serif font-bold text-ink">
               Storm Atlas 3D Weather & Exposure View
             </h2>
-            <span className="text-xs text-[#7B847D] font-mono">
+            <span className="text-xs text-ink-3 font-mono">
               (NOAA nowCOAST Radar · MapLibre GL)
             </span>
           </div>
-          <span className="text-xs text-[#7B847D] font-mono">
+          <span className="text-xs text-ink-3 font-mono">
             {clusterData?.totalHouseholds || 0} enrolled households mapped into differential-privacy clusters
           </span>
         </div>
 
-        <div className="rounded-xl overflow-hidden border border-[#DEDCD3]">
+        <div className="rounded-xl overflow-hidden border border-line">
           <WeatherMap
             fund={selectedFund}
             alerts={displayedAlerts}
@@ -216,7 +213,7 @@ export default function StormIntelligenceConsolePage() {
       </div>
 
       {/* Weather Intelligence Telemetry Bar */}
-      <div className="field-paper p-4 md:p-6 shadow-sm border border-[#DEDCD3]">
+      <div className="field-paper p-4 md:p-6 shadow-sm border border-line">
         <WeatherIntelligencePanel
           weather={weatherData}
           selectedFund={selectedFund}
@@ -233,17 +230,17 @@ export default function StormIntelligenceConsolePage() {
         {/* Left Column: Alerts Feed List */}
         <div className="lg:col-span-5 space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-[#58665F]">
+            <h2 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
               Active Official Alerts ({displayedAlerts.length})
             </h2>
 
-            <div className="flex items-center gap-1 bg-[#ECEAE2] p-1 rounded-lg border border-[#DEDCD3] text-xs font-mono">
+            <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-lg border border-line text-xs font-mono">
               <button
                 onClick={() => setActiveMode("ALL")}
                 className={`px-2.5 py-0.5 rounded transition ${
                   activeMode === "ALL"
-                    ? "bg-[#FFFEFA] text-[#192A24] font-semibold shadow-xs"
-                    : "text-[#7B847D] hover:text-[#192A24]"
+                    ? "bg-surface text-ink font-semibold shadow-xs"
+                    : "text-ink-3 hover:text-ink"
                 }`}
               >
                 All
@@ -252,8 +249,8 @@ export default function StormIntelligenceConsolePage() {
                 onClick={() => setActiveMode("LIVE")}
                 className={`px-2.5 py-0.5 rounded transition ${
                   activeMode === "LIVE"
-                    ? "bg-[#FFFEFA] text-[#192A24] font-semibold shadow-xs"
-                    : "text-[#7B847D] hover:text-[#192A24]"
+                    ? "bg-surface text-ink font-semibold shadow-xs"
+                    : "text-ink-3 hover:text-ink"
                 }`}
               >
                 Live
@@ -262,8 +259,8 @@ export default function StormIntelligenceConsolePage() {
                 onClick={() => setActiveMode("HISTORICAL_REPLAY")}
                 className={`px-2.5 py-0.5 rounded transition ${
                   activeMode === "HISTORICAL_REPLAY"
-                    ? "bg-[#FFFEFA] text-[#192A24] font-semibold shadow-xs"
-                    : "text-[#7B847D] hover:text-[#192A24]"
+                    ? "bg-surface text-ink font-semibold shadow-xs"
+                    : "text-ink-3 hover:text-ink"
                 }`}
               >
                 Replay
@@ -272,7 +269,7 @@ export default function StormIntelligenceConsolePage() {
           </div>
 
           {displayedAlerts.length === 0 ? (
-            <div className="field-paper p-8 text-center text-xs text-[#7B847D]">
+            <div className="field-paper p-8 text-center text-xs text-ink-3">
               No active warnings detected for {selectedFund.name}. Click &quot;Replay Milton 2024&quot; above to simulate historical hurricane alerts.
             </div>
           ) : (
@@ -288,8 +285,8 @@ export default function StormIntelligenceConsolePage() {
                     onClick={() => setSelectedAlert(alert)}
                     className={`field-paper p-4 cursor-pointer transition-all ${
                       isSelected
-                        ? "border-[#175B47] ring-2 ring-[#175B47]/20 shadow-md"
-                        : "hover:border-[#7B847D]/50"
+                        ? "border-accent ring-2 ring-accent/20 shadow-md"
+                        : "hover:border-ink-3/50"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -310,7 +307,7 @@ export default function StormIntelligenceConsolePage() {
                             {alert.event}
                           </span>
                         </div>
-                        <h3 className="text-sm font-semibold text-[#192A24] mt-2 leading-snug">
+                        <h3 className="text-sm font-semibold text-ink mt-2 leading-snug">
                           {alert.headline}
                         </h3>
                       </div>
@@ -321,7 +318,7 @@ export default function StormIntelligenceConsolePage() {
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-[#7B847D] mt-3 pt-2 border-t border-[#DEDCD3] font-mono">
+                    <div className="flex items-center justify-between text-[11px] text-ink-3 mt-3 pt-2 border-t border-line font-mono">
                       <span>VTEC: {alert.eventKey}</span>
                       <span>Expires: {new Date(alert.expires).toLocaleDateString()}</span>
                     </div>
@@ -337,43 +334,43 @@ export default function StormIntelligenceConsolePage() {
           {selectedAlert ? (
             <div className="field-paper p-6 space-y-6">
               {/* Alert Title & Key */}
-              <div className="border-b border-[#DEDCD3] pb-4">
+              <div className="border-b border-line pb-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2">
                     <span className="field-badge-evergreen font-mono text-xs">
                       {selectedAlert.eventKey}
                     </span>
-                    <span className="text-xs text-[#7B847D] font-mono">Office: {selectedAlert.office}</span>
+                    <span className="text-xs text-ink-3 font-mono">Office: {selectedAlert.office}</span>
                   </div>
                   <span className="field-badge-neutral font-mono text-xs">
                     {selectedAlert.status} / {selectedAlert.messageType}
                   </span>
                 </div>
-                <h2 className="text-xl font-serif font-bold text-[#192A24] mt-2.5">
+                <h2 className="text-xl font-serif font-bold text-ink mt-2.5">
                   {selectedAlert.headline}
                 </h2>
-                <p className="text-xs text-[#58665F] mt-1">{selectedAlert.areaDesc}</p>
+                <p className="text-xs text-ink-2 mt-1">{selectedAlert.areaDesc}</p>
               </div>
 
               {/* Geographic Warning Geometry Detail */}
               <div>
-                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#58665F] mb-2">
-                  Geographic Warning Polygon Geometry (§6)
+                <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink mb-2">
+                  Geographic Warning Polygon Geometry
                 </h3>
-                <div className="p-4 rounded-xl bg-[#F4F2EC] border border-[#DEDCD3] space-y-2.5 text-xs">
+                <div className="p-4 rounded-xl bg-canvas border border-line space-y-2.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[#58665F]">Geometry Type:</span>
-                    <span className="font-mono font-semibold text-[#192A24]">
+                    <span className="text-ink-2">Geometry Type:</span>
+                    <span className="font-mono font-semibold text-ink">
                       {selectedAlert.geometry?.type || "None (County/Zone Alert)"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#58665F]">Polygon Coordinate Rings:</span>
-                    <span className="font-mono font-semibold text-[#192A24]">
+                    <span className="text-ink-2">Polygon Coordinate Rings:</span>
+                    <span className="font-mono font-semibold text-ink">
                       {selectedAlert.geometry?.coordinates?.length || 0} ring(s)
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#7B847D] italic pt-1 border-t border-[#DEDCD3]">
+                  <p className="text-[11px] text-ink-3 italic pt-1 border-t border-line">
                     Evaluated with Turf.js point-in-polygon. AI is strictly barred from determining spatial exposure.
                   </p>
                 </div>
@@ -382,28 +379,28 @@ export default function StormIntelligenceConsolePage() {
               {/* Historical NEXRAD Radar Frame Player (if replay) */}
               {selectedAlert.mode === "HISTORICAL_REPLAY" && replayPackage?.radarFrames && (
                 <div>
-                  <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#58665F] mb-2">
+                  <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink mb-2">
                     Historical NEXRAD Radar Playback (IEM Tampa Bay TBW-N0Q)
                   </h3>
-                  <div className="p-4 rounded-xl bg-[#F4F2EC] border border-[#DEDCD3] space-y-3">
+                  <div className="p-4 rounded-xl bg-canvas border border-line space-y-3">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-[#D99B43]">
+                      <span className="font-medium text-amber">
                         {replayPackage.radarFrames[selectedRadarIndex]?.headline}
                       </span>
-                      <span className="font-mono text-[#7B847D]">
+                      <span className="font-mono text-ink-3">
                         {new Date(replayPackage.radarFrames[selectedRadarIndex]?.timestamp).toUTCString()}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 pt-2 border-t border-[#DEDCD3]">
+                    <div className="flex items-center gap-2 pt-2 border-t border-line">
                       {replayPackage.radarFrames.map((frame: any, idx: number) => (
                         <button
                           key={frame.timestamp}
                           onClick={() => setSelectedRadarIndex(idx)}
                           className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-mono transition-colors ${
                             selectedRadarIndex === idx
-                              ? "bg-[#175B47] text-white font-semibold"
-                              : "bg-[#FFFEFA] text-[#58665F] hover:bg-[#ECEAE2] border border-[#DEDCD3]"
+                              ? "bg-accent text-white font-semibold"
+                              : "bg-surface text-ink-2 hover:bg-surface-2 border border-line"
                           }`}
                         >
                           Frame {idx + 1}
@@ -416,29 +413,29 @@ export default function StormIntelligenceConsolePage() {
 
               {/* Downstream Activation Traceability */}
               <div>
-                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#58665F] mb-2">
-                  Downstream Relief Workflow Traceability (§6)
+                <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink mb-2">
+                  Downstream Relief Workflow Traceability
                 </h3>
-                <div className="p-4 rounded-xl bg-[#F4F2EC] border border-[#DEDCD3] text-xs space-y-2">
+                <div className="p-4 rounded-xl bg-canvas border border-line text-xs space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[#58665F]">Downstream Signal:</span>
+                    <span className="text-ink-2">Downstream Signal:</span>
                     <span className="field-badge-evergreen font-mono text-[11px]">
                       {selectedAlert.isTranche1Eligible ? "✓ Eligible for Policy Evaluation" : "Informational Only"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#58665F]">Two-Person Passkey Approval:</span>
-                    <span className="text-[#192A24] font-medium">Mandatory before any payout</span>
+                    <span className="text-ink-2">Two-Person Passkey Approval:</span>
+                    <span className="text-ink font-medium">Mandatory before any payout</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#58665F]">Treasurer Execution:</span>
-                    <span className="text-[#192A24] font-medium">Code only; isolated from AI</span>
+                    <span className="text-ink-2">Treasurer Execution:</span>
+                    <span className="text-ink font-medium">Code only; isolated from AI</span>
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="field-paper p-12 text-center text-[#7B847D] text-sm">
+            <div className="field-paper p-12 text-center text-ink-3 text-sm">
               Select an alert from the feed to view geographic geometry and downstream traceability.
             </div>
           )}

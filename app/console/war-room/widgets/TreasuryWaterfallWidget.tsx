@@ -20,11 +20,11 @@ export function TreasuryWaterfallWidget({
   const formatUsd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-lg backdrop-blur">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+    <div className="glass p-5">
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-          <h3 className="font-semibold text-sm text-slate-100 uppercase tracking-wider font-mono">
+          <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
             3. Treasury Waterfall & Liquidity
           </h3>
         </div>
@@ -34,7 +34,7 @@ export function TreasuryWaterfallWidget({
       </div>
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
+        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
           <div className="text-[11px] text-slate-400 font-mono">Protected Floor (30%)</div>
           <div className="text-sm font-bold text-amber-400 mt-0.5">
             {formatUsd(reserveProtectedCents)}
@@ -42,7 +42,7 @@ export function TreasuryWaterfallWidget({
           <div className="text-[10px] text-slate-500 mt-0.5">Solvency firewall</div>
         </div>
 
-        <div className="bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
+        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
           <div className="text-[11px] text-slate-400 font-mono">Fee Buffer</div>
           <div className="text-sm font-bold text-slate-300 mt-0.5">
             {formatUsd(feesReservedCents)}
@@ -50,7 +50,7 @@ export function TreasuryWaterfallWidget({
           <div className="text-[10px] text-slate-500 mt-0.5">PayPal batch costs</div>
         </div>
 
-        <div className="bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
+        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
           <div className="text-[11px] text-slate-400 font-mono">Allocatable Limit</div>
           <div className="text-sm font-bold text-sky-400 mt-0.5">
             {formatUsd(allocatableCents)}
@@ -58,7 +58,7 @@ export function TreasuryWaterfallWidget({
           <div className="text-[10px] text-slate-500 mt-0.5">Max Tranche 1 budget</div>
         </div>
 
-        <div className="bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
+        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
           <div className="text-[11px] text-slate-400 font-mono">Committed Plan</div>
           <div className="text-sm font-bold text-emerald-400 mt-0.5">
             {formatUsd(committedCents)}
@@ -73,7 +73,7 @@ export function TreasuryWaterfallWidget({
           <span>Capital Allocation Breakdown</span>
           <span>{Math.round((committedCents / totalCashCents) * 100)}% Deployed</span>
         </div>
-        <div className="h-3 w-full bg-slate-950 rounded-full flex overflow-hidden border border-slate-800">
+        <div className="h-3 w-full bg-slate-950 rounded-full flex overflow-hidden border border-white/[0.07]">
           <div
             className="bg-emerald-500 h-full"
             style={{ width: `${(committedCents / totalCashCents) * 100}%` }}

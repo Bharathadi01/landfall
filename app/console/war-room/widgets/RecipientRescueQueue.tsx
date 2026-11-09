@@ -245,8 +245,8 @@ export function RecipientRescueQueue() {
   ];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-lg">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+    <div className="glass p-5 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.07] pb-3">
         <div>
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-rose-500"></span>
@@ -257,12 +257,12 @@ export function RecipientRescueQueue() {
           </p>
         </div>
         <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-rose-500/10 text-rose-300 border border-rose-500/30">
-          Zero Silent Failures (§3)
+          Zero Silent Failures
         </span>
       </div>
 
       {/* AG Grid Operational Table */}
-      <div className="w-full h-56 rounded-lg overflow-hidden border border-slate-800">
+      <div className="w-full h-56 rounded-lg overflow-hidden border border-white/[0.07]">
         <AgGridReact
           theme={landfallDarkTheme}
           rowData={queueData}
@@ -275,7 +275,7 @@ export function RecipientRescueQueue() {
       {/* Forensic Inspection Modal / Drawer */}
       {selectedCase && investigation && (
         <div className="p-4 bg-slate-950 rounded-xl border border-sky-800/80 space-y-3 font-mono text-xs">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.07] pb-2">
             <div>
               <span className="text-sky-400 font-bold">Investigation Case: {selectedCase.caseId}</span>
               <span className="text-slate-400 ml-2">({selectedCase.recipientName})</span>
@@ -289,7 +289,7 @@ export function RecipientRescueQueue() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
-            <div className="p-2.5 bg-slate-900 rounded border border-slate-800 space-y-1">
+            <div className="p-2.5 bg-slate-900 rounded border border-white/[0.07] space-y-1">
               <span className="text-slate-400 block font-bold">Verified Evidence Facts:</span>
               <ul className="list-disc list-inside space-y-0.5 text-slate-300 font-sans">
                 {investigation.verified_facts.map((f, i) => (
@@ -298,7 +298,7 @@ export function RecipientRescueQueue() {
               </ul>
             </div>
 
-            <div className="p-2.5 bg-slate-900 rounded border border-slate-800 space-y-1">
+            <div className="p-2.5 bg-slate-900 rounded border border-white/[0.07] space-y-1">
               <span className="text-amber-400 block font-bold">Root Cause Hypotheses:</span>
               <ul className="list-disc list-inside space-y-0.5 text-slate-300 font-sans">
                 {investigation.hypotheses.map((h, i) => (

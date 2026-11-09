@@ -45,11 +45,11 @@ export function PayoutHealthWidget({
   const unclaimedCount = items.filter((i) => i.status === "UNCLAIMED").length;
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-lg backdrop-blur">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+    <div className="glass p-5">
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-          <h3 className="font-semibold text-sm text-slate-100 uppercase tracking-wider font-mono">
+          <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
             5. PayPal Payout Settlement Health
           </h3>
         </div>
@@ -68,7 +68,7 @@ export function PayoutHealthWidget({
       <div className="mt-4 overflow-x-auto">
         <table className="w-full text-left text-xs font-mono">
           <thead>
-            <tr className="border-b border-slate-800 text-slate-400">
+            <tr className="border-b border-white/[0.07] text-slate-400">
               <th className="pb-2 font-medium">Batch ID</th>
               <th className="pb-2 font-medium">Item ID</th>
               <th className="pb-2 font-medium">Receiver Account</th>

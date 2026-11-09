@@ -77,7 +77,7 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
       {/* Four Verification Chips */}
       <div>
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
-          Four Independent Verification Checks (§4.4)
+          Four Independent Verification Checks
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* 1. Payment Channel Chip */}

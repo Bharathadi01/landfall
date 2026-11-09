@@ -19,6 +19,7 @@ import type {
   AgAiEvent,
 } from "ag-studio";
 import { interpretStudioQuery, type StudioAgentCommand } from "./studio-bridge";
+import { answerFromReliefData } from "@/lib/studio/studio-answers";
 
 export class GroqStudioLlmAdapter implements AgLlmAdapter {
   private apiKey: string;
@@ -51,9 +52,10 @@ export class GroqStudioLlmAdapter implements AgLlmAdapter {
       userQuery = (lastItem as any).content || "";
     }
 
-    // Evaluate query via deterministic Studio Agent Framework bridge
+    // Data-grounded answers for Studio prompt starters first; otherwise the deterministic bridge.
+    const grounded = answerFromReliefData(userQuery);
     const command: StudioAgentCommand = interpretStudioQuery(userQuery);
-    const responseText = command.agentResponse;
+    const responseText = grounded ?? command.agentResponse;
 
     const completePromise: Promise<AgLlmResponse> = Promise.resolve({
       id: turnId,

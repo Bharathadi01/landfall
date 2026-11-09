@@ -1216,7 +1216,7 @@ export function WeatherMap({
 
       {/* 2D SVG FALLBACK ENGINE */}
       {engineMode === "SVG_2D" && (
-        <div className="absolute inset-0 z-0 bg-[#070b14]">
+        <div className="absolute inset-0 z-0 bg-canvas">
           <svg
             viewBox={`0 0 ${svgWidth} ${svgHeight}`}
             className="w-full h-full cursor-grab active:cursor-grabbing"
@@ -1530,7 +1530,7 @@ export function WeatherMap({
             onClick={() => setShowRadar(!showRadar)}
             className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
               showRadar
-                ? "bg-emerald-600/90 text-white"
+                ? "bg-accent/90 text-white"
                 : "text-slate-500 hover:text-slate-300"
             }`}
           >

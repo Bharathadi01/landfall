@@ -1,3 +1,5 @@
+import { PageTitle } from "@/components/ui/primitives";
+import { ReceiptText as __HeaderIcon } from "lucide-react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -68,32 +70,26 @@ export default async function SpikePage() {
   return (
     <div className="space-y-6">
       {/* Editorial Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-[#DEDCD3]">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="field-badge-evergreen">Field Atlas Audit Ledger</span>
-            <span className="field-badge-neutral font-mono text-[11px]">PayPal Sandbox Live Engine</span>
-            <span className="field-badge-warning font-mono text-[11px]">HMAC-SHA256 Webhooks</span>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-serif text-[#192A24] tracking-tight">
-            PayPal Settlement Proof & Money Movement Audit
-          </h1>
-          <p className="text-sm text-[#58665F] mt-1.5 max-w-2xl leading-relaxed">
-            Cryptographic ledger integrity, REST API transaction logs, idempotent batch disbursement
-            verification, and real-time webhook audit receipts for evaluation.
-          </p>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
+        <PageTitle
+          eyebrow="Money Trail · PayPal Sandbox"
+          icon={__HeaderIcon}
+          tone="paypal"
+          title="Every dollar,"
+          accent="proven on PayPal."
+          description="Real sandbox payouts, donation orders and signed webhooks — matched line-by-line against Landfall’s double-entry ledger."
+        />
 
         <div className="flex items-center gap-3 text-xs font-mono">
-          <div className="p-3 rounded-xl bg-[#FFFEFA] border border-[#DEDCD3] text-right shadow-xs">
-            <span className="text-[#7B847D] block text-[11px]">Verified Sandbox Balance</span>
-            <span className="text-[#175B47] font-bold text-base tabular-nums">
+          <div className="p-3 rounded-xl bg-surface border border-line text-right shadow-xs">
+            <span className="text-ink-3 block text-[11px]">Verified Sandbox Balance</span>
+            <span className="text-accent font-bold text-base tabular-nums">
               ${balances.availableUsd.toLocaleString(undefined, { minimumFractionDigits: 2 })} USD
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#FFFEFA] border border-[#DEDCD3] text-right shadow-xs hidden sm:block">
-            <span className="text-[#7B847D] block text-[11px]">Network Host</span>
-            <span className="text-[#192A24] font-medium text-xs">api-m.sandbox.paypal.com</span>
+          <div className="p-3 rounded-xl bg-surface border border-line text-right shadow-xs hidden sm:block">
+            <span className="text-ink-3 block text-[11px]">Network Host</span>
+            <span className="text-ink font-medium text-xs">api-m.sandbox.paypal.com</span>
           </div>
         </div>
       </div>
@@ -103,35 +99,35 @@ export default async function SpikePage() {
         {/* Card 1: Payouts Batch */}
         <div className="field-paper p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono text-[#175B47] font-bold flex items-center gap-1.5">
+            <span className="text-xs font-mono text-accent font-bold flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" /> PAYOUTS BATCH
             </span>
             <span className="field-badge-evergreen font-mono text-[10px]">
               CONFIRMED
             </span>
           </div>
-          <h3 className="font-serif font-bold text-[#192A24] text-base">
+          <h3 className="font-serif font-bold text-ink text-base">
             Disbursement 7Y5GP4ETNLCUQ
           </h3>
-          <div className="space-y-1.5 text-xs font-mono bg-[#F4F2EC] p-3 rounded-lg border border-[#DEDCD3]">
-            <div className="flex justify-between text-[#58665F]">
+          <div className="space-y-1.5 text-xs font-mono bg-canvas p-3 rounded-lg border border-line">
+            <div className="flex justify-between text-ink-2">
               <span>Batch ID:</span>
-              <span className="text-[#192A24] font-semibold">7Y5GP4ETNLCUQ</span>
+              <span className="text-ink font-semibold">7Y5GP4ETNLCUQ</span>
             </div>
-            <div className="flex justify-between text-[#58665F]">
+            <div className="flex justify-between text-ink-2">
               <span>Resident Item:</span>
-              <span className="text-[#175B47] font-bold">SUCCESS ($1.00)</span>
+              <span className="text-accent font-bold">SUCCESS ($1.00)</span>
             </div>
-            <div className="flex justify-between text-[#58665F]">
+            <div className="flex justify-between text-ink-2">
               <span>Unclaimed Item:</span>
-              <span className="text-[#D99B43] font-bold">UNCLAIMED ($1.00)</span>
+              <span className="text-amber font-bold">UNCLAIMED ($1.00)</span>
             </div>
-            <div className="flex justify-between text-[#58665F]">
+            <div className="flex justify-between text-ink-2">
               <span>Rail Network Fee:</span>
-              <span className="text-[#192A24]">$0.27 USD</span>
+              <span className="text-ink">$0.27 USD</span>
             </div>
           </div>
-          <p className="text-[11px] text-[#58665F] leading-relaxed">
+          <p className="text-[11px] text-ink-2 leading-relaxed">
             Verified resident account credited prior to landfall. Synthetic account parked in UNCLAIMED for Courier agent rescue.
           </p>
         </div>
@@ -139,31 +135,31 @@ export default async function SpikePage() {
         {/* Card 2: Idempotency & Replay Guard */}
         <div className="field-paper p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono text-[#175B47] font-bold flex items-center gap-1.5">
+            <span className="text-xs font-mono text-accent font-bold flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" /> REPLAY PROTECTION
             </span>
             <span className="field-badge-evergreen font-mono text-[10px]">
               GUARDED
             </span>
           </div>
-          <h3 className="font-serif font-bold text-[#192A24] text-base">
+          <h3 className="font-serif font-bold text-ink text-base">
             30-Day Duplicate Guard
           </h3>
-          <div className="space-y-1.5 text-xs font-mono bg-[#F4F2EC] p-3 rounded-lg border border-[#DEDCD3]">
-            <div className="flex justify-between text-[#58665F]">
+          <div className="space-y-1.5 text-xs font-mono bg-canvas p-3 rounded-lg border border-line">
+            <div className="flex justify-between text-ink-2">
               <span>Duplicate Batch:</span>
-              <span className="text-[#D99B43] font-bold">HTTP 400 REJECT</span>
+              <span className="text-amber font-bold">HTTP 400 REJECT</span>
             </div>
-            <div className="flex justify-between text-[#58665F]">
+            <div className="flex justify-between text-ink-2">
               <span>PayPal Code:</span>
-              <span className="text-[#192A24]">DUPLICATE_BATCH</span>
+              <span className="text-ink">DUPLICATE_BATCH</span>
             </div>
-            <div className="flex justify-between text-[#58665F]">
+            <div className="flex justify-between text-ink-2">
               <span>Database Invariant:</span>
-              <span className="text-[#175B47] font-semibold">payout_batches UNIQUE</span>
+              <span className="text-accent font-semibold">payout_batches UNIQUE</span>
             </div>
           </div>
-          <p className="text-[11px] text-[#58665F] leading-relaxed">
+          <p className="text-[11px] text-ink-2 leading-relaxed">
             Replays of identical storm activation IDs cannot trigger second disbursements at DB or PayPal network level.
           </p>
         </div>
@@ -171,31 +167,31 @@ export default async function SpikePage() {
         {/* Card 3: Orders v2 Inflow */}
         <div className="field-paper p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono text-[#175B47] font-bold flex items-center gap-1.5">
+            <span className="text-xs font-mono text-accent font-bold flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" /> ORDERS V2 INFLOW
             </span>
             <span className="field-badge-evergreen font-mono text-[10px]">
               SETTLED
             </span>
           </div>
-          <h3 className="font-serif font-bold text-[#192A24] text-base">
+          <h3 className="font-serif font-bold text-ink text-base">
             Donor Crowdfund Rail
           </h3>
-          <div className="space-y-1.5 text-xs font-mono bg-[#F4F2EC] p-3 rounded-lg border border-[#DEDCD3]">
-            <div className="flex justify-between text-[#58665F]">
+          <div className="space-y-1.5 text-xs font-mono bg-canvas p-3 rounded-lg border border-line">
+            <div className="flex justify-between text-ink-2">
               <span>Order Reference:</span>
-              <span className="text-[#192A24] font-semibold truncate max-w-[120px]">6AR924709G789651C</span>
+              <span className="text-ink font-semibold truncate max-w-[120px]">6AR924709G789651C</span>
             </div>
-            <div className="flex justify-between text-[#58665F]">
+            <div className="flex justify-between text-ink-2">
               <span>Capture Intent:</span>
-              <span className="text-[#175B47] font-semibold">INSTANT CAPTURE</span>
+              <span className="text-accent font-semibold">INSTANT CAPTURE</span>
             </div>
-            <div className="flex justify-between text-[#58665F]">
+            <div className="flex justify-between text-ink-2">
               <span>Stored Inflow:</span>
-              <span className="text-[#175B47] font-bold">{storedDonations.length} recorded</span>
+              <span className="text-accent font-bold">{storedDonations.length} recorded</span>
             </div>
           </div>
-          <p className="text-[11px] text-[#58665F] leading-relaxed">
+          <p className="text-[11px] text-ink-2 leading-relaxed">
             Enables instant community replenishment. Backed by double-entry ledger credit (Account 1010-PAYPAL-CASH).
           </p>
         </div>
@@ -203,31 +199,31 @@ export default async function SpikePage() {
         {/* Card 4: Venmo Production Rail */}
         <div className="field-paper p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-mono text-[#D99B43] font-bold flex items-center gap-1.5">
+            <span className="text-xs font-mono text-amber font-bold flex items-center gap-1.5">
               <AlertTriangle className="w-4 h-4" /> VENMO WALLET RAIL
             </span>
             <span className="field-badge-warning font-mono text-[10px]">
               RESTRICTED
             </span>
           </div>
-          <h3 className="font-serif font-bold text-[#192A24] text-base">
+          <h3 className="font-serif font-bold text-ink text-base">
             US Phone Venmo Path
           </h3>
-          <div className="space-y-1.5 text-xs font-mono bg-[#F4F2EC] p-3 rounded-lg border border-[#DEDCD3]">
-            <div className="flex justify-between text-[#58665F]">
+          <div className="space-y-1.5 text-xs font-mono bg-canvas p-3 rounded-lg border border-line">
+            <div className="flex justify-between text-ink-2">
               <span>Recipient Identifier:</span>
-              <span className="text-[#192A24]">PHONE (US +1)</span>
+              <span className="text-ink">PHONE (US +1)</span>
             </div>
-            <div className="flex justify-between text-[#58665F]">
+            <div className="flex justify-between text-ink-2">
               <span>Target Wallet:</span>
-              <span className="text-[#192A24]">Venmo</span>
+              <span className="text-ink">Venmo</span>
             </div>
-            <div className="flex justify-between text-[#58665F]">
+            <div className="flex justify-between text-ink-2">
               <span>Sandbox Policy:</span>
-              <span className="text-[#D99B43] font-semibold">Custom Whitelist Req.</span>
+              <span className="text-amber font-semibold">Custom Whitelist Req.</span>
             </div>
           </div>
-          <p className="text-[11px] text-[#58665F] leading-relaxed">
+          <p className="text-[11px] text-ink-2 leading-relaxed">
             Production-ready Venmo wallet integration. In sandbox, handled via compliant fallback notes.
           </p>
         </div>
@@ -243,12 +239,12 @@ export default async function SpikePage() {
             <UserCheck className="w-4 h-4" />
             <span>Test Log in with PayPal (Sandbox OAuth)</span>
           </Link>
-          <span className="text-xs text-[#58665F] hidden md:inline">
+          <span className="text-xs text-ink-2 hidden md:inline">
             Redirects to sandbox.paypal.com/connect to verify resident profile & address proof.
           </span>
         </div>
 
-        <div className="font-mono text-xs text-[#175B47] bg-[#E0EEE7] py-1.5 px-3 rounded-lg border border-[#175B47]/20">
+        <div className="font-mono text-xs text-accent bg-accent-soft py-1.5 px-3 rounded-lg border border-accent/20">
           Run CLI: <code>pnpm spike:paypal</code> to execute full regression
         </div>
       </div>
@@ -256,34 +252,34 @@ export default async function SpikePage() {
       {/* Real-time Cryptographic Audit Trail Log */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-[#58665F] flex items-center gap-2">
-            <Shield className="w-4 h-4 text-[#175B47]" />
+          <h2 className="text-[15px] font-semibold tracking-[-0.015em] text-ink flex items-center gap-2">
+            <Shield className="w-4 h-4 text-accent" />
             Immutable PayPal Audit Trail ({events.length} Events Logged)
           </h2>
-          <span className="text-xs text-[#7B847D] font-mono">
+          <span className="text-xs text-ink-3 font-mono">
             Zero PII leaks · Redacted secrets · Live PayPal debug_id references
           </span>
         </div>
 
-        <div className="field-paper overflow-hidden border border-[#DEDCD3] shadow-sm">
+        <div className="field-paper overflow-hidden border border-line shadow-sm">
           {events.length === 0 ? (
-            <div className="p-8 text-center text-[#7B847D] text-xs font-mono">
+            <div className="p-8 text-center text-ink-3 text-xs font-mono">
               No audit events recorded yet in local SQLite ledger store.
             </div>
           ) : (
-            <div className="divide-y divide-[#DEDCD3] font-mono text-xs">
+            <div className="divide-y divide-line font-mono text-xs">
               {events.map((ev) => (
-                <div key={ev.id} className="p-4 hover:bg-[#ECEAE2]/40 transition space-y-2">
+                <div key={ev.id} className="p-4 hover:bg-surface-2/40 transition space-y-2">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-3">
-                      <span className="px-2 py-0.5 rounded bg-[#E0EEE7] text-[#175B47] text-[11px] font-bold">
+                      <span className="px-2 py-0.5 rounded bg-accent-soft text-accent text-[11px] font-bold">
                         {ev.actor}
                       </span>
-                      <span className="text-[#192A24] font-semibold">{ev.action}</span>
+                      <span className="text-ink font-semibold">{ev.action}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-[#7B847D] text-[11px]">
+                    <div className="flex items-center gap-3 text-ink-3 text-[11px]">
                       {ev.debugId && (
-                        <span className="text-[#D99B43] bg-[#FDF8EE] px-2 py-0.5 rounded border border-[#D99B43]/30">
+                        <span className="text-amber bg-amber-soft px-2 py-0.5 rounded border border-amber/30">
                           debug_id: {ev.debugId}
                         </span>
                       )}
@@ -293,11 +289,11 @@ export default async function SpikePage() {
                     </div>
                   </div>
                   {Boolean(ev.responseRedacted) && (
-                    <details className="text-[11px] text-[#58665F] bg-[#F4F2EC] p-2.5 rounded-lg border border-[#DEDCD3]">
-                      <summary className="cursor-pointer hover:text-[#192A24] font-medium">
+                    <details className="text-[11px] text-ink-2 bg-canvas p-2.5 rounded-lg border border-line">
+                      <summary className="cursor-pointer hover:text-ink font-medium">
                         View Sanitized Response Payload & Headers
                       </summary>
-                      <pre className="mt-2 p-2 bg-[#FFFEFA] rounded overflow-x-auto text-[#192A24] text-[10px] leading-relaxed border border-[#DEDCD3]">
+                      <pre className="mt-2 p-2 bg-surface rounded overflow-x-auto text-ink text-[10px] leading-relaxed border border-line">
                         {JSON.stringify(ev.responseRedacted, null, 2)}
                       </pre>
                     </details>

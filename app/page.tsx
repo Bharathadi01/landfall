@@ -1,555 +1,454 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
-  Compass,
   ArrowRight,
-  ShieldCheck,
-  Zap,
-  Activity,
-  HeartHandshake,
-  Users,
-  CheckCircle2,
-  Lock,
-  ExternalLink,
+  PlayCircle,
+  CloudLightning,
+  Scale,
   Sparkles,
-  CloudRain,
-  DollarSign,
-  Clock,
-  ShieldAlert,
-  ChevronRight,
-  Info,
-  Layers,
-  FileCheck2,
+  KeyRound,
+  Send,
+  ShieldCheck,
+  Lock,
+  BadgeCheck,
+  HeartHandshake,
+  CheckCircle2,
+  ArrowUpRight,
+  Webhook,
+  Repeat,
+  Landmark,
+
+  BarChart3,
+  Database,
+  Puzzle,
+  Palette,
 } from "lucide-react";
+import { StormRadarHero } from "@/components/landing/StormRadarHero";
+import { CountUp } from "@/components/motion/CountUp";
+import { IconTile, Chip, type Tone } from "@/components/ui/primitives";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+const STEPS: { icon: any; tone: Tone; who: string; title: string; body: string }[] = [
+  { icon: CloudLightning, tone: "storm", who: "NOAA · NWS", title: "Warn", body: "An official hurricane warning maps every enrolled home inside the storm’s path." },
+  { icon: Scale, tone: "accent", who: "Policy engine", title: "Decide", body: "Fixed rules — not AI — set who is paid and how much. Medical-device homes first." },
+  { icon: Sparkles, tone: "ai", who: "AI Watch Officer", title: "Check", body: "AI challenges the plan for duplicates and shortfalls. It can read; it cannot pay." },
+  { icon: KeyRound, tone: "amber", who: "Two people", title: "Approve", body: "A coordinator and a finance officer each sign with a passkey. One isn’t enough." },
+  { icon: Send, tone: "paypal", who: "PayPal", title: "Pay & prove", body: "PayPal Payouts sends the cash. Webhooks and a double-entry ledger prove every cent." },
+];
+
+const PAYPAL_APIS = [
+  { icon: HeartHandshake, name: "Orders v2", role: "Donations in" },
+  { icon: Send, name: "Payouts", role: "Relief out, idempotent" },
+  { icon: Webhook, name: "Webhooks", role: "Signed status updates" },
+  { icon: Landmark, name: "Reporting", role: "Ledger reconciliation" },
+  { icon: Repeat, name: "Subscriptions", role: "Monthly sustainers" },
+];
 
 export default function HomePage() {
-  const [donationAmount, setDonationAmount] = useState<string>("50.00");
-  const [customAmount, setCustomAmount] = useState<string>("");
-  const [isCreatingOrder, setIsCreatingOrder] = useState<boolean>(false);
-  const [orderSuccess, setOrderSuccess] = useState<any | null>(null);
-  const [donationError, setDonationError] = useState<string | null>(null);
+  const root = useRef<HTMLDivElement>(null);
 
-  const presetAmounts = ["25.00", "50.00", "100.00", "250.00"];
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
+      tl.from(".hero-chip", { y: 12, autoAlpha: 0, duration: 0.8 })
+        .from(".hero-line", { yPercent: 110, duration: 1.1, stagger: 0.09 }, "-=0.5")
+        .from(".hero-sub", { y: 16, autoAlpha: 0, filter: "blur(6px)", duration: 0.9 }, "-=0.7")
+        .from(".hero-cta > *", { y: 14, autoAlpha: 0, duration: 0.7, stagger: 0.08 }, "-=0.6")
+        .from(".hero-trust > *", { autoAlpha: 0, duration: 0.6, stagger: 0.06 }, "-=0.4")
+        .from(".hero-visual", { scale: 0.92, autoAlpha: 0, duration: 1.4 }, 0.2);
 
-  const handleCreateDonation = async () => {
-    setIsCreatingOrder(true);
-    setDonationError(null);
-    setOrderSuccess(null);
-
-    const amountToSend = customAmount ? parseFloat(customAmount).toFixed(2) : donationAmount;
-
-    try {
-      const res = await fetch("/api/donations/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amountUsd: amountToSend,
-          fundId: "fund_tbw_001",
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error?.amountUsd?._errors?.[0] || data.error || "Failed to create order");
-      }
-
-      setOrderSuccess({
-        orderId: data.orderId,
-        status: data.status,
-        amount: amountToSend,
-        debugId: data.debugId,
-      });
-    } catch (err: any) {
-      setDonationError(err.message || "Failed to process sandbox donation");
-    } finally {
-      setIsCreatingOrder(false);
-    }
-  };
+      // Draw the connector through the five steps as you scroll.
+      gsap.fromTo(
+        ".steps-line",
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          ease: "none",
+          scrollTrigger: { trigger: ".steps-wrap", start: "top 75%", end: "bottom 60%", scrub: 0.6 },
+        }
+      );
+    },
+    { scope: root }
+  );
 
   return (
-    <div className="flex flex-col space-y-24 md:space-y-32 pb-24 overflow-x-hidden">
-      {/* 1. HERO SECTION: EDITORIAL SPLIT LAYOUT */}
-      <section className="pt-8 md:pt-16 max-w-7xl mx-auto px-4 sm:px-6 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          {/* Left Column: Mission, Headline & Plain Copy */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E0EEE7] text-[#175B47] text-xs font-mono font-bold tracking-wide border border-[#97D5B2]">
-              <Compass className="w-3.5 h-3.5" />
-              <span>FIELD ATLAS · ANTICIPATORY DISASTER RELIEF</span>
-            </div>
-
-            <h1 className="text-hero text-[#192A24] font-bold tracking-tight">
-              Relief should be ready before the storm.
-            </h1>
-
-            <p className="text-body-large text-[#58665F] max-w-2xl leading-relaxed">
-              Landfall connects disaster intelligence, emergency funding, and accountable payouts in one workflow — helping response teams prepare financial assistance before impact.
-            </p>
-
-            {/* Primary & Secondary Action CTAs */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Link
-                href="/console/war-room"
-                className="field-btn field-btn-primary px-6 py-3.5 text-base shadow-md hover:shadow-lg"
-              >
-                <span>Explore Landfall</span>
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Link>
-
-              <Link
-                href="/console/golden-flow"
-                className="field-btn field-btn-secondary px-6 py-3.5 text-base"
-              >
-                <Activity className="w-4 h-4 text-[#175B47] mr-1" />
-                <span>Open the live demonstration</span>
-              </Link>
-            </div>
-
-            {/* Trust Invariants Badge Strip */}
-            <div className="pt-6 border-t border-[#DEDCD3] flex flex-wrap items-center gap-6 text-xs text-[#58665F] font-mono">
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#175B47]" />
-                <span>PayPal Sandbox Verified</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Lock className="w-4 h-4 text-[#175B47]" />
-                <span>Two-Person Approval Required</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-[#175B47]" />
-                <span>Zero Paid AI Infrastructure</span>
-              </div>
-            </div>
+    <div ref={root} className="overflow-x-hidden">
+      {/* ── HERO ─────────────────────────────────────────── */}
+      <section className="relative mx-auto grid min-h-[100svh] max-w-7xl grid-cols-1 items-center gap-10 px-6 pb-16 pt-32 lg:grid-cols-[1.08fr_1fr] lg:gap-6 lg:pt-28">
+        <div className="relative z-10 space-y-8">
+          <div className="hero-chip inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-1.5 pr-3.5 text-[12.5px] text-ink-2 backdrop-blur">
+            <span className="rounded-full bg-paypal/15 px-2 py-0.5 text-[11px] font-semibold text-paypal">PayPal AI Hackathon</span>
+            Anticipatory cash relief · open source
           </div>
 
-          {/* Right Column: Data-Driven Anticipatory Relief Visual */}
-          <div className="lg:col-span-5 w-full">
-            <div className="field-paper p-6 space-y-5 border-2 border-[#DEDCD3] shadow-lg relative overflow-hidden">
-              {/* Card Header with Status */}
-              <div className="flex items-center justify-between border-b border-[#DEDCD3] pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse" />
-                  <span className="text-xs font-mono font-bold text-[#192A24] tracking-wider uppercase">
-                    Anticipatory Readiness Monitor
-                  </span>
-                </div>
-                <span className="field-badge field-badge-info">WFO TBW · MILTON</span>
-              </div>
+          <h1 className="text-hero text-ink">
+            <span className="block overflow-hidden pb-1"><span className="hero-line block">Relief that lands</span></span>
+            <span className="block overflow-hidden pb-3">
+              <span className="hero-line block font-accent font-normal italic text-gradient-relief" style={{ letterSpacing: "-0.02em" }}>
+                before the storm.
+              </span>
+            </span>
+          </h1>
 
-              {/* Readiness Metrics Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-xl bg-[#ECEAE2] border border-[#DEDCD3]">
-                  <span className="text-[11px] font-mono uppercase text-[#7B847D] block">
-                    Available PayPal Funds
-                  </span>
-                  <span className="text-xl font-bold font-tabular text-[#192A24] mt-0.5 block">
-                    $14,250.00
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-[#ECEAE2] border border-[#DEDCD3]">
-                  <span className="text-[11px] font-mono uppercase text-[#7B847D] block">
-                    Protected Reserve
-                  </span>
-                  <span className="text-xl font-bold font-tabular text-[#58665F] mt-0.5 block">
-                    $5,000.00
-                  </span>
-                </div>
-              </div>
-
-              {/* Dynamic Readiness Sequence Preview */}
-              <div className="space-y-2 pt-1">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-[#192A24]">Household Evacuation Preparedness</span>
-                  <span className="font-mono text-[#175B47]">24 Households Ready</span>
-                </div>
-                <div className="h-2 w-full bg-[#ECEAE2] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#175B47] rounded-full w-[82%]" />
-                </div>
-                <div className="flex justify-between text-[11px] text-[#7B847D] font-mono">
-                  <span>Tranche 1 Allocation: $500 / household</span>
-                  <span>Disbursement Latency: &lt; 3s</span>
-                </div>
-              </div>
-
-              {/* Storm Approach Mini-Visual */}
-              <div className="p-3.5 rounded-xl bg-[#FAF8F2] border border-[#DEDCD3] flex items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center font-bold">
-                    <CloudRain className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-[#192A24] block">Category 4 Eyewall Approach</span>
-                    <span className="text-[11px] text-[#58665F]">Tampa Bay · 85 mi offshore · 145 mph</span>
-                  </div>
-                </div>
-                <Link
-                  href="/console/sentinel"
-                  className="field-btn field-btn-secondary text-xs px-2.5 py-1"
-                >
-                  Inspect Map
-                </Link>
-              </div>
-
-              {/* Bottom Assurance Note */}
-              <div className="text-[11px] text-[#7B847D] leading-tight">
-                Deterministic governance: funds only disburse upon confirmed NWS Hurricane Warning and two-person cryptographic signature.
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. THE PROBLEM SECTION: WHY PREPARING RELIEF EARLY MATTERS */}
-      <section id="problem" className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-        <div className="field-paper p-8 md:p-12 space-y-8 bg-[#FFFEFA]">
-          <div className="max-w-2xl space-y-3">
-            <span className="text-micro text-[#175B47]">01 · THE PROBLEM</span>
-            <h2 className="text-title-1 text-[#192A24]">
-              Aid that arrives months late forces families into predatory debt.
-            </h2>
-            <p className="text-body-base text-[#58665F]">
-              Post-disaster assessments cite an average of 60 to 90 days before federal or institutional recovery grants reach individual households. By then, vulnerable residents have exhausted savings or taken high-interest loans for basic fuel, hotel lodging, and food.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-            <div className="p-6 rounded-xl bg-[#ECEAE2] border border-[#DEDCD3] space-y-3">
-              <div className="text-2xl font-bold font-mono text-[#D76E4B]">60–90 Days</div>
-              <h3 className="text-heading text-[#192A24]">The Post-Impact Delay</h3>
-              <p className="text-sm text-[#58665F] leading-relaxed">
-                Conventional disaster relief mobilizes only after physical assessment teams certify debris footprints, delaying liquid emergency capital during the critical evacuation window.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-[#ECEAE2] border border-[#DEDCD3] space-y-3">
-              <div className="text-2xl font-bold font-mono text-[#175B47]">&lt; 3 Seconds</div>
-              <h3 className="text-heading text-[#192A24]">The Anticipatory Solution</h3>
-              <p className="text-sm text-[#58665F] leading-relaxed">
-                Informed by empirical research from the World Food Programme and World Bank, unconditional cash transfers delivered <strong>before</strong> peak winds protect household assets and accelerate community recovery.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-[#ECEAE2] border border-[#DEDCD3] space-y-3">
-              <div className="text-2xl font-bold font-mono text-[#316B9B]">100% Accountable</div>
-              <h3 className="text-heading text-[#192A24]">Deterministic Governance</h3>
-              <p className="text-sm text-[#58665F] leading-relaxed">
-                Landfall enforces double-entry ledger balancing, protected reserve floors, and two-person WebAuthn approvals before PayPal Payouts dispatches single or batch transactions.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. HOW LANDFALL WORKS — FOUR SIMPLE STAGES */}
-      <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 w-full space-y-10">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-micro text-[#175B47]">02 · THE WORKFLOW</span>
-          <h2 className="text-title-1 text-[#192A24]">Four steps to anticipatory relief</h2>
-          <p className="text-body-base text-[#58665F]">
-            A transparent, deterministic execution sequence connecting donor funds directly to vulnerable households.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Stage 1: Prepare */}
-          <div className="field-paper p-6 space-y-4 hover:border-[#175B47] transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-[#E0EEE7] text-[#175B47] flex items-center justify-center font-bold font-mono text-sm">
-              01
-            </div>
-            <h3 className="text-heading text-[#192A24]">Prepare</h3>
-            <p className="text-sm text-[#58665F] leading-relaxed">
-              Collect and track community contributions into an auditable PayPal balance while enforcing a mandatory protected reserve floor.
-            </p>
-            <div className="text-xs font-mono text-[#175B47] font-semibold pt-2 border-t border-[#DEDCD3]">
-              Double-Entry Ledger Active
-            </div>
-          </div>
-
-          {/* Stage 2: Prioritise */}
-          <div className="field-paper p-6 space-y-4 hover:border-[#175B47] transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-[#E0EEE7] text-[#175B47] flex items-center justify-center font-bold font-mono text-sm">
-              02
-            </div>
-            <h3 className="text-heading text-[#192A24]">Prioritise</h3>
-            <p className="text-sm text-[#58665F] leading-relaxed">
-              Match official NWS hurricane warning polygons with verified household rosters to identify priority medical and elderly residents in evacuation zones.
-            </p>
-            <div className="text-xs font-mono text-[#175B47] font-semibold pt-2 border-t border-[#DEDCD3]">
-              Deterministic Policy Engine
-            </div>
-          </div>
-
-          {/* Stage 3: Authorise */}
-          <div className="field-paper p-6 space-y-4 hover:border-[#175B47] transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-[#E0EEE7] text-[#175B47] flex items-center justify-center font-bold font-mono text-sm">
-              03
-            </div>
-            <h3 className="text-heading text-[#192A24]">Authorise</h3>
-            <p className="text-sm text-[#58665F] leading-relaxed">
-              Require two separate human officers (Operations Coordinator + Finance Officer) to approve payouts using hardware-bound WebAuthn passkeys.
-            </p>
-            <div className="text-xs font-mono text-[#175B47] font-semibold pt-2 border-t border-[#DEDCD3]">
-              Two-Person Passkey Signatures
-            </div>
-          </div>
-
-          {/* Stage 4: Reconcile */}
-          <div className="field-paper p-6 space-y-4 hover:border-[#175B47] transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-[#E0EEE7] text-[#175B47] flex items-center justify-center font-bold font-mono text-sm">
-              04
-            </div>
-            <h3 className="text-heading text-[#192A24]">Reconcile</h3>
-            <p className="text-sm text-[#58665F] leading-relaxed">
-              Execute payouts via verified PayPal Sandbox endpoints, ingest webhooks, resolve exceptions with AI assistance, and produce cryptographic proof.
-            </p>
-            <div className="text-xs font-mono text-[#175B47] font-semibold pt-2 border-t border-[#DEDCD3]">
-              Verifiable Settlement Records
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. FINANCIAL GOVERNANCE & INTERACTIVE PAYPAL DONATION SIMULATOR */}
-      <section id="governance" className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-7 space-y-4">
-            <span className="text-micro text-[#175B47]">03 · PAYPAL INTEGRATION</span>
-            <h2 className="text-title-1 text-[#192A24]">
-              Financial governance powered by PayPal.
-            </h2>
-            <p className="text-body-base text-[#58665F]">
-              Landfall combines PayPal Orders for transparent donor inflows and PayPal Payouts for rapid emergency disbursement. Every cent is tracked through double-entry accounting with strict reserve floor invariants that prevent over-allocation.
-            </p>
-
-            <div className="space-y-3 pt-2 text-sm text-[#58665F]">
-              <div className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-[#175B47] mt-0.5 flex-shrink-0" />
-                <span>
-                  <strong>Idempotent Payout Batches</strong>: Prevents accidental duplicate payments even during network retries or provider timeouts.
-                </span>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-[#175B47] mt-0.5 flex-shrink-0" />
-                <span>
-                  <strong>Cryptographic Webhook Signatures</strong>: Verifies every PayPal callback with RSA/SHA256 signature verification before updating internal states.
-                </span>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-[#175B47] mt-0.5 flex-shrink-0" />
-                <span>
-                  <strong>Protected Reserve Floor</strong>: Mathematical check enforces that operating reserves remain completely untouchable.
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive Sandbox Donation Order Simulator */}
-          <div className="lg:col-span-5 w-full">
-            <div className="field-paper p-6 space-y-5 border-2 border-[#DEDCD3]">
-              <div className="flex items-center justify-between border-b border-[#DEDCD3] pb-3">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-[#175B47]" />
-                  <span className="font-bold text-sm text-[#192A24]">
-                    Simulate PayPal Contribution
-                  </span>
-                </div>
-                <span className="field-badge field-badge-neutral">SANDBOX</span>
-              </div>
-
-              <div className="space-y-3">
-                <label className="text-xs font-semibold text-[#58665F] block">
-                  Select Preset Amount (USD)
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {presetAmounts.map((amt) => (
-                    <button
-                      key={amt}
-                      type="button"
-                      onClick={() => {
-                        setDonationAmount(amt);
-                        setCustomAmount("");
-                      }}
-                      className={`py-2 px-1 text-center rounded-lg text-xs font-bold transition-all border ${
-                        donationAmount === amt && !customAmount
-                          ? "bg-[#175B47] text-[#FFFEFA] border-[#175B47]"
-                          : "bg-[#FFFEFA] text-[#192A24] border-[#DEDCD3] hover:bg-[#ECEAE2]"
-                      }`}
-                    >
-                      ${amt}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="pt-1">
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="1.00"
-                    placeholder="Custom amount (e.g. 75.00)"
-                    value={customAmount}
-                    onChange={(e) => setCustomAmount(e.target.value)}
-                    className="field-input text-xs"
-                  />
-                </div>
-
-                <button
-                  onClick={handleCreateDonation}
-                  disabled={isCreatingOrder}
-                  className="w-full field-btn field-btn-primary py-3 text-xs font-bold"
-                >
-                  {isCreatingOrder ? "Creating PayPal Sandbox Order..." : "Create PayPal Sandbox Order"}
-                </button>
-              </div>
-
-              {orderSuccess && (
-                <div className="p-3 bg-[#E4F4EC] border border-[#97D5B2] rounded-xl text-xs space-y-1 text-[#1B7340]">
-                  <div className="font-bold flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Order Created: {orderSuccess.orderId}</span>
-                  </div>
-                  <div className="text-[11px] font-mono text-[#58665F]">
-                    Amount: ${orderSuccess.amount} USD · Status: {orderSuccess.status}
-                  </div>
-                </div>
-              )}
-
-              {donationError && (
-                <div className="p-3 bg-[#FDE8E8] border border-[#F5A3A3] rounded-xl text-xs text-[#B92525]">
-                  {donationError}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. AI INVESTIGATION AND HUMAN GOVERNANCE */}
-      <section id="investigation" className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-        <div className="field-paper p-8 md:p-12 space-y-8 bg-[#FFFEFA]">
-          <div className="max-w-3xl space-y-3">
-            <span className="text-micro text-[#175B47]">04 · AI INVESTIGATION & SAFEGUARDS</span>
-            <h2 className="text-title-1 text-[#192A24]">
-              AI investigates payout exceptions. Humans authorise every dollar.
-            </h2>
-            <p className="text-body-base text-[#58665F]">
-              Landfall uses a zero-cost AI architecture powered by Groq Cloud. The AI Watch Officer operates exclusively under read-only permissions: it analyzes complex payout discrepancies, highlights unverified facts, and drafts action recommendations — but cannot disburse, move, or divert funds.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
-            <div className="space-y-4">
-              <h3 className="text-heading text-[#192A24] flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#175B47]" />
-                <span>What the AI Investigator Does</span>
-              </h3>
-              <ul className="space-y-2.5 text-sm text-[#58665F]">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#175B47] mt-0.5 flex-shrink-0" />
-                  <span>Cross-references provider evidence (PayPal status, recipient record, storm timing).</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#175B47] mt-0.5 flex-shrink-0" />
-                  <span>Separately labels verified facts, working hypotheses, and unknown information.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#175B47] mt-0.5 flex-shrink-0" />
-                  <span>Provides actionable next steps to human coordinators without hallucinations.</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-heading text-[#192A24] flex items-center gap-2">
-                <Lock className="w-5 h-5 text-red-600" />
-                <span>Strict Security Invariants</span>
-              </h3>
-              <ul className="space-y-2.5 text-sm text-[#58665F]">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#175B47] mt-0.5 flex-shrink-0" />
-                  <span><strong>Read-Only Boundary</strong>: AI tools have zero execution privileges on PayPal APIs or the financial ledger.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#175B47] mt-0.5 flex-shrink-0" />
-                  <span><strong>Dual-Passkey Enforcement</strong>: Payouts require physical WebAuthn signatures from two distinct human roles.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#175B47] mt-0.5 flex-shrink-0" />
-                  <span><strong>Zero API Costs</strong>: Runs on Groq Free Plan with zero commercial LLM runtime dependencies.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. EVIDENCE & EMPIRICAL CITATIONS */}
-      <section id="evidence" className="max-w-7xl mx-auto px-4 sm:px-6 w-full space-y-6">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-micro text-[#175B47]">05 · SCIENTIFIC GROUNDING</span>
-          <h2 className="text-title-1 text-[#192A24]">Verified Data & Research Citations</h2>
-          <p className="text-body-base text-[#58665F]">
-            Every metric and operational policy in Landfall is grounded in verified public sources and peer-reviewed research.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="field-paper p-5 space-y-2 bg-[#FAF8F2]">
-            <span className="text-micro text-[#175B47]">RESEARCH EVIDENCE</span>
-            <h4 className="font-bold text-sm text-[#192A24]">World Food Programme & World Bank</h4>
-            <p className="text-xs text-[#58665F] leading-relaxed">
-              Empirical evaluations demonstrate that anticipatory cash transfers prevent negative coping strategies, reduce distress asset sales, and lower post-disaster recovery costs by over 40%.
-            </p>
-          </div>
-
-          <div className="field-paper p-5 space-y-2 bg-[#FAF8F2]">
-            <span className="text-micro text-[#175B47]">METEOROLOGICAL SOURCES</span>
-            <h4 className="font-bold text-sm text-[#192A24]">NOAA nowCOAST & GOES-16 ABI</h4>
-            <p className="text-xs text-[#58665F] leading-relaxed">
-              Storm Atlas ingests authentic NOAA nowCOAST WMS 1.3.0 base reflectivity radar and GOES-16 ABI Cloud Top Height Level-2 products without procedural or synthetic storm generation.
-            </p>
-          </div>
-
-          <div className="field-paper p-5 space-y-2 bg-[#FAF8F2]">
-            <span className="text-micro text-[#175B47]">PAYPAL PROTOCOLS</span>
-            <h4 className="font-bold text-sm text-[#192A24]">PayPal Orders & Payouts v1</h4>
-            <p className="text-xs text-[#58665F] leading-relaxed">
-              Production-grade integration utilizing PayPal Sandbox client credentials, batch payout idempotency keys, and automated webhook event reconciliation.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. FINAL INVITATION CTA */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 w-full text-center space-y-6">
-        <div className="field-paper p-10 md:p-14 bg-[#E0EEE7] border-2 border-[#97D5B2] space-y-6">
-          <h2 className="text-title-1 text-[#175B47]">
-            Experience anticipatory relief in action.
-          </h2>
-          <p className="text-body-large text-[#192A24] max-w-xl mx-auto">
-            Explore the live War Room, step through the 8-stage Golden Workflow, and inspect the Storm Atlas 3D weather intelligence engine.
+          <p className="hero-sub max-w-xl text-body-large text-ink-2">
+            When a hurricane warning is issued, Landfall turns it into cash for the families in its path —
+            decided by rules, checked by AI, approved by two people, and paid through PayPal{" "}
+            <span className="text-ink">hours before landfall, not months after.</span>
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <Link
-              href="/console/war-room"
-              className="field-btn field-btn-primary px-8 py-3.5 text-base shadow"
-            >
-              <span>Launch Operations Console</span>
-              <ArrowRight className="w-4 h-4 ml-1" />
+          <div className="hero-cta flex flex-wrap items-center gap-3">
+            <Link href="/console/golden-flow" className="field-btn field-btn-primary px-6 py-4 text-[15px]">
+              <PlayCircle className="h-5 w-5" />
+              Watch a live response
             </Link>
+            <Link href="/console/war-room" className="field-btn field-btn-secondary px-6 py-4 text-[15px]">
+              Open Command Center
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
 
-            <Link
-              href="/r/enroll"
-              className="field-btn field-btn-secondary px-6 py-3.5 text-base"
-            >
-              <span>Resident Assistance Intake</span>
+          <div className="hero-trust flex flex-wrap items-center gap-x-6 gap-y-3 pt-2 text-[13px] text-ink-3">
+            <span className="flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-paypal" /> Verified on PayPal Sandbox</span>
+            <span className="flex items-center gap-2"><KeyRound className="h-4 w-4 text-amber" /> Two-person passkey approval</span>
+            <span className="flex items-center gap-2"><Lock className="h-4 w-4 text-ai" /> AI can’t move money</span>
+          </div>
+        </div>
+
+        <div className="hero-visual relative flex justify-center lg:justify-end">
+          <StormRadarHero />
+        </div>
+      </section>
+
+      {/* ── THE GAP ──────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-6 py-20">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="glass p-6 md:col-span-2" data-reveal>
+            <div className="eyebrow text-storm">The problem</div>
+            <p className="mt-4 text-title-2 text-ink">
+              Disaster aid usually arrives <span className="text-storm">60–90 days</span> after the storm. Families need it{" "}
+              <span className="font-accent italic font-normal text-accent-strong">before</span> — for fuel, medicine and a way out.
+            </p>
+          </div>
+          <div className="glass p-6" data-reveal>
+            <div className="eyebrow">Reaches families</div>
+            <div className="mt-4 text-[44px] font-semibold leading-none tracking-[-0.04em] text-accent-strong">
+              <CountUp value={99.75} decimals={2} suffix="%" />
+            </div>
+            <p className="mt-3 text-[13px] text-ink-3">of every $100 grant. PayPal’s flat $0.25 domestic payout fee is the only cost.</p>
+          </div>
+          <div className="glass p-6" data-reveal>
+            <div className="eyebrow">AI inference cost</div>
+            <div className="mt-4 text-[44px] font-semibold leading-none tracking-[-0.04em] text-ai">
+              $<CountUp value={0} decimals={2} />
+            </div>
+            <p className="mt-3 text-[13px] text-ink-3">Groq free tier with a deterministic offline fallback. Small funds can afford it.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ─────────────────────────────────── */}
+      <section id="how-it-works" className="mx-auto max-w-7xl scroll-mt-28 px-6 py-20">
+        <div className="mx-auto max-w-2xl text-center" data-reveal>
+          <div className="eyebrow text-accent-strong">How it works</div>
+          <h2 className="mt-4 text-title-1 text-ink">
+            From warning to wallet in <span className="font-accent italic font-normal text-ink-2">five steps.</span>
+          </h2>
+          <p className="mt-4 text-body-base text-ink-2">Every step is visible, every decision is explainable, and no single person — or model — can move money alone.</p>
+        </div>
+
+        <div className="steps-wrap relative mt-14">
+          <div className="absolute left-[10%] right-[10%] top-[38px] hidden h-px bg-white/[0.06] lg:block" aria-hidden />
+          <div
+            className="steps-line absolute left-[10%] right-[10%] top-[38px] hidden h-px origin-left lg:block"
+            style={{ background: "linear-gradient(90deg, rgb(var(--c-storm)), rgb(var(--c-accent)), rgb(var(--c-ai)), rgb(var(--c-amber)), rgb(var(--c-paypal)))" }}
+            aria-hidden
+          />
+          <ol className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {STEPS.map((s, i) => (
+              <li key={s.title} className="glass card-hover p-5" data-reveal>
+                <div className="flex items-center justify-between">
+                  <IconTile icon={s.icon} tone={s.tone} size="lg" />
+                  <span className="font-mono text-[11px] text-ink-3">0{i + 1}</span>
+                </div>
+                <div className="mt-5 text-[11px] font-mono uppercase tracking-[0.12em] text-ink-3">{s.who}</div>
+                <h3 className="mt-1 text-[22px] font-semibold tracking-[-0.03em] text-ink">{s.title}</h3>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-ink-2">{s.body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ── PAYPAL ───────────────────────────────────────── */}
+      <section id="paypal" className="mx-auto max-w-7xl scroll-mt-28 px-6 py-20">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
+          <div className="space-y-6" data-reveal>
+            <div className="eyebrow text-paypal">Built on PayPal, end to end</div>
+            <h2 className="text-title-1 text-ink">
+              Donations in. Relief out.{" "}
+              <span className="font-accent italic font-normal text-ink-2">Every cent accounted for.</span>
+            </h2>
+            <p className="max-w-xl text-body-base text-ink-2">
+              Five PayPal APIs carry the money from a donor’s checkout to a family’s wallet — and back into a double-entry ledger that
+              reconciles against PayPal’s own records.
+            </p>
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              {PAYPAL_APIS.map((a) => (
+                <div key={a.name} className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.025] px-3.5 py-3">
+                  <IconTile icon={a.icon} tone="paypal" size="sm" />
+                  <div>
+                    <div className="text-[13.5px] font-semibold text-ink">{a.name}</div>
+                    <div className="text-[12px] text-ink-3">{a.role}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <DonationCard />
+        </div>
+      </section>
+
+      {/* ── AG STUDIO ────────────────────────────────────── */}
+      <section id="studio" className="mx-auto max-w-7xl scroll-mt-28 px-6 py-20">
+        <div className="glass-strong relative overflow-hidden p-8 md:p-12" data-reveal="scale">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-paypal/20 blur-[100px]" aria-hidden />
+          <div className="pointer-events-none absolute -bottom-32 left-10 h-80 w-80 rounded-full bg-accent/10 blur-[100px]" aria-hidden />
+          <div className="relative grid grid-cols-1 items-center gap-10 lg:grid-cols-[1fr_1.15fr]">
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <IconTile icon={BarChart3} tone="paypal" size="sm" />
+                <span className="eyebrow text-paypal">Analytics Studio · powered by AG Studio</span>
+              </div>
+              <h2 className="text-title-1 text-ink">
+                Ask the relief data <span className="font-accent italic font-normal text-ink-2">anything.</span>
+              </h2>
+              <p className="text-body-base text-ink-2">
+                Coordinators answer “can we pay everyone?” in one glance. Filter by priority, and every chart follows. Ask the Studio
+                agent in plain English — it can rearrange the board, never the money.
+              </p>
+              <ul className="space-y-2.5 text-[14px] text-ink-2">
+                {[
+                  [Palette, "Landfall theme across canvas, widgets, grids & charts"],
+                  [Puzzle, "Custom “Relief Solvency” widget on Studio’s data engine"],
+                  [Sparkles, "Studio Agent Framework with relief-specific prompts"],
+                ].map(([Icon, t]: any) => (
+                  <li key={t} className="flex items-center gap-3">
+                    <Icon className="h-4 w-4 shrink-0 text-paypal" strokeWidth={1.75} />
+                    {t}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/console/studio" className="field-btn field-btn-secondary">
+                Open Analytics Studio <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <StudioPreview />
+          </div>
+        </div>
+      </section>
+
+      {/* ── SAFETY ───────────────────────────────────────── */}
+      <section id="safety" className="mx-auto max-w-7xl scroll-mt-28 px-6 py-20">
+        <div className="mx-auto max-w-3xl text-center" data-reveal>
+          <div className="eyebrow text-ai">Safety by design</div>
+          <h2 className="mt-4 text-title-1 text-ink">
+            Code decides. AI advises. <span className="font-accent italic font-normal text-ink-2">Humans approve.</span>
+          </h2>
+        </div>
+        <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {[
+            { icon: Scale, tone: "accent" as Tone, t: "Rules decide money", b: "Eligibility and amounts come from a tested policy engine. AI never sets either." },
+            { icon: Sparkles, tone: "ai" as Tone, t: "AI can’t move money", b: "The AI has no write tools. Payment code can’t even import an AI SDK — enforced in CI." },
+            { icon: KeyRound, tone: "amber" as Tone, t: "Two keys, one plan", b: "Two different people sign the exact plan hash. Change one number and both must sign again." },
+          ].map((c) => (
+            <div key={c.t} className="glass card-hover p-6" data-reveal>
+              <IconTile icon={c.icon} tone={c.tone} size="lg" />
+              <h3 className="mt-5 text-[19px] font-semibold tracking-[-0.02em] text-ink">{c.t}</h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-ink-2">{c.b}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[12.5px] text-ink-3" data-reveal>
+          <Database className="h-4 w-4" /> Database truth overrides model output — any number an AI writes is checked against the ledger.
+        </div>
+      </section>
+
+      {/* ── CTA ──────────────────────────────────────────── */}
+      <section className="mx-auto max-w-5xl px-6 pb-28 pt-10">
+        <div className="glass-strong relative overflow-hidden px-8 py-14 text-center md:px-16" data-reveal="scale">
+          <div className="pointer-events-none absolute inset-x-0 -top-40 mx-auto h-80 w-[36rem] rounded-full bg-accent/15 blur-[110px]" aria-hidden />
+          <h2 className="relative text-title-1 text-ink">
+            See a full response, <span className="font-accent italic font-normal text-accent-strong">start to finish.</span>
+          </h2>
+          <p className="relative mx-auto mt-4 max-w-xl text-body-base text-ink-2">
+            Replay Hurricane Milton: warning, decision, AI check, two approvals and a real PayPal Sandbox payout — in under a minute.
+          </p>
+          <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/console/golden-flow" className="field-btn field-btn-primary px-6 py-4 text-[15px]">
+              <PlayCircle className="h-5 w-5" /> Run the guided response
+            </Link>
+            <Link href="/r/enroll" className="field-btn field-btn-secondary px-6 py-4 text-[15px]">
+              <HeartHandshake className="h-4 w-4" /> I’m a resident
             </Link>
           </div>
         </div>
       </section>
     </div>
+  );
+}
+
+/* ── Donation (PayPal Orders v2, sandbox) ──────────────── */
+
+function DonationCard() {
+  const [amount, setAmount] = useState("50.00");
+  const [custom, setCustom] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState<any | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const presets = ["25.00", "50.00", "100.00", "250.00"];
+  const value = custom ? parseFloat(custom || "0").toFixed(2) : amount;
+
+  const donate = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch("/api/donations/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amountUsd: value, fundId: "fund_tbw_001" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.amountUsd?._errors?.[0] || data.error || "Failed to create order");
+      setSuccess({ orderId: data.orderId, status: data.status, amount: value });
+    } catch (e: any) {
+      setError(e.message || "Failed to process sandbox donation");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="glass-strong relative p-6 sm:p-7" data-reveal="scale">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <IconTile icon={HeartHandshake} tone="accent" />
+          <div>
+            <div className="text-[15px] font-semibold text-ink">Fund the next storm</div>
+            <div className="text-[12.5px] text-ink-3">Tampa Bay Relief Fund</div>
+          </div>
+        </div>
+        <Chip tone="paypal">Sandbox</Chip>
+      </div>
+
+      <div className="mt-6 grid grid-cols-4 gap-2">
+        {presets.map((p) => {
+          const on = amount === p && !custom;
+          return (
+            <button
+              key={p}
+              type="button"
+              onClick={() => { setAmount(p); setCustom(""); }}
+              className={`rounded-xl border py-3 text-[14px] font-semibold tabular transition-all ${
+                on ? "border-accent/60 bg-accent/15 text-accent-strong shadow-[0_0_0_4px_rgb(var(--c-accent)/0.08)]" : "border-white/10 bg-white/[0.03] text-ink hover:bg-white/[0.06]"
+              }`}
+            >
+              ${parseFloat(p).toFixed(0)}
+            </button>
+          );
+        })}
+      </div>
+      <input
+        type="number"
+        step="0.01"
+        min="1.00"
+        placeholder="Other amount"
+        value={custom}
+        onChange={(e) => setCustom(e.target.value)}
+        className="field-input mt-2"
+        aria-label="Custom donation amount in USD"
+      />
+
+      <div className="mt-5 rounded-xl border border-white/[0.06] bg-black/20 p-3.5 text-[12.5px] text-ink-2">
+        <div className="flex justify-between"><span>Your gift</span><span className="tabular text-ink">${value}</span></div>
+        <div className="mt-1.5 flex justify-between"><span>Protected reserve floor enforced</span><Lock className="h-4 w-4 text-amber" /></div>
+        <div className="mt-1.5 flex justify-between"><span>Paid out only after a warning + two approvals</span><CheckCircle2 className="h-4 w-4 text-accent-strong" /></div>
+      </div>
+
+      <button onClick={donate} disabled={loading} className="field-btn field-btn-paypal mt-5 w-full py-4 text-[15px]">
+        {loading ? "Creating PayPal order…" : `Donate $${value} with PayPal`}
+      </button>
+
+      {success && (
+        <div className="mt-4 rounded-xl border border-accent/30 bg-accent/10 p-3.5 text-[12.5px] animate-field-fade">
+          <div className="flex items-center gap-2 font-semibold text-accent-strong">
+            <CheckCircle2 className="h-4 w-4" /> Order created · {success.orderId}
+          </div>
+          <div className="mt-1 font-mono text-[11.5px] text-ink-3">${success.amount} USD · {success.status}</div>
+        </div>
+      )}
+      {error && <div className="mt-4 rounded-xl border border-danger/30 bg-danger/10 p-3.5 text-[12.5px] text-danger animate-field-fade">{error}</div>}
+
+      <div className="mt-4 flex items-center justify-center gap-2 text-[11.5px] text-ink-3">
+        <ShieldCheck className="h-3.5 w-3.5" /> PayPal Orders v2 · POST /v2/checkout/orders
+      </div>
+    </div>
+  );
+}
+
+/* ── Studio preview (static, mirrors the live board) ───── */
+
+function StudioPreview() {
+  const bars = [
+    { l: "Available", v: 9250, c: "bg-accent" },
+    { l: "Reserve", v: 5000, c: "bg-amber" },
+    { l: "Fees", v: 120, c: "bg-paypal" },
+  ];
+  return (
+    <Link href="/console/studio" className="group relative block rounded-2xl border border-white/10 bg-canvas/70 p-3 shadow-2xl transition-transform duration-500 hover:-translate-y-1">
+      <div className="flex items-center gap-1.5 px-1 pb-3">
+        {[0, 1, 2].map((i) => <span key={i} className="h-2 w-2 rounded-full bg-white/10" />)}
+        <span className="ml-2 text-[11px] text-ink-3">Relief board · AG Studio</span>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          ["Households", "6", "text-ink"],
+          ["Relief owed", "$2,500", "text-ink"],
+          ["Reserve", "$5,000", "text-amber"],
+        ].map(([k, v, c]) => (
+          <div key={k} className="rounded-xl border border-white/[0.06] bg-surface-2/70 p-3">
+            <div className="text-[10.5px] text-ink-3">{k}</div>
+            <div className={`mt-1 text-[20px] font-semibold tracking-[-0.03em] ${c}`}>{v}</div>
+          </div>
+        ))}
+        <div className="col-span-2 rounded-xl border border-white/[0.06] bg-surface-2/70 p-3">
+          <div className="text-[11px] font-medium text-ink">Where the money sits</div>
+          <div className="mt-3 space-y-2">
+            {bars.map((b) => (
+              <div key={b.l} className="flex items-center gap-2">
+                <span className="w-16 text-[10.5px] text-ink-3">{b.l}</span>
+                <span className={`h-3 rounded ${b.c}`} style={{ width: `${Math.max(3, (b.v / 9250) * 100)}%` }} />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.06] bg-surface-2/70 p-3">
+          <svg width="74" height="74" viewBox="0 0 74 74">
+            <circle cx="37" cy="37" r="28" stroke="rgba(255,255,255,0.08)" strokeWidth="8" fill="none" />
+            <circle cx="37" cy="37" r="28" stroke="#2DD4BF" strokeWidth="8" fill="none" strokeLinecap="round" strokeDasharray="176 176" transform="rotate(-90 37 37)" />
+            <text x="37" y="42" textAnchor="middle" fill="#EEF2F8" fontSize="14" fontWeight="600">3.7×</text>
+          </svg>
+          <div className="mt-1 text-[10px] text-ink-3">Can we pay everyone?</div>
+        </div>
+      </div>
+      <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 transition group-hover:ring-paypal/30" />
+    </Link>
   );
 }

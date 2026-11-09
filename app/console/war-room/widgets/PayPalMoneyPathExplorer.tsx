@@ -89,8 +89,8 @@ export function PayPalMoneyPathExplorer() {
   const currentNode = nodes.find((n) => n.step === activeStep) || nodes[0];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-lg">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+    <div className="glass p-5 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.07] pb-3">
         <div>
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-sky-400"></span>
@@ -122,7 +122,7 @@ export function PayPalMoneyPathExplorer() {
               className={`p-2.5 rounded-lg border text-left transition-all relative ${
                 isSelected
                   ? "border-sky-400 bg-slate-800/90 shadow-md ring-1 ring-sky-400/50"
-                  : "border-slate-800 bg-slate-950/50 hover:bg-slate-800/40"
+                  : "border-white/[0.07] bg-slate-950/50 hover:bg-slate-800/40"
               }`}
             >
               <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
@@ -139,8 +139,8 @@ export function PayPalMoneyPathExplorer() {
       </div>
 
       {/* Selected Node Forensic Card */}
-      <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3 font-mono text-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/60 pb-2">
+      <div className="p-4 bg-slate-950 rounded-xl border border-white/[0.07] space-y-3 font-mono text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.07]/60 pb-2">
           <div>
             <span className="text-slate-400">Stage {currentNode.step}: </span>
             <span className="text-white font-bold">{currentNode.label}</span>
@@ -150,19 +150,19 @@ export function PayPalMoneyPathExplorer() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="p-2.5 bg-slate-900 rounded border border-slate-800 space-y-1">
+          <div className="p-2.5 bg-slate-900 rounded border border-white/[0.07] space-y-1">
             <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Reference Identifier</span>
             <span className="text-sky-300 font-bold break-all block">{currentNode.referenceId}</span>
           </div>
           {currentNode.amountFormatted && (
-            <div className="p-2.5 bg-slate-900 rounded border border-slate-800 space-y-1">
+            <div className="p-2.5 bg-slate-900 rounded border border-white/[0.07] space-y-1">
               <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Transacted Amount</span>
               <span className="text-emerald-400 font-bold block">{currentNode.amountFormatted}</span>
             </div>
           )}
         </div>
 
-        <div className="p-2.5 bg-slate-900/80 rounded border border-slate-800 space-y-1 font-sans text-xs leading-relaxed text-slate-300">
+        <div className="p-2.5 bg-slate-900/80 rounded border border-white/[0.07] space-y-1 font-sans text-xs leading-relaxed text-slate-300">
           <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Auditable Trace</span>
           {currentNode.details}
         </div>

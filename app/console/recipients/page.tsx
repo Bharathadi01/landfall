@@ -1,5 +1,8 @@
 "use client";
 
+
+import { PageTitle } from "@/components/ui/primitives";
+import { Users as __HeaderIcon } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
 import { RecipientProfileView } from "@/components/recipients/RecipientProfileView";
 import {
@@ -111,30 +114,24 @@ export default function CoordinatorRecipientsPage() {
   return (
     <div className="space-y-6">
       {/* Editorial Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-[#DEDCD3]">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="field-badge-evergreen">Field Atlas Directory</span>
-            <span className="field-badge-neutral font-mono text-[11px]">Pinellas County Registry</span>
-            <span className="field-badge-warning font-mono text-[11px]">24-Hour SLA Appeals</span>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-serif text-[#192A24] tracking-tight">
-            Recipient Inclusion & Verification Console
-          </h1>
-          <p className="text-sm text-[#58665F] mt-1.5 max-w-2xl leading-relaxed">
-            Anticipatory aid directory, four-check verification chips, cryptographic PII protection,
-            and auditable community appeals queue.
-          </p>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
+        <PageTitle
+          eyebrow="Households · enrolled residents"
+          icon={__HeaderIcon}
+          tone="accent"
+          title="Every household,"
+          accent="verified and protected."
+          description="Who is enrolled, what was checked, and their priority. Personal details stay encrypted; residents can appeal any decision within 24 hours."
+        />
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 bg-[#ECEAE2] p-1.5 rounded-xl border border-[#DEDCD3]">
+        <div className="flex items-center gap-1.5 bg-surface-2 p-1.5 rounded-xl border border-line">
           <button
             onClick={() => setActiveTab("directory")}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition ${
               activeTab === "directory"
-                ? "bg-[#FFFEFA] text-[#192A24] font-semibold shadow-xs"
-                : "text-[#7B847D] hover:text-[#192A24]"
+                ? "bg-surface text-ink font-semibold shadow-xs"
+                : "text-ink-3 hover:text-ink"
             }`}
           >
             Recipient Directory ({recipients.length})
@@ -143,13 +140,13 @@ export default function CoordinatorRecipientsPage() {
             onClick={() => setActiveTab("appeals")}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
               activeTab === "appeals"
-                ? "bg-[#FFFEFA] text-[#192A24] font-semibold shadow-xs"
-                : "text-[#7B847D] hover:text-[#192A24]"
+                ? "bg-surface text-ink font-semibold shadow-xs"
+                : "text-ink-3 hover:text-ink"
             }`}
           >
             <span>Appeals Queue</span>
             {appeals.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#D99B43] text-white font-mono">
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber text-white font-mono">
                 {appeals.length}
               </span>
             )}
@@ -164,13 +161,13 @@ export default function CoordinatorRecipientsPage() {
             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
               {/* Search box */}
               <div className="relative min-w-[240px]">
-                <Search className="w-4 h-4 text-[#7B847D] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search resident, ID, address..."
-                  className="field-input pl-9 pr-3 py-1.5 text-xs w-full bg-[#FFFEFA]"
+                  className="field-input pl-9 pr-3 py-1.5 text-xs w-full bg-surface"
                 />
               </div>
 
@@ -178,7 +175,7 @@ export default function CoordinatorRecipientsPage() {
               <select
                 value={channelFilter}
                 onChange={(e) => setChannelFilter(e.target.value)}
-                className="field-input text-xs py-1.5 px-3 bg-[#FFFEFA]"
+                className="field-input text-xs py-1.5 px-3 bg-surface"
                 aria-label="Filter by payment channel"
               >
                 <option value="">All Payment Rails</option>
@@ -192,7 +189,7 @@ export default function CoordinatorRecipientsPage() {
               <select
                 value={displacedFilter}
                 onChange={(e) => setDisplacedFilter(e.target.value)}
-                className="field-input text-xs py-1.5 px-3 bg-[#FFFEFA]"
+                className="field-input text-xs py-1.5 px-3 bg-surface"
                 aria-label="Filter by residence status"
               >
                 <option value="">All Residences</option>
@@ -204,7 +201,7 @@ export default function CoordinatorRecipientsPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="field-input text-xs py-1.5 px-3 bg-[#FFFEFA]"
+                className="field-input text-xs py-1.5 px-3 bg-surface"
                 aria-label="Filter by intake status"
               >
                 <option value="">All Verification Statuses</option>
@@ -216,18 +213,18 @@ export default function CoordinatorRecipientsPage() {
 
             {/* Decrypt PII Toggle with Security Audit Notice */}
             <div className="flex items-center gap-2 self-start md:self-auto">
-              <label className="text-xs text-[#58665F] flex items-center gap-2 cursor-pointer select-none">
+              <label className="text-xs text-ink-2 flex items-center gap-2 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={decryptPII}
                   onChange={(e) => setDecryptPII(e.target.checked)}
-                  className="rounded border-[#DEDCD3] text-[#175B47] focus:ring-0 cursor-pointer"
+                  className="rounded border-line text-accent focus:ring-0 cursor-pointer"
                 />
                 <span className="flex items-center gap-1.5 font-mono text-[11px]">
                   {decryptPII ? (
-                    <Eye className="w-3.5 h-3.5 text-[#175B47]" />
+                    <Eye className="w-3.5 h-3.5 text-accent" />
                   ) : (
-                    <Lock className="w-3.5 h-3.5 text-[#7B847D]" />
+                    <Lock className="w-3.5 h-3.5 text-ink-3" />
                   )}
                   Decrypt PII (Audit Logged)
                 </span>
@@ -236,7 +233,7 @@ export default function CoordinatorRecipientsPage() {
           </div>
 
           {error && (
-            <div className="field-paper p-4 border-[#D76E4B] bg-[#FDF4F0] flex items-center gap-3 text-sm text-[#D76E4B]">
+            <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
               <AlertTriangle className="w-5 h-5 flex-shrink-0" />
               <div>
                 <strong className="font-semibold">Directory Error:</strong> {error}
@@ -245,17 +242,17 @@ export default function CoordinatorRecipientsPage() {
           )}
 
           {loading ? (
-            <div className="field-paper p-12 text-center text-xs text-[#7B847D]">
+            <div className="field-paper p-12 text-center text-xs text-ink-3">
               Loading recipient directory from secure store...
             </div>
           ) : filteredRecipients.length === 0 ? (
-            <div className="field-paper p-12 text-center text-xs text-[#7B847D]">
+            <div className="field-paper p-12 text-center text-xs text-ink-3">
               No recipients match the current filter or search criteria.
             </div>
           ) : (
-            <div className="field-paper overflow-hidden shadow-sm border border-[#DEDCD3]">
+            <div className="field-paper overflow-hidden shadow-sm border border-line">
               <table className="w-full text-left text-xs field-table">
-                <thead className="bg-[#ECEAE2] text-[#58665F] font-mono uppercase tracking-wider text-[11px]">
+                <thead className="bg-surface-2 text-ink-2 font-mono uppercase tracking-wider text-[11px]">
                   <tr>
                     <th className="p-3.5">Recipient / Address</th>
                     <th className="p-3.5">Payment Channel</th>
@@ -265,15 +262,15 @@ export default function CoordinatorRecipientsPage() {
                     <th className="p-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#DEDCD3] text-[#192A24]">
+                <tbody className="divide-y divide-line text-ink">
                   {filteredRecipients.map((h) => {
                     const { fourChecks } = h;
                     return (
-                      <tr key={h.id} className="hover:bg-[#ECEAE2]/40 transition-colors">
+                      <tr key={h.id} className="hover:bg-surface-2/40 transition-colors">
                         <td className="p-3.5 font-medium">
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-[#192A24]">{h.name}</span>
-                            <span className="text-[10px] px-1.5 py-0.2 rounded font-mono bg-[#ECEAE2] text-[#58665F]">
+                            <span className="font-semibold text-ink">{h.name}</span>
+                            <span className="text-[10px] px-1.5 py-0.2 rounded font-mono bg-surface-2 text-ink-2">
                               v{h.recipientVersion}
                             </span>
                             {h.isDisplaced && (
@@ -282,7 +279,7 @@ export default function CoordinatorRecipientsPage() {
                               </span>
                             )}
                           </div>
-                          <span className="text-[11px] text-[#7B847D] block mt-0.5">{h.address}</span>
+                          <span className="text-[11px] text-ink-3 block mt-0.5">{h.address}</span>
                         </td>
                         <td className="p-3.5">
                           <span
@@ -294,7 +291,7 @@ export default function CoordinatorRecipientsPage() {
                           >
                             {fourChecks.paymentChannel.label}
                           </span>
-                          <span className="block text-[11px] text-[#7B847D] mt-1 font-mono">
+                          <span className="block text-[11px] text-ink-3 mt-1 font-mono">
                             {h.receiver}
                           </span>
                         </td>
@@ -303,7 +300,7 @@ export default function CoordinatorRecipientsPage() {
                             {fourChecks.residenceEvidence.label}
                           </span>
                           {fourChecks.residenceEvidence.disclaimer && (
-                            <span className="block text-[10px] text-[#D99B43] italic mt-1">
+                            <span className="block text-[10px] text-amber italic mt-1">
                               {fourChecks.residenceEvidence.disclaimer}
                             </span>
                           )}
@@ -344,16 +341,16 @@ export default function CoordinatorRecipientsPage() {
         /* Appeals Review Queue */
         <div className="space-y-4">
           <div className="field-paper p-5">
-            <h2 className="text-xl font-serif font-bold text-[#192A24] mb-1">
+            <h2 className="text-xl font-serif font-bold text-ink mb-1">
               Auditable Community Appeals Queue (24-Hour SLA)
             </h2>
-            <p className="text-xs text-[#58665F]">
+            <p className="text-xs text-ink-2">
               Residents disputing hazard boundaries, priority tiers, or payment routing. Invariant: AI is strictly barred from adjudicating appeals; coordinator reviews are recorded in immutable audit logs.
             </p>
           </div>
 
           {appeals.length === 0 ? (
-            <div className="field-paper p-12 text-center text-xs text-[#7B847D]">
+            <div className="field-paper p-12 text-center text-xs text-ink-3">
               No active resident appeals in the review queue.
             </div>
           ) : (
@@ -366,7 +363,7 @@ export default function CoordinatorRecipientsPage() {
                     <div className="flex items-start justify-between flex-wrap gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-[#192A24] font-mono">
+                          <span className="text-sm font-bold text-ink font-mono">
                             {a.caseReference}
                           </span>
                           <span className="field-badge-neutral text-[10px] font-mono">
@@ -382,13 +379,13 @@ export default function CoordinatorRecipientsPage() {
                             SLA: {deadline.toLocaleTimeString()} ({isBreached ? "BREACHED" : "ON TIME"})
                           </span>
                         </div>
-                        <p className="text-xs text-[#7B847D] mt-1 font-mono">Household ID: {a.householdId}</p>
+                        <p className="text-xs text-ink-3 mt-1 font-mono">Household ID: {a.householdId}</p>
                       </div>
                       <span className="field-badge-neutral font-mono text-xs">
                         {a.status}
                       </span>
                     </div>
-                    <p className="text-xs text-[#192A24] bg-[#F4F2EC] p-3 rounded-lg border border-[#DEDCD3] leading-relaxed">
+                    <p className="text-xs text-ink bg-canvas p-3 rounded-lg border border-line leading-relaxed">
                       {a.explanation}
                     </p>
                   </div>
@@ -401,7 +398,7 @@ export default function CoordinatorRecipientsPage() {
 
       {/* Selected Profile Modal */}
       {selectedRecipient && (
-        <div className="fixed inset-0 z-50 bg-[#192A24]/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-ink/60 backdrop-blur-xs flex items-center justify-center p-4">
           <RecipientProfileView
             household={selectedRecipient}
             onClose={() => setSelectedRecipient(null)}

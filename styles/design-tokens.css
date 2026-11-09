@@ -1,59 +1,107 @@
 /**
- * FIELD ATLAS DESIGN TOKENS
- * Light-First Editorial Financial Product & Cartographic Palette
+ * LANDFALL · "EYE OF THE STORM" DESIGN TOKENS
+ *
+ * Dark-first glass command surface. Colour carries meaning, everywhere:
+ *   accent  (teal)    → relief money, safe, done
+ *   paypal  (blue)    → PayPal rails & sandbox evidence
+ *   ai      (violet)  → AI agents (read-only)
+ *   amber             → protected reserve, caution, pending
+ *   storm   (coral)   → hazard, storm, exposure
+ *   danger  (rose)    → failure / blocked
+ *
+ * Channels are space-separated RGB so Tailwind can apply alpha: rgb(var(--c-ink) / 0.6)
  */
 
 :root {
-  /* Core Brand & Cartographic Surfaces */
-  --canvas: #F4F2EC;
-  --paper: #FFFEFA;
-  --surface-muted: #ECEAE2;
-  --surface-strong: #E2E0D8;
-  --border: #DEDCD3;
-  --border-subtle: #EBE9E1;
+  color-scheme: dark;
 
-  /* Editorial Inks (Typography) */
-  --deep-ink: #192A24;
-  --secondary-ink: #58665F;
-  --muted-ink: #7B847D;
-  --inverse-ink: #F4F2EC;
+  /* ── Surfaces ─────────────────────────────────────────── */
+  --c-canvas: 5 7 12;          /* #05070C page */
+  --c-surface: 12 17 27;       /* #0C111B card */
+  --c-surface-2: 18 24 37;     /* #121825 inset / hover */
+  --c-surface-3: 26 33 49;     /* #1A2131 pressed / track */
+  --c-line: 32 40 56;          /* #202838 hairline */
+  --c-line-strong: 48 58 78;   /* #303A4E */
 
-  /* Primary Brand Accents */
-  --evergreen: #175B47;
-  --evergreen-hover: #124938;
-  --evergreen-light: #E0EEE7;
-  --evergreen-glow: rgba(23, 91, 71, 0.12);
+  /* ── Ink ──────────────────────────────────────────────── */
+  --c-ink: 238 242 248;        /* #EEF2F8 */
+  --c-ink-2: 163 174 194;      /* #A3AEC2 */
+  --c-ink-3: 110 122 145;      /* #6E7A91 */
+  --c-on-accent: 3 22 19;      /* text on bright fills */
 
-  /* Storytelling & Accent Colors */
-  --signal-coral: #D76E4B;
-  --signal-coral-light: #F9EBE6;
-  --warm-amber: #D99B43;
-  --warm-amber-light: #FBF3E6;
-  --atlas-blue: #316B9B;
-  --atlas-blue-light: #E7F0F7;
+  /* ── Meaning ──────────────────────────────────────────── */
+  --c-accent: 45 212 191;      /* #2DD4BF relief / safe */
+  --c-accent-strong: 94 234 212;
+  --c-accent-soft: 10 40 38;
+  --c-accent-line: 22 86 78;
 
-  /* Semantic Statuses (WCAG 2.2 AA Contrast) */
-  --status-success: #1B7340;
-  --status-success-bg: #E4F4EC;
-  --status-success-border: #97D5B2;
+  --c-paypal: 84 160 255;      /* #54A0FF */
+  --c-paypal-soft: 12 29 54;
+  --c-paypal-line: 30 70 128;
 
-  --status-warning: #B46914;
-  --status-warning-bg: #FEF5E7;
-  --status-warning-border: #F3CA8A;
+  --c-ai: 167 139 250;         /* #A78BFA */
+  --c-ai-soft: 30 22 54;
+  --c-ai-line: 76 58 140;
 
-  --status-critical: #B92525;
-  --status-critical-bg: #FDE8E8;
-  --status-critical-border: #F5A3A3;
+  --c-amber: 251 191 84;       /* #FBBF54 */
+  --c-amber-soft: 42 31 12;
+  --c-amber-line: 100 74 24;
 
-  --status-info: #1D5A8A;
-  --status-info-bg: #EAF2F8;
-  --status-info-border: #9DC3E2;
+  --c-storm: 255 122 89;       /* #FF7A59 */
+  --c-storm-soft: 46 22 16;
+  --c-storm-line: 112 48 34;
 
-  --status-neutral: #636C67;
-  --status-neutral-bg: #EDECE7;
-  --status-neutral-border: #D0CEBE;
+  --c-danger: 255 99 120;      /* #FF6378 */
+  --c-danger-soft: 48 16 24;
+  --c-danger-line: 118 36 52;
 
-  /* Spacing Scale (4px Base) */
+  /* ── Legacy variable names (kept so existing CSS keeps working) ── */
+  --canvas: rgb(var(--c-canvas));
+  --paper: rgb(var(--c-surface));
+  --surface-muted: rgb(var(--c-surface-2));
+  --surface-strong: rgb(var(--c-surface-3));
+  --border: rgb(var(--c-line));
+  --border-subtle: rgb(var(--c-line) / 0.6);
+  --deep-ink: rgb(var(--c-ink));
+  --secondary-ink: rgb(var(--c-ink-2));
+  --muted-ink: rgb(var(--c-ink-3));
+  --inverse-ink: rgb(var(--c-canvas));
+  --evergreen: rgb(var(--c-accent));
+  --evergreen-hover: rgb(var(--c-accent-strong));
+  --evergreen-light: rgb(var(--c-accent-soft));
+  --evergreen-glow: rgb(var(--c-accent) / 0.18);
+  --signal-coral: rgb(var(--c-storm));
+  --signal-coral-light: rgb(var(--c-storm-soft));
+  --warm-amber: rgb(var(--c-amber));
+  --warm-amber-light: rgb(var(--c-amber-soft));
+  --atlas-blue: rgb(var(--c-paypal));
+  --atlas-blue-light: rgb(var(--c-paypal-soft));
+
+  --status-success: rgb(var(--c-accent));
+  --status-success-bg: rgb(var(--c-accent-soft));
+  --status-success-border: rgb(var(--c-accent-line));
+  --status-warning: rgb(var(--c-amber));
+  --status-warning-bg: rgb(var(--c-amber-soft));
+  --status-warning-border: rgb(var(--c-amber-line));
+  --status-critical: rgb(var(--c-danger));
+  --status-critical-bg: rgb(var(--c-danger-soft));
+  --status-critical-border: rgb(var(--c-danger-line));
+  --status-info: rgb(var(--c-paypal));
+  --status-info-bg: rgb(var(--c-paypal-soft));
+  --status-info-border: rgb(var(--c-paypal-line));
+  --status-neutral: rgb(var(--c-ink-2));
+  --status-neutral-bg: rgb(var(--c-surface-2));
+  --status-neutral-border: rgb(var(--c-line-strong));
+
+  /* ── Glass ────────────────────────────────────────────── */
+  --glass-fill: linear-gradient(180deg, rgb(255 255 255 / 0.055) 0%, rgb(255 255 255 / 0.02) 100%);
+  --glass-fill-strong: linear-gradient(180deg, rgb(255 255 255 / 0.085) 0%, rgb(255 255 255 / 0.035) 100%);
+  --glass-border: rgb(255 255 255 / 0.08);
+  --glass-border-strong: rgb(255 255 255 / 0.14);
+  --glass-highlight: inset 0 1px 0 0 rgb(255 255 255 / 0.07);
+  --glass-blur: 22px;
+
+  /* ── Spacing (4px base) ───────────────────────────────── */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -67,24 +115,25 @@
   --space-20: 80px;
   --space-24: 96px;
 
-  /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  /* ── Radii ────────────────────────────────────────────── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
 
-  /* Surface Shadows */
-  --shadow-subtle: 0 1px 2px rgba(25, 42, 36, 0.04);
-  --shadow-card: 0 1px 3px rgba(25, 42, 36, 0.05), 0 4px 12px rgba(25, 42, 36, 0.03);
-  --shadow-raised: 0 4px 20px rgba(25, 42, 36, 0.08), 0 1px 3px rgba(25, 42, 36, 0.04);
-  --shadow-floating: 0 12px 36px rgba(25, 42, 36, 0.12), 0 2px 6px rgba(25, 42, 36, 0.06);
+  /* ── Elevation ────────────────────────────────────────── */
+  --shadow-subtle: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 12px 32px -12px rgb(0 0 0 / 0.6);
+  --shadow-raised: 0 1px 0 0 rgb(255 255 255 / 0.06) inset, 0 24px 60px -20px rgb(0 0 0 / 0.75);
+  --shadow-floating: 0 1px 0 0 rgb(255 255 255 / 0.08) inset, 0 32px 80px -24px rgb(0 0 0 / 0.85);
+  --glow-accent: 0 0 0 1px rgb(var(--c-accent) / 0.35), 0 8px 32px -6px rgb(var(--c-accent) / 0.45);
 
-  /* Motion Timing */
+  /* ── Motion ───────────────────────────────────────────── */
   --duration-instant: 100ms;
   --duration-fast: 180ms;
-  --duration-normal: 260ms;
-  --duration-slow: 450ms;
+  --duration-normal: 280ms;
+  --duration-slow: 520ms;
   --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
 }
@@ -97,4 +146,3 @@
     --duration-slow: 0ms;
   }
 }
-

@@ -332,25 +332,22 @@ export default function ComplaintsAppealsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 py-4">
       {/* Top Header & Language Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#DEDCD3]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="field-badge-evergreen">Field Atlas Resident Support</span>
-            <span className="field-badge-neutral text-[10px]">Case Review</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-serif text-[#192A24] font-bold tracking-tight">
+          <div className="mb-3 eyebrow text-amber">Report a problem · 24-hour reply</div>
+          <h1 className="text-title-1 text-ink">
             {t.title}
           </h1>
-          <p className="text-xs sm:text-sm text-[#58665F] mt-1">{t.subtitle}</p>
+          <p className="mt-2 text-body-base text-ink-2">{t.subtitle}</p>
         </div>
 
         {/* Language Picker */}
         <div className="flex items-center gap-1.5 self-start sm:self-auto">
-          <Globe2 className="w-4 h-4 text-[#175B47]" />
+          <Globe2 className="w-4 h-4 text-accent" />
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
-            className="field-input text-xs py-1.5 px-2.5 bg-[#FFFEFA] font-medium"
+            className="field-input text-xs py-1.5 px-2.5 bg-surface font-medium"
             aria-label="Select language"
           >
             <option value="en">English (EN)</option>
@@ -363,19 +360,19 @@ export default function ComplaintsAppealsPage() {
       </div>
 
       {/* SLA Banner */}
-      <div className="p-3.5 rounded-xl bg-[#E0EEE7]/50 border border-[#97D5B2] text-xs text-[#175B47] flex items-center gap-2.5">
-        <Clock className="w-4 h-4 flex-shrink-0 text-[#175B47]" />
+      <div className="p-3.5 rounded-xl bg-accent-soft/50 border border-accent-line text-xs text-accent flex items-center gap-2.5">
+        <Clock className="w-4 h-4 flex-shrink-0 text-accent" />
         <span className="font-medium">{t.slaNotice}</span>
       </div>
 
       {/* Segmented View Control: SUBMIT vs LOOKUP */}
-      <div className="flex p-1 bg-[#ECEAE2] rounded-xl border border-[#DEDCD3] text-xs font-semibold">
+      <div className="flex p-1 bg-surface-2 rounded-xl border border-line text-xs font-semibold">
         <button
           onClick={() => setActiveTab("SUBMIT")}
           className={`flex-1 py-2 rounded-lg transition-all ${
             activeTab === "SUBMIT"
-              ? "bg-[#FFFEFA] text-[#192A24] shadow-xs font-bold"
-              : "text-[#58665F] hover:text-[#192A24]"
+              ? "bg-surface text-ink shadow-xs font-bold"
+              : "text-ink-2 hover:text-ink"
           }`}
         >
           {t.tabSubmit}
@@ -387,8 +384,8 @@ export default function ComplaintsAppealsPage() {
           }}
           className={`flex-1 py-2 rounded-lg transition-all ${
             activeTab === "LOOKUP"
-              ? "bg-[#FFFEFA] text-[#192A24] shadow-xs font-bold"
-              : "text-[#58665F] hover:text-[#192A24]"
+              ? "bg-surface text-ink shadow-xs font-bold"
+              : "text-ink-2 hover:text-ink"
           }`}
         >
           {t.tabLookup}
@@ -397,36 +394,36 @@ export default function ComplaintsAppealsPage() {
 
       {/* VIEW 1: SUBMIT APPEAL FORM */}
       {activeTab === "SUBMIT" && (
-        <div className="field-paper p-6 sm:p-8 space-y-6 shadow-sm border-[#DEDCD3]">
+        <div className="field-paper p-6 sm:p-8 space-y-6 shadow-sm border-line">
           {submitSuccess ? (
             <div className="text-center space-y-5 py-4">
-              <div className="w-14 h-14 rounded-full bg-[#E0EEE7] border border-[#97D5B2] flex items-center justify-center mx-auto text-[#175B47]">
+              <div className="w-14 h-14 rounded-full bg-accent-soft border border-accent-line flex items-center justify-center mx-auto text-accent">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
               <div className="space-y-1.5">
-                <h3 className="text-xl font-serif font-bold text-[#192A24]">
+                <h3 className="text-xl font-serif font-bold text-ink">
                   {t.successTitle}
                 </h3>
-                <p className="text-xs text-[#58665F] max-w-md mx-auto leading-relaxed">
+                <p className="text-xs text-ink-2 max-w-md mx-auto leading-relaxed">
                   {t.successMsg}
                 </p>
               </div>
 
-              <div className="bg-[#ECEAE2] p-4 rounded-xl text-left text-xs space-y-2 border border-[#DEDCD3]">
-                <div className="flex justify-between py-1 border-b border-[#DEDCD3]">
-                  <span className="text-[#58665F]">{t.caseRef}:</span>
-                  <span className="font-mono font-bold text-[#192A24]">
+              <div className="bg-surface-2 p-4 rounded-xl text-left text-xs space-y-2 border border-line">
+                <div className="flex justify-between py-1 border-b border-line">
+                  <span className="text-ink-2">{t.caseRef}:</span>
+                  <span className="font-mono font-bold text-ink">
                     {submitSuccess.complaintId}
                   </span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#DEDCD3]">
-                  <span className="text-[#58665F]">{t.householdId}:</span>
-                  <span className="font-mono font-semibold text-[#192A24]">
+                <div className="flex justify-between py-1 border-b border-line">
+                  <span className="text-ink-2">{t.householdId}:</span>
+                  <span className="font-mono font-semibold text-ink">
                     {submitSuccess.householdId}
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-[#58665F]">Status:</span>
+                  <span className="text-ink-2">Status:</span>
                   <span className="field-badge-warning text-[10px]">
                     {submitSuccess.status}
                   </span>
@@ -455,14 +452,14 @@ export default function ComplaintsAppealsPage() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <h2 className="text-lg font-serif font-bold text-[#192A24]">
+                <h2 className="text-lg font-serif font-bold text-ink">
                   {t.formTitle}
                 </h2>
-                <p className="text-xs text-[#58665F] mt-0.5">{t.formDesc}</p>
+                <p className="text-xs text-ink-2 mt-0.5">{t.formDesc}</p>
               </div>
 
               {errorMsg && (
-                <div className="p-3 rounded-xl bg-[#FDF4F0] border border-[#F5A3A3] text-xs text-[#B92525] flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-storm-soft border border-danger-line text-xs text-danger flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
                   <span>{errorMsg}</span>
                 </div>
@@ -471,7 +468,7 @@ export default function ComplaintsAppealsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="field-label flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-[#58665F]" />
+                    <User className="w-3.5 h-3.5 text-ink-2" />
                     <span>{t.householdId} *</span>
                   </label>
                   <input
@@ -479,14 +476,14 @@ export default function ComplaintsAppealsPage() {
                     value={householdId}
                     onChange={(e) => setHouseholdId(e.target.value)}
                     placeholder={t.householdIdPlaceholder}
-                    className="field-input w-full mt-1 text-xs bg-[#FFFEFA]"
+                    className="field-input w-full mt-1 text-xs bg-surface"
                     required
                   />
                 </div>
 
                 <div>
                   <label className="field-label flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-[#58665F]" />
+                    <Mail className="w-3.5 h-3.5 text-ink-2" />
                     <span>{t.email} *</span>
                   </label>
                   <input
@@ -494,7 +491,7 @@ export default function ComplaintsAppealsPage() {
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
                     placeholder={t.emailPlaceholder}
-                    className="field-input w-full mt-1 text-xs bg-[#FFFEFA]"
+                    className="field-input w-full mt-1 text-xs bg-surface"
                     required
                   />
                 </div>
@@ -505,7 +502,7 @@ export default function ComplaintsAppealsPage() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as ComplaintCategory)}
-                  className="field-input w-full mt-1 text-xs bg-[#FFFEFA]"
+                  className="field-input w-full mt-1 text-xs bg-surface"
                   required
                 >
                   <option value="PAYMENT_METHOD_CHANGE">{t.catPayment}</option>
@@ -523,13 +520,13 @@ export default function ComplaintsAppealsPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={t.descriptionPlaceholder}
                   rows={4}
-                  className="field-input w-full mt-1 text-xs bg-[#FFFEFA] resize-none"
+                  className="field-input w-full mt-1 text-xs bg-surface resize-none"
                   required
                 />
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#ECEAE2] border border-[#DEDCD3] text-xs text-[#58665F] flex items-start gap-2.5">
-                <Lock className="w-4 h-4 text-[#175B47] flex-shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-surface-2 border border-line text-xs text-ink-2 flex items-start gap-2.5">
+                <Lock className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
                 <p className="leading-relaxed">{t.securityNotice}</p>
               </div>
 
@@ -549,23 +546,23 @@ export default function ComplaintsAppealsPage() {
 
       {/* VIEW 2: TRACK STATUS & TIMELINE */}
       {activeTab === "LOOKUP" && (
-        <div className="field-paper p-6 sm:p-8 space-y-6 shadow-sm border-[#DEDCD3]">
+        <div className="field-paper p-6 sm:p-8 space-y-6 shadow-sm border-line">
           <div>
-            <h2 className="text-lg font-serif font-bold text-[#192A24]">
+            <h2 className="text-lg font-serif font-bold text-ink">
               {t.lookupTitle}
             </h2>
-            <p className="text-xs text-[#58665F] mt-0.5">{t.lookupDesc}</p>
+            <p className="text-xs text-ink-2 mt-0.5">{t.lookupDesc}</p>
           </div>
 
           <form onSubmit={handleLookup} className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-[#7B847D] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={lookupId}
                 onChange={(e) => setLookupId(e.target.value)}
                 placeholder={t.lookupPlaceholder}
-                className="field-input pl-9 pr-3 py-2 text-xs w-full bg-[#FFFEFA]"
+                className="field-input pl-9 pr-3 py-2 text-xs w-full bg-surface"
               />
             </div>
             <button
@@ -583,24 +580,24 @@ export default function ComplaintsAppealsPage() {
               {appealsList.map((appeal) => (
                 <div
                   key={appeal.complaintId}
-                  className="border border-[#DEDCD3] rounded-xl overflow-hidden bg-[#FFFEFA]"
+                  className="border border-line rounded-xl overflow-hidden bg-surface"
                 >
-                  <div className="p-4 bg-[#ECEAE2] border-b border-[#DEDCD3] flex flex-wrap items-center justify-between gap-2">
+                  <div className="p-4 bg-surface-2 border-b border-line flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <span className="font-mono text-xs font-bold text-[#192A24]">
+                      <span className="font-mono text-xs font-bold text-ink">
                         {appeal.complaintId}
                       </span>
-                      <span className="text-xs text-[#58665F] ml-2">
+                      <span className="text-xs text-ink-2 ml-2">
                         · Household {appeal.householdId}
                       </span>
                     </div>
                     <span
                       className={`text-xs px-2.5 py-0.5 rounded-full font-mono font-bold ${
                         appeal.status === "RESOLVED"
-                          ? "bg-[#E0EEE7] text-[#175B47]"
+                          ? "bg-accent-soft text-accent"
                           : appeal.status === "REJECTED"
-                          ? "bg-[#FDF4F0] text-[#B92525]"
-                          : "bg-[#FEF5E7] text-[#B46914]"
+                          ? "bg-storm-soft text-danger"
+                          : "bg-amber-soft text-amber"
                       }`}
                     >
                       {appeal.status}
@@ -609,31 +606,31 @@ export default function ComplaintsAppealsPage() {
 
                   <div className="p-4 space-y-3 text-xs">
                     <div>
-                      <span className="text-[#58665F] block text-[11px]">Category</span>
-                      <span className="font-semibold text-[#192A24]">{appeal.category}</span>
+                      <span className="text-ink-2 block text-[11px]">Category</span>
+                      <span className="font-semibold text-ink">{appeal.category}</span>
                     </div>
 
                     <div>
-                      <span className="text-[#58665F] block text-[11px]">Submitted Details</span>
-                      <p className="text-[#192A24] mt-0.5 leading-relaxed bg-[#ECEAE2]/40 p-2.5 rounded-lg border border-[#DEDCD3]">
+                      <span className="text-ink-2 block text-[11px]">Submitted Details</span>
+                      <p className="text-ink mt-0.5 leading-relaxed bg-surface-2/40 p-2.5 rounded-lg border border-line">
                         {appeal.description}
                       </p>
                     </div>
 
                     {/* Timeline Lifecycle Progression */}
-                    <div className="pt-2 border-t border-[#DEDCD3] space-y-2">
-                      <span className="text-[#58665F] font-semibold block text-[11px]">
+                    <div className="pt-2 border-t border-line space-y-2">
+                      <span className="text-ink-2 font-semibold block text-[11px]">
                         {t.timelineTitle}
                       </span>
                       <div className="grid grid-cols-4 gap-1 text-center text-[10px] pt-1">
-                        <div className="p-1.5 rounded bg-[#E0EEE7] text-[#175B47] font-semibold">
+                        <div className="p-1.5 rounded bg-accent-soft text-accent font-semibold">
                           1. {t.stepReceived}
                         </div>
                         <div
                           className={`p-1.5 rounded ${
                             appeal.status !== "RECEIVED"
-                              ? "bg-[#E0EEE7] text-[#175B47] font-semibold"
-                              : "bg-[#ECEAE2] text-[#7B847D]"
+                              ? "bg-accent-soft text-accent font-semibold"
+                              : "bg-surface-2 text-ink-3"
                           }`}
                         >
                           2. {t.stepAssigned}
@@ -641,8 +638,8 @@ export default function ComplaintsAppealsPage() {
                         <div
                           className={`p-1.5 rounded ${
                             appeal.status === "UNDER_REVIEW" || appeal.status === "RESOLVED"
-                              ? "bg-[#E0EEE7] text-[#175B47] font-semibold"
-                              : "bg-[#ECEAE2] text-[#7B847D]"
+                              ? "bg-accent-soft text-accent font-semibold"
+                              : "bg-surface-2 text-ink-3"
                           }`}
                         >
                           3. {t.stepReview}
@@ -650,8 +647,8 @@ export default function ComplaintsAppealsPage() {
                         <div
                           className={`p-1.5 rounded ${
                             appeal.status === "RESOLVED"
-                              ? "bg-[#E0EEE7] text-[#175B47] font-semibold"
-                              : "bg-[#ECEAE2] text-[#7B847D]"
+                              ? "bg-accent-soft text-accent font-semibold"
+                              : "bg-surface-2 text-ink-3"
                           }`}
                         >
                           4. {t.stepResolved}
@@ -660,7 +657,7 @@ export default function ComplaintsAppealsPage() {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#ECEAE2]/40 border-t border-[#DEDCD3] flex items-center justify-between text-xs text-[#7B847D]">
+                  <div className="p-3 bg-surface-2/40 border-t border-line flex items-center justify-between text-xs text-ink-3">
                     <span className="flex items-center gap-1 font-mono text-[11px]">
                       <Calendar className="w-3 h-3" />
                       <span>{new Date(appeal.submittedAt || Date.now()).toLocaleDateString()}</span>
@@ -671,7 +668,7 @@ export default function ComplaintsAppealsPage() {
               ))}
             </div>
           ) : hasSearched ? (
-            <div className="p-6 text-center text-xs text-[#7B847D] border border-dashed border-[#DEDCD3] rounded-xl">
+            <div className="p-6 text-center text-xs text-ink-3 border border-dashed border-line rounded-xl">
               {t.noCasesFound}
             </div>
           ) : null}

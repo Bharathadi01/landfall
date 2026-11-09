@@ -1,83 +1,60 @@
 /**
- * FIELD ATLAS MOTION & ANIMATION SYSTEM
- * Purposeful, Subtle, High-Performance Micro-Interactions
+ * LANDFALL MOTION — CSS primitives. Choreography lives in GSAP (components/motion).
  */
 
 @keyframes fieldFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 @keyframes fieldScaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 @keyframes fieldSlideFromRight {
-  from {
-    opacity: 0;
-    transform: translateX(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-.animate-field-fade {
-  animation: fieldFadeIn var(--duration-fast) var(--ease-standard) forwards;
+@keyframes ping-soft {
+  0% { transform: scale(1); opacity: 0.7; }
+  80%, 100% { transform: scale(2.6); opacity: 0; }
 }
 
-.animate-field-scale {
-  animation: fieldScaleIn var(--duration-normal) var(--ease-standard) forwards;
+@keyframes radar-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.animate-field-drawer {
-  animation: fieldSlideFromRight var(--duration-normal) var(--ease-standard) forwards;
+@keyframes dash-flow {
+  to { stroke-dashoffset: -24; }
 }
 
-/* Subtle Hover Transitions */
+.animate-field-fade { animation: fieldFadeIn var(--duration-normal) var(--ease-standard) both; }
+.animate-field-scale { animation: fieldScaleIn var(--duration-normal) var(--ease-standard) both; }
+.animate-field-drawer { animation: fieldSlideFromRight var(--duration-normal) var(--ease-standard) both; }
+.animate-dash { stroke-dasharray: 6 6; animation: dash-flow 1.2s linear infinite; }
+
 .field-interactive {
   transition: background-color var(--duration-fast) var(--ease-standard),
               border-color var(--duration-fast) var(--ease-standard),
               transform var(--duration-fast) var(--ease-standard),
               box-shadow var(--duration-fast) var(--ease-standard);
 }
+.field-interactive:hover { transform: translateY(-1px); }
+.field-interactive:active { transform: translateY(0); }
 
-.field-interactive:hover {
-  transform: translateY(-1px);
-}
+/* GSAP reveal targets start hidden only when JS is ready (set by MotionProvider) */
+html.js-motion [data-reveal] { opacity: 0; }
 
-.field-interactive:active {
-  transform: translateY(0);
-}
-
-/* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-
-  .field-interactive:hover,
-  .field-interactive:active {
-    transform: none !important;
-  }
+  html.js-motion [data-reveal] { opacity: 1 !important; }
+  .field-interactive:hover, .field-interactive:active { transform: none !important; }
 }
-

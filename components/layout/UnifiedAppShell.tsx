@@ -1,709 +1,421 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Compass,
-  Zap,
-  Activity,
-  CloudRain,
-  ShieldAlert,
+  LayoutDashboard,
+  BarChart3,
+  Workflow,
+  Radar,
+  FlaskConical,
+  Sparkles,
   Users,
+  ReceiptText,
+  Globe2,
   HeartHandshake,
   Menu,
   X,
-  ChevronRight,
-  ChevronDown,
-  Lock,
-  CheckCircle2,
-  AlertTriangle,
-  ExternalLink,
-  Shield,
-  Layers,
-  Sparkles,
-  FileText,
-  UserCheck,
+  ArrowUpRight,
+  PlayCircle,
   PanelLeftClose,
   PanelLeftOpen,
-  Globe2,
-  ArrowRight,
-  Radio,
-  Clock,
-  HelpCircle,
 } from "lucide-react";
+import { LandfallMark, LandfallWordmark } from "@/components/brand/LandfallMark";
+import { MEANING, MeaningDot, type Tone } from "@/components/ui/primitives";
 
-export type ExperienceVariant = "PUBLIC" | "OPERATIONS" | "RESIDENT";
+type Variant = "PUBLIC" | "OPERATIONS" | "RESIDENT";
 
 interface NavItem {
-  id: string;
   label: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  section: "COMMAND" | "AUDIT" | "PORTAL";
-  badge?: string;
-  description: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  tone: Tone;
+  hint: string;
+  tag?: string;
 }
 
-const OPERATIONS_NAV_ITEMS: NavItem[] = [
+const NAV: { group: string; items: NavItem[] }[] = [
   {
-    id: "war-room",
-    label: "War Room",
-    href: "/console/war-room",
-    icon: Zap,
-    section: "COMMAND",
-    badge: "AG Studio 3.1",
-    description: "Operational overview & exception resolution queue",
+    group: "Overview",
+    items: [
+      { label: "Command Center", href: "/console/war-room", icon: LayoutDashboard, tone: "accent", hint: "What needs attention right now" },
+      { label: "Analytics Studio", href: "/console/studio", icon: BarChart3, tone: "paypal", hint: "Ask questions of the relief data", tag: "AG" },
+    ],
   },
   {
-    id: "golden-flow",
-    label: "Golden Workflow",
-    href: "/console/golden-flow",
-    icon: Activity,
-    section: "COMMAND",
-    badge: "8-Stage",
-    description: "Guided end-to-end anticipatory relief pipeline",
+    group: "Respond",
+    items: [
+      { label: "Guided Response", href: "/console/golden-flow", icon: Workflow, tone: "accent", hint: "Warning to payout in 8 steps" },
+      { label: "Storm Map", href: "/console/sentinel", icon: Radar, tone: "storm", hint: "Who is in the storm's path" },
+      { label: "Storm Drill", href: "/console/rehearsal", icon: FlaskConical, tone: "amber", hint: "Rehearse on past hurricanes" },
+    ],
   },
   {
-    id: "sentinel",
-    label: "Sentinel Weather",
-    href: "/console/sentinel",
-    icon: CloudRain,
-    section: "COMMAND",
-    badge: "Storm Atlas",
-    description: "Overhead meteorological intelligence & household exposure",
-  },
-  {
-    id: "rehearsal",
-    label: "Rehearsal Lab",
-    href: "/console/rehearsal",
-    icon: ShieldAlert,
-    section: "COMMAND",
-    badge: "Simulation",
-    description: "Disaster scenario stress testing & reserve verification",
-  },
-  {
-    id: "watch-officer",
-    label: "Watch Officer AI",
-    href: "/console/watch-officer",
-    icon: Sparkles,
-    section: "AUDIT",
-    badge: "Read-Only",
-    description: "Evidence-oriented briefing & payout exception investigator",
-  },
-  {
-    id: "recipients",
-    label: "Recipient Directory",
-    href: "/console/recipients",
-    icon: Users,
-    section: "AUDIT",
-    badge: "AES-256",
-    description: "Vulnerable household roster with eligibility scoring",
-  },
-  {
-    id: "spike",
-    label: "PayPal Audit Ledger",
-    href: "/spike",
-    icon: FileText,
-    section: "AUDIT",
-    badge: "Double-Entry",
-    description: "Financial ledger reconciliation & transaction verification",
+    group: "Verify",
+    items: [
+      { label: "AI Watch Officer", href: "/console/watch-officer", icon: Sparkles, tone: "ai", hint: "Read-only briefing & investigation" },
+      { label: "Households", href: "/console/recipients", icon: Users, tone: "accent", hint: "Enrolled residents & priority" },
+      { label: "Money Trail", href: "/spike", icon: ReceiptText, tone: "paypal", hint: "Every PayPal dollar, reconciled" },
+    ],
   },
 ];
 
-export function UnifiedAppShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeLanguage, setActiveLanguage] = useState("English");
-  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+const ALL_ITEMS = NAV.flatMap((g) => g.items);
 
-  // Determine current experience variant
-  const experienceVariant: ExperienceVariant = useMemo(() => {
+const toneActive: Record<Tone, string> = {
+  accent: "text-accent-strong",
+  paypal: "text-paypal",
+  ai: "text-ai",
+  amber: "text-amber",
+  storm: "text-storm",
+  danger: "text-danger",
+  neutral: "text-ink",
+};
+
+const toneBar: Record<Tone, string> = {
+  accent: "bg-accent",
+  paypal: "bg-paypal",
+  ai: "bg-ai",
+  amber: "bg-amber",
+  storm: "bg-storm",
+  danger: "bg-danger",
+  neutral: "bg-ink",
+};
+
+function useVariant(pathname: string): Variant {
+  return useMemo(() => {
     if (pathname.startsWith("/console") || pathname === "/spike") return "OPERATIONS";
     if (pathname.startsWith("/r/")) return "RESIDENT";
     return "PUBLIC";
   }, [pathname]);
+}
 
-  // Close menus on route change
+export function UnifiedAppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const variant = useVariant(pathname);
+  if (variant === "PUBLIC") return <PublicShell>{children}</PublicShell>;
+  if (variant === "RESIDENT") return <ResidentShell pathname={pathname}>{children}</ResidentShell>;
+  return <OperationsShell pathname={pathname}>{children}</OperationsShell>;
+}
+
+/* ── Public ───────────────────────────────────────────────── */
+
+function PublicShell({ children }: { children: React.ReactNode }) {
+  const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    setMobileMenuOpen(false);
-    setLanguageMenuOpen(false);
-  }, [pathname]);
+    const on = () => setScrolled(window.scrollY > 24);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, []);
 
-  // Contextual breadcrumb details
-  const breadcrumb = useMemo(() => {
-    if (pathname === "/") {
-      return { section: "Public", title: "Overview", subtitle: "Anticipatory Relief · PayPal Connected" };
-    }
-    if (pathname === "/console/war-room") {
-      return { section: "Operations", title: "Coordinator War Room", subtitle: "AG Studio 3.1 · Operations Overview" };
-    }
-    if (pathname === "/console/golden-flow") {
-      return { section: "Operations", title: "Golden Workflow", subtitle: "8-Stage Anticipatory Pipeline" };
-    }
-    if (pathname === "/console/sentinel") {
-      return { section: "Operations", title: "Sentinel Weather Intelligence", subtitle: "NOAA nowCOAST WMS & GOES-16 ABI" };
-    }
-    if (pathname === "/console/rehearsal") {
-      return { section: "Operations", title: "Storm Rehearsal Lab", subtitle: "Milton 2024 Replay · Simulation Drill" };
-    }
-    if (pathname === "/console/recipients") {
-      return { section: "Operations", title: "Recipient Directory", subtitle: "Encrypted Household Vulnerability Tiers" };
-    }
-    if (pathname === "/console/watch-officer") {
-      return { section: "Operations", title: "Watch Officer AI", subtitle: "Groq Zero-Cost Payout Investigator" };
-    }
-    if (pathname === "/spike") {
-      return { section: "Operations", title: "PayPal Audit Ledger", subtitle: "Double-Entry Invariant Reconciliation" };
-    }
-    if (pathname === "/r/enroll") {
-      return { section: "Resident Portal", title: "Household Enrollment", subtitle: "Encrypted Intake · Recipient V1" };
-    }
-    if (pathname === "/r/complaints") {
-      return { section: "Resident Portal", title: "Community Grievances", subtitle: "24-Hour Review SLA & Appeals" };
-    }
-    return { section: "Landfall", title: "Platform Surface", subtitle: "Field Atlas" };
-  }, [pathname]);
-
-  // --- 1. PUBLIC EXPERIENCE SHELL (/) ---
-  if (experienceVariant === "PUBLIC") {
-    return (
-      <div className="min-h-screen bg-[#F4F2EC] text-[#192A24] flex flex-col font-sans selection:bg-[#E0EEE7] selection:text-[#175B47]">
-        {/* Editorial Top Navigation Header */}
-        <header className="sticky top-0 z-40 bg-[#FFFEFA]/90 backdrop-blur-md border-b border-[#DEDCD3] transition-colors">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-            {/* Brand Logo & Editorial Mark */}
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-lg bg-[#175B47] text-[#FFFEFA] flex items-center justify-center font-bold text-sm tracking-wider shadow-sm group-hover:bg-[#124938] transition-colors">
-                LF
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-[15px] tracking-tight text-[#192A24]">
-                  LANDFALL
-                </span>
-                <span className="text-[10px] uppercase font-mono tracking-widest text-[#58665F]">
-                  Field Atlas · Anticipatory Aid
-                </span>
-              </div>
+  return (
+    <div className="min-h-screen flex flex-col">
+      <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
+        <header
+          className={`flex w-full max-w-5xl items-center justify-between gap-4 px-3 py-2.5 transition-all duration-500 ${
+            scrolled ? "glass-strong" : "border border-transparent"
+          }`}
+          style={{ borderRadius: 18 }}
+        >
+          <Link href="/" className="pl-1">
+            <LandfallWordmark size={30} />
+          </Link>
+          <nav className="hidden md:flex items-center gap-1 text-[13.5px] text-ink-2">
+            {[
+              ["How it works", "#how-it-works"],
+              ["PayPal", "#paypal"],
+              ["AG Studio", "#studio"],
+              ["Safety", "#safety"],
+            ].map(([l, h]) => (
+              <a key={h} href={h} className="rounded-lg px-3 py-2 transition-colors hover:bg-white/5 hover:text-ink">
+                {l}
+              </a>
+            ))}
+          </nav>
+          <div className="flex items-center gap-2">
+            <Link href="/r/enroll" className="field-btn field-btn-subtle hidden sm:inline-flex text-[13px] px-3 py-2">
+              I need help
             </Link>
-
-            {/* Public Visitor Navigation Links */}
-            <nav className="hidden md:flex items-center gap-6 text-[13.5px] font-medium text-[#58665F]">
-              <Link href="#problem" className="hover:text-[#175B47] transition-colors">
-                The Problem
-              </Link>
-              <Link href="#how-it-works" className="hover:text-[#175B47] transition-colors">
-                How It Works
-              </Link>
-              <Link href="#governance" className="hover:text-[#175B47] transition-colors">
-                PayPal Governance
-              </Link>
-              <Link href="#investigation" className="hover:text-[#175B47] transition-colors">
-                AI Investigation
-              </Link>
-              <Link href="#evidence" className="hover:text-[#175B47] transition-colors">
-                Evidence
-              </Link>
-            </nav>
-
-            {/* Action CTAs */}
-            <div className="flex items-center gap-3">
-              <Link
-                href="/r/enroll"
-                className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-[#175B47] hover:text-[#124938] px-3 py-1.5 rounded-lg border border-[#DEDCD3] bg-[#FFFEFA] hover:bg-[#ECEAE2] transition-colors shadow-sm"
-              >
-                <HeartHandshake className="w-3.5 h-3.5" />
-                <span>Resident Assistance</span>
-              </Link>
-
-              <Link
-                href="/console/war-room"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#FFFEFA] bg-[#175B47] hover:bg-[#124938] px-4 py-2 rounded-lg shadow-sm hover:shadow transition-all"
-              >
-                <span>Open War Room</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
+            <Link href="/console/war-room" className="field-btn field-btn-primary text-[13px] px-4 py-2.5">
+              Open console
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
           </div>
         </header>
-
-        {/* Public Breadcrumb Bar */}
-        <div className="bg-[#ECEAE2] border-b border-[#DEDCD3] py-2 px-4 text-xs font-mono text-[#58665F]">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-[#175B47]">{breadcrumb.section}</span>
-              <span className="text-[#7B847D]">/</span>
-              <span className="text-[#192A24] font-bold">{breadcrumb.title}</span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px]">
-              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-              <span>PayPal Sandbox Verified · Zero-Cost AI Active</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <main className="flex-1">{children}</main>
-
-        {/* Editorial Footer */}
-        <footer className="bg-[#ECEAE2] border-t border-[#DEDCD3] py-12 px-4 sm:px-6 text-xs text-[#58665F]">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-sm text-[#192A24]">LANDFALL</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#DEDCD3] text-[#192A24]">
-                  FIELD ATLAS EDITION
-                </span>
-              </div>
-              <p className="max-w-md text-[#58665F]">
-                Anticipatory disaster relief powered by verified PayPal Sandbox payouts, NWS alerts, NOAA radar, and Groq zero-cost AI governance.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-6 font-medium">
-              <Link href="/console/war-room" className="hover:text-[#175B47]">
-                War Room
-              </Link>
-              <Link href="/console/golden-flow" className="hover:text-[#175B47]">
-                Golden Workflow
-              </Link>
-              <Link href="/console/sentinel" className="hover:text-[#175B47]">
-                Sentinel Weather
-              </Link>
-              <Link href="/r/enroll" className="hover:text-[#175B47]">
-                Resident Portal
-              </Link>
-              <Link href="/r/complaints" className="hover:text-[#175B47]">
-                Grievances
-              </Link>
-              <Link href="/spike" className="hover:text-[#175B47]">
-                Audit Ledger
-              </Link>
-            </div>
-          </div>
-        </footer>
       </div>
-    );
-  }
 
-  // --- 2. RESIDENT EXPERIENCE SHELL (/r/*) ---
-  if (experienceVariant === "RESIDENT") {
-    const languages = [
-      "English",
-      "Español (Spanish)",
-      "Kreyòl Ayisyen (Haitian Creole)",
-      "Tiếng Việt (Vietnamese)",
-      "简体中文 (Simplified Chinese)",
-    ];
+      <main className="flex-1">{children}</main>
 
-    return (
-      <div className="min-h-screen bg-[#F4F2EC] text-[#192A24] flex flex-col font-sans selection:bg-[#E0EEE7] selection:text-[#175B47]">
-        {/* Calm Resident Header */}
-        <header className="sticky top-0 z-40 bg-[#FFFEFA] border-b border-[#DEDCD3] shadow-sm">
-          <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#175B47] text-[#FFFEFA] flex items-center justify-center font-bold text-sm">
-                LF
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-sm text-[#192A24]">
-                  Community Relief Assistance
-                </span>
-                <span className="text-[10px] text-[#58665F]">
-                  Encrypted Resident Portal
-                </span>
-              </div>
-            </Link>
-
-            {/* Language Selector Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#DEDCD3] bg-[#FFFEFA] hover:bg-[#ECEAE2] text-xs font-semibold text-[#192A24] transition-colors"
-                title="Select Language"
-              >
-                <Globe2 className="w-3.5 h-3.5 text-[#175B47]" />
-                <span>{activeLanguage.split(" ")[0]}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-[#58665F]" />
-              </button>
-
-              {languageMenuOpen && (
-                <div className="absolute right-0 mt-1 w-56 bg-[#FFFEFA] border border-[#DEDCD3] rounded-xl shadow-xl py-1 z-50 text-xs">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang}
-                      onClick={() => {
-                        setActiveLanguage(lang);
-                        setLanguageMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 hover:bg-[#E0EEE7] transition-colors flex items-center justify-between ${
-                        activeLanguage === lang ? "font-bold text-[#175B47] bg-[#E0EEE7]/50" : "text-[#192A24]"
-                      }`}
-                    >
-                      <span>{lang}</span>
-                      {activeLanguage === lang && <CheckCircle2 className="w-3.5 h-3.5 text-[#175B47]" />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Resident Breadcrumb */}
-        <div className="bg-[#ECEAE2] border-b border-[#DEDCD3] py-2 px-4 text-xs font-mono text-[#58665F]">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-[#175B47]">{breadcrumb.section}</span>
-              <span className="text-[#7B847D]">/</span>
-              <span className="text-[#192A24] font-bold">{breadcrumb.title}</span>
-            </div>
-            <div className="flex items-center gap-3 text-[11px]">
-              <Link href="/r/enroll" className={`hover:text-[#175B47] ${pathname === "/r/enroll" ? "font-bold text-[#175B47]" : ""}`}>
-                Enrollment
-              </Link>
-              <span>·</span>
-              <Link href="/r/complaints" className={`hover:text-[#175B47] ${pathname === "/r/complaints" ? "font-bold text-[#175B47]" : ""}`}>
-                Grievances
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <main className="flex-1 py-6 px-4">{children}</main>
-
-        <footer className="bg-[#ECEAE2] border-t border-[#DEDCD3] py-6 px-4 text-center text-xs text-[#58665F]">
-          <div className="max-w-md mx-auto space-y-1">
-            <p>Your information is encrypted with bank-grade AES-256 protection.</p>
-            <p className="text-[11px] text-[#7B847D]">
-              Need help? Contact the community response coordinator or submit a grievance review.
+      <footer className="relative border-t border-white/5 py-14">
+        <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-3">
+            <LandfallWordmark size={28} sub="Relief before landfall" />
+            <p className="max-w-sm text-[13px] text-ink-3">
+              Open-source, PayPal-native relief payouts for community funds. Built for the PayPal AI Hackathon 2026. MIT licensed.
             </p>
           </div>
-        </footer>
-      </div>
-    );
-  }
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-ink-2">
+            <Link href="/console/war-room" className="hover:text-ink">Command Center</Link>
+            <Link href="/console/studio" className="hover:text-ink">Analytics Studio</Link>
+            <Link href="/console/golden-flow" className="hover:text-ink">Guided Response</Link>
+            <Link href="/r/enroll" className="hover:text-ink">Resident portal</Link>
+            <a href="https://github.com/Bharathadi01/landfall" className="hover:text-ink" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
 
-  // --- 3. OPERATIONS EXPERIENCE SHELL (/console/*, /spike) ---
+/* ── Resident ─────────────────────────────────────────────── */
+
+function ResidentShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
   return (
-    <div className="min-h-screen bg-[#F4F2EC] text-[#192A24] flex font-sans selection:bg-[#E0EEE7] selection:text-[#175B47]">
-      {/* COMPACT COLLAPSIBLE LEFT SIDEBAR */}
+    <div className="min-h-screen flex flex-col">
+      <header className="sticky top-0 z-40 border-b border-white/5 bg-canvas/70 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between gap-4 px-4">
+          <Link href="/">
+            <LandfallWordmark size={30} sub="Resident help" />
+          </Link>
+          <nav className="hidden sm:flex items-center gap-1 rounded-xl border border-white/5 bg-white/[0.03] p-1 text-[13px]">
+            {[
+              ["Get help", "/r/enroll"],
+              ["Report a problem", "/r/complaints"],
+            ].map(([l, h]) => (
+              <Link
+                key={h}
+                href={h}
+                className={`rounded-lg px-3 py-1.5 transition-colors ${
+                  pathname === h ? "bg-white/10 text-ink" : "text-ink-2 hover:text-ink"
+                }`}
+              >
+                {l}
+              </Link>
+            ))}
+          </nav>
+          <span className="hidden md:inline-flex items-center gap-2 text-[12px] text-ink-3">
+            <Globe2 className="h-4 w-4 text-accent-strong" />
+            5 languages
+          </span>
+        </div>
+      </header>
+
+      <main className="flex-1 px-4 py-10">{children}</main>
+
+      <footer className="border-t border-white/5 px-4 py-8 text-center text-[12.5px] text-ink-3">
+        Your details are encrypted. Need a person? Use “Report a problem” — a coordinator replies within 24 hours.
+      </footer>
+    </div>
+  );
+}
+
+/* ── Operations ───────────────────────────────────────────── */
+
+function OperationsShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  useEffect(() => setMobileOpen(false), [pathname]);
+
+  const current = ALL_ITEMS.find((i) => i.href === pathname);
+
+  return (
+    <div className="flex min-h-screen">
       <aside
-        className={`hidden lg:flex flex-col bg-[#FFFEFA] border-r border-[#DEDCD3] transition-all duration-300 z-30 ${
-          sidebarCollapsed ? "w-[68px]" : "w-[244px]"
+        className={`sticky top-0 z-30 hidden h-screen shrink-0 flex-col border-r border-white/[0.06] bg-canvas/40 backdrop-blur-2xl transition-[width] duration-500 ease-[cubic-bezier(.16,1,.3,1)] lg:flex ${
+          collapsed ? "w-[76px]" : "w-[268px]"
         }`}
       >
-        {/* Sidebar Header with Brand & Collapse Toggle */}
-        <div className="h-16 border-b border-[#DEDCD3] px-3.5 flex items-center justify-between">
-          {!sidebarCollapsed && (
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-[#175B47] text-[#FFFEFA] flex items-center justify-center font-bold text-xs tracking-wider shadow-sm">
-                LF
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-xs tracking-tight text-[#192A24]">
-                  LANDFALL
-                </span>
-                <span className="text-[9px] uppercase font-mono tracking-wider text-[#58665F]">
-                  Operations Desk
-                </span>
-              </div>
-            </Link>
-          )}
-
-          {sidebarCollapsed && (
-            <Link href="/" className="mx-auto">
-              <div className="w-7 h-7 rounded-lg bg-[#175B47] text-[#FFFEFA] flex items-center justify-center font-bold text-xs">
-                LF
-              </div>
-            </Link>
-          )}
-
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1.5 rounded-lg text-[#58665F] hover:text-[#192A24] hover:bg-[#ECEAE2] transition-colors"
-            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {sidebarCollapsed ? (
-              <PanelLeftOpen className="w-4 h-4" />
-            ) : (
-              <PanelLeftClose className="w-4 h-4" />
-            )}
-          </button>
-        </div>
-
-        {/* Sidebar Navigation Items */}
-        <div className="flex-1 overflow-y-auto py-4 px-2 space-y-5">
-          {/* Section: COMMAND */}
-          <div className="space-y-1">
-            {!sidebarCollapsed && (
-              <div className="px-2.5 pb-1 text-[10px] font-mono uppercase tracking-wider text-[#7B847D] font-bold">
-                Command & Execution
-              </div>
-            )}
-            {OPERATIONS_NAV_ITEMS.filter((item) => item.section === "COMMAND").map((item) => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={`flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all ${
-                    isActive
-                      ? "bg-[#E0EEE7] text-[#175B47] shadow-sm font-bold"
-                      : "text-[#58665F] hover:text-[#192A24] hover:bg-[#ECEAE2]"
-                  } ${sidebarCollapsed ? "justify-center px-0" : ""}`}
-                  title={item.label}
-                >
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-[#175B47]" : "text-[#58665F]"}`} />
-                  {!sidebarCollapsed && (
-                    <span className="truncate flex-1">{item.label}</span>
-                  )}
-                  {!sidebarCollapsed && item.badge && (
-                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#FFFEFA] border border-[#DEDCD3] text-[#58665F]">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Section: AUDIT & INTELLIGENCE */}
-          <div className="space-y-1">
-            {!sidebarCollapsed && (
-              <div className="px-2.5 pb-1 text-[10px] font-mono uppercase tracking-wider text-[#7B847D] font-bold">
-                Intelligence & Audit
-              </div>
-            )}
-            {OPERATIONS_NAV_ITEMS.filter((item) => item.section === "AUDIT").map((item) => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={`flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all ${
-                    isActive
-                      ? "bg-[#E0EEE7] text-[#175B47] shadow-sm font-bold"
-                      : "text-[#58665F] hover:text-[#192A24] hover:bg-[#ECEAE2]"
-                  } ${sidebarCollapsed ? "justify-center px-0" : ""}`}
-                  title={item.label}
-                >
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-[#175B47]" : "text-[#58665F]"}`} />
-                  {!sidebarCollapsed && (
-                    <span className="truncate flex-1">{item.label}</span>
-                  )}
-                  {!sidebarCollapsed && item.badge && (
-                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#FFFEFA] border border-[#DEDCD3] text-[#58665F]">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Public & Resident Quick Access */}
-          <div className="space-y-1 pt-3 border-t border-[#DEDCD3]">
-            {!sidebarCollapsed && (
-              <div className="px-2.5 pb-1 text-[10px] font-mono uppercase tracking-wider text-[#7B847D] font-bold">
-                External Surfaces
-              </div>
-            )}
-            <Link
-              href="/"
-              className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#58665F] hover:text-[#192A24] hover:bg-[#ECEAE2] transition-colors ${
-                sidebarCollapsed ? "justify-center px-0" : ""
-              }`}
-              title="Public Overview"
-            >
-              <Compass className="w-4 h-4 flex-shrink-0" />
-              {!sidebarCollapsed && <span className="truncate">Public Overview</span>}
-            </Link>
-            <Link
-              href="/r/enroll"
-              className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#58665F] hover:text-[#192A24] hover:bg-[#ECEAE2] transition-colors ${
-                sidebarCollapsed ? "justify-center px-0" : ""
-              }`}
-              title="Resident Portal"
-            >
-              <HeartHandshake className="w-4 h-4 flex-shrink-0" />
-              {!sidebarCollapsed && <span className="truncate">Resident Portal</span>}
-            </Link>
-          </div>
-        </div>
-
-        {/* Sidebar Footer: Provider Verification Badge */}
-        <div className="p-3 border-t border-[#DEDCD3] bg-[#ECEAE2]/60">
-          {!sidebarCollapsed ? (
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-[#175B47]">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                <span>SANDBOX VERIFIED</span>
-              </div>
-              <div className="text-[10px] text-[#58665F] leading-tight font-mono">
-                PayPal Payouts · Groq AI ($0)
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center" title="PayPal Sandbox Verified">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse" />
-            </div>
-          )}
-        </div>
+        <SidebarContent pathname={pathname} collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
       </aside>
 
-      {/* MAIN OPERATIONAL WORKSPACE CONTAINER */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-        {/* RESTRAINED CONTEXTUAL TOOLBAR */}
-        <header className="sticky top-0 z-30 bg-[#FFFEFA]/95 backdrop-blur-md border-b border-[#DEDCD3] h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
-          {/* Breadcrumb Title */}
-          <div className="flex items-center gap-3">
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <aside className="absolute inset-y-0 left-0 flex w-[284px] max-w-[86vw] flex-col border-r border-white/10 bg-canvas/95 backdrop-blur-2xl animate-field-drawer">
             <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-lg border border-[#DEDCD3] text-[#58665F] hover:bg-[#ECEAE2]"
-              title="Open Navigation"
+              onClick={() => setMobileOpen(false)}
+              className="absolute right-3 top-4 z-10 rounded-lg p-2 text-ink-2 hover:bg-white/5"
+              aria-label="Close navigation"
             >
-              <Menu className="w-4 h-4" />
+              <X className="h-5 w-5" />
             </button>
+            <SidebarContent pathname={pathname} collapsed={false} />
+          </aside>
+        </div>
+      )}
 
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5 text-xs text-[#58665F]">
-                <span>{breadcrumb.section}</span>
-                <span className="text-[#7B847D]">/</span>
-                <span className="font-bold text-[#192A24]">{breadcrumb.title}</span>
-              </div>
-              <span className="text-[11px] text-[#7B847D] font-mono hidden sm:inline">
-                {breadcrumb.subtitle}
-              </span>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-white/[0.06] bg-canvas/55 px-4 backdrop-blur-2xl sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="rounded-lg border border-white/10 p-2 text-ink-2 hover:bg-white/5 lg:hidden"
+              aria-label="Open navigation"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+            <div className="flex min-w-0 items-center gap-2 text-[13px]">
+              <span className="hidden text-ink-3 sm:inline">Tampa Bay Relief Fund</span>
+              <span className="hidden text-ink-3/50 sm:inline">/</span>
+              <span className="truncate font-medium text-ink">{current?.label ?? "Console"}</span>
             </div>
           </div>
 
-          {/* Header Action Controls */}
-          <div className="flex items-center gap-2.5">
-            {/* Environment Badge */}
-            <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-[#E0EEE7] text-[#175B47] border border-[#97D5B2]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#175B47] animate-pulse" />
-              <span>SANDBOX</span>
-            </div>
-
-            {/* Quick Navigation to Golden Flow */}
-            <Link
-              href="/console/golden-flow"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#DEDCD3] bg-[#FFFEFA] hover:bg-[#ECEAE2] text-[#192A24] transition-colors shadow-sm"
-            >
-              <Activity className="w-3.5 h-3.5 text-[#175B47]" />
-              <span className="hidden sm:inline">Golden Pipeline</span>
-            </Link>
-
-            {/* Rehearsal Link */}
-            <Link
-              href="/console/rehearsal"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#175B47] hover:bg-[#124938] text-[#FFFEFA] transition-colors shadow-sm"
-            >
-              <ShieldAlert className="w-3.5 h-3.5" />
-              <span>Drill</span>
-            </Link>
+          <div className="flex items-center gap-2">
+            <span className="hidden md:inline-flex items-center gap-2 rounded-full border border-paypal/25 bg-paypal/10 px-3 py-1.5 text-[11.5px] font-medium text-paypal">
+              <span className="live-dot" />
+              PayPal Sandbox · connected
+            </span>
+            {pathname !== "/console/golden-flow" && (
+              <Link href="/console/golden-flow" className="field-btn field-btn-primary px-3.5 py-2 text-[13px]">
+                <PlayCircle className="h-4 w-4" />
+                <span className="hidden sm:inline">Run guided response</span>
+                <span className="sm:hidden">Run</span>
+              </Link>
+            )}
           </div>
         </header>
 
-        {/* Operational Breadcrumb Telemetry Bar */}
-        <div className="bg-[#ECEAE2] border-b border-[#DEDCD3] py-1.5 px-4 sm:px-6 text-xs font-mono text-[#58665F]">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 text-emerald-800 font-bold">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                PayPal Sandbox API: Active
-              </span>
-              <span className="text-[#DEDCD3]">|</span>
-              <span className="text-[#58665F]">
-                NWS Alert Ingestion: <span className="text-[#192A24] font-semibold">Live (v1.12)</span>
-              </span>
-              <span className="text-[#DEDCD3] hidden md:inline">|</span>
-              <span className="text-[#58665F] hidden md:inline">
-                AI Investigator: <span className="text-[#175B47] font-semibold">Groq Free Tier ($0.00)</span>
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px] text-[#7B847D]">
-              <Clock className="w-3 h-3 text-[#7B847D]" />
-              <span>Last Sync: {new Date().toLocaleTimeString()}</span>
-            </div>
-          </div>
-        </div>
+        <main className="relative flex-1 px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+          <div className="mx-auto w-full max-w-[1480px]">{children}</div>
+        </main>
+      </div>
+    </div>
+  );
+}
 
-        {/* Content Viewport */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+function SidebarContent({
+  pathname,
+  collapsed,
+  onToggle,
+}: {
+  pathname: string;
+  collapsed: boolean;
+  onToggle?: () => void;
+}) {
+  return (
+    <>
+      <div className={`flex h-16 shrink-0 items-center border-b border-white/[0.06] ${collapsed ? "justify-center px-2" : "justify-between px-5"}`}>
+        <Link href="/" aria-label="Landfall home">
+          {collapsed ? <LandfallMark size={32} /> : <LandfallWordmark size={30} sub="Relief console" />}
+        </Link>
+        {onToggle && !collapsed && (
+          <button onClick={onToggle} className="rounded-lg p-1.5 text-ink-3 hover:bg-white/5 hover:text-ink" aria-label="Collapse sidebar">
+            <PanelLeftClose className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
-      {/* MOBILE OPERATIONS NAVIGATION DRAWER */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
-          <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          <div className="relative w-72 max-w-[80vw] bg-[#FFFEFA] border-r border-[#DEDCD3] flex flex-col p-4 shadow-2xl z-10">
-            <div className="flex items-center justify-between pb-3 border-b border-[#DEDCD3]">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded bg-[#175B47] text-[#FFFEFA] flex items-center justify-center font-bold text-xs">
-                  LF
-                </div>
-                <span className="font-bold text-sm text-[#192A24]">Landfall Operations</span>
-              </div>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-1 rounded text-[#58665F] hover:bg-[#ECEAE2]"
-              >
-                <X className="w-5 h-5" />
-              </button>
+      <div className="flex-1 overflow-y-auto px-3 py-5">
+        {!collapsed ? (
+          <Link
+            href="/console/sentinel"
+            className="group relative mb-6 block overflow-hidden rounded-2xl border border-storm/25 bg-gradient-to-br from-storm/[0.14] via-storm/[0.05] to-transparent p-3.5"
+          >
+            <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full border border-storm/30" aria-hidden />
+            <div className="absolute -right-2 -top-2 h-12 w-12 rounded-full border border-storm/40" aria-hidden />
+            <div className="flex items-center gap-2 text-[10.5px] font-mono uppercase tracking-[0.12em] text-storm">
+              <span className="live-dot" />
+              Active incident
             </div>
+            <div className="mt-2 text-[14px] font-semibold text-ink">Hurricane Milton</div>
+            <div className="mt-0.5 text-[12px] text-ink-2">Cat 4 · Tampa Bay · landfall in ~12h</div>
+            <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-ink-3">
+              Replay of Oct 2024 data
+              <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </div>
+          </Link>
+        ) : (
+          <Link href="/console/sentinel" className="mb-5 flex justify-center" title="Active incident: Hurricane Milton">
+            <span className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-storm/30 bg-storm/10 text-storm">
+              <Radar className="h-4 w-4" />
+            </span>
+          </Link>
+        )}
 
-            <nav className="flex-1 overflow-y-auto py-3 space-y-1">
-              {OPERATIONS_NAV_ITEMS.map((item) => {
-                const isActive = pathname === item.href;
-                const Icon = item.icon;
-                return (
+        <nav className="space-y-6">
+          {NAV.map((g) => (
+            <div key={g.group}>
+              {!collapsed && <div className="mb-2 px-3 text-[10.5px] font-mono uppercase tracking-[0.14em] text-ink-3">{g.group}</div>}
+              <ul className="space-y-0.5">
+                {g.items.map((item) => {
+                  const active = pathname === item.href;
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        title={collapsed ? item.label : item.hint}
+                        className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] transition-all ${
+                          collapsed ? "justify-center" : ""
+                        } ${active ? "bg-white/[0.07] text-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]" : "text-ink-2 hover:bg-white/[0.04] hover:text-ink"}`}
+                      >
+                        {active && <span className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full ${toneBar[item.tone]}`} />}
+                        <Icon className={`h-[18px] w-[18px] shrink-0 ${active ? toneActive[item.tone] : "text-ink-3 group-hover:text-ink-2"}`} strokeWidth={1.75} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 truncate font-medium">{item.label}</span>
+                            {item.tag && (
+                              <span className="rounded-md border border-paypal/30 bg-paypal/10 px-1.5 py-0.5 text-[9.5px] font-mono font-semibold tracking-wider text-paypal">
+                                {item.tag}
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+
+          <div>
+            {!collapsed && <div className="mb-2 px-3 text-[10.5px] font-mono uppercase tracking-[0.14em] text-ink-3">Public</div>}
+            <ul className="space-y-0.5">
+              {[
+                { label: "Public site", href: "/", icon: Globe2 },
+                { label: "Resident portal", href: "/r/enroll", icon: HeartHandshake },
+              ].map((l) => (
+                <li key={l.href}>
                   <Link
-                    key={item.id}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold ${
-                      isActive
-                        ? "bg-[#E0EEE7] text-[#175B47] font-bold"
-                        : "text-[#58665F] hover:bg-[#ECEAE2]"
-                    }`}
+                    href={l.href}
+                    title={l.label}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] text-ink-3 transition-colors hover:bg-white/[0.04] hover:text-ink ${collapsed ? "justify-center" : ""}`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
+                    <l.icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                    {!collapsed && <span>{l.label}</span>}
                   </Link>
-                );
-              })}
-
-              <div className="pt-3 border-t border-[#DEDCD3]">
-                <Link
-                  href="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-[#58665F] hover:bg-[#ECEAE2]"
-                >
-                  <Compass className="w-4 h-4" />
-                  <span>Public Overview</span>
-                </Link>
-                <Link
-                  href="/r/enroll"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-[#58665F] hover:bg-[#ECEAE2]"
-                >
-                  <HeartHandshake className="w-4 h-4" />
-                  <span>Resident Portal</span>
-                </Link>
-              </div>
-            </nav>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-      )}
-    </div>
+        </nav>
+      </div>
+
+      <div className="shrink-0 border-t border-white/[0.06] p-4">
+        {!collapsed ? (
+          <div className="space-y-2">
+            <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-ink-3">Colour key</div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11.5px] text-ink-2">
+              {MEANING.map((m) => (
+                <span key={m.label} className="flex items-center gap-1.5">
+                  <MeaningDot tone={m.tone} />
+                  {m.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : (
+          onToggle && (
+            <button onClick={onToggle} className="mx-auto flex rounded-lg p-2 text-ink-3 hover:bg-white/5 hover:text-ink" aria-label="Expand sidebar">
+              <PanelLeftOpen className="h-4 w-4" />
+            </button>
+          )
+        )}
+      </div>
+    </>
   );
 }

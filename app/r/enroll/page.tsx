@@ -501,36 +501,36 @@ export default function ResidentEnrollPage() {
   if (successResult) {
     return (
       <div className="max-w-xl mx-auto py-8">
-        <div className="field-paper p-8 text-center space-y-6 shadow-md border-[#DEDCD3]">
-          <div className="w-16 h-16 rounded-full bg-[#E0EEE7] border border-[#97D5B2] flex items-center justify-center mx-auto text-[#175B47]">
+        <div className="field-paper p-8 text-center space-y-6 shadow-md border-line">
+          <div className="w-16 h-16 rounded-full bg-accent-soft border border-accent-line flex items-center justify-center mx-auto text-accent">
             <CheckCircle2 className="w-8 h-8" />
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-2xl font-serif font-bold text-[#192A24]">
+            <h2 className="text-2xl font-serif font-bold text-ink">
               {t.successTitle}
             </h2>
-            <p className="text-sm text-[#58665F] max-w-md mx-auto leading-relaxed">
+            <p className="text-sm text-ink-2 max-w-md mx-auto leading-relaxed">
               {t.successMsg}
             </p>
           </div>
 
-          <div className="bg-[#ECEAE2] p-4 rounded-xl text-left text-xs space-y-2 border border-[#DEDCD3]">
-            <div className="flex justify-between items-center py-1 border-b border-[#DEDCD3]">
-              <span className="text-[#58665F]">{t.householdRef}:</span>
-              <span className="font-mono font-bold text-[#192A24]">
+          <div className="bg-surface-2 p-4 rounded-xl text-left text-xs space-y-2 border border-line">
+            <div className="flex justify-between items-center py-1 border-b border-line">
+              <span className="text-ink-2">{t.householdRef}:</span>
+              <span className="font-mono font-bold text-ink">
                 {successResult.householdId || "hh_tbw_new"}
               </span>
             </div>
-            <div className="flex justify-between items-center py-1 border-b border-[#DEDCD3]">
-              <span className="text-[#58665F]">Data Protection:</span>
-              <span className="text-[#175B47] font-semibold flex items-center gap-1">
+            <div className="flex justify-between items-center py-1 border-b border-line">
+              <span className="text-ink-2">Data Protection:</span>
+              <span className="text-accent font-semibold flex items-center gap-1">
                 <Lock className="w-3 h-3" />
                 <span>AES-256 Encrypted</span>
               </span>
             </div>
             <div className="flex justify-between items-center py-1">
-              <span className="text-[#58665F]">Status:</span>
+              <span className="text-ink-2">Status:</span>
               <span className="field-badge-evergreen text-[10px]">VERIFIED ROSTER</span>
             </div>
           </div>
@@ -563,25 +563,22 @@ export default function ResidentEnrollPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 py-4">
       {/* Top Header & Language Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#DEDCD3]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="field-badge-evergreen">Field Atlas Resident Portal</span>
-            <span className="field-badge-neutral text-[10px]">Bank-Grade Security</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-serif text-[#192A24] font-bold tracking-tight">
+          <div className="mb-3 eyebrow text-accent-strong">Resident help · encrypted</div>
+          <h1 className="text-title-1 text-ink">
             {t.title}
           </h1>
-          <p className="text-xs sm:text-sm text-[#58665F] mt-1">{t.subtitle}</p>
+          <p className="mt-2 text-body-base text-ink-2">{t.subtitle}</p>
         </div>
 
         {/* Language Picker */}
         <div className="flex items-center gap-1.5 self-start sm:self-auto">
-          <Globe2 className="w-4 h-4 text-[#175B47]" />
+          <Globe2 className="w-4 h-4 text-accent" />
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
-            className="field-input text-xs py-1.5 px-2.5 bg-[#FFFEFA] font-medium"
+            className="field-input text-xs py-1.5 px-2.5 bg-surface font-medium"
             aria-label="Select language"
           >
             <option value="en">English (EN)</option>
@@ -594,13 +591,13 @@ export default function ResidentEnrollPage() {
       </div>
 
       {/* Segmented View Control: ENROLL vs STATUS */}
-      <div className="flex p-1 bg-[#ECEAE2] rounded-xl border border-[#DEDCD3] text-xs font-semibold">
+      <div className="flex p-1 bg-surface-2 rounded-xl border border-line text-xs font-semibold">
         <button
           onClick={() => setActiveTab("ENROLL")}
           className={`flex-1 py-2 rounded-lg transition-all ${
             activeTab === "ENROLL"
-              ? "bg-[#FFFEFA] text-[#192A24] shadow-xs font-bold"
-              : "text-[#58665F] hover:text-[#192A24]"
+              ? "bg-surface text-ink shadow-xs font-bold"
+              : "text-ink-2 hover:text-ink"
           }`}
         >
           {t.tabEnroll}
@@ -609,8 +606,8 @@ export default function ResidentEnrollPage() {
           onClick={() => setActiveTab("STATUS")}
           className={`flex-1 py-2 rounded-lg transition-all ${
             activeTab === "STATUS"
-              ? "bg-[#FFFEFA] text-[#192A24] shadow-xs font-bold"
-              : "text-[#58665F] hover:text-[#192A24]"
+              ? "bg-surface text-ink shadow-xs font-bold"
+              : "text-ink-2 hover:text-ink"
           }`}
         >
           {t.tabStatus}
@@ -619,11 +616,11 @@ export default function ResidentEnrollPage() {
 
       {/* TAB 1: STEP-BASED ENROLLMENT WIZARD */}
       {activeTab === "ENROLL" && (
-        <div className="field-paper p-6 sm:p-8 space-y-6 shadow-sm border-[#DEDCD3]">
+        <div className="field-paper p-6 sm:p-8 space-y-6 shadow-sm border-line">
           {/* Progress Indicator */}
           <div className="space-y-2">
-            <div className="flex justify-between items-center text-xs text-[#58665F]">
-              <span className="font-mono font-semibold text-[#175B47]">
+            <div className="flex justify-between items-center text-xs text-ink-2">
+              <span className="font-mono font-semibold text-accent">
                 {t.stepIndicator.replace("{step}", String(currentStep))}
               </span>
               <span>
@@ -634,16 +631,16 @@ export default function ResidentEnrollPage() {
                 {currentStep === 5 && t.step5Title}
               </span>
             </div>
-            <div className="w-full bg-[#ECEAE2] h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-[#175B47] h-full transition-all duration-300"
+                className="bg-accent h-full transition-all duration-300"
                 style={{ width: `${(currentStep / 5) * 100}%` }}
               />
             </div>
           </div>
 
           {formError && (
-            <div className="p-3.5 rounded-xl bg-[#FDF4F0] border border-[#F5A3A3] text-xs text-[#B92525] flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-storm-soft border border-danger-line text-xs text-danger flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{formError}</span>
             </div>
@@ -653,16 +650,16 @@ export default function ResidentEnrollPage() {
           {currentStep === 1 && (
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-serif font-bold text-[#192A24]">
+                <h2 className="text-lg font-serif font-bold text-ink">
                   {t.step1Title}
                 </h2>
-                <p className="text-xs text-[#58665F] mt-0.5">{t.step1Desc}</p>
+                <p className="text-xs text-ink-2 mt-0.5">{t.step1Desc}</p>
               </div>
 
               <div className="space-y-3">
                 <div>
                   <label className="field-label flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-[#58665F]" />
+                    <User className="w-3.5 h-3.5 text-ink-2" />
                     <span>{t.fullName} *</span>
                   </label>
                   <input
@@ -670,14 +667,14 @@ export default function ResidentEnrollPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder={t.fullNamePlaceholder}
-                    className="field-input w-full mt-1 text-sm bg-[#FFFEFA]"
+                    className="field-input w-full mt-1 text-sm bg-surface"
                     required
                   />
                 </div>
 
                 <div>
                   <label className="field-label flex items-center gap-1.5">
-                    <Home className="w-3.5 h-3.5 text-[#58665F]" />
+                    <Home className="w-3.5 h-3.5 text-ink-2" />
                     <span>{t.address} *</span>
                   </label>
                   <input
@@ -685,31 +682,31 @@ export default function ResidentEnrollPage() {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder={t.addressPlaceholder}
-                    className="field-input w-full mt-1 text-sm bg-[#FFFEFA]"
+                    className="field-input w-full mt-1 text-sm bg-surface"
                     required
                   />
                 </div>
 
-                <div className="pt-2 border-t border-[#DEDCD3] space-y-2">
+                <div className="pt-2 border-t border-line space-y-2">
                   <span className="field-label block">{t.isDisplaced}</span>
                   <div className="flex gap-3">
-                    <label className="flex items-center gap-2 text-xs text-[#192A24] cursor-pointer">
+                    <label className="flex items-center gap-2 text-xs text-ink cursor-pointer">
                       <input
                         type="radio"
                         name="displaced"
                         checked={!isDisplaced}
                         onChange={() => setIsDisplaced(false)}
-                        className="text-[#175B47] focus:ring-[#175B47]"
+                        className="text-accent focus:ring-accent"
                       />
                       <span>{t.displacedNo}</span>
                     </label>
-                    <label className="flex items-center gap-2 text-xs text-[#192A24] cursor-pointer">
+                    <label className="flex items-center gap-2 text-xs text-ink cursor-pointer">
                       <input
                         type="radio"
                         name="displaced"
                         checked={isDisplaced}
                         onChange={() => setIsDisplaced(true)}
-                        className="text-[#175B47] focus:ring-[#175B47]"
+                        className="text-accent focus:ring-accent"
                       />
                       <span>{t.displacedYes}</span>
                     </label>
@@ -723,7 +720,7 @@ export default function ResidentEnrollPage() {
                         value={currentAddress}
                         onChange={(e) => setCurrentAddress(e.target.value)}
                         placeholder={t.tempAddressPlaceholder}
-                        className="field-input w-full mt-1 text-xs bg-[#FFFEFA]"
+                        className="field-input w-full mt-1 text-xs bg-surface"
                       />
                     </div>
                   )}
@@ -736,10 +733,10 @@ export default function ResidentEnrollPage() {
           {currentStep === 2 && (
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-serif font-bold text-[#192A24]">
+                <h2 className="text-lg font-serif font-bold text-ink">
                   {t.step2Title}
                 </h2>
-                <p className="text-xs text-[#58665F] mt-0.5">{t.step2Desc}</p>
+                <p className="text-xs text-ink-2 mt-0.5">{t.step2Desc}</p>
               </div>
 
               <div className="space-y-3 pt-1">
@@ -784,18 +781,18 @@ export default function ResidentEnrollPage() {
                     key={item.id}
                     className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
                       item.checked
-                        ? "bg-[#E0EEE7]/40 border-[#97D5B2]"
-                        : "bg-[#FFFEFA] border-[#DEDCD3] hover:bg-[#ECEAE2]/40"
+                        ? "bg-accent-soft/40 border-accent-line"
+                        : "bg-surface border-line hover:bg-surface-2/40"
                     }`}
                   >
                     <input
                       type="checkbox"
                       checked={item.checked}
                       onChange={(e) => item.setter(e.target.checked)}
-                      className="mt-0.5 rounded text-[#175B47] focus:ring-[#175B47]"
+                      className="mt-0.5 rounded text-accent focus:ring-accent"
                     />
                     <div className="flex-1">
-                      <p className="text-xs text-[#192A24] font-medium leading-relaxed">
+                      <p className="text-xs text-ink font-medium leading-relaxed">
                         {item.label}
                       </p>
                     </div>
@@ -809,10 +806,10 @@ export default function ResidentEnrollPage() {
           {currentStep === 3 && (
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-serif font-bold text-[#192A24]">
+                <h2 className="text-lg font-serif font-bold text-ink">
                   {t.step3Title}
                 </h2>
-                <p className="text-xs text-[#58665F] mt-0.5">{t.step3Desc}</p>
+                <p className="text-xs text-ink-2 mt-0.5">{t.step3Desc}</p>
               </div>
 
               <div className="space-y-3 pt-1">
@@ -837,8 +834,8 @@ export default function ResidentEnrollPage() {
                     key={channel.type}
                     className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
                       paymentChannel === channel.type
-                        ? "bg-[#E0EEE7]/40 border-[#175B47] shadow-xs"
-                        : "bg-[#FFFEFA] border-[#DEDCD3] hover:bg-[#ECEAE2]/40"
+                        ? "bg-accent-soft/40 border-accent shadow-xs"
+                        : "bg-surface border-line hover:bg-surface-2/40"
                     }`}
                   >
                     <input
@@ -846,13 +843,13 @@ export default function ResidentEnrollPage() {
                       name="paymentChannel"
                       checked={paymentChannel === channel.type}
                       onChange={() => setPaymentChannel(channel.type)}
-                      className="mt-0.5 text-[#175B47] focus:ring-[#175B47]"
+                      className="mt-0.5 text-accent focus:ring-accent"
                     />
                     <div>
-                      <span className="text-xs font-bold text-[#192A24] block">
+                      <span className="text-xs font-bold text-ink block">
                         {channel.title}
                       </span>
-                      <span className="text-[11px] text-[#58665F] mt-0.5 block">
+                      <span className="text-[11px] text-ink-2 mt-0.5 block">
                         {channel.desc}
                       </span>
                     </div>
@@ -862,7 +859,7 @@ export default function ResidentEnrollPage() {
                 {paymentChannel !== "MANUAL" && (
                   <div className="pt-2">
                     <label className="field-label flex items-center gap-1.5">
-                      <CreditCard className="w-3.5 h-3.5 text-[#58665F]" />
+                      <CreditCard className="w-3.5 h-3.5 text-ink-2" />
                       <span>{t.paypalFieldLabel} *</span>
                     </label>
                     <input
@@ -870,7 +867,7 @@ export default function ResidentEnrollPage() {
                       value={paypalEmailOrId}
                       onChange={(e) => setPaypalEmailOrId(e.target.value)}
                       placeholder="e.g. resident@example.com or PayPal ID"
-                      className="field-input w-full mt-1 text-sm bg-[#FFFEFA]"
+                      className="field-input w-full mt-1 text-sm bg-surface"
                       required
                     />
                   </div>
@@ -883,51 +880,51 @@ export default function ResidentEnrollPage() {
           {currentStep === 4 && (
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-serif font-bold text-[#192A24]">
+                <h2 className="text-lg font-serif font-bold text-ink">
                   {t.step4Title}
                 </h2>
-                <p className="text-xs text-[#58665F] mt-0.5">{t.step4Desc}</p>
+                <p className="text-xs text-ink-2 mt-0.5">{t.step4Desc}</p>
               </div>
 
               <div className="space-y-3 pt-1">
-                <label className="flex items-start gap-3 p-3 rounded-xl border border-[#DEDCD3] bg-[#FFFEFA] cursor-pointer">
+                <label className="flex items-start gap-3 p-3 rounded-xl border border-line bg-surface cursor-pointer">
                   <input
                     type="checkbox"
                     checked={consentTos}
                     onChange={(e) => setConsentTos(e.target.checked)}
-                    className="mt-0.5 rounded text-[#175B47] focus:ring-[#175B47]"
+                    className="mt-0.5 rounded text-accent focus:ring-accent"
                   />
-                  <span className="text-xs text-[#192A24] font-medium leading-relaxed">
+                  <span className="text-xs text-ink font-medium leading-relaxed">
                     {t.consentTos}
                   </span>
                 </label>
 
-                <label className="flex items-start gap-3 p-3 rounded-xl border border-[#DEDCD3] bg-[#FFFEFA] cursor-pointer">
+                <label className="flex items-start gap-3 p-3 rounded-xl border border-line bg-surface cursor-pointer">
                   <input
                     type="checkbox"
                     checked={consentRouting}
                     onChange={(e) => setConsentRouting(e.target.checked)}
-                    className="mt-0.5 rounded text-[#175B47] focus:ring-[#175B47]"
+                    className="mt-0.5 rounded text-accent focus:ring-accent"
                   />
-                  <span className="text-xs text-[#192A24] font-medium leading-relaxed">
+                  <span className="text-xs text-ink font-medium leading-relaxed">
                     {t.consentRouting}
                   </span>
                 </label>
 
-                <label className="flex items-start gap-3 p-3 rounded-xl border border-[#DEDCD3] bg-[#FFFEFA] cursor-pointer">
+                <label className="flex items-start gap-3 p-3 rounded-xl border border-line bg-surface cursor-pointer">
                   <input
                     type="checkbox"
                     checked={consentLocation}
                     onChange={(e) => setConsentLocation(e.target.checked)}
-                    className="mt-0.5 rounded text-[#175B47] focus:ring-[#175B47]"
+                    className="mt-0.5 rounded text-accent focus:ring-accent"
                   />
-                  <span className="text-xs text-[#192A24] font-medium leading-relaxed">
+                  <span className="text-xs text-ink font-medium leading-relaxed">
                     {t.consentLocation}
                   </span>
                 </label>
 
-                <div className="p-3.5 rounded-xl bg-[#ECEAE2] border border-[#DEDCD3] text-xs text-[#58665F] flex items-start gap-2.5">
-                  <Lock className="w-4 h-4 text-[#175B47] flex-shrink-0 mt-0.5" />
+                <div className="p-3.5 rounded-xl bg-surface-2 border border-line text-xs text-ink-2 flex items-start gap-2.5">
+                  <Lock className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
                   <p className="leading-relaxed">{t.privacyNote}</p>
                 </div>
               </div>
@@ -938,36 +935,36 @@ export default function ResidentEnrollPage() {
           {currentStep === 5 && (
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-serif font-bold text-[#192A24]">
+                <h2 className="text-lg font-serif font-bold text-ink">
                   {t.step5Title}
                 </h2>
-                <p className="text-xs text-[#58665F] mt-0.5">{t.step5Desc}</p>
+                <p className="text-xs text-ink-2 mt-0.5">{t.step5Desc}</p>
               </div>
 
-              <div className="bg-[#ECEAE2]/60 p-4 rounded-xl border border-[#DEDCD3] space-y-2.5 text-xs">
-                <div className="flex justify-between py-1 border-b border-[#DEDCD3]">
-                  <span className="text-[#58665F]">{t.fullName}:</span>
-                  <span className="font-semibold text-[#192A24]">{name}</span>
+              <div className="bg-surface-2/60 p-4 rounded-xl border border-line space-y-2.5 text-xs">
+                <div className="flex justify-between py-1 border-b border-line">
+                  <span className="text-ink-2">{t.fullName}:</span>
+                  <span className="font-semibold text-ink">{name}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#DEDCD3]">
-                  <span className="text-[#58665F]">{t.address}:</span>
-                  <span className="font-semibold text-[#192A24] text-right max-w-xs truncate">
+                <div className="flex justify-between py-1 border-b border-line">
+                  <span className="text-ink-2">{t.address}:</span>
+                  <span className="font-semibold text-ink text-right max-w-xs truncate">
                     {address}
                   </span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#DEDCD3]">
-                  <span className="text-[#58665F]">Payout Route:</span>
-                  <span className="font-semibold text-[#175B47]">{paymentChannel}</span>
+                <div className="flex justify-between py-1 border-b border-line">
+                  <span className="text-ink-2">Payout Route:</span>
+                  <span className="font-semibold text-accent">{paymentChannel}</span>
                 </div>
                 {paymentChannel !== "MANUAL" && (
-                  <div className="flex justify-between py-1 border-b border-[#DEDCD3]">
-                    <span className="text-[#58665F]">Recipient Account:</span>
-                    <span className="font-mono text-[#192A24]">{paypalEmailOrId}</span>
+                  <div className="flex justify-between py-1 border-b border-line">
+                    <span className="text-ink-2">Recipient Account:</span>
+                    <span className="font-mono text-ink">{paypalEmailOrId}</span>
                   </div>
                 )}
                 <div className="flex justify-between py-1">
-                  <span className="text-[#58665F]">Safety Factors:</span>
-                  <span className="text-[#192A24] font-medium">
+                  <span className="text-ink-2">Safety Factors:</span>
+                  <span className="text-ink font-medium">
                     {[
                       hasMedicalDevice && "Medical",
                       isElderlyLivingAlone && "Elderly",
@@ -984,7 +981,7 @@ export default function ResidentEnrollPage() {
           )}
 
           {/* Navigation Actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-[#DEDCD3]">
+          <div className="flex items-center justify-between pt-4 border-t border-line">
             {currentStep > 1 ? (
               <button
                 type="button"
@@ -1030,25 +1027,25 @@ export default function ResidentEnrollPage() {
 
       {/* TAB 2: STATUS & APPEAL TRACKER */}
       {activeTab === "STATUS" && (
-        <div className="field-paper p-6 sm:p-8 space-y-6 shadow-sm border-[#DEDCD3]">
+        <div className="field-paper p-6 sm:p-8 space-y-6 shadow-sm border-line">
           <div>
-            <h2 className="text-lg font-serif font-bold text-[#192A24]">
+            <h2 className="text-lg font-serif font-bold text-ink">
               {t.lookupTitle}
             </h2>
-            <p className="text-xs text-[#58665F] mt-0.5">
+            <p className="text-xs text-ink-2 mt-0.5">
               Enter your household reference code to view payout progress or verify linked records.
             </p>
           </div>
 
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-[#7B847D] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={lookupId}
                 onChange={(e) => setLookupId(e.target.value)}
                 placeholder={t.lookupPlaceholder}
-                className="field-input pl-9 pr-3 py-2 text-xs w-full bg-[#FFFEFA]"
+                className="field-input pl-9 pr-3 py-2 text-xs w-full bg-surface"
               />
             </div>
             <button
@@ -1060,13 +1057,13 @@ export default function ResidentEnrollPage() {
           </div>
 
           {lookupData && (
-            <div className="border border-[#DEDCD3] rounded-xl overflow-hidden bg-[#FFFEFA]">
-              <div className="p-4 bg-[#ECEAE2] border-b border-[#DEDCD3] flex flex-wrap items-center justify-between gap-2">
+            <div className="border border-line rounded-xl overflow-hidden bg-surface">
+              <div className="p-4 bg-surface-2 border-b border-line flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <span className="font-mono text-xs font-bold text-[#192A24]">
+                  <span className="font-mono text-xs font-bold text-ink">
                     {lookupData.householdId}
                   </span>
-                  <p className="text-xs text-[#58665F]">{lookupData.name} · {lookupData.address}</p>
+                  <p className="text-xs text-ink-2">{lookupData.name} · {lookupData.address}</p>
                 </div>
                 <span className="field-badge-evergreen text-xs">
                   {lookupData.payoutStatus}
@@ -1076,37 +1073,37 @@ export default function ResidentEnrollPage() {
               <div className="p-4 space-y-3 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <span className="text-[#58665F] block text-[11px]">Evacuation Zone</span>
-                    <span className="font-semibold text-[#192A24]">{lookupData.zone}</span>
+                    <span className="text-ink-2 block text-[11px]">Evacuation Zone</span>
+                    <span className="font-semibold text-ink">{lookupData.zone}</span>
                   </div>
                   <div>
-                    <span className="text-[#58665F] block text-[11px]">Priority Classification</span>
-                    <span className="font-semibold text-[#175B47]">{lookupData.tier}</span>
+                    <span className="text-ink-2 block text-[11px]">Priority Classification</span>
+                    <span className="font-semibold text-accent">{lookupData.tier}</span>
                   </div>
                   <div>
-                    <span className="text-[#58665F] block text-[11px]">Disaster Trigger</span>
-                    <span className="text-[#192A24]">{lookupData.disasterExposure}</span>
+                    <span className="text-ink-2 block text-[11px]">Disaster Trigger</span>
+                    <span className="text-ink">{lookupData.disasterExposure}</span>
                   </div>
                   <div>
-                    <span className="text-[#58665F] block text-[11px]">Assistance Amount</span>
-                    <span className="font-bold text-[#175B47] text-sm tabular-nums">
+                    <span className="text-ink-2 block text-[11px]">Assistance Amount</span>
+                    <span className="font-bold text-accent text-sm tabular-nums">
                       {lookupData.amountDisbursed}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[#58665F] block text-[11px]">Payment Route</span>
-                    <span className="text-[#192A24]">{lookupData.paymentRoute}</span>
+                    <span className="text-ink-2 block text-[11px]">Payment Route</span>
+                    <span className="text-ink">{lookupData.paymentRoute}</span>
                   </div>
                   <div>
-                    <span className="text-[#58665F] block text-[11px]">PayPal Transaction / Reference</span>
-                    <span className="font-mono text-[#192A24] text-[11px]">
+                    <span className="text-ink-2 block text-[11px]">PayPal Transaction / Reference</span>
+                    <span className="font-mono text-ink text-[11px]">
                       {lookupData.paypalTransactionId}
                     </span>
                   </div>
                 </div>
 
                 {lookupData.claimUrl && (
-                  <div className="p-3 bg-[#FEF5E7] border border-[#F3CA8A] rounded-lg text-xs text-[#B46914] flex items-center justify-between">
+                  <div className="p-3 bg-amber-soft border border-amber-line rounded-lg text-xs text-amber flex items-center justify-between">
                     <span>Payment is waiting for claim link confirmation on PayPal.</span>
                     <a
                       href={lookupData.claimUrl}
@@ -1121,14 +1118,14 @@ export default function ResidentEnrollPage() {
                 )}
               </div>
 
-              <div className="p-3 bg-[#ECEAE2]/40 border-t border-[#DEDCD3] flex items-center justify-between text-xs">
-                <span className="text-[#58665F] flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-[#7B847D]" />
+              <div className="p-3 bg-surface-2/40 border-t border-line flex items-center justify-between text-xs">
+                <span className="text-ink-2 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-ink-3" />
                   <span>Disbursed: {lookupData.disbursedAt}</span>
                 </span>
                 <Link
                   href="/r/complaints"
-                  className="text-[#175B47] font-semibold hover:underline flex items-center gap-1"
+                  className="text-accent font-semibold hover:underline flex items-center gap-1"
                 >
                   <span>Submit Correction or Appeal</span>
                   <ChevronRight className="w-3 h-3" />
@@ -1137,7 +1134,7 @@ export default function ResidentEnrollPage() {
             </div>
           )}
 
-          <div className="p-4 rounded-xl bg-[#E0EEE7]/40 border border-[#97D5B2] text-xs text-[#175B47] flex items-start gap-2.5">
+          <div className="p-4 rounded-xl bg-accent-soft/40 border border-accent-line text-xs text-accent flex items-start gap-2.5">
             <HeartHandshake className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <p className="leading-relaxed">{t.appealNotice}</p>
           </div>

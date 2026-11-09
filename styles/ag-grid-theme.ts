@@ -1,1 +1,1 @@
-export { fieldAtlasTheme, landfallDarkTheme } from "./ag-studio-theme";
+export { landfallGridTheme, fieldAtlasTheme, landfallDarkTheme } from "./ag-studio-theme";

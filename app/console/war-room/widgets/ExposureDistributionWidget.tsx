@@ -23,11 +23,11 @@ export function ExposureDistributionWidget({
   const total = items.reduce((sum, it) => sum + it.count, 0);
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-lg backdrop-blur">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+    <div className="glass p-5">
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-          <h3 className="font-semibold text-sm text-slate-100 uppercase tracking-wider font-mono">
+          <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
             2. Exposure by Evacuation Zone
           </h3>
         </div>
@@ -53,7 +53,7 @@ export function ExposureDistributionWidget({
                   )}
                 </span>
               </div>
-              <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+              <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-white/[0.07]">
                 <div
                   className={`h-full ${item.color} transition-all duration-500`}
                   style={{ width: `${pct}%` }}
