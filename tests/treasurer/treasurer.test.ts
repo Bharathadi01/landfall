@@ -385,5 +385,180 @@ describe("Hardened Treasurer Engine (§4.6)", () => {
       expect(result.offlineItems?.[0].householdId).toBe("hh_manual_002");
       expect(mockSender).toHaveBeenCalledTimes(1);
     });
+
+    it("processes a purely offline MANUAL plan without calling PayPal API", async () => {
+      const treasurer = new TreasurerEngine();
+      const { approvals } = createValidPlan();
+      const context = createValidContext();
+
+      const offlinePlan: PayoutPlan = {
+        id: "plan_offline_only_001",
+        activationId: "act_test_offline",
+        tranche: 1,
+        state: "approved_2",
+        planHash: "",
+        items: [
+          {
+            householdId: "hh_manual_001",
+            recipientType: "MANUAL",
+            receiver: "OFFLINE_CASH_CARD",
+            amountCents: 10000,
+            currency: "USD",
+            note: "Purely manual aid",
+          },
+        ],
+        totalAmountCents: 10000,
+        totalFeesCents: 0,
+        createdAt: new Date().toISOString(),
+      };
+      offlinePlan.planHash = computePlanHash(offlinePlan);
+      const offlineApprovals = approvals.map((a) => ({ ...a, planHash: offlinePlan.planHash }));
+
+      const mockSender = vi.fn();
+
+      const result = await treasurer.executePlan({
+        plan: offlinePlan,
+        approvals: offlineApprovals,
+        context,
+        payoutSender: mockSender,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.digitalDisbursementsCount).toBe(0);
+      expect(result.offlineDisbursementsCount).toBe(1);
+      expect(result.offlineItems?.length).toBe(1);
+      expect(result.paypalBatchId).toMatch(/^offline_/);
+      expect(mockSender).not.toHaveBeenCalled();
+    });
+
+    it("falls back to batch_{senderBatchId} when payoutSender response omits payout_batch_id", async () => {
+      const treasurer = new TreasurerEngine();
+      const { plan, approvals } = createValidPlan();
+      const context = createValidContext();
+
+      const mockSender = vi.fn(async () => {
+        return {
+          data: {
+            batch_header: {},
+          },
+        };
+      });
+
+      const result = await treasurer.executePlan({
+        plan,
+        approvals,
+        context,
+        payoutSender: mockSender,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.paypalBatchId).toContain("batch_");
+    });
+
+    it("recovers existing batch ID when PayPal returns duplicate SENDER_BATCH_ID error", async () => {
+      const treasurer = new TreasurerEngine();
+      const { approvals } = createValidPlan();
+      const context = createValidContext();
+
+      const mixedPlan: PayoutPlan = {
+        id: "plan_dup_recovery_001",
+        activationId: "act_test_dup",
+        tranche: 1,
+        state: "approved_2",
+        planHash: "",
+        items: [
+          {
+            householdId: "hh_dig_1",
+            recipientType: "EMAIL",
+            receiver: "test@example.com",
+            amountCents: 10000,
+            currency: "USD",
+          },
+          {
+            householdId: "hh_man_1",
+            recipientType: "MANUAL",
+            receiver: "CASH_CARD",
+            amountCents: 10000,
+            currency: "USD",
+          },
+        ],
+        totalAmountCents: 20000,
+        totalFeesCents: 50,
+        createdAt: new Date().toISOString(),
+      };
+      mixedPlan.planHash = computePlanHash(mixedPlan);
+      const mixedApprovals = approvals.map((a) => ({ ...a, planHash: mixedPlan.planHash }));
+
+      const duplicateError = {
+        message: "Request failed with status code 400",
+        details: {
+          details: [
+            {
+              issue: "Batch with given sender_batch_id already exists",
+              link: [
+                {
+                  rel: "self",
+                  href: "https://api.sandbox.paypal.com/v1/payments/payouts/RECOVERED_BATCH_XYZ?status=all",
+                },
+              ],
+            },
+          ],
+        },
+      };
+
+      const mockSender = vi.fn().mockRejectedValue(duplicateError);
+
+      const result = await treasurer.executePlan({
+        plan: mixedPlan,
+        approvals: mixedApprovals,
+        context,
+        payoutSender: mockSender,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.replayed).toBe(true);
+      expect(result.paypalBatchId).toBe("RECOVERED_BATCH_XYZ");
+      expect(result.offlineDisbursementsCount).toBe(1);
+      expect(result.offlineItems?.length).toBe(1);
+
+      // Also test duplicate recovery on digital-only plan (manualItems.length === 0)
+      const { plan: digitalPlan, approvals: digitalApprovals } = createValidPlan();
+      const resDigital = await treasurer.executePlan({
+        plan: digitalPlan,
+        approvals: digitalApprovals,
+        context,
+        payoutSender: mockSender,
+      });
+      expect(resDigital.success).toBe(true);
+      expect(resDigital.offlineItems).toBeUndefined();
+    });
+
+    it("handles SENDER_BATCH_ID error when no self link exists for recovery", async () => {
+      const treasurer = new TreasurerEngine();
+      const { plan, approvals } = createValidPlan();
+      const context = createValidContext();
+
+      const duplicateWithoutLinkError = new Error("Duplicate batch but missing link");
+      (duplicateWithoutLinkError as any).details = {
+        details: [
+          {
+            field: "SENDER_BATCH_ID",
+            issue: "Duplicate without link",
+          },
+        ],
+      };
+
+      const mockSender = vi.fn().mockRejectedValue(duplicateWithoutLinkError);
+
+      const result = await treasurer.executePlan({
+        plan,
+        approvals,
+        context,
+        payoutSender: mockSender,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Duplicate batch but missing link");
+    });
   });
 });
