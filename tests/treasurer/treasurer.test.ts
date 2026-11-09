@@ -473,6 +473,7 @@ describe("Hardened Treasurer Engine (§4.6)", () => {
             receiver: "test@example.com",
             amountCents: 10000,
             currency: "USD",
+            note: "Digital aid",
           },
           {
             householdId: "hh_man_1",
@@ -480,6 +481,7 @@ describe("Hardened Treasurer Engine (§4.6)", () => {
             receiver: "CASH_CARD",
             amountCents: 10000,
             currency: "USD",
+            note: "Manual aid",
           },
         ],
         totalAmountCents: 20000,
