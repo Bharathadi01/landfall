@@ -1,0 +1,40 @@
+# M4 RECIPIENT SYSTEM — THREAT MODEL & RISK REVIEW
+**Authoritative Reference:** `docs/PROJECT_BRIEF.md` (§4.4, §4.5, §6)
+**Date:** November 9, 2026
+**Auditors:** Principal Software Architect, Security Reviewer, Humanitarian Operations Lead
+
+---
+
+## 1. Five Threat Perspectives
+
+1. **Attacker:** Impersonation of residents, takeover of payout destinations, enumeration of vulnerable households, OAuth state tampering, and injection of forged document data.
+2. **Dishonest Volunteer:** Mass phantom enrollments, altering payout destinations to personal accounts, falsifying attestations, or harvesting PII from shared devices.
+3. **Accidental Coordinator Action:** Approving unverified data under storm pressure, conflating unauthenticated document extraction with true verification, or overwriting displaced location history.
+4. **Vulnerable Resident:** Low literacy, non-English primary language, shared device, lack of traditional government ID, no bank account, displaced by storm, or confused by `UNCLAIMED` claim-link requirements.
+5. **PayPal Integration Engineer:** Verifying whether `payer_id` works as a Payouts `PAYPAL_ID`, preventing unsupported phone/Venmo routes in Sandbox, ensuring item status truth comes from webhooks, and preventing double payouts.
+
+---
+
+## 2. Risk Matrix & Mitigations
+
+| # | Risk Description | Severity | Likelihood | Proposed Mitigation | Implementation Location | Test Verification | Residual Risk |
+|---|---|---|---|---|---|---|---|
+| **R1** | **Enrollment mode confused with payment method** (overloading `ASSISTED` as a payment rail) | High | High | Explicitly separate `enrollmentMethod` (`SELF_SERVICE`, `ASSISTED`, `POST_EVENT`) from `paymentChannel` (`PAYPAL_ID`, `EMAIL`, `MANUAL`, `UNSET`). Compute presentation path via projection. | `lib/recipients/types.ts`, `lib/db/schema.ts` | `tests/recipients/domain.test.ts` | None; strict domain separation. |
+| **R2** | **PayPal login treated as proof of eligibility / residence** | Critical | Med | PayPal identity linking is strictly isolated to payment routing. Four independent checks (Payment, Residence Evidence, Exposure, Need) must all be tracked separately. | `lib/recipients/checks.ts` | `tests/recipients/checks.test.ts` | Coordinators must review non-exposure criteria. |
+| **R3** | **`payer_id` assumed to be a valid Payouts receiver without empirical test** | Critical | High | Execute real live Sandbox spike. If unverified or unsupported, fall back to Landfall-verified email payout. Never guess receiver format. | `scripts/verify-payer-id-payout.ts`, `docs/PAYPAL.md` | `tests/recipients/channels.test.ts` | Account-level Sandbox feature flags. |
+| **R4** | **Unverified contact email used for payout** | High | High | Require high-entropy, time-limited, single-use email verification tokens before allowing email payout channel. | `lib/recipients/email-verification.ts` | `tests/recipients/verification.test.ts` | Compromised user email inbox. |
+| **R5** | **PayPal identity linked to multiple households (fraud/clustering)** | High | Med | Detect duplicate `payer_id` or `paypal_user_id` across distinct households. Flag cluster for human review without automatic rejection. | `lib/recipients/identity.ts` | `tests/recipients/identity.test.ts` | Shared legitimate household accounts. |
+| **R6** | **Volunteer fabricates enrollment or consent** | High | Low | Immutable consent record with volunteer actor attribution, consent version, language, timestamp, and method (`VERBAL_IN_PERSON`, `WRITTEN`). | `lib/recipients/consent.ts`, `lib/db/schema.ts` | `tests/recipients/consent.test.ts` | Malicious volunteer lying verbally. |
+| **R7** | **Volunteer changes recipient's payout destination** | Critical | Med | Any change to payout channel requires resident re-verification or authorized coordinator approval. Payout destination changes version the recipient. | `lib/recipients/lifecycle.ts` | `tests/recipients/versioning.test.ts` | Social engineering of resident. |
+| **R8** | **Shared household/address mistaken for fraud** | High | High | Max households per address enforced by policy cap, but excess households are flagged as `NEEDS_REVIEW`, never deleted or dropped. | `lib/rules/engine.ts`, `lib/recipients/checks.ts` | `tests/rules/policy.test.ts` | Multiple families living in single structure. |
+| **R9** | **Missing documents lower policy priority** | Critical | High | Golden Rule: Missing paperwork routes to review queue; priority score is determined solely by vulnerability criteria (medical device, elderly, disability, children). | `lib/rules/engine.ts`, `lib/recipients/checks.ts` | `tests/recipients/fairness.test.ts` | None; mathematical guarantee. |
+| **R10** | **Extracted document text presented as authenticated** | Medium | High | Display disclaimer: *"Extracted, not authenticated"*. No government ID or SSN ever requested. | `lib/recipients/documents.ts`, `components/recipients/` | `tests/recipients/documents.test.ts` | User assumes document is foolproof. |
+| **R11** | **Identity or destination change silently affects approved payout plan** | Critical | Med | Recipient version incremented on material change. Plan compilation locks immutable recipient snapshot. Destination change invalidates pending plan approval hash. | `lib/recipients/versioning.ts`, `lib/treasurer/index.ts` | `tests/recipients/versioning.test.ts` | None; hash check fails. |
+| **R12** | **Email payout mistaken for immediate receipt** | Medium | High | Clear UI messaging on `UNCLAIMED` claim link. Resident Courier guides account opening. Real webhook item state is authoritative. | `components/recipients/PayoutStatusBadge.tsx` | `tests/recipients/status.test.ts` | Resident email goes to spam. |
+| **R13** | **Manual payment routed to PayPal or falsely marked paid** | Critical | Low | Channel resolver rejects `MANUAL_CHANNEL` from PayPal adapter. Manual disbursements require offline coordinator evidence. | `lib/recipients/channels.ts`, `tests/arch/boundary.test.ts` | `tests/recipients/channels.test.ts` | Human clerical error offline. |
+| **R14** | **Resident cannot appeal or correct erroneous record** | High | Med | Dedicated appeals workflow with 24-hour SLA tracking, case reference, resident explanation, and auditable coordinator resolution. | `lib/recipients/appeals.ts` | `tests/recipients/appeals.test.ts` | Coordinator backlog during active storm. |
+| **R15** | **Displaced resident loses original storm landfall location** | High | High | Separate `locationHistory` from `households.lat/lng`. Original enrollment coordinates preserved for Sentinel warning intersection. | `lib/db/schema.ts`, `lib/recipients/location.ts` | `tests/recipients/location.test.ts` | Evacuee uncertainty on coordinates. |
+| **R16** | **Outdated enrollment remains eligible indefinitely** | Medium | Med | "Still here?" seasonal reconfirmation required within 12 months for Tranche 1. Overdue held for review, not rejected. | `lib/recipients/reconfirmation.ts` | `tests/recipients/reconfirmation.test.ts` | Resident lacks phone service. |
+| **R17** | **PII leaks through error logs or AI prompt builders** | Critical | Med | AES-256-GCM encryption at rest; PII access logging on every decrypted read; strict prohibition of PII in prompt builders; zero AI in M4. | `lib/security/encryption.ts`, `lib/security/rbac.ts` | `tests/arch/boundary.test.ts` | Compromised database root key. |
+| **R18** | **ID enumeration attack on recipient or appeal endpoints** | High | High | Use cryptographically random UUIDs/hashes; strict RBAC checks; rate limiting; return uniform generic responses on lookup. | `app/api/recipients/`, `lib/security/rbac.ts` | `tests/recipients/security.test.ts` | Timing side-channels. |
+| **R19** | **OAuth callback replay or state tampering** | High | Med | Cryptographic state parameter bound to session, single-use, 10-minute expiry. Denied consent and token errors handled gracefully. | `app/api/auth/paypal/callback/route.ts` | `tests/recipients/oauth.test.ts` | Clock skew between servers. |

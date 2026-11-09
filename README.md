@@ -30,6 +30,14 @@ Every claim below is verified against the real PayPal Sandbox (`api-m.sandbox.pa
 | **Passkey Two-Key Auth** | **VERIFIED** | WebAuthn SimpleWebAuthn | Requires 2 distinct approvers over locked plan hash (1 Finance) |
 | **Double-Entry Ledger** | **VERIFIED** | `lib/ledger/index.ts` | Debits = credits enforced; allocatable waterfall computed by code |
 | **Deterministic Rules** | **VERIFIED** | `lib/rules/engine.ts` | 100% test coverage; AI never sets eligibility or amounts |
+| **Recipient Dual-Axis Routing** | **VERIFIED** | Batch `DT5LUFX353YBU` & `CYX4HC52K54WN` | Method (`SELF_SERVICE`, `ASSISTED`) separated from Channel (`PAYPAL_ID`, `EMAIL`, `MANUAL`) |
+| **Four Independent Verification Chips** | **VERIFIED** | `lib/recipients/checks.ts` | Payment, Residence (*"Extracted, not authenticated"*), Exposure, Need; missing docs never demote |
+| **Seasonal Reconfirmation & 24h Appeals** | **VERIFIED** | `lib/recipients/reconfirmation.ts`, `appeals.ts` | 12-month Tranche 1 check; strict 24h SLA counter with auditable human-coordinator resolution |
+| **Recipient Plan Invalidation Contract** | **VERIFIED** | `lib/recipients/versioning.ts` | Recipient destination or version edits invalidate unsubmitted plan approvals; stops tampering |
+| **Sentinel NWS Alert Ingestion** | **VERIFIED** | `lib/sentinel/nws.ts`, `normalize.ts` | Official live NWS ingestion; VTEC eventKey normalization; Tranche 1 warning-only triggers (HU.W, SS.W, FF.W, EH.W) |
+| **Turf.js Geographic Exposure Engine** | **VERIFIED** | `lib/sentinel/exposure.ts`, `geo/resolver.ts` | Multi-polygon point-in-polygon; preserves displaced resident landfall home; flags NEEDS_REVIEW on point check conflict |
+| **IEM Milton 2024 Historical Replay** | **VERIFIED** | `lib/sentinel/replay.ts`, `fixtures/milton-2024.json` | Real Iowa Environmental Mesonet warning archive + 3 NEXRAD radar tiles; persistent disclaimer banner enforced |
+| **Sentinel Financial Isolation** | **VERIFIED** | `tests/arch/boundary.test.ts` | Invariant verified: Sentinel outputs intelligence only; zero imports of PayPal Payouts; cannot move money |
 
 ---
 

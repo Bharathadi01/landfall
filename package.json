@@ -13,7 +13,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "cron:poll": "tsx scripts/poll-alerts.ts",
+    "cron:poll": "node scripts/poll-alerts.mjs",
     "spike:paypal": "tsx scripts/spike-paypal.ts"
   },
   "dependencies": {

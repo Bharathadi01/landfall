@@ -1,270 +1,116 @@
 /**
- * RECIPIENT MANAGEMENT & INCLUSION SERVICE (§4.4)
+ * RECIPIENT MANAGEMENT & INCLUSION SERVICE (§4.4, §10)
  * Golden Rules:
- * - Four recipient paths: LINKED_PAYPAL, EMAIL_CLAIM, ASSISTED, MANUAL_CHANNEL
- * - Evidence ladder: SELF_DECLARED, ATTESTED, DOCUMENT (extracted, not authenticated)
- * - Four independent chips: Payment Channel, Residence Evidence, Exposure, Need
+ * - Dual-axis architecture: Enrollment Method (SELF_SERVICE | ASSISTED | POST_EVENT)
+ *   and Payment Channel (PAYPAL_ID | EMAIL | MANUAL | UNSET).
+ * - Evidence ladder: SELF_DECLARED, VOLUNTEER_ATTESTATION, DOCUMENT_PROVIDED (extracted, not authenticated).
+ * - Four independent chips: Payment Channel, Residence Evidence, Exposure, Need.
  * - No government ID, SSN or immigration status ever requested.
  * - Missing paperwork never lowers priority (routes to human review).
+ * - Shared volunteer devices guarded: sensitive data immediately encrypted, never cached locally.
  */
 
 import { encryptPII, decryptPII } from "@/lib/security/encryption";
 import { type Role, logPIIAccess } from "@/lib/security/rbac";
 import crypto from "crypto";
+import type {
+  EnrollmentInput,
+  StoredHouseholdCase,
+  EnrollmentMethod,
+  PaymentChannelType,
+  RecipientPath,
+  EvidenceLevel,
+} from "./types";
+import { projectRecipientPath } from "./types";
+import { resolvePaymentChannel } from "./channels";
+import { validateMandatoryConsents } from "./consent";
 
-export type RecipientPath = "LINKED_PAYPAL" | "EMAIL_CLAIM" | "ASSISTED" | "MANUAL_CHANNEL";
-export type EvidenceLevel = "SELF_DECLARED" | "ATTESTED" | "DOCUMENT";
-
-export interface FourChecks {
-  paymentChannel: {
-    status: "VERIFIED" | "CLAIM_LINK" | "MANUAL" | "UNRESOLVED";
-    label: string;
-    detail: string;
-  };
-  residenceEvidence: {
-    level: EvidenceLevel;
-    label: string;
-    verified: boolean;
-    disclaimer?: string;
-  };
-  exposure: {
-    status: "CONFIRMED" | "OUT_OF_AREA" | "NEEDS_REVIEW";
-    label: string;
-    pointChecked: boolean;
-  };
-  need: {
-    priorityTier: number;
-    code: string;
-    label: string;
-    tranche2ImpactConfirmed: boolean;
-  };
-}
-
-export interface EnrollmentInput {
-  name: string;
-  address: string;
-  lat?: number;
-  lng?: number;
-  zone?: string;
-  language?: string; // "en" | "es" | "ht" | "vi" | "zh"
-  recipientPath: RecipientPath;
-  paypalEmailOrId?: string;
-  assistedByVolunteerId?: string;
-  evidenceLevel: EvidenceLevel;
-  documentSnippet?: string; // Extracted snippet from utility bill, lease, mail
-  hasMedicalDevice?: boolean;
-  isElderlyLivingAlone?: boolean;
-  hasDisability?: boolean;
-  hasNoVehicleInSurgeZone?: boolean;
-  hasChildrenUnder5?: boolean;
-  numMembers?: number;
-  consentAccepted: boolean;
-}
-
-export interface StoredHouseholdCase {
-  id: string;
-  encryptedName: string;
-  encryptedAddress: string;
-  lat?: number;
-  lng?: number;
-  zone: string;
-  language: string;
-  recipientPath: RecipientPath;
-  receiver: string;
-  evidenceLevel: EvidenceLevel;
-  documentNote?: string;
-  hasMedicalDevice: boolean;
-  isElderlyLivingAlone: boolean;
-  hasDisability: boolean;
-  hasNoVehicleInSurgeZone: boolean;
-  hasChildrenUnder5: boolean;
-  numMembers: number;
-  lastReconfirmedAt: string; // ISO
-  consentRecordedAt: string;
-  status: "draft" | "submitted" | "verified" | "needs_review" | "rejected";
-}
-
-export interface AppealInput {
-  householdId: string;
-  reason: string;
-  contactPreference: string;
-}
-
-export interface AppealRecord {
-  id: string;
-  householdId: string;
-  reason: string;
-  status: "OPEN" | "UNDER_REVIEW" | "RESOLVED" | "REJECTED";
-  slaDeadline: string; // ISO, e.g. 24h SLA
-  createdAt: string;
-  resolvedAt?: string;
-  resolverNote?: string;
-}
-
-/**
- * Computes the four independent verification chips (§4.4) for a household.
- */
-export function computeFourChecks({
-  recipientPath,
-  evidenceLevel,
-  isExposureConfirmed,
-  hasExposureDisagreement = false,
-  priorityTier,
-  priorityCode,
-  tranche2ImpactConfirmed = false,
-}: {
-  recipientPath: RecipientPath;
-  evidenceLevel: EvidenceLevel;
-  isExposureConfirmed: boolean;
-  hasExposureDisagreement?: boolean;
-  priorityTier: number;
-  priorityCode: string;
-  tranche2ImpactConfirmed?: boolean;
-}): FourChecks {
-  // 1. Payment Channel Check
-  let paymentChannel: FourChecks["paymentChannel"];
-  switch (recipientPath) {
-    case "LINKED_PAYPAL":
-      paymentChannel = {
-        status: "VERIFIED",
-        label: "Verified PayPal",
-        detail: "Direct account payout (expected SUCCESS)",
-      };
-      break;
-    case "EMAIL_CLAIM":
-      paymentChannel = {
-        status: "CLAIM_LINK",
-        label: "PayPal Claim Link",
-        detail: "Arrives via email claim (expected UNCLAIMED until claimed)",
-      };
-      break;
-    case "ASSISTED":
-      paymentChannel = {
-        status: "VERIFIED",
-        label: "Assisted Enrollment",
-        detail: "Volunteer-assisted enrollment channel",
-      };
-      break;
-    case "MANUAL_CHANNEL":
-      paymentChannel = {
-        status: "MANUAL",
-        label: "Manual Offline Channel",
-        detail: "Check or cash card (never sent to PayPal)",
-      };
-      break;
-    default:
-      paymentChannel = {
-        status: "UNRESOLVED",
-        label: "Unresolved",
-        detail: "Channel not yet verified",
-      };
-  }
-
-  // 2. Residence Evidence Check
-  let residenceEvidence: FourChecks["residenceEvidence"];
-  switch (evidenceLevel) {
-    case "DOCUMENT":
-      residenceEvidence = {
-        level: "DOCUMENT",
-        label: "Document Verified",
-        verified: true,
-        disclaimer: "Extracted, not authenticated",
-      };
-      break;
-    case "ATTESTED":
-      residenceEvidence = {
-        level: "ATTESTED",
-        label: "Volunteer Attested",
-        verified: true,
-      };
-      break;
-    case "SELF_DECLARED":
-    default:
-      residenceEvidence = {
-        level: "SELF_DECLARED",
-        label: "Self-Declared",
-        verified: true,
-      };
-  }
-
-  // 3. Exposure Check
-  let exposure: FourChecks["exposure"];
-  if (hasExposureDisagreement) {
-    exposure = {
-      status: "NEEDS_REVIEW",
-      label: "Needs Review (Point Disagreement)",
-      pointChecked: true,
-    };
-  } else if (isExposureConfirmed) {
-    exposure = {
-      status: "CONFIRMED",
-      label: "In Warning Area",
-      pointChecked: true,
-    };
-  } else {
-    exposure = {
-      status: "OUT_OF_AREA",
-      label: "Outside Warning Area",
-      pointChecked: true,
-    };
-  }
-
-  // 4. Need Check
-  const need: FourChecks["need"] = {
-    priorityTier,
-    code: priorityCode,
-    label: `Tier ${priorityTier} (${priorityCode})`,
-    tranche2ImpactConfirmed,
-  };
-
-  return {
-    paymentChannel,
-    residenceEvidence,
-    exposure,
-    need,
-  };
-}
-
-/**
- * Checks whether a household's reconfirmation is still valid for Tranche 1.
- * Tranche 1 requires reconfirmation within 12 months (§4.4).
- */
-export function isReconfirmationValid(lastReconfirmedAt: string, now: Date = new Date()): boolean {
-  const reconfirmedDate = new Date(lastReconfirmedAt);
-  const diffMs = now.getTime() - reconfirmedDate.getTime();
-  const maxAgeMs = 365 * 24 * 60 * 60 * 1000; // 365 days
-  return diffMs <= maxAgeMs && diffMs >= 0;
-}
+export * from "./types";
+export * from "./channels";
+export * from "./checks";
+export * from "./consent";
+export * from "./location";
+export * from "./reconfirmation";
+export * from "./appeals";
+export * from "./versioning";
 
 /**
  * Creates an encrypted household case record.
  */
 export function createEncryptedHouseholdCase(input: EnrollmentInput): StoredHouseholdCase {
-  if (!input.consentAccepted) {
-    throw new Error("Consent is mandatory for enrollment under data minimization rules (§6).");
+  // 1. Consent validation
+  const consentValidation = validateMandatoryConsents({
+    consents: input.consents,
+    consentAccepted: input.consentAccepted,
+  });
+
+  if (!consentValidation.valid) {
+    throw new Error(
+      `Consent is mandatory for enrollment under data minimization rules (§6). Missing: ${consentValidation.missingPurposes.join(
+        ", "
+      )}`
+    );
   }
 
+  // 2. Encryption of PII
   const encryptedName = encryptPII(input.name);
   const encryptedAddress = encryptPII(input.address);
   if (!encryptedName || !encryptedAddress) {
     throw new Error("Failed to encrypt sensitive personal information.");
   }
 
-  const receiver = input.paypalEmailOrId || input.name;
+  // 3. Resolve enrollment method and payment channel
+  const enrollmentMethod: EnrollmentMethod =
+    input.enrollmentMethod || (input.assistedByVolunteerId ? "ASSISTED" : "SELF_SERVICE");
+
+  let paymentChannel: PaymentChannelType = input.paymentChannel || "UNSET";
+  let receiver = input.paypalEmailOrId || input.name;
+
+  if (input.paymentChannel) {
+    paymentChannel = input.paymentChannel;
+  } else if (input.recipientPath === "MANUAL_CHANNEL") {
+    paymentChannel = "MANUAL";
+    receiver = "OFFLINE_MANUAL_DISBURSEMENT";
+  } else if (input.paypalEmailOrId) {
+    const resolved = resolvePaymentChannel({
+      payerId: input.paypalEmailOrId.includes("@") ? undefined : input.paypalEmailOrId,
+      email: input.paypalEmailOrId.includes("@") ? input.paypalEmailOrId : undefined,
+    });
+    paymentChannel = resolved.paymentChannel;
+    receiver = resolved.receiver;
+  } else if (input.recipientPath === "LINKED_PAYPAL") {
+    paymentChannel = "PAYPAL_ID";
+  } else if (input.recipientPath === "EMAIL_CLAIM") {
+    paymentChannel = "EMAIL";
+  }
+
+  const recipientPath = input.recipientPath || projectRecipientPath(enrollmentMethod, paymentChannel);
   const now = new Date().toISOString();
+
+  // Normalize evidence level
+  let evidenceLevel: EvidenceLevel = input.evidenceLevel;
+  if (evidenceLevel === "DOCUMENT") evidenceLevel = "DOCUMENT_PROVIDED";
+  if (evidenceLevel === "ATTESTED") evidenceLevel = "VOLUNTEER_ATTESTATION";
 
   return {
     id: `hh_${crypto.randomBytes(8).toString("hex")}`,
     encryptedName,
     encryptedAddress,
-    lat: input.lat,
+    lat: input.lat, // Original landfall home coordinates
     lng: input.lng,
+    currentLat: input.currentLat ?? input.lat,
+    currentLng: input.currentLng ?? input.lng,
+    isDisplaced: input.isDisplaced ?? false,
     zone: input.zone || "Zone A",
     language: input.language || "en",
-    recipientPath: input.recipientPath,
+    enrollmentMethod,
+    paymentChannel,
+    recipientPath,
+    recipientVersion: 1,
     receiver,
-    evidenceLevel: input.evidenceLevel,
+    evidenceLevel,
     documentNote: input.documentSnippet ? "Extracted, not authenticated" : undefined,
+    assistedByVolunteerId: input.assistedByVolunteerId,
     hasMedicalDevice: input.hasMedicalDevice ?? false,
     isElderlyLivingAlone: input.isElderlyLivingAlone ?? false,
     hasDisability: input.hasDisability ?? false,
@@ -278,17 +124,21 @@ export function createEncryptedHouseholdCase(input: EnrollmentInput): StoredHous
 }
 
 /**
- * Submits an appeal to the coordinator review queue with a 24-hour SLA.
+ * Backward compatibility alias for createAppeal
  */
-export function createAppeal(input: AppealInput): AppealRecord {
+export function createAppeal(input: {
+  householdId: string;
+  reason: string;
+  contactPreference?: string;
+}) {
   const now = new Date();
-  const slaDeadline = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(); // 24h SLA
+  const slaDeadline = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
 
   return {
     id: `app_${crypto.randomBytes(6).toString("hex")}`,
     householdId: input.householdId,
     reason: input.reason,
-    status: "OPEN",
+    status: "OPEN" as const,
     slaDeadline,
     createdAt: now.toISOString(),
   };

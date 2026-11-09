@@ -74,3 +74,23 @@ pnpm spike:paypal
 ```
 Or open the `/spike` route in your browser to inspect real-time audit logs and PayPal `debug_id`s.
 
+---
+
+## 6. M4 Empirical Findings: Payouts Recipient Routing (`PAYPAL_ID` vs `EMAIL`)
+
+During M4 development, empirical spikes were executed against live PayPal Sandbox (`https://api-m.sandbox.paypal.com`):
+
+### 6.1 `recipient_type: "PAYPAL_ID"` (13-character Payer ID)
+- **Endpoint:** `POST /v1/payments/payouts`
+- **Result:** Accepted with HTTP 201 Created.
+- **Batch ID:** `DT5LUFX353YBU` · **Item ID:** `8WQLCJXZNPQF6` · **PayPal Debug ID:** `f645087441a29`
+- **Behavior:** The PayPal Payouts routing engine recognizes 13-character payer IDs (e.g., `RMYYMT3FXD8LJ`). When directed to the merchant's own payer ID, PayPal evaluates the rule and fails with `SELF_PAY_NOT_ALLOWED: Payment to self is not allowed.`
+- **Architectural Policy:** When a resident connects via Log in with PayPal (LIPP) and their account is verified, their 13-character `payer_id` is routed directly with `recipient_type: "PAYPAL_ID"`. If unverified or missing, the system falls back to Landfall-verified email address.
+
+### 6.2 `recipient_type: "EMAIL"` (Verified Email Channel)
+- **Endpoint:** `POST /v1/payments/payouts`
+- **Result:** Successfully submitted and completed.
+- **Batch ID:** `CYX4HC52K54WN` · **Item ID:** `XVV68QXJWJ66Y`
+- **Receiver:** `sb-tv43cm53751698@personal.example.com`
+- **Fee:** $0.02 USD
+- **Status:** Transitioned through `PENDING` -> `PROCESSING` -> `SUCCESS`!

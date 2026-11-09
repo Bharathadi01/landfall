@@ -79,15 +79,89 @@ export const households = pgTable("households", {
   id: uuid("id").primaryKey().defaultRandom(),
   fundId: uuid("fund_id").references(() => funds.id).notNull(),
   status: text("status", { enum: ["draft", "submitted", "verified", "needs_review", "rejected"] }).default("draft").notNull(),
+  enrollmentMethod: text("enrollment_method", { enum: ["SELF_SERVICE", "ASSISTED", "POST_EVENT"] }).default("SELF_SERVICE").notNull(),
+  paymentChannel: text("payment_channel", { enum: ["PAYPAL_ID", "EMAIL", "MANUAL", "UNSET"] }).default("UNSET").notNull(),
   recipientPath: text("recipient_path", { enum: ["LINKED_PAYPAL", "EMAIL_CLAIM", "ASSISTED", "MANUAL_CHANNEL"] }).default("LINKED_PAYPAL").notNull(),
+  recipientVersion: integer("recipient_version").default(1).notNull(),
   caseJson: jsonb("case_json").notNull(), // Contains encrypted PII fields
-  lat: doublePrecision("lat"),
-  lng: doublePrecision("lng"),
+  lat: doublePrecision("lat"), // Original landfall / residence latitude
+  lng: doublePrecision("lng"), // Original landfall / residence longitude
+  currentLat: doublePrecision("current_lat"),
+  currentLng: doublePrecision("current_lng"),
+  isDisplaced: boolean("is_displaced").default(false).notNull(),
   language: text("language").default("en").notNull(),
   wallet: text("wallet", { enum: ["PAYPAL", "VENMO"] }).default("PAYPAL").notNull(),
   receiver: text("receiver").notNull(),
   reconfirmedAt: timestamp("reconfirmed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const locationHistory = pgTable("location_history", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  householdId: uuid("household_id").references(() => households.id).notNull(),
+  address: text("address").notNull(), // Encrypted PII string
+  lat: doublePrecision("lat").notNull(),
+  lng: doublePrecision("lng").notNull(),
+  isDisplaced: boolean("is_displaced").default(false).notNull(),
+  recordedBy: text("recorded_by").notNull(),
+  effectiveFrom: timestamp("effective_from").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const recipientConsents = pgTable("recipient_consents", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  householdId: uuid("household_id").references(() => households.id).notNull(),
+  purpose: text("purpose", {
+    enum: ["TERMS_OF_SERVICE", "PAYMENT_ROUTING", "LOCATION_TRACKING", "EMERGENCY_DISCLOSURE"],
+  }).notNull(),
+  consentVersion: text("consent_version").notNull(),
+  language: text("language").default("en").notNull(),
+  acceptedAt: timestamp("accepted_at").defaultNow().notNull(),
+  actor: text("actor").notNull(),
+  method: text("method", {
+    enum: ["SELF_DIGITAL", "VERBAL_TO_VOLUNTEER", "PAPER_AFFIDAVIT"],
+  }).default("SELF_DIGITAL").notNull(),
+  withdrawnAt: timestamp("withdrawn_at"),
+});
+
+export const volunteerAttestations = pgTable("volunteer_attestations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  householdId: uuid("household_id").references(() => households.id).notNull(),
+  volunteerId: text("volunteer_id").notNull(),
+  attestationType: text("attestation_type", {
+    enum: ["RESIDENCE_VERIFIED", "PHYSICAL_INSPECTION", "COMMUNITY_VOUCH"],
+  }).notNull(),
+  isDirectObservation: boolean("is_direct_observation").default(true).notNull(),
+  statementNote: text("statement_note").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const emailVerifications = pgTable("email_verifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  householdId: uuid("household_id").references(() => households.id).notNull(),
+  email: text("email").notNull(),
+  tokenHash: text("token_hash").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const appeals = pgTable("appeals", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  householdId: uuid("household_id").references(() => households.id).notNull(),
+  caseReference: text("case_reference").unique().notNull(),
+  category: text("category", {
+    enum: ["TIER_DISPUTE", "AMOUNT_DISPUTE", "EXPOSURE_DISPUTE", "EVIDENCE_SUPPLEMENT", "OTHER"],
+  }).notNull(),
+  explanation: text("explanation").notNull(),
+  status: text("status", {
+    enum: ["SUBMITTED", "NEEDS_INFORMATION", "UNDER_REVIEW", "RESOLVED", "REJECTED"],
+  }).default("SUBMITTED").notNull(),
+  slaDeadline: timestamp("sla_deadline").notNull(),
+  assignedReviewerId: text("assigned_reviewer_id"),
+  resolutionNotes: text("resolution_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  resolvedAt: timestamp("resolved_at"),
 });
 
 export const identityLinks = pgTable("identity_links", {
@@ -116,13 +190,27 @@ export const riskReports = pgTable("risk_reports", {
 export const alerts = pgTable("alerts", {
   id: uuid("id").primaryKey().defaultRandom(),
   nwsId: text("nws_id").unique().notNull(),
+  eventKey: text("event_key"),
   event: text("event").notNull(),
+  headline: text("headline"),
   severity: text("severity").notNull(),
+  urgency: text("urgency"),
+  certainty: text("certainty"),
+  status: text("status").default("Actual").notNull(),
+  messageType: text("message_type").default("Alert").notNull(),
+  phenomena: text("phenomena"),
+  significance: text("significance"),
+  areaDesc: text("area_desc"),
   rawJson: jsonb("raw_json").notNull(),
   geometryGeojson: jsonb("geometry_geojson"),
   onset: timestamp("onset"),
   expires: timestamp("expires"),
+  effective: timestamp("effective"),
   source: text("source", { enum: ["live", "replay"] }).default("live").notNull(),
+  mode: text("mode", { enum: ["LIVE", "HISTORICAL_REPLAY", "SYNTHETIC"] }).default("LIVE").notNull(),
+  isTranche1Eligible: boolean("is_tranche1_eligible").default(false).notNull(),
+  lastSyncedAt: timestamp("last_synced_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const activations = pgTable("activations", {
@@ -131,6 +219,8 @@ export const activations = pgTable("activations", {
   alertId: uuid("alert_id").references(() => alerts.id).notNull(),
   activationJson: jsonb("activation_json").notNull(),
   status: text("status", { enum: ["open", "planned", "audited", "approved", "paid", "closed", "voided"] }).default("open").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const payoutPlans = pgTable("payout_plans", {

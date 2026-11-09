@@ -1,27 +1,81 @@
 import { NextResponse } from "next/server";
-import { createAppeal } from "@/lib/recipients/index";
+import { createAppealRecord, type AppealInput } from "@/lib/recipients/index";
+import { db } from "@/lib/db/client";
+import { appeals, households } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
   try {
-    const { householdId, reason, contactPreference } = await req.json();
+    const body: AppealInput = await req.json();
 
-    if (!householdId || !reason) {
+    if (!body.householdId || !body.reason) {
       return NextResponse.json(
         { error: "householdId and reason are required" },
         { status: 400 }
       );
     }
 
-    const appeal = createAppeal({ householdId, reason, contactPreference: contactPreference || "email" });
+    // Verify household exists
+    const [hh] = await db
+      .select()
+      .from(households)
+      .where(eq(households.id, body.householdId))
+      .limit(1);
+
+    if (!hh) {
+      return NextResponse.json({ error: "Household not found" }, { status: 404 });
+    }
+
+    // Generate appeal record with strict 24-hour SLA
+    const appealRecord = createAppealRecord(body);
+
+    const [inserted] = await db
+      .insert(appeals)
+      .values({
+        householdId: appealRecord.householdId,
+        caseReference: appealRecord.caseReference,
+        category: appealRecord.category,
+        explanation: appealRecord.explanation,
+        status: appealRecord.status,
+        slaDeadline: new Date(appealRecord.slaDeadline),
+      })
+      .returning();
 
     return NextResponse.json({
       success: true,
-      appeal,
+      appealId: inserted.id,
+      caseReference: inserted.caseReference,
+      category: inserted.category,
+      status: inserted.status,
+      slaDeadline: inserted.slaDeadline.toISOString(),
       message: "Appeal submitted. A human coordinator will review within 24 hours.",
     });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || "Failed to submit appeal" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const householdId = url.searchParams.get("householdId");
+
+    if (householdId) {
+      const results = await db
+        .select()
+        .from(appeals)
+        .where(eq(appeals.householdId, householdId));
+      return NextResponse.json({ appeals: results });
+    }
+
+    const allAppeals = await db.select().from(appeals);
+    return NextResponse.json({ appeals: allAppeals });
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: err.message || "Failed to list appeals" },
       { status: 500 }
     );
   }
