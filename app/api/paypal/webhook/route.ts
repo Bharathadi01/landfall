@@ -75,9 +75,13 @@ export async function POST(req: NextRequest) {
     const resource = (event.resource || {}) as Record<string, unknown>;
 
     // 4a. Payout item events: update payout_items table
-    if (eventType.startsWith("PAYMENT.PAYOUTS-ITEM.")) {
+    if (
+      eventType.startsWith("PAYMENT.PAYOUTS-ITEM.") ||
+      eventType.startsWith("PAYMENT.PAYOUTS_ITEM.")
+    ) {
       const payoutItemId = String(resource.payout_item_id || "");
-      const newStatus = String(resource.transaction_status || eventType.split(".").pop() || "");
+      let rawStatus = String(resource.transaction_status || eventType.split(".").pop() || "");
+      const newStatus = rawStatus.toUpperCase() === "SUCCEEDED" ? "SUCCESS" : rawStatus.toUpperCase();
 
       if (payoutItemId) {
         const currentItem = await db
@@ -95,6 +99,37 @@ export async function POST(req: NextRequest) {
                 lastEventAt: new Date(),
               })
               .where(eq(payoutItems.paypalItemId, payoutItemId));
+          }
+        }
+      }
+    }
+
+    // 4a-2. Payout batch events: update items via batch manifest or HATEOAS traversal
+    if (eventType.startsWith("PAYMENT.PAYOUTSBATCH.")) {
+      const batchHeader = (resource.batch_header || resource) as Record<string, unknown>;
+      const batchStatus = String(batchHeader.batch_status || eventType.split(".").pop() || "").toUpperCase();
+      const itemsList = Array.isArray(resource.items) ? (resource.items as Array<Record<string, unknown>>) : [];
+
+      for (const it of itemsList) {
+        const itemId = String(it.payout_item_id || "");
+        const itStatusRaw = String(it.transaction_status || (batchStatus === "SUCCESS" ? "SUCCESS" : "PROCESSING"));
+        const itStatus = itStatusRaw.toUpperCase() === "SUCCEEDED" ? "SUCCESS" : itStatusRaw.toUpperCase();
+
+        if (itemId) {
+          const currentItem = await db
+            .select()
+            .from(payoutItems)
+            .where(eq(payoutItems.paypalItemId, itemId))
+            .limit(1);
+
+          if (currentItem.length > 0 && shouldUpdatePayoutStatus(currentItem[0].status, itStatus)) {
+            await db
+              .update(payoutItems)
+              .set({
+                status: itStatus,
+                lastEventAt: new Date(),
+              })
+              .where(eq(payoutItems.paypalItemId, itemId));
           }
         }
       }

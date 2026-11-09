@@ -8,18 +8,19 @@ const envSchema = z.object({
   NEXT_PUBLIC_PAYPAL_CLIENT_ID: z.string().min(1, "NEXT_PUBLIC_PAYPAL_CLIENT_ID is required"),
   PAYPAL_LIPP_REDIRECT: z.string().url().default("http://127.0.0.1:3000/api/auth/paypal/callback"),
   DATABASE_URL: z.string().min(1).default("postgres://postgres:postgres@localhost:5432/landfall"),
-  GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional().default(""),
   GROQ_API_KEY: z.string().optional().default(""),
-  ANTHROPIC_API_KEY: z.string().optional(),
-  MODEL_FAST: z.string().default("gemini-1.5-flash"),
-  MODEL_SMART: z.string().default("gemini-1.5-flash"),
-  MODEL_AUDITOR: z.string().default("llama-3.3-70b-versatile"),
   NEXT_PUBLIC_AG_STUDIO_LICENSE: z.string().optional(),
   NWS_USER_AGENT: z.string().default("Landfall hackathon app (contact: contact@landfall.local)"),
   CRON_SECRET: z.string().default("dev-cron-secret"),
   JUDGE_MODE_ENABLED: z.string().transform((v) => v === "true").default("true"),
   APP_URL: z.string().url().default("http://127.0.0.1:3000"),
   SANDBOX_RESIDENT_EMAIL: z.string().optional(),
+  WATCH_OFFICER_MODEL: z
+    .string()
+    .default("openai/gpt-oss-20b")
+    .refine((val) => val === "openai/gpt-oss-20b", {
+      message: "WATCH_OFFICER_MODEL must be 'openai/gpt-oss-20b' (Groq Free Plan zero-cost invariant)",
+    }),
 });
 
 export const env = envSchema.parse({
@@ -30,16 +31,12 @@ export const env = envSchema.parse({
   NEXT_PUBLIC_PAYPAL_CLIENT_ID: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
   PAYPAL_LIPP_REDIRECT: process.env.PAYPAL_LIPP_REDIRECT,
   DATABASE_URL: process.env.DATABASE_URL,
-  GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
   GROQ_API_KEY: process.env.GROQ_API_KEY,
-  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
-  MODEL_FAST: process.env.MODEL_FAST,
-  MODEL_SMART: process.env.MODEL_SMART,
-  MODEL_AUDITOR: process.env.MODEL_AUDITOR,
   NEXT_PUBLIC_AG_STUDIO_LICENSE: process.env.NEXT_PUBLIC_AG_STUDIO_LICENSE,
   NWS_USER_AGENT: process.env.NWS_USER_AGENT,
   CRON_SECRET: process.env.CRON_SECRET,
   JUDGE_MODE_ENABLED: process.env.JUDGE_MODE_ENABLED,
   APP_URL: process.env.APP_URL,
   SANDBOX_RESIDENT_EMAIL: process.env.SANDBOX_RESIDENT_EMAIL,
+  WATCH_OFFICER_MODEL: process.env.WATCH_OFFICER_MODEL,
 });

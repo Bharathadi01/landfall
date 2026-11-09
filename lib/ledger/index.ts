@@ -1,6 +1,8 @@
 import { db } from "@/lib/db/client";
 import { ledgerAccounts, ledgerEntries, hosts, stormPledges } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
+import { calculateAllocatable } from "./allocatable";
+export { calculateAllocatable };
 
 export type AccountName =
   | "paypal_available"
@@ -75,23 +77,7 @@ export function validateBalancedTransaction(entries: LedgerEntryItem[]): {
  * Computes the exact allocatable amount via deterministic formula:
  * Allocatable = PayPal Available - Protected Floor (except Tranche 1) - Fees Reserved - Committed.
  */
-export function calculateAllocatable({
-  paypalAvailableCents,
-  reserveProtectedCents,
-  feesReservedCents,
-  committedCents,
-  isTranche1 = false,
-}: {
-  paypalAvailableCents: number;
-  reserveProtectedCents: number;
-  feesReservedCents: number;
-  committedCents: number;
-  isTranche1?: boolean;
-}): number {
-  const protectedDeduction = isTranche1 ? 0 : reserveProtectedCents;
-  const allocatable = paypalAvailableCents - protectedDeduction - feesReservedCents - committedCents;
-  return Math.max(0, allocatable);
-}
+
 
 /**
  * Persists a balanced ledger transaction.

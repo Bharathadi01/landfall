@@ -24,7 +24,7 @@ export type PlanState =
 
 export interface PlanItem {
   householdId: string;
-  recipientType: "EMAIL" | "PAYPAL_ID";
+  recipientType: "EMAIL" | "PAYPAL_ID" | "MANUAL";
   receiver: string;
   amountCents: number;
   currency: string;
@@ -94,6 +94,9 @@ export interface ExecutionResult {
   state: PlanState;
   replayed?: boolean;
   error?: string;
+  digitalDisbursementsCount?: number;
+  offlineDisbursementsCount?: number;
+  offlineItems?: PlanItem[];
 }
 
 /**
@@ -243,28 +246,51 @@ export class TreasurerEngine {
     this.outbox.set(plan.id, outboxRecord);
     this.activeSubmissions.add(plan.id);
 
-    try {
-      const batchResponse = await payoutSender({
-        sender_batch_header: {
-          sender_batch_id: senderBatchId,
-          email_subject: "Mutual Aid Disbursement - Landfall",
-          email_message: "Your anticipatory mutual-aid relief payment has been issued.",
-        },
-        items: plan.items.map((item) => ({
-          recipient_type: item.recipientType,
-          receiver: item.receiver,
-          amount: {
-            value: (item.amountCents / 100).toFixed(2),
-            currency: item.currency,
-          },
-          note: item.note,
-          sender_item_id: `${plan.activationId}:t${plan.tranche}:${item.householdId}`,
-        })),
-        requestId: paypalRequestId,
-      });
+    // Partition items: PayPal digital items vs Offline cash card/manual items
+    const digitalItems = plan.items.filter(
+      (item) => item.recipientType === "EMAIL" || item.recipientType === "PAYPAL_ID"
+    );
+    const manualItems = plan.items.filter(
+      (item) => (item.recipientType as string) === "MANUAL"
+    );
 
-      const batchData = batchResponse.data || batchResponse;
-      const paypalBatchId = batchData.batch_header.payout_batch_id;
+    try {
+      let paypalBatchId: string | undefined = undefined;
+      let batchResponse: any = null;
+
+      if (digitalItems.length > 0) {
+        batchResponse = await payoutSender({
+          sender_batch_header: {
+            sender_batch_id: senderBatchId,
+            email_subject: "Mutual Aid Disbursement - Landfall",
+            email_message: "Your anticipatory mutual-aid relief payment has been issued.",
+          },
+          items: digitalItems.map((item) => ({
+            recipient_type: item.recipientType,
+            receiver: item.receiver,
+            amount: {
+              value: (item.amountCents / 100).toFixed(2),
+              currency: item.currency,
+            },
+            note: item.note,
+            sender_item_id: `${plan.activationId}:t${plan.tranche}:${item.householdId}`,
+          })),
+          requestId: paypalRequestId,
+        });
+
+        const batchData = batchResponse.data || batchResponse;
+        paypalBatchId = batchData?.batch_header?.payout_batch_id || `batch_${senderBatchId}`;
+      } else {
+        // Purely offline cash card / manual relief batch (zero PayPal API call required)
+        paypalBatchId = `offline_${senderBatchId}`;
+        batchResponse = {
+          batch_header: {
+            payout_batch_id: paypalBatchId,
+            batch_status: "OFFLINE_RECORDED",
+          },
+        };
+      }
+
       outboxRecord.status = "SENT";
       outboxRecord.paypalBatchId = paypalBatchId;
       outboxRecord.responsePayload = batchResponse;
@@ -277,8 +303,47 @@ export class TreasurerEngine {
         paypalBatchId,
         state: "submitted",
         replayed: false,
+        digitalDisbursementsCount: digitalItems.length,
+        offlineDisbursementsCount: manualItems.length,
+        offlineItems: manualItems.length > 0 ? manualItems : undefined,
       };
     } catch (err: any) {
+      // Check for PayPal duplicate batch recovery:
+      // When a server restarts or a prior request reached PayPal before an outbox flush,
+      // PayPal returns 400 USER_BUSINESS_ERROR with "Batch with given sender_batch_id already exists"
+      // and links to the existing batch.
+      const rawDetails = err?.details || {};
+      const issues = Array.isArray(rawDetails.details) ? rawDetails.details : [];
+      const duplicateIssue = issues.find(
+        (d: any) =>
+          d.issue === "Batch with given sender_batch_id already exists" ||
+          d.field === "SENDER_BATCH_ID"
+      );
+      const links = duplicateIssue?.link || [];
+      const existingBatchHref = links.find((l: any) => l.rel === "self")?.href;
+      const recoveredBatchId = existingBatchHref
+        ? existingBatchHref.split("/").pop()?.split("?")[0]
+        : undefined;
+
+      if (recoveredBatchId) {
+        outboxRecord.status = "SENT";
+        outboxRecord.paypalBatchId = recoveredBatchId;
+        outboxRecord.responsePayload = rawDetails;
+        outboxRecord.updatedAt = new Date().toISOString();
+        this.activeSubmissions.delete(plan.id);
+
+        return {
+          success: true,
+          batchId: senderBatchId,
+          paypalBatchId: recoveredBatchId,
+          state: "submitted",
+          replayed: true,
+          digitalDisbursementsCount: digitalItems.length,
+          offlineDisbursementsCount: manualItems.length,
+          offlineItems: manualItems.length > 0 ? manualItems : undefined,
+        };
+      }
+
       const errorMsg = err instanceof Error ? err.message : String(err);
       outboxRecord.status = "FAILED";
       outboxRecord.error = errorMsg;

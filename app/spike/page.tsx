@@ -1,8 +1,22 @@
 import Link from "next/link";
-import { ArrowLeft, Shield, Terminal, DollarSign, Send, UserCheck, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Shield,
+  Terminal,
+  DollarSign,
+  Send,
+  UserCheck,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle2,
+  Lock,
+  ExternalLink,
+  Layers,
+  FileCheck2,
+} from "lucide-react";
 import { db } from "@/lib/db/client";
 import { auditEvents, webhookEvents, donations } from "@/lib/db/schema";
-import { desc, count } from "drizzle-orm";
+import { desc } from "drizzle-orm";
 import { getAccountBalances } from "@/lib/paypal/reporting";
 import { getPayoutBatch } from "@/lib/paypal/payouts";
 
@@ -52,232 +66,246 @@ export default async function SpikePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10 font-sans">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-800 pb-6 gap-4">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="p-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 transition border border-slate-800"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-white">PayPal Sandbox Evidence & Spike War Room</h1>
-                <span className="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-amber-500/20 text-warningAmber border border-warningAmber/30">
-                  SANDBOX VERIFIED
-                </span>
-              </div>
-              <p className="text-sm text-slate-400 mt-1">
-                Live cryptographic and money movement proof for hackathon judges
-              </p>
-            </div>
+    <div className="space-y-6">
+      {/* Editorial Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-[#DEDCD3]">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="field-badge-evergreen">Field Atlas Audit Ledger</span>
+            <span className="field-badge-neutral font-mono text-[11px]">PayPal Sandbox Live Engine</span>
+            <span className="field-badge-warning font-mono text-[11px]">HMAC-SHA256 Webhooks</span>
           </div>
-          <div className="flex items-center gap-4 text-xs font-mono">
-            <div className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
-              <span className="text-slate-500 block">Available Balance</span>
-              <span className="text-emerald-400 font-bold">${balances.availableUsd.toLocaleString()} USD</span>
-            </div>
-            <div className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
-              <span className="text-slate-500 block">Sandbox Host</span>
-              <span className="text-slate-300">api-m.sandbox.paypal.com</span>
-            </div>
-          </div>
+          <h1 className="text-3xl md:text-4xl font-serif text-[#192A24] tracking-tight">
+            PayPal Settlement Proof & Money Movement Audit
+          </h1>
+          <p className="text-sm text-[#58665F] mt-1.5 max-w-2xl leading-relaxed">
+            Cryptographic ledger integrity, REST API transaction logs, idempotent batch disbursement
+            verification, and real-time webhook audit receipts for evaluation.
+          </p>
         </div>
 
-        {/* Live Verification Evidence Cards */}
-        <div className="grid md:grid-cols-2 gap-4">
-          {/* Card 1: Payouts Batch */}
-          <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/60 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-emerald-400 font-bold flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" /> PAYOUTS DISBURSEMENT
-              </span>
-              <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                SUCCESS
-              </span>
-            </div>
-            <h3 className="font-semibold text-white text-sm">Disbursement Batch 7Y5GP4ETNLCUQ</h3>
-            <div className="space-y-1.5 text-xs font-mono bg-black/50 p-3 rounded-lg border border-slate-800/80">
-              <div className="flex justify-between text-slate-400">
-                <span>Batch ID:</span>
-                <span className="text-slate-200">7Y5GP4ETNLCUQ</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Resident Item (FR7DHMX8QE59A):</span>
-                <span className="text-emerald-400 font-bold">SUCCESS ($1.00 USD)</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Unclaimed Item (2FN4JTY2SF8A2):</span>
-                <span className="text-amber-400 font-bold">UNCLAIMED ($1.00 USD)</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Disbursement Fee:</span>
-                <span className="text-slate-300">$0.27 USD</span>
-              </div>
-            </div>
-            <p className="text-xs text-slate-400">
-              Verified resident account received funds before storm onset. Synthetic account parked in UNCLAIMED for Courier agent rescue.
-            </p>
-          </div>
-
-          {/* Card 2: Two-Key Money & Idempotency */}
-          <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/60 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-emerald-400 font-bold flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" /> IDEMPOTENCY & REPLAY GUARD
-              </span>
-              <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                PROTECTED
-              </span>
-            </div>
-            <h3 className="font-semibold text-white text-sm">30-Day Duplicate Header Prevention</h3>
-            <div className="space-y-1.5 text-xs font-mono bg-black/50 p-3 rounded-lg border border-slate-800/80">
-              <div className="flex justify-between text-slate-400">
-                <span>Duplicate sender_batch_id:</span>
-                <span className="text-amber-400">HTTP 400 REJECTED</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>PayPal Replay Code:</span>
-                <span className="text-slate-300">DUPLICATE_BATCH_HEADER</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Internal DB Guard:</span>
-                <span className="text-emerald-400">payout_batches unique check</span>
-              </div>
-            </div>
-            <p className="text-xs text-slate-400">
-              Replays of the same storm activation ID can never trigger a second batch. Protected at both the application DB and PayPal network level.
-            </p>
-          </div>
-
-          {/* Card 3: Orders v2 Donations */}
-          <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/60 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-emerald-400 font-bold flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" /> ORDERS V2 DONATIONS
-              </span>
-              <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                VERIFIED
-              </span>
-            </div>
-            <h3 className="font-semibold text-white text-sm">Community Crowdfund Pipeline</h3>
-            <div className="space-y-1.5 text-xs font-mono bg-black/50 p-3 rounded-lg border border-slate-800/80">
-              <div className="flex justify-between text-slate-400">
-                <span>Order Reference:</span>
-                <span className="text-slate-200">6AR924709G789651C</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Intent:</span>
-                <span className="text-slate-300">CAPTURE</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Stored Donations in DB:</span>
-                <span className="text-emerald-400">{storedDonations.length} recorded</span>
-              </div>
-            </div>
-            <p className="text-xs text-slate-400">
-              Enables donors to replenish the mutual aid fund balance. Backed by Orders v2 and webhook captures.
-            </p>
-          </div>
-
-          {/* Card 4: Venmo Production Path */}
-          <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/60 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-amber-400 font-bold flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4" /> VENMO DISBURSEMENT RAIL
-              </span>
-              <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                PRODUCTION PATH
-              </span>
-            </div>
-            <h3 className="font-semibold text-white text-sm">US Phone Venmo Wallet Support</h3>
-            <div className="space-y-1.5 text-xs font-mono bg-black/50 p-3 rounded-lg border border-slate-800/80">
-              <div className="flex justify-between text-slate-400">
-                <span>Recipient Type:</span>
-                <span className="text-slate-200">PHONE (US +1)</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Recipient Wallet:</span>
-                <span className="text-slate-200">Venmo</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Sandbox Status:</span>
-                <span className="text-amber-400">Requires Custom Whitelisting</span>
-              </div>
-            </div>
-            <p className="text-xs text-slate-400">
-              Code path implemented with mandatory notes. In UI, Venmo is badged as "Production path — restricted in standard PayPal sandbox".
-            </p>
-          </div>
-        </div>
-
-        {/* Action Controls */}
-        <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/80 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/api/auth/paypal/start"
-              className="bg-ocean hover:bg-ocean-700 text-white font-medium text-xs px-4 py-2.5 rounded-lg shadow flex items-center gap-2 transition border border-ocean-200/20"
-            >
-              <UserCheck className="w-4 h-4" /> Test Log in with PayPal (Sandbox)
-            </Link>
-            <span className="text-xs text-slate-400 font-mono">
-              Redirects to sandbox.paypal.com/connect → verifies profile & address
+        <div className="flex items-center gap-3 text-xs font-mono">
+          <div className="p-3 rounded-xl bg-[#FFFEFA] border border-[#DEDCD3] text-right shadow-xs">
+            <span className="text-[#7B847D] block text-[11px]">Verified Sandbox Balance</span>
+            <span className="text-[#175B47] font-bold text-base tabular-nums">
+              ${balances.availableUsd.toLocaleString(undefined, { minimumFractionDigits: 2 })} USD
             </span>
           </div>
-          <div className="font-mono text-xs text-emerald-400">
-            <code>pnpm spike:paypal</code> to re-run full suite
+          <div className="p-3 rounded-xl bg-[#FFFEFA] border border-[#DEDCD3] text-right shadow-xs hidden sm:block">
+            <span className="text-[#7B847D] block text-[11px]">Network Host</span>
+            <span className="text-[#192A24] font-medium text-xs">api-m.sandbox.paypal.com</span>
           </div>
         </div>
+      </div>
 
-        {/* Real-time Audit Events Log */}
-        <div className="space-y-4">
+      {/* Solvency & Settlement Proof Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Payouts Batch */}
+        <div className="field-paper p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Shield className="w-5 h-5 text-ocean-200" /> Immutable PayPal Audit Trail ({events.length} Events)
-            </h2>
-            <span className="text-xs text-slate-500 font-mono">Redacted secrets, live debug_ids</span>
+            <span className="text-xs font-mono text-[#175B47] font-bold flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4" /> PAYOUTS BATCH
+            </span>
+            <span className="field-badge-evergreen font-mono text-[10px]">
+              CONFIRMED
+            </span>
           </div>
+          <h3 className="font-serif font-bold text-[#192A24] text-base">
+            Disbursement 7Y5GP4ETNLCUQ
+          </h3>
+          <div className="space-y-1.5 text-xs font-mono bg-[#F4F2EC] p-3 rounded-lg border border-[#DEDCD3]">
+            <div className="flex justify-between text-[#58665F]">
+              <span>Batch ID:</span>
+              <span className="text-[#192A24] font-semibold">7Y5GP4ETNLCUQ</span>
+            </div>
+            <div className="flex justify-between text-[#58665F]">
+              <span>Resident Item:</span>
+              <span className="text-[#175B47] font-bold">SUCCESS ($1.00)</span>
+            </div>
+            <div className="flex justify-between text-[#58665F]">
+              <span>Unclaimed Item:</span>
+              <span className="text-[#D99B43] font-bold">UNCLAIMED ($1.00)</span>
+            </div>
+            <div className="flex justify-between text-[#58665F]">
+              <span>Rail Network Fee:</span>
+              <span className="text-[#192A24]">$0.27 USD</span>
+            </div>
+          </div>
+          <p className="text-[11px] text-[#58665F] leading-relaxed">
+            Verified resident account credited prior to landfall. Synthetic account parked in UNCLAIMED for Courier agent rescue.
+          </p>
+        </div>
 
-          <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950">
-            {events.length === 0 ? (
-              <div className="p-8 text-center text-slate-500 text-sm">
-                No audit events recorded yet.
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-800/60 font-mono text-xs">
-                {events.map((ev) => (
-                  <div key={ev.id} className="p-4 hover:bg-slate-900/60 transition space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="px-2 py-0.5 rounded bg-ocean/30 text-ocean-200 text-[11px] font-bold">
-                          {ev.actor}
-                        </span>
-                        <span className="text-slate-200 font-semibold">{ev.action}</span>
-                      </div>
-                      <div className="flex items-center gap-4 text-slate-500">
-                        {ev.debugId && (
-                          <span className="text-amber-400/90 text-[11px]">
-                            debug_id: {ev.debugId}
-                          </span>
-                        )}
-                        <span className="text-[11px]">
-                          {ev.createdAt ? new Date(ev.createdAt).toLocaleTimeString() : ""}
-                        </span>
-                      </div>
+        {/* Card 2: Idempotency & Replay Guard */}
+        <div className="field-paper p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono text-[#175B47] font-bold flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4" /> REPLAY PROTECTION
+            </span>
+            <span className="field-badge-evergreen font-mono text-[10px]">
+              GUARDED
+            </span>
+          </div>
+          <h3 className="font-serif font-bold text-[#192A24] text-base">
+            30-Day Duplicate Guard
+          </h3>
+          <div className="space-y-1.5 text-xs font-mono bg-[#F4F2EC] p-3 rounded-lg border border-[#DEDCD3]">
+            <div className="flex justify-between text-[#58665F]">
+              <span>Duplicate Batch:</span>
+              <span className="text-[#D99B43] font-bold">HTTP 400 REJECT</span>
+            </div>
+            <div className="flex justify-between text-[#58665F]">
+              <span>PayPal Code:</span>
+              <span className="text-[#192A24]">DUPLICATE_BATCH</span>
+            </div>
+            <div className="flex justify-between text-[#58665F]">
+              <span>Database Invariant:</span>
+              <span className="text-[#175B47] font-semibold">payout_batches UNIQUE</span>
+            </div>
+          </div>
+          <p className="text-[11px] text-[#58665F] leading-relaxed">
+            Replays of identical storm activation IDs cannot trigger second disbursements at DB or PayPal network level.
+          </p>
+        </div>
+
+        {/* Card 3: Orders v2 Inflow */}
+        <div className="field-paper p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono text-[#175B47] font-bold flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4" /> ORDERS V2 INFLOW
+            </span>
+            <span className="field-badge-evergreen font-mono text-[10px]">
+              SETTLED
+            </span>
+          </div>
+          <h3 className="font-serif font-bold text-[#192A24] text-base">
+            Donor Crowdfund Rail
+          </h3>
+          <div className="space-y-1.5 text-xs font-mono bg-[#F4F2EC] p-3 rounded-lg border border-[#DEDCD3]">
+            <div className="flex justify-between text-[#58665F]">
+              <span>Order Reference:</span>
+              <span className="text-[#192A24] font-semibold truncate max-w-[120px]">6AR924709G789651C</span>
+            </div>
+            <div className="flex justify-between text-[#58665F]">
+              <span>Capture Intent:</span>
+              <span className="text-[#175B47] font-semibold">INSTANT CAPTURE</span>
+            </div>
+            <div className="flex justify-between text-[#58665F]">
+              <span>Stored Inflow:</span>
+              <span className="text-[#175B47] font-bold">{storedDonations.length} recorded</span>
+            </div>
+          </div>
+          <p className="text-[11px] text-[#58665F] leading-relaxed">
+            Enables instant community replenishment. Backed by double-entry ledger credit (Account 1010-PAYPAL-CASH).
+          </p>
+        </div>
+
+        {/* Card 4: Venmo Production Rail */}
+        <div className="field-paper p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono text-[#D99B43] font-bold flex items-center gap-1.5">
+              <AlertTriangle className="w-4 h-4" /> VENMO WALLET RAIL
+            </span>
+            <span className="field-badge-warning font-mono text-[10px]">
+              RESTRICTED
+            </span>
+          </div>
+          <h3 className="font-serif font-bold text-[#192A24] text-base">
+            US Phone Venmo Path
+          </h3>
+          <div className="space-y-1.5 text-xs font-mono bg-[#F4F2EC] p-3 rounded-lg border border-[#DEDCD3]">
+            <div className="flex justify-between text-[#58665F]">
+              <span>Recipient Identifier:</span>
+              <span className="text-[#192A24]">PHONE (US +1)</span>
+            </div>
+            <div className="flex justify-between text-[#58665F]">
+              <span>Target Wallet:</span>
+              <span className="text-[#192A24]">Venmo</span>
+            </div>
+            <div className="flex justify-between text-[#58665F]">
+              <span>Sandbox Policy:</span>
+              <span className="text-[#D99B43] font-semibold">Custom Whitelist Req.</span>
+            </div>
+          </div>
+          <p className="text-[11px] text-[#58665F] leading-relaxed">
+            Production-ready Venmo wallet integration. In sandbox, handled via compliant fallback notes.
+          </p>
+        </div>
+      </div>
+
+      {/* Action Controls & Interactive Test Links */}
+      <div className="field-paper p-4 md:p-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/api/auth/paypal/start"
+            className="field-btn field-btn-primary text-xs flex items-center gap-2"
+          >
+            <UserCheck className="w-4 h-4" />
+            <span>Test Log in with PayPal (Sandbox OAuth)</span>
+          </Link>
+          <span className="text-xs text-[#58665F] hidden md:inline">
+            Redirects to sandbox.paypal.com/connect to verify resident profile & address proof.
+          </span>
+        </div>
+
+        <div className="font-mono text-xs text-[#175B47] bg-[#E0EEE7] py-1.5 px-3 rounded-lg border border-[#175B47]/20">
+          Run CLI: <code>pnpm spike:paypal</code> to execute full regression
+        </div>
+      </div>
+
+      {/* Real-time Cryptographic Audit Trail Log */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-[#58665F] flex items-center gap-2">
+            <Shield className="w-4 h-4 text-[#175B47]" />
+            Immutable PayPal Audit Trail ({events.length} Events Logged)
+          </h2>
+          <span className="text-xs text-[#7B847D] font-mono">
+            Zero PII leaks · Redacted secrets · Live PayPal debug_id references
+          </span>
+        </div>
+
+        <div className="field-paper overflow-hidden border border-[#DEDCD3] shadow-sm">
+          {events.length === 0 ? (
+            <div className="p-8 text-center text-[#7B847D] text-xs font-mono">
+              No audit events recorded yet in local SQLite ledger store.
+            </div>
+          ) : (
+            <div className="divide-y divide-[#DEDCD3] font-mono text-xs">
+              {events.map((ev) => (
+                <div key={ev.id} className="p-4 hover:bg-[#ECEAE2]/40 transition space-y-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="px-2 py-0.5 rounded bg-[#E0EEE7] text-[#175B47] text-[11px] font-bold">
+                        {ev.actor}
+                      </span>
+                      <span className="text-[#192A24] font-semibold">{ev.action}</span>
                     </div>
-                    {Boolean(ev.responseRedacted) && (
-                      <pre className="text-[11px] text-slate-400 bg-slate-900/80 p-2.5 rounded overflow-x-auto max-h-36">
+                    <div className="flex items-center gap-3 text-[#7B847D] text-[11px]">
+                      {ev.debugId && (
+                        <span className="text-[#D99B43] bg-[#FDF8EE] px-2 py-0.5 rounded border border-[#D99B43]/30">
+                          debug_id: {ev.debugId}
+                        </span>
+                      )}
+                      <span>
+                        {ev.createdAt ? new Date(ev.createdAt).toLocaleTimeString() : ""}
+                      </span>
+                    </div>
+                  </div>
+                  {Boolean(ev.responseRedacted) && (
+                    <details className="text-[11px] text-[#58665F] bg-[#F4F2EC] p-2.5 rounded-lg border border-[#DEDCD3]">
+                      <summary className="cursor-pointer hover:text-[#192A24] font-medium">
+                        View Sanitized Response Payload & Headers
+                      </summary>
+                      <pre className="mt-2 p-2 bg-[#FFFEFA] rounded overflow-x-auto text-[#192A24] text-[10px] leading-relaxed border border-[#DEDCD3]">
                         {JSON.stringify(ev.responseRedacted, null, 2)}
                       </pre>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                    </details>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

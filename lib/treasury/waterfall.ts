@@ -1,4 +1,4 @@
-import { calculateAllocatable } from "@/lib/ledger/index";
+import { calculateAllocatable } from "@/lib/ledger/allocatable";
 
 export interface WaterfallBreakdown {
   paypalAvailableCents: number;
@@ -21,7 +21,7 @@ export function computeTreasuryWaterfall({
   contingentPledgesCents = 0,
   activePledgesCount = 0,
   eligibleHouseholdsCount = 0,
-  tranche1CostPerHouseholdCents = 10225, // $100 payout + $2.25 fee
+  tranche1CostPerHouseholdCents = 10025, // $100 payout + $0.25 flat PayPal domestic rail fee
 }: {
   paypalAvailableCents: number;
   reserveProtectedCents: number;
@@ -32,13 +32,14 @@ export function computeTreasuryWaterfall({
   eligibleHouseholdsCount?: number;
   tranche1CostPerHouseholdCents?: number;
 }): WaterfallBreakdown {
-  // Tranche 1 can draw on reserve_protected
+  // Tranche 1 strictly respects reserve protection by default
   const allocatableCents = calculateAllocatable({
     paypalAvailableCents,
     reserveProtectedCents,
     feesReservedCents,
     committedCents,
     isTranche1: true,
+    allowReserveDrawdown: false,
   });
 
   const totalDemandCents = eligibleHouseholdsCount * tranche1CostPerHouseholdCents;

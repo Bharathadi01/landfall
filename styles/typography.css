@@ -1,0 +1,100 @@
+/**
+ * FIELD ATLAS TYPOGRAPHY
+ * Hierarchy, Responsive Scales, and Tabular Numerals
+ */
+
+:root {
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-serif: "Newsreader", "Georgia", "Iowan Old Style", "Palatino", serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--deep-ink);
+  background-color: var(--canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Editorial Serif Accents */
+.font-editorial {
+  font-family: var(--font-serif);
+  font-style: normal;
+  letter-spacing: -0.02em;
+}
+
+.font-editorial-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+
+/* Tabular Numerals for Currency, Balances, and Financial Verification */
+.font-tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Typography Scale Classes */
+.text-hero {
+  font-size: clamp(38px, 5.2vw, 72px);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+
+.text-title-1 {
+  font-size: clamp(28px, 3.4vw, 42px);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  font-weight: 700;
+}
+
+.text-title-2 {
+  font-size: clamp(22px, 2.5vw, 28px);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.text-heading {
+  font-size: clamp(17px, 1.8vw, 20px);
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+.text-body-large {
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+.text-body-base {
+  font-size: 15px;
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+.text-caption {
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 450;
+  color: var(--secondary-ink);
+}
+
+.text-micro {
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.text-code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+}
+

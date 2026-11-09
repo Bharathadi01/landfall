@@ -377,3 +377,28 @@ export const auditEvents = pgTable("audit_events", {
   debugId: text("debug_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const watchOfficerSessions = pgTable("watch_officer_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  fundId: uuid("fund_id").references(() => funds.id).notNull(),
+  actorId: text("actor_id").notNull(),
+  actorRole: text("actor_role").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const watchOfficerRuns = pgTable("watch_officer_runs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  runId: text("run_id").unique().notNull(),
+  sessionId: uuid("session_id").references(() => watchOfficerSessions.id),
+  fundId: uuid("fund_id").references(() => funds.id).notNull(),
+  actorId: text("actor_id").notNull(),
+  actorRole: text("actor_role").notNull(),
+  query: text("query").notNull(),
+  mode: text("mode", { enum: ["LIVE", "HISTORICAL_REPLAY", "SYNTHETIC"] }).default("LIVE").notNull(),
+  readinessState: text("readiness_state").notNull(),
+  responseJson: jsonb("response_json").notNull(),
+  evidenceJson: jsonb("evidence_json").notNull(),
+  model: text("model"),
+  latencyMs: integer("latency_ms"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

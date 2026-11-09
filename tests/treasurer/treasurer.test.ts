@@ -322,5 +322,68 @@ describe("Hardened Treasurer Engine (§4.6)", () => {
       expect(second.duplicate).toBe(true);
       expect(second.status).toBe("ALREADY_PROCESSED");
     });
+
+    it("safely partitions MANUAL offline relief items away from PayPal payout batches", async () => {
+      const treasurer = new TreasurerEngine();
+      const { approvals } = createValidPlan();
+      const context = createValidContext();
+
+      // Create a plan with 1 digital item and 1 offline manual cash card item
+      const mixedPlan: PayoutPlan = {
+        id: "plan_mixed_rails_001",
+        activationId: "act_test_mixed",
+        tranche: 1,
+        state: "approved_2",
+        planHash: "",
+        items: [
+          {
+            householdId: "hh_digital_001",
+            recipientType: "EMAIL",
+            receiver: "resident@example.com",
+            amountCents: 10000,
+            currency: "USD",
+            note: "Digital PayPal relief",
+          },
+          {
+            householdId: "hh_manual_002",
+            recipientType: "MANUAL",
+            receiver: "OFFLINE_CASH_CARD",
+            amountCents: 10000,
+            currency: "USD",
+            note: "Physical offline cash card",
+          },
+        ],
+        totalAmountCents: 20000,
+        totalFeesCents: 50,
+        createdAt: new Date().toISOString(),
+      };
+      mixedPlan.planHash = computePlanHash(mixedPlan);
+
+      // Re-sign approvals with the mixed plan hash
+      const mixedApprovals = approvals.map((a) => ({ ...a, planHash: mixedPlan.planHash }));
+
+      const mockSender = vi.fn(async (params: any) => {
+        // Assert only the digital item was passed to PayPal
+        expect(params.items.length).toBe(1);
+        expect(params.items[0].receiver).toBe("resident@example.com");
+        return {
+          batch_header: { payout_batch_id: "BATCH_DIGITAL_ONLY", batch_status: "PENDING" },
+        };
+      });
+
+      const result = await treasurer.executePlan({
+        plan: mixedPlan,
+        approvals: mixedApprovals,
+        context,
+        payoutSender: mockSender,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.digitalDisbursementsCount).toBe(1);
+      expect(result.offlineDisbursementsCount).toBe(1);
+      expect(result.offlineItems?.length).toBe(1);
+      expect(result.offlineItems?.[0].householdId).toBe("hh_manual_002");
+      expect(mockSender).toHaveBeenCalledTimes(1);
+    });
   });
 });

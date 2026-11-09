@@ -1,0 +1,100 @@
+/**
+ * FIELD ATLAS DESIGN TOKENS
+ * Light-First Editorial Financial Product & Cartographic Palette
+ */
+
+:root {
+  /* Core Brand & Cartographic Surfaces */
+  --canvas: #F4F2EC;
+  --paper: #FFFEFA;
+  --surface-muted: #ECEAE2;
+  --surface-strong: #E2E0D8;
+  --border: #DEDCD3;
+  --border-subtle: #EBE9E1;
+
+  /* Editorial Inks (Typography) */
+  --deep-ink: #192A24;
+  --secondary-ink: #58665F;
+  --muted-ink: #7B847D;
+  --inverse-ink: #F4F2EC;
+
+  /* Primary Brand Accents */
+  --evergreen: #175B47;
+  --evergreen-hover: #124938;
+  --evergreen-light: #E0EEE7;
+  --evergreen-glow: rgba(23, 91, 71, 0.12);
+
+  /* Storytelling & Accent Colors */
+  --signal-coral: #D76E4B;
+  --signal-coral-light: #F9EBE6;
+  --warm-amber: #D99B43;
+  --warm-amber-light: #FBF3E6;
+  --atlas-blue: #316B9B;
+  --atlas-blue-light: #E7F0F7;
+
+  /* Semantic Statuses (WCAG 2.2 AA Contrast) */
+  --status-success: #1B7340;
+  --status-success-bg: #E4F4EC;
+  --status-success-border: #97D5B2;
+
+  --status-warning: #B46914;
+  --status-warning-bg: #FEF5E7;
+  --status-warning-border: #F3CA8A;
+
+  --status-critical: #B92525;
+  --status-critical-bg: #FDE8E8;
+  --status-critical-border: #F5A3A3;
+
+  --status-info: #1D5A8A;
+  --status-info-bg: #EAF2F8;
+  --status-info-border: #9DC3E2;
+
+  --status-neutral: #636C67;
+  --status-neutral-bg: #EDECE7;
+  --status-neutral-border: #D0CEBE;
+
+  /* Spacing Scale (4px Base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Surface Shadows */
+  --shadow-subtle: 0 1px 2px rgba(25, 42, 36, 0.04);
+  --shadow-card: 0 1px 3px rgba(25, 42, 36, 0.05), 0 4px 12px rgba(25, 42, 36, 0.03);
+  --shadow-raised: 0 4px 20px rgba(25, 42, 36, 0.08), 0 1px 3px rgba(25, 42, 36, 0.04);
+  --shadow-floating: 0 12px 36px rgba(25, 42, 36, 0.12), 0 2px 6px rgba(25, 42, 36, 0.06);
+
+  /* Motion Timing */
+  --duration-instant: 100ms;
+  --duration-fast: 180ms;
+  --duration-normal: 260ms;
+  --duration-slow: 450ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+  }
+}
+

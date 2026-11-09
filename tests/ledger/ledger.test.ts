@@ -56,8 +56,22 @@ describe("Double-Entry Ledger Engine", () => {
       expect(allocatable).toBe(50000);
     });
 
-    it("allows Tranche 1 to draw directly from the protected reserve", () => {
-      // For Tranche 1, protected reserve floor is unlocked:
+    it("strictly protects reserve in Tranche 1 by default (zero leakage)", () => {
+      // Invariant: Reserve floor is protected by default even in Tranche 1:
+      // 100000 - 30000 - 5000 - 15000 = 50000 ($500.00)
+      const allocatable = calculateAllocatable({
+        paypalAvailableCents: 100000,
+        reserveProtectedCents: 30000,
+        feesReservedCents: 5000,
+        committedCents: 15000,
+        isTranche1: true,
+      });
+
+      expect(allocatable).toBe(50000);
+    });
+
+    it("allows reserve drawdown only when explicit fiduciary override is granted", () => {
+      // With explicit fiduciary override:
       // 100000 - 0 - 5000 - 15000 = 80000 ($800.00)
       const allocatable = calculateAllocatable({
         paypalAvailableCents: 100000,
@@ -65,6 +79,7 @@ describe("Double-Entry Ledger Engine", () => {
         feesReservedCents: 5000,
         committedCents: 15000,
         isTranche1: true,
+        allowReserveDrawdown: true,
       });
 
       expect(allocatable).toBe(80000);

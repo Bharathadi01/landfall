@@ -467,8 +467,8 @@ describe("Storm Treasury & Pledge Engine (§4.2)", () => {
         tranche1CostPerHouseholdCents: 10225,
       });
 
-      expect(waterfall.allocatableCents).toBe(48000);
-      expect(waterfall.coveragePercentage).toBe(94);
+      expect(waterfall.allocatableCents).toBe(33000);
+      expect(waterfall.coveragePercentage).toBe(65);
       expect(waterfall.contingentPledgesCents).toBe(25000);
     });
   });

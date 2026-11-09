@@ -270,3 +270,37 @@ export function evaluatePolicy({
     ineligibleHouseholds: ineligible,
   };
 }
+
+export function evaluateTranche1({
+  households,
+  allocatableCents,
+  config,
+}: {
+  households: HouseholdProfile[];
+  allocatableCents: number;
+  config: PolicyConfig;
+}): PolicyEvaluationResult {
+  return evaluatePolicy({
+    households,
+    policy: config,
+    allocatableCents,
+    tranche: 1,
+  });
+}
+
+export function evaluateTranche2({
+  households,
+  allocatableCents,
+  config,
+}: {
+  households: HouseholdProfile[];
+  allocatableCents: number;
+  config: PolicyConfig;
+}): PolicyEvaluationResult {
+  return evaluatePolicy({
+    households,
+    policy: config,
+    allocatableCents,
+    tranche: 2,
+  });
+}

@@ -1,7 +1,12 @@
-import { describe, it, expect } from "vitest";
-import { shouldUpdatePayoutStatus, PAYOUT_STATUS_PRECEDENCE } from "@/lib/paypal/webhooks";
+import { describe, it, expect, vi } from "vitest";
+import {
+  shouldUpdatePayoutStatus,
+  PAYOUT_STATUS_PRECEDENCE,
+  fetchPayoutItemDetails,
+  fetchHateoasLink,
+} from "@/lib/paypal/webhooks";
 
-describe("PayPal Webhook Status Precedence", () => {
+describe("PayPal Webhook Status Precedence & HATEOAS Traversal (§2, §3)", () => {
   it("allows upgrading from PENDING to PROCESSING to SUCCESS", () => {
     expect(shouldUpdatePayoutStatus("PENDING", "PROCESSING")).toBe(true);
     expect(shouldUpdatePayoutStatus("PROCESSING", "SUCCESS")).toBe(true);
@@ -12,6 +17,8 @@ describe("PayPal Webhook Status Precedence", () => {
     expect(shouldUpdatePayoutStatus("SUCCESS", "PENDING")).toBe(false);
     expect(shouldUpdatePayoutStatus("SUCCESS", "PROCESSING")).toBe(false);
     expect(shouldUpdatePayoutStatus("RETURNED", "UNCLAIMED")).toBe(false);
+    expect(shouldUpdatePayoutStatus("FAILED", "PENDING")).toBe(false);
+    expect(shouldUpdatePayoutStatus("BLOCKED", "PROCESSING")).toBe(false);
   });
 
   it("allows transition from UNCLAIMED to RETURNED or CANCELED", () => {
@@ -23,5 +30,11 @@ describe("PayPal Webhook Status Precedence", () => {
     expect(shouldUpdatePayoutStatus(null, "PENDING")).toBe(true);
     expect(shouldUpdatePayoutStatus(undefined, "SUCCESS")).toBe(true);
   });
-});
 
+  it("ranks terminal statuses with highest precedence", () => {
+    expect(PAYOUT_STATUS_PRECEDENCE["SUCCESS"]).toBe(5);
+    expect(PAYOUT_STATUS_PRECEDENCE["RETURNED"]).toBe(6);
+    expect(PAYOUT_STATUS_PRECEDENCE["FAILED"]).toBe(6);
+    expect(PAYOUT_STATUS_PRECEDENCE["PENDING"]).toBe(1);
+  });
+});

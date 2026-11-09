@@ -147,13 +147,14 @@ describe("Adversarial Financial Integrity & Ledger Audit (§3, §4.2)", () => {
       // Allocatable for general operations = Available ($1,000) - Protected Floor ($1,000) - Fees ($0) - Committed ($0) = $0!
       expect(waterfall.allocatableCents).toBe(0);
 
-      // Even for Tranche 1 (which draws on protected floor), Allocatable = Available ($1,000) - Fees ($0) = $1,000 (NOT $1,050!)
+      // For Tranche 1 with explicit fiduciary drawdown authorized:
       const tranche1Allocatable = calculateAllocatable({
         paypalAvailableCents: waterfall.paypalAvailableCents,
         reserveProtectedCents: waterfall.reserveProtectedCents,
         feesReservedCents: waterfall.feesReservedCents,
         committedCents: waterfall.committedCents,
         isTranche1: true,
+        allowReserveDrawdown: true,
       });
       expect(tranche1Allocatable).toBe(100000); // Exactly $1,000.00, NEVER includes the $50 pledge
     });

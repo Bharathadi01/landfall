@@ -1,0 +1,83 @@
+/**
+ * FIELD ATLAS MOTION & ANIMATION SYSTEM
+ * Purposeful, Subtle, High-Performance Micro-Interactions
+ */
+
+@keyframes fieldFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fieldScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fieldSlideFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-field-fade {
+  animation: fieldFadeIn var(--duration-fast) var(--ease-standard) forwards;
+}
+
+.animate-field-scale {
+  animation: fieldScaleIn var(--duration-normal) var(--ease-standard) forwards;
+}
+
+.animate-field-drawer {
+  animation: fieldSlideFromRight var(--duration-normal) var(--ease-standard) forwards;
+}
+
+/* Subtle Hover Transitions */
+.field-interactive {
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard),
+              transform var(--duration-fast) var(--ease-standard),
+              box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.field-interactive:hover {
+  transform: translateY(-1px);
+}
+
+.field-interactive:active {
+  transform: translateY(0);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .field-interactive:hover,
+  .field-interactive:active {
+    transform: none !important;
+  }
+}
+
