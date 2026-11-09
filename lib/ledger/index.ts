@@ -1,5 +1,5 @@
 import { db } from "@/lib/db/client";
-import { ledgerAccounts, ledgerEntries, hosts } from "@/lib/db/schema";
+import { ledgerAccounts, ledgerEntries, hosts, stormPledges } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 
 export type AccountName =
@@ -136,4 +136,101 @@ export async function recordLedgerTransaction(params: RecordTransactionParams): 
       });
     }
   });
+}
+
+/**
+ * Checks whether a transaction ID has already been recorded in the ledger.
+ */
+export async function isTransactionRecorded(transactionId: string): Promise<boolean> {
+  const existing = await db
+    .select({ id: ledgerEntries.id })
+    .from(ledgerEntries)
+    .where(eq(ledgerEntries.transactionId, transactionId))
+    .limit(1);
+  return existing.length > 0;
+}
+
+/**
+ * Calculates current ledger balance for a given account in cents.
+ */
+export async function getAccountBalance(accountName: AccountName): Promise<number> {
+  const entries = await db
+    .select({
+      direction: ledgerEntries.direction,
+      amount: ledgerEntries.amount,
+    })
+    .from(ledgerEntries)
+    .where(eq(ledgerEntries.accountId, accountName));
+
+  let totalCents = 0;
+  const isAsset = accountName === "paypal_available";
+
+  for (const entry of entries) {
+    const cents = Math.round(parseFloat(entry.amount) * 100);
+    if (isAsset) {
+      totalCents += entry.direction === "DEBIT" ? cents : -cents;
+    } else {
+      totalCents += entry.direction === "CREDIT" ? cents : -cents;
+    }
+  }
+
+  return totalCents;
+}
+
+/**
+ * Computes the full live Treasury Waterfall snapshot from internal ledger state and contingent pledges.
+ */
+export async function getTreasuryWaterfall(): Promise<TreasuryWaterfall> {
+  const paypalAvailableCents = await getAccountBalance("paypal_available");
+  const reserveProtectedCents = await getAccountBalance("reserve_protected");
+  const feesReservedCents = await getAccountBalance("fees_reserved");
+
+  // Committed: sum of all committed:* accounts
+  const committedEntries = await db
+    .select({
+      direction: ledgerEntries.direction,
+      amount: ledgerEntries.amount,
+      accountId: ledgerEntries.accountId,
+    })
+    .from(ledgerEntries);
+
+  let committedCents = 0;
+  for (const entry of committedEntries) {
+    if (entry.accountId.startsWith("committed:")) {
+      const cents = Math.round(parseFloat(entry.amount) * 100);
+      committedCents += entry.direction === "CREDIT" ? cents : -cents;
+    }
+  }
+
+  // Contingent pledges from active storm pledges
+  const activePledges = await db
+    .select({ amountPerEvent: stormPledges.amountPerEvent })
+    .from(stormPledges)
+    .where(eq(stormPledges.status, "ACTIVE"));
+
+  const contingentPledgesCents = activePledges.reduce((sum, p) => {
+    return sum + Math.round(parseFloat(p.amountPerEvent) * 100);
+  }, 0);
+
+  const paidOutCents = await getAccountBalance("paid_out");
+  const returnedCents = await getAccountBalance("returned");
+
+  const allocatableCents = calculateAllocatable({
+    paypalAvailableCents,
+    reserveProtectedCents,
+    feesReservedCents,
+    committedCents,
+    isTranche1: false,
+  });
+
+  return {
+    paypalAvailableCents,
+    reserveProtectedCents,
+    feesReservedCents,
+    committedCents,
+    allocatableCents,
+    contingentPledgesCents,
+    paidOutCents,
+    returnedCents,
+  };
 }

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyWebhookSignature, shouldUpdatePayoutStatus } from "@/lib/paypal/webhooks";
+import {
+  verifyWebhookSignature,
+  shouldUpdatePayoutStatus,
+  shouldUpdateSubscriptionStatus,
+} from "@/lib/paypal/webhooks";
 import { db } from "@/lib/db/client";
-import { webhookEvents, payoutItems, donations } from "@/lib/db/schema";
+import { webhookEvents, payoutItems, donations, subscriptions } from "@/lib/db/schema";
+import { recordLedgerTransaction, isTransactionRecorded } from "@/lib/ledger/index";
 import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
@@ -21,7 +26,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing webhook event id" }, { status: 400 });
     }
 
-    // 1. Deduplication Check
+    // 1. Deduplication Check on Webhook Event ID
     const existing = await db
       .select()
       .from(webhookEvents)
@@ -69,7 +74,7 @@ export async function POST(req: NextRequest) {
     // 4. Handle Event Payload
     const resource = (event.resource || {}) as Record<string, unknown>;
 
-    // Payout item events: update payout_items table
+    // 4a. Payout item events: update payout_items table
     if (eventType.startsWith("PAYMENT.PAYOUTS-ITEM.")) {
       const payoutItemId = String(resource.payout_item_id || "");
       const newStatus = String(resource.transaction_status || eventType.split(".").pop() || "");
@@ -95,12 +100,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Capture completed events: update donations
+    // 4b. Capture completed events: update donations & record double-entry ledger entry
     if (eventType === "PAYMENT.CAPTURE.COMPLETED") {
       const suppData = resource.supplementary_data as Record<string, Record<string, string>> | undefined;
       const orderId = String(suppData?.related_ids?.order_id || resource.id || "");
       const amountObj = (resource.amount || {}) as Record<string, string>;
       const amountValue = amountObj.value || "0.00";
+      const amountCents = Math.round(parseFloat(amountValue) * 100);
 
       if (orderId) {
         await db
@@ -115,6 +121,151 @@ export async function POST(req: NextRequest) {
             target: donations.paypalOrderId,
             set: { status: "COMPLETED", capturedAt: new Date() },
           });
+
+        // Record balanced ledger transaction idempotently
+        if (amountCents > 0) {
+          const txId = `tx_donation_capture_${orderId}`;
+          const alreadyRecorded = await isTransactionRecorded(txId);
+          if (!alreadyRecorded) {
+            await recordLedgerTransaction({
+              hostId: "default",
+              transactionId: txId,
+              description: `One-time donation capture (Order ${orderId})`,
+              correlationId: orderId,
+              entries: [
+                {
+                  accountName: "paypal_available",
+                  entryType: "DEBIT",
+                  amountCents: amountCents,
+                },
+                {
+                  accountName: "reserve_protected",
+                  entryType: "CREDIT",
+                  amountCents: amountCents,
+                },
+              ],
+            });
+          }
+        }
+      }
+    }
+
+    // Helper for safe out-of-order subscription status updates
+    const updateSubscriptionSafe = async (
+      subId: string,
+      newStatus: "APPROVAL_PENDING" | "APPROVED" | "ACTIVE" | "SUSPENDED" | "CANCELLED" | "EXPIRED"
+    ) => {
+      if (!subId) return;
+      const [existing] = await db
+        .select({ status: subscriptions.status })
+        .from(subscriptions)
+        .where(eq(subscriptions.paypalSubscriptionId, subId))
+        .limit(1);
+
+      if (existing) {
+        if (shouldUpdateSubscriptionStatus(existing.status, newStatus)) {
+          await db
+            .update(subscriptions)
+            .set({ status: newStatus, updatedAt: new Date() })
+            .where(eq(subscriptions.paypalSubscriptionId, subId));
+        }
+      }
+    };
+
+    // 4c. Monthly Sustainer Subscription Lifecycle Events
+    if (eventType === "BILLING.SUBSCRIPTION.CREATED") {
+      const subId = String(resource.id || "");
+      const planId = String(resource.plan_id || "");
+      const subscriber = resource.subscriber as Record<string, unknown> | undefined;
+      const email = subscriber?.email_address ? String(subscriber.email_address) : null;
+
+      if (subId) {
+        const [existing] = await db
+          .select({ status: subscriptions.status })
+          .from(subscriptions)
+          .where(eq(subscriptions.paypalSubscriptionId, subId))
+          .limit(1);
+
+        if (!existing) {
+          await db.insert(subscriptions).values({
+            paypalSubscriptionId: subId,
+            planId: planId || "default-plan",
+            donorEmail: email,
+            status: "APPROVAL_PENDING",
+            amountMonthly: "25.00",
+          });
+        } else if (shouldUpdateSubscriptionStatus(existing.status, "APPROVAL_PENDING")) {
+          await db
+            .update(subscriptions)
+            .set({ status: "APPROVAL_PENDING", updatedAt: new Date() })
+            .where(eq(subscriptions.paypalSubscriptionId, subId));
+        }
+      }
+    }
+
+    if (eventType === "BILLING.SUBSCRIPTION.ACTIVATED") {
+      const subId = String(resource.id || "");
+      // Safe status transition; INVARIANT: Activation represents authorization, moves 0 money.
+      await updateSubscriptionSafe(subId, "ACTIVE");
+    }
+
+    if (eventType === "BILLING.SUBSCRIPTION.CANCELLED") {
+      const subId = String(resource.id || "");
+      await updateSubscriptionSafe(subId, "CANCELLED");
+    }
+
+    if (eventType === "BILLING.SUBSCRIPTION.SUSPENDED") {
+      const subId = String(resource.id || "");
+      await updateSubscriptionSafe(subId, "SUSPENDED");
+    }
+
+    if (eventType === "BILLING.SUBSCRIPTION.EXPIRED") {
+      const subId = String(resource.id || "");
+      await updateSubscriptionSafe(subId, "EXPIRED");
+    }
+
+    // 4d. Monthly Sustainer Payment Completed: moves money into ledger
+    if (eventType === "PAYMENT.SALE.COMPLETED") {
+      const saleId = String(resource.id || "");
+      const billingAgreementId = String(resource.billing_agreement_id || "");
+      const amountObj = (resource.amount || {}) as Record<string, string>;
+      const totalStr = amountObj.total || amountObj.value || "0.00";
+      const totalCents = Math.round(parseFloat(totalStr) * 100);
+
+      if (saleId && totalCents > 0) {
+        const txId = `tx_sustainer_sale_${saleId}`;
+        const alreadyRecorded = await isTransactionRecorded(txId);
+
+        if (!alreadyRecorded) {
+          await recordLedgerTransaction({
+            hostId: "default",
+            transactionId: txId,
+            description: `Monthly sustainer payment for subscription ${billingAgreementId || "direct"} (Sale ${saleId})`,
+            correlationId: saleId,
+            entries: [
+              {
+                accountName: "paypal_available",
+                entryType: "DEBIT",
+                amountCents: totalCents,
+              },
+              {
+                accountName: "reserve_protected",
+                entryType: "CREDIT",
+                amountCents: totalCents,
+              },
+            ],
+          });
+        }
+
+        if (billingAgreementId) {
+          await db
+            .update(subscriptions)
+            .set({
+              lastPaymentAt: new Date(),
+              updatedAt: new Date(),
+            })
+            .where(eq(subscriptions.paypalSubscriptionId, billingAgreementId));
+        }
       }
     }
 

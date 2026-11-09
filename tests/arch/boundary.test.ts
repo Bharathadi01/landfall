@@ -45,8 +45,8 @@ describe("Architectural Boundary Rules (§9)", () => {
     ).toEqual([]);
   });
 
-  it("Invariant 2: lib/rules, lib/ledger, and lib/treasurer NEVER import any AI SDK", () => {
-    const criticalDirs = ["rules", "ledger", "treasurer"];
+  it("Invariant 2: lib/rules, lib/ledger, lib/treasurer, lib/pledges, and lib/treasury NEVER import any AI SDK", () => {
+    const criticalDirs = ["rules", "ledger", "treasurer", "pledges", "treasury"];
     const aiImports: string[] = [];
 
     for (const file of allLibFiles) {
@@ -101,6 +101,28 @@ describe("Architectural Boundary Rules (§9)", () => {
         expect(allowList.has(m), `Unapproved public env var: ${m}`).toBe(true);
       }
     }
+  });
+
+  it("Invariant 5: Only lib/pledges may invoke Vault-based pledge charging", () => {
+    const forbiddenPledgeCallers: string[] = [];
+
+    for (const file of allLibFiles) {
+      const relPath = path.relative(LIB_DIR, file);
+      if (relPath.startsWith("pledges/")) continue;
+
+      const content = fs.readFileSync(file, "utf8");
+      if (
+        content.includes("executeVaultOrderCapture") ||
+        content.includes("PledgeCallerEngine")
+      ) {
+        forbiddenPledgeCallers.push(relPath);
+      }
+    }
+
+    expect(
+      forbiddenPledgeCallers,
+      `Vault pledge charging functionality imported outside lib/pledges: ${forbiddenPledgeCallers.join(", ")}`
+    ).toEqual([]);
   });
 });
 

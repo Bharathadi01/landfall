@@ -1,4 +1,5 @@
 import { pgTable, text, timestamp, boolean, doublePrecision, integer, jsonb, uuid, numeric } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 // 1. Host Legal Entity & Governance Configuration
 export const hosts = pgTable("hosts", {
@@ -181,15 +182,60 @@ export const payoutItems = pgTable("payout_items", {
   lastEventAt: timestamp("last_event_at").defaultNow().notNull(),
 });
 
+export const pledgeConsents = pgTable("pledge_consents", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  donorEmail: text("donor_email").notNull(),
+  consentText: text("consent_text").notNull(),
+  consentVersion: text("consent_version").notNull(),
+  hazardScope: text("hazard_scope").array().notNull(), // e.g. ["HURRICANE", "FLOOD"]
+  programScope: text("program_scope").default("landfall_general").notNull(),
+  maxPerEvent: numeric("max_per_event", { precision: 10, scale: 2 }).notNull(),
+  seasonCap: numeric("season_cap", { precision: 10, scale: 2 }).notNull(),
+  acceptedAt: timestamp("accepted_at").defaultNow().notNull(),
+});
+
 export const stormPledges = pgTable("storm_pledges", {
   id: uuid("id").primaryKey().defaultRandom(),
   donorEmail: text("donor_email").notNull(),
+  consentId: uuid("consent_id").references(() => pledgeConsents.id),
   vaultPaymentToken: text("vault_payment_token").notNull(),
   amountPerEvent: numeric("amount_per_event", { precision: 10, scale: 2 }).notNull(),
   seasonCap: numeric("season_cap", { precision: 10, scale: 2 }).notNull(),
   chargedThisSeason: numeric("charged_this_season", { precision: 10, scale: 2 }).default("0.00").notNull(),
-  status: text("status", { enum: ["ACTIVE", "PAUSED", "REVOKED"] }).default("ACTIVE").notNull(),
+  hazardScope: text("hazard_scope").array().default(sql`ARRAY['HURRICANE', 'FLOOD', 'STORM_SURGE']::text[]`).notNull(),
+  status: text("status", { enum: ["ACTIVE", "PAUSED", "REVOKED", "EXPIRED"] }).default("ACTIVE").notNull(),
+  expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const pledgeCharges = pgTable("pledge_charges", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  pledgeId: uuid("pledge_id").references(() => stormPledges.id).notNull(),
+  incidentId: text("incident_id").notNull(),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  status: text("status", { enum: ["PENDING", "SUBMITTING", "CAPTURED", "FAILED"] }).default("PENDING").notNull(),
+  paypalOrderId: text("paypal_order_id"),
+  paypalCaptureId: text("paypal_capture_id"),
+  idempotencyKey: text("idempotency_key").unique().notNull(),
+  outboxPayload: jsonb("outbox_payload"),
+  error: text("error"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const subscriptions = pgTable("subscriptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  paypalSubscriptionId: text("paypal_subscription_id").unique().notNull(),
+  planId: text("plan_id").notNull(),
+  donorEmail: text("donor_email"),
+  status: text("status", {
+    enum: ["APPROVAL_PENDING", "APPROVED", "ACTIVE", "SUSPENDED", "CANCELLED", "EXPIRED"],
+  }).default("APPROVAL_PENDING").notNull(),
+  amountMonthly: numeric("amount_monthly", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").default("USD").notNull(),
+  lastPaymentAt: timestamp("last_payment_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const donations = pgTable("donations", {

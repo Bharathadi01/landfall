@@ -73,3 +73,29 @@ export function shouldUpdatePayoutStatus(
   return incomingRank >= currentRank;
 }
 
+/**
+ * Subscription Status Precedence Table.
+ * Prevents out-of-order webhook events from rolling back active or terminal subscriptions.
+ */
+export const SUBSCRIPTION_STATUS_PRECEDENCE: Record<string, number> = {
+  APPROVAL_PENDING: 1,
+  APPROVED: 2,
+  ACTIVE: 3,
+  SUSPENDED: 4,
+  CANCELLED: 5,
+  EXPIRED: 5,
+};
+
+/**
+ * Checks whether an incoming subscription status should overwrite an existing status.
+ */
+export function shouldUpdateSubscriptionStatus(
+  currentStatus: string | null | undefined,
+  incomingStatus: string
+): boolean {
+  if (!currentStatus) return true;
+  const currentRank = SUBSCRIPTION_STATUS_PRECEDENCE[currentStatus.toUpperCase()] ?? 0;
+  const incomingRank = SUBSCRIPTION_STATUS_PRECEDENCE[incomingStatus.toUpperCase()] ?? 0;
+  return incomingRank >= currentRank;
+}
+

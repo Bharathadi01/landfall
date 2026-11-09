@@ -20,7 +20,11 @@ Every claim below is verified against the real PayPal Sandbox (`api-m.sandbox.pa
 | **Direct Payout (Linked)** | **VERIFIED** | Item `FR7DHMX8QE59A` (`SUCCESS`) | Paid to `sb-tv43cm53751698@personal.example.com` |
 | **Claim-Link Payout (Email)** | **VERIFIED** | Item `2FN4JTY2SF8A2` (`UNCLAIMED`) | Expected state on EMAIL path; 30-day auto-return lifecycle |
 | **Orders v2 Donation** | **VERIFIED** | Order `63692372EC2657104` | Captured via `/api/donations/capture` |
-| **Webhook Verification** | **VERIFIED** | `verification_status: "SUCCESS"` | Validated via `POST /v1/notifications/verify-webhook-signature` |
+| **Storm Pledges (Vault v3)** | **VERIFIED** | `lib/pledges/index.ts` | 100% branch coverage; incident deduplication; mid-flight emergency stop & revocation guards |
+| **Monthly Sustainers** | **VERIFIED** | Product `PROD-4HV976845W620203M`, Plan `P-5A327449X7452233TNLYQY3A` | Recurring Subscriptions v1 + double-entry ledger integration |
+| **Treasury Waterfall** | **VERIFIED** | `components/treasury/TreasuryWaterfall.tsx` | `#0B3D91` & `#F5A524` visual ladder; contingent pledges strictly segregated |
+| **Treasury Reconciliation** | **VERIFIED** | `lib/treasury/reconciler.ts` | Ledger vs `/v1/reporting/balances` & `/transactions`; immutable audit logged |
+| **Webhook Verification** | **VERIFIED** | `verification_status: "SUCCESS"` | Validated via `POST /v1/notifications/verify-webhook-signature`; status precedence ordering |
 | **Venmo / Phone** | **RESTRICTED** | "Recipient wallet not supported in sandbox" | Kept in code; badged in UI as "Production path — restricted in standard sandbox" |
 | **Idempotency Outbox** | **VERIFIED** | `PayPal-Request-Id` + unique DB constraints | Replays identical response on retry; 6 failure drills tested |
 | **Passkey Two-Key Auth** | **VERIFIED** | WebAuthn SimpleWebAuthn | Requires 2 distinct approvers over locked plan hash (1 Finance) |
