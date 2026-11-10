@@ -247,7 +247,7 @@ export function PasskeyApprovalModal({
                 </div>
                 {signedCount} of 2 signed
               </div>
-              <span>Passkeys: {hasPasskeySupport ? "supported" : "simulated"}</span>
+              <span title="Passkey assertions are collected here, but this build does not verify them server-side.">Demo passkeys · not server-verified</span>
             </div>
           )}
         </div>

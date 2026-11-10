@@ -44,16 +44,16 @@ const STAGE_METADATA: Record<
   1: {
     name: "Donations in",
     duration: "4.2s",
-    inputs: "PayPal Donation Webhook (CHECKOUT.ORDER.APPROVED), Donor Meta",
+    inputs: "Simulated donation (walkthrough); the donate button on the public site creates a real sandbox order",
     outputs: "Treasury Inflow Ledger Entry (Account 1010-PAYPAL-CASH)",
     nextAction: "Evaluate Solvency & Capital Reserve Guardrails",
-    evidenceNote: "Verified PayPal Sandbox Order & Capture Transaction ID",
+    evidenceNote: "Simulated inflow — no PayPal order is captured in this step",
   },
   2: {
     name: "Reserve check",
     duration: "1.1s",
     inputs: "Real-time Treasury Balances, Board-mandated 30% Solvency Reserve",
-    outputs: "Tranche 1 Allocatable Liquidity Cap ($9,250.00)",
+    outputs: "Tranche 1 allocatable liquidity cap (see the stage detail below)",
     nextAction: "Poll Storm Atlas Real-time NWS Hazard Warnings",
     evidenceNote: "Invariant check: Reserves never breached under stress",
   },
@@ -77,7 +77,7 @@ const STAGE_METADATA: Record<
     name: "Who gets paid",
     duration: "1.9s",
     inputs: "Impacted Roster, Vulnerability Matrix (Children <5, Medical, Age)",
-    outputs: "Ranked Payout Plan ($500/hh) + Waitlist Ledger Entries",
+    outputs: "Ranked payout plan ($100 base grant per household) + waitlist entries",
     nextAction: "Await Dual-Custody Passkey Cryptographic Sign-off",
     evidenceNote: "Lexicographic sorting: Pure deterministic arithmetic (Zero AI)",
   },
@@ -87,7 +87,7 @@ const STAGE_METADATA: Record<
     inputs: "SHA-256 Canonical Plan Hash, Fiduciary & Operations Passkeys",
     outputs: "Signed Multi-signature Authorisation Ticket (SecP256R1)",
     nextAction: "Dispatch Idempotent PayPal Payouts Batch",
-    evidenceNote: "Hardware WebAuthn FIDO2 Public Key Signatures Attached",
+    evidenceNote: "Demo passkey approvals — signatures are not verified server-side in this build",
   },
   7: {
     name: "PayPal payout",
@@ -100,10 +100,10 @@ const STAGE_METADATA: Record<
   8: {
     name: "Proof & reconcile",
     duration: "0.8s",
-    inputs: "PayPal Webhook Event, Ledger Journal Transactions",
-    outputs: "Balanced Trial Ledger: Zero Discrepancy (0¢ error)",
+    inputs: "Simulated webhook event + the rehearsal batch ledger journal",
+    outputs: "Balanced rehearsal ledger (0¢ discrepancy)",
     nextAction: "Archive Immutable Evidence Bundle for Public Accountability",
-    evidenceNote: "Mathematical Proof: Assets = Liabilities + Equity verified",
+    evidenceNote: "Ledger entries for the rehearsal batch balance (debits = credits). Live webhooks are verified by PayPal’s API on the real receiver.",
   },
 };
 
@@ -654,7 +654,7 @@ export default function GoldenWorkflowPage() {
               </div>
               <div className="text-xs text-ink-3 font-mono flex flex-wrap gap-4 pt-2">
                 <span>Webhook Transmission ID: <strong className="text-ink">{activeStageData.details.transmissionId}</strong></span>
-                <span>Signature Status: <strong className="text-accent">{activeStageData.details.signatureStatus}</strong></span>
+                <span>Webhook: <strong className="text-amber">{activeStageData.details.signatureStatus}</strong></span>
               </div>
             </div>
           )}

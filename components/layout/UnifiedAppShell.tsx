@@ -266,7 +266,7 @@ function OperationsShell({ children, pathname }: { children: React.ReactNode; pa
           <div className="flex items-center gap-2">
             <span className="hidden md:inline-flex items-center gap-2 rounded-full border border-paypal/25 bg-paypal/10 px-3 py-1.5 text-[11.5px] font-medium text-paypal">
               <span className="live-dot" />
-              PayPal Sandbox · connected
+              PayPal Sandbox mode
             </span>
             {pathname !== "/console/golden-flow" && (
               <Link href="/console/golden-flow" className="field-btn field-btn-primary px-3.5 py-2 text-[13px]">

@@ -158,8 +158,8 @@ export async function executeGoldenWorkflow({
   if (targetStage >= 1) {
     stages[0].status = "RUNNING";
     const donationCents = Math.round(donationAmountUsd * 100);
-    const mockOrderId = `ORD-${Date.now()}-DONATION`;
-    const mockCaptureId = `CAP-${Date.now()}-SANDBOX`;
+    const mockOrderId = `SIM-ORDER-${Date.now()}`; // simulated: this walkthrough does not capture a PayPal order
+    const mockCaptureId = `SIM-CAPTURE-${Date.now()}`;
 
     stages[0].status = "COMPLETED";
     stages[0].timestamp = new Date().toISOString();
@@ -168,10 +168,10 @@ export async function executeGoldenWorkflow({
       captureId: mockCaptureId,
       amountCents: donationCents,
       amountFormatted: `$${(donationCents / 100).toFixed(2)} USD`,
-      donor: "Community Relief Donor (Sandbox)",
+      donor: "Simulated donor (walkthrough)",
       ledgerAccount: "DONOR_INFLOW -> PAYPAL_CLEARING",
     };
-    stages[0].summary = `Verified ${stages[0].details.amountFormatted} donation capture credited to treasury ledger.`;
+    stages[0].summary = `Simulated ${stages[0].details.amountFormatted} donation credited to the treasury ledger. (The public site's donate button creates a real PayPal Sandbox order.)`;
   }
 
   // --- STAGE 2: Treasury Waterfall ---
@@ -408,12 +408,12 @@ export async function executeGoldenWorkflow({
   if (targetStage >= 8 && executionResult?.success) {
     stages[7].status = "RUNNING";
 
-    // Simulate verified incoming webhook payload
+    // Simulated webhook event for the rehearsal. Real events are verified by PayPal's verify-webhook-signature API at /api/paypal/webhook.
     const webhookHeaders = {
       "paypal-auth-algo": "SHA256withRSA",
       "paypal-cert-url": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-12345",
       "paypal-transmission-id": `trans_${Date.now()}`,
-      "paypal-transmission-sig": "VERIFIED_SANDBOX_SIGNATURE",
+      "paypal-transmission-sig": "SIMULATED_NOT_VERIFIED",
       "paypal-transmission-time": new Date().toISOString(),
     };
 
@@ -428,13 +428,13 @@ export async function executeGoldenWorkflow({
     stages[7].timestamp = new Date().toISOString();
     stages[7].details = {
       transmissionId: webhookHeaders["paypal-transmission-id"],
-      signatureStatus: "VERIFIED",
+      signatureStatus: "SIMULATED · not signature-checked here",
       disbursementDebited: `$${(totalOutflowCents / 100).toFixed(2)}`,
       ledgerAuditStatus: "BALANCED",
       discrepancyCents: 0,
       doubleEntryEquation: "Assets ($0.00 change) == Liabilities + Equity",
     };
-    stages[7].summary = `Webhook verified; double-entry ledger reconciled with 0¢ discrepancy. Flow complete.`;
+    stages[7].summary = `Rehearsal ledger entries balance (debits = credits, 0¢). The webhook here is simulated; live webhook signatures are verified by PayPal's API on the real receiver. Flow complete.`;
   }
 
   return {
