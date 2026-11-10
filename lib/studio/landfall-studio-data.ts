@@ -54,7 +54,7 @@ export interface PayoutItemRow {
   age_band: "< 6 hrs" | "6 - 24 hrs" | "24 - 48 hrs" | "> 48 hrs";
   reconciliation_status: "MATCHED" | "MISMATCH";
   beneficiary_confirmed: "CONFIRMED" | "UNCONFIRMED";
-  environment: "SANDBOX" | "REPLAY";
+  environment: "REPLAY" | "REPLAY";
   safe_action: string;
   items_count: number;
 }
@@ -83,7 +83,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
     age_band: "6 - 24 hrs",
     reconciliation_status: "MATCHED",
     beneficiary_confirmed: "CONFIRMED",
-    environment: "SANDBOX",
+    environment: "REPLAY",
     safe_action: "No action required · Funds credited to recipient PayPal account",
     items_count: 1,
   },
@@ -110,7 +110,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
     age_band: "6 - 24 hrs",
     reconciliation_status: "MATCHED",
     beneficiary_confirmed: "UNCONFIRMED",
-    environment: "SANDBOX",
+    environment: "REPLAY",
     safe_action: "Contact the recipient using an authorised channel. Do not issue a duplicate payout while the original payment remains claimable.",
     items_count: 1,
   },
@@ -137,7 +137,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
     age_band: "6 - 24 hrs",
     reconciliation_status: "MATCHED",
     beneficiary_confirmed: "CONFIRMED",
-    environment: "SANDBOX",
+    environment: "REPLAY",
     safe_action: "No action required · Funds credited to recipient PayPal account",
     items_count: 1,
   },
@@ -163,9 +163,9 @@ export const studioPayoutItems: PayoutItemRow[] = [
     age_hours: 18,
     age_band: "6 - 24 hrs",
     reconciliation_status: "MATCHED",
-    beneficiary_confirmed: "CONFIRMED",
-    environment: "SANDBOX",
-    safe_action: "No action required · Funds credited to recipient PayPal account",
+    beneficiary_confirmed: "UNCONFIRMED",
+    environment: "REPLAY",
+    safe_action: "Credited by PayPal · ask the resident to confirm they can use the money",
     items_count: 1,
   },
   {
@@ -191,7 +191,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
     age_band: "6 - 24 hrs",
     reconciliation_status: "MATCHED",
     beneficiary_confirmed: "UNCONFIRMED",
-    environment: "SANDBOX",
+    environment: "REPLAY",
     safe_action: "Monitor webhook feed. Confirm secondary phone contact.",
     items_count: 1,
   },
@@ -272,7 +272,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
     age_band: "< 6 hrs",
     reconciliation_status: "MATCHED",
     beneficiary_confirmed: "UNCONFIRMED",
-    environment: "SANDBOX",
+    environment: "REPLAY",
     safe_action: "Awaiting standard clearing webhook (normally < 5 mins).",
     items_count: 1,
   },
@@ -302,13 +302,13 @@ export const studioPayoutBatches: PayoutBatchRow[] = [
     total_amount_usd: 3000,
     currency: "USD",
     reconciliation_gap_usd: 0,
-    environment: "SANDBOX",
+    environment: "REPLAY",
   },
   {
     batch_id: "BATCH-8Z6HQ5FUMMDVR",
     paypal_batch_id: "8Z6HQ5FUMMDVR",
     submitted_date: "2024-10-08",
-    batch_status: "SETTLED_PARTIAL",
+    batch_status: "SUCCESS",
     items_total: 2,
     total_amount_usd: 1000,
     currency: "USD",
@@ -412,7 +412,7 @@ export const studioFundingEvents: FundingEventRow[] = [
     currency: "USD",
     status: "CAPTURED",
     received_date: "2024-10-05",
-    environment: "SANDBOX",
+    environment: "REPLAY",
     donor_ref: "donor_coastal_relief_fdn",
   },
   {
@@ -422,7 +422,7 @@ export const studioFundingEvents: FundingEventRow[] = [
     currency: "USD",
     status: "CAPTURED",
     received_date: "2024-10-06",
-    environment: "SANDBOX",
+    environment: "REPLAY",
     donor_ref: "donor_monthly_cohort_a",
   },
   {
@@ -432,7 +432,7 @@ export const studioFundingEvents: FundingEventRow[] = [
     currency: "USD",
     status: "CAPTURED",
     received_date: "2024-10-08",
-    environment: "SANDBOX",
+    environment: "REPLAY",
     donor_ref: "donor_vault_hurricane_pledge",
   },
 ];
