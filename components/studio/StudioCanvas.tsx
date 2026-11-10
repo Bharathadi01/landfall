@@ -84,7 +84,7 @@ const widgetsConfig = (defaults: any) =>
         ai: {
           label: "Reserve Guardrail",
           description:
-            "Explains statutory 30% reserve policy floor, protected reserve amount, total funds, headroom, and compliance status from the policy engine.",
+            "Explains the 30% reserve policy floor, protected reserve amount, total funds, headroom, and compliance status from the policy engine.",
           usage: "Use in treasury and overview pages to show reserve health and ensure policy compliance.",
         },
       },
@@ -124,7 +124,7 @@ const widgetsConfig = (defaults: any) =>
         ai: {
           label: "Recovery Evidence Chain",
           description:
-            "Displays end-to-end cryptographic traceability chain: Approved Obligation -> Dual-Passkey Approval -> PayPal Payout Batch -> Payout Item -> Webhook -> Ledger Reconciliation -> Recovery Proof.",
+            "Shows, for a selected payout item, every piece of evidence behind it — obligation, two-person approval, PayPal batch/item, provider webhook, ledger, resident confirmation and recovery proof — with who reported it (PayPal, Landfall, resident, operator) and what is missing. Follows page filters; selecting an item cross-filters the page.",
           usage: "Use for audit, financial assurance, and settlement verification.",
         },
       },
@@ -242,14 +242,14 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
         },
       },
       widgetLayout: {
-        "kpi-funding": { xTrack: 0, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-available": { xTrack: 6, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-reserve": { xTrack: 12, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-unresolved": { xTrack: 18, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "w-solvency": { xTrack: 0, yTrack: 6, xSpan: 8, ySpan: 12 },
-        "c-payout-dist": { xTrack: 8, yTrack: 6, xSpan: 8, ySpan: 12 },
-        "c-exception-aging": { xTrack: 16, yTrack: 6, xSpan: 8, ySpan: 12 },
-        "g-priority-exceptions": { xTrack: 0, yTrack: 18, xSpan: 24, ySpan: 15 },
+        "kpi-funding": { xTrack: 0, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-available": { xTrack: 6, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-reserve": { xTrack: 12, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-unresolved": { xTrack: 18, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "w-solvency": { xTrack: 0, yTrack: 8, xSpan: 8, ySpan: 14 },
+        "c-payout-dist": { xTrack: 8, yTrack: 8, xSpan: 8, ySpan: 14 },
+        "c-exception-aging": { xTrack: 16, yTrack: 8, xSpan: 8, ySpan: 14 },
+        "g-priority-exceptions": { xTrack: 0, yTrack: 22, xSpan: 24, ySpan: 18 },
       },
     },
 
@@ -264,7 +264,7 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
         },
         "kpi-reserve-floor": {
           type: "value",
-          format: { title: { text: "Statutory Reserve Floor (30%)", enabled: true, wrapping: true } },
+          format: { title: { text: "Reserve policy floor (30%)", enabled: true, wrapping: true } },
           dataMapping: { value: [{ id: "solvency.required_reserve_usd", aggregation: "sum" }] },
         },
         "kpi-headroom": {
@@ -279,7 +279,7 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
         },
         "w-guardrail": {
           type: RESERVE_GUARDRAIL_WIDGET_TYPE,
-          format: { title: { text: "Reserve Guardrail (Deterministic 30% Statutory Policy Floor)", enabled: true, wrapping: true } },
+          format: { title: { text: "Reserve guardrail (30% policy floor)", enabled: true, wrapping: true } },
           dataMapping: {
             reserve: [{ id: "solvency.reserve_usd", aggregation: "sum" }],
             total: [{ id: "solvency.total_balance_usd", aggregation: "sum" }],
@@ -339,15 +339,15 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
         },
       },
       widgetLayout: {
-        "kpi-total-treasury": { xTrack: 0, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-reserve-floor": { xTrack: 6, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-headroom": { xTrack: 12, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-net-allocatable": { xTrack: 18, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "w-guardrail": { xTrack: 0, yTrack: 6, xSpan: 24, ySpan: 8 },
-        "c-treasury-tranches": { xTrack: 0, yTrack: 14, xSpan: 12, ySpan: 12 },
-        "c-funding-sources": { xTrack: 12, yTrack: 14, xSpan: 12, ySpan: 12 },
-        "g-ledger": { xTrack: 0, yTrack: 26, xSpan: 24, ySpan: 14 },
-        "g-batches": { xTrack: 0, yTrack: 40, xSpan: 24, ySpan: 14 },
+        "kpi-total-treasury": { xTrack: 0, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-reserve-floor": { xTrack: 6, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-headroom": { xTrack: 12, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-net-allocatable": { xTrack: 18, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "w-guardrail": { xTrack: 0, yTrack: 8, xSpan: 24, ySpan: 14 },
+        "c-treasury-tranches": { xTrack: 0, yTrack: 22, xSpan: 12, ySpan: 14 },
+        "c-funding-sources": { xTrack: 12, yTrack: 22, xSpan: 12, ySpan: 14 },
+        "g-ledger": { xTrack: 0, yTrack: 36, xSpan: 24, ySpan: 16 },
+        "g-batches": { xTrack: 0, yTrack: 52, xSpan: 24, ySpan: 12 },
       },
     },
 
@@ -410,7 +410,7 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
         },
         "w-evidence-chain": {
           type: EVIDENCE_CHAIN_WIDGET_TYPE,
-          format: { title: { text: "Recovery Evidence Chain (Cryptographic Traceability)", enabled: true, wrapping: true } },
+          format: { title: { text: "Evidence behind each payment", enabled: true, wrapping: true } },
         },
         "g-payout-workbench": {
           type: "grid",
@@ -435,15 +435,15 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
         },
       },
       widgetLayout: {
-        "kpi-unclaimed-total": { xTrack: 0, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-aging-max": { xTrack: 6, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-batch-sum": { xTrack: 12, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-ledger-variance": { xTrack: 18, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "c-recovery-status": { xTrack: 0, yTrack: 6, xSpan: 8, ySpan: 12 },
-        "c-aging-dist": { xTrack: 8, yTrack: 6, xSpan: 8, ySpan: 12 },
-        "w-lifecycle": { xTrack: 16, yTrack: 6, xSpan: 8, ySpan: 12 },
-        "w-evidence-chain": { xTrack: 0, yTrack: 18, xSpan: 24, ySpan: 9 },
-        "g-payout-workbench": { xTrack: 0, yTrack: 27, xSpan: 24, ySpan: 15 },
+        "kpi-unclaimed-total": { xTrack: 0, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-aging-max": { xTrack: 6, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-batch-sum": { xTrack: 12, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-ledger-variance": { xTrack: 18, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "c-recovery-status": { xTrack: 0, yTrack: 8, xSpan: 12, ySpan: 14 },
+        "c-aging-dist": { xTrack: 12, yTrack: 8, xSpan: 12, ySpan: 14 },
+        "w-lifecycle": { xTrack: 0, yTrack: 22, xSpan: 24, ySpan: 27 },
+        "w-evidence-chain": { xTrack: 0, yTrack: 49, xSpan: 24, ySpan: 20 },
+        "g-payout-workbench": { xTrack: 0, yTrack: 69, xSpan: 24, ySpan: 20 },
       },
     },
 
@@ -523,14 +523,14 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
         },
       },
       widgetLayout: {
-        "kpi-reg-obligations": { xTrack: 0, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-provider-credited": { xTrack: 6, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-grievances-cases": { xTrack: 12, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-resolved-grievances": { xTrack: 18, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "c-tier-grants": { xTrack: 0, yTrack: 6, xSpan: 12, ySpan: 12 },
-        "c-zone-grants": { xTrack: 12, yTrack: 6, xSpan: 12, ySpan: 12 },
-        "g-grievances": { xTrack: 0, yTrack: 18, xSpan: 24, ySpan: 12 },
-        "g-residents": { xTrack: 0, yTrack: 30, xSpan: 24, ySpan: 15 },
+        "kpi-reg-obligations": { xTrack: 0, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-provider-credited": { xTrack: 6, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-grievances-cases": { xTrack: 12, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "kpi-resolved-grievances": { xTrack: 18, yTrack: 0, xSpan: 6, ySpan: 8 },
+        "c-tier-grants": { xTrack: 0, yTrack: 8, xSpan: 12, ySpan: 14 },
+        "c-zone-grants": { xTrack: 12, yTrack: 8, xSpan: 12, ySpan: 14 },
+        "g-grievances": { xTrack: 0, yTrack: 22, xSpan: 24, ySpan: 14 },
+        "g-residents": { xTrack: 0, yTrack: 36, xSpan: 24, ySpan: 18 },
       },
     },
   ],
@@ -567,6 +567,9 @@ function loadSavedState(): AgReportState | null {
 export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
   /** The live Studio API. Page switches, filters and AI edits go through it — nothing re-mounts Studio. */
   const apiRef = useRef<any>(null);
+  const studioRef = useRef<any>(null);
+  /** Studio exposes its API via the component ref once ready; the AI callback also captures it in edit mode. */
+  const getApi = () => studioRef.current?.api ?? apiRef.current;
   /** Latest state, kept in a ref so reading it never triggers a render. */
   const latestState = useRef<AgReportState | null>(null);
   const [pages, setPages] = useState<{ id: string }[]>(() => (loadSavedState() ?? CANONICAL_REPORT_STATE).pages as any);
@@ -639,7 +642,7 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
 
   /** Apply a change through Studio's API (no re-mount, chat and history survive). */
   const setStudioState = (next: (state: any) => any, historyLabel: string) => {
-    const api = apiRef.current;
+    const api = getApi();
     if (!api) return;
     api.setState(next(api.getState()), { historyLabel, source: { type: "ui" } });
   };
@@ -771,6 +774,7 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
 
       <div style={{ flex: 1, position: "relative", minHeight: 0, overflowX: "hidden" }}>
         <AgStudio
+          ref={studioRef}
           key={mode}
           {...({
             data,

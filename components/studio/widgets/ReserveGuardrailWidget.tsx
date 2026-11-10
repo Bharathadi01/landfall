@@ -19,7 +19,7 @@ export function ReserveGuardrailWidget(props: any) {
     total: TREASURY.total,
     requiredFloor: TREASURY.requiredReserve,
     headroom: TREASURY.reserveHeadroom,
-    ratio: 35.1,
+    ratio: Math.round((TREASURY.reserve / TREASURY.total) * 1000) / 10,
     status: "Within policy",
   });
 
@@ -177,7 +177,7 @@ export function ReserveGuardrailWidget(props: any) {
         <div>
           <div style={{ fontSize: 9.5, color: "#6E7A91", textTransform: "uppercase" }}>Current Headroom</div>
           <div style={{ fontSize: 13, fontWeight: 600, color: data.headroom >= 0 ? "#5EEAD4" : "#FF6378" }}>
-            +{fmt(data.headroom)}
+            {data.headroom >= 0 ? "+" : "−"}{fmt(Math.abs(data.headroom))}
           </div>
         </div>
         <div>

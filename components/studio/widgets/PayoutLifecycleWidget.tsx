@@ -106,7 +106,7 @@ export function PayoutLifecycleWidget(props: any) {
       badge: isSuccess ? "PROOF_ANCHORED" : "PENDING_CLAIM",
       color: isSuccess ? "#A78BFA" : "#FBBF54",
       evidence: isSuccess
-        ? "Proof prf_milton_t1_2024 anchored. Merkle root: 0x8f93e2b1c4a0... Statutory 30% reserve preserved."
+        ? "Proof prf_milton_t1_2024 anchored. Merkle root: 0x8f93e2b1c4a0... Policy 30% reserve preserved."
         : "No individual delivery proof issued while funds remain in PayPal claim window. Caseworker reminder queued.",
     },
   ];
@@ -165,19 +165,7 @@ export function PayoutLifecycleWidget(props: any) {
       </div>
 
       {/* Chronological Vertical Stepper */}
-      <div style={{ position: "relative", paddingLeft: 18, marginTop: 4 }}>
-        {/* Continuous Line */}
-        <div
-          style={{
-            position: "absolute",
-            left: 5,
-            top: 6,
-            bottom: 6,
-            width: 2,
-            background: "rgba(255, 255, 255, 0.1)",
-          }}
-        />
-
+      <div style={{ columnCount: 2, columnGap: 18, marginTop: 4 }}>
         {timelineSteps.map((step, idx) => {
           const stepDotColor = step.color || (step.status === "done" ? "#2DD4BF" : "#6E7A91");
           const isInspected = inspectedStep === idx;
@@ -187,9 +175,10 @@ export function PayoutLifecycleWidget(props: any) {
               onClick={() => setInspectedStep(isInspected ? null : idx)}
               style={{
                 position: "relative",
+                breakInside: "avoid",
                 marginBottom: 10,
                 cursor: "pointer",
-                padding: "4px 8px",
+                padding: "4px 8px 4px 24px",
                 borderRadius: 6,
                 background: isInspected ? "rgba(255, 255, 255, 0.06)" : "transparent",
                 transition: "background 150ms ease",
@@ -199,8 +188,8 @@ export function PayoutLifecycleWidget(props: any) {
               <div
                 style={{
                   position: "absolute",
-                  left: -14,
-                  top: 7,
+                  left: 6,
+                  top: 9,
                   width: 10,
                   height: 10,
                   borderRadius: "50%",
