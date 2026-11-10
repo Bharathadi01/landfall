@@ -201,10 +201,12 @@ describe("Phase 13 — AG Grid & AG Studio Prize Correction Acceptance Suite", (
   it("12. Phase 2 Scenario B: createGeneratedReportPage produces valid AG Studio document", async () => {
     const { createGeneratedReportPage } = await import("@/lib/ai/watch-officer/studio-adapter");
     let currentState: any = { pages: [...CANONICAL_REPORT_STATE.pages], selectedPageId: "overview" };
+    let options: any;
     const mockApi = {
       getState: () => currentState,
-      setState: (s: any) => {
+      setState: (s: any, o: any) => {
         currentState = s;
+        options = o;
       },
     };
 
@@ -219,6 +221,9 @@ describe("Phase 13 — AG Grid & AG Studio Prize Correction Acceptance Suite", (
     expect(Object.keys(newPage.widgets)).toContain("c-ai-status");
     expect(Object.keys(newPage.widgets)).toContain("c-ai-aging");
     expect(Object.keys(newPage.widgets)).toContain("g-ai-workbench");
+    // Tagged as an AI change in Studio's history, and only valid AgPageState fields are used
+    expect(options.source).toEqual({ type: "ai", agent: "relief-finance-analyst" });
+    expect(Object.keys(newPage).sort()).toEqual(["crossFilter", "id", "widgetLayout", "widgets"]);
   });
 
   it("13. Phase 2 Scenario C & D: Prompt injection and money movement instructions are refused", () => {

@@ -1,244 +1,208 @@
 /**
- * AG STUDIO AGENT FRAMEWORK ADAPTER (§3, §4, §5)
- * Official AgLlmAdapter implementation connecting Groq Cloud Free Plan (openai/gpt-oss-20b)
- * to AG Studio's AI Assistant panel and conversational harness.
+ * AG STUDIO AGENT FRAMEWORK ADAPTER
  *
- * Invariants:
- * - Read-only view manipulations and operational situational reasoning only.
- * - ZERO access to money movement tools (no PayPal Payouts, no Vault charges, no approval bypass).
- * - Zero PII forwarded to LLM.
- * - Deterministic offline fallback on rate limit (HTTP 429) or provider failure.
+ * Implements AG Studio's `AgLlmAdapter`. Each turn:
+ *   1. Money-moving requests are refused deterministically, before any model is called.
+ *   2. Otherwise the turn goes to the server model gateway (/api/studio-llm → Groq free tier,
+ *      openai/gpt-oss-20b) with the tool schemas Studio advertises. The model may answer in text or
+ *      request Studio tools; Studio executes those tools itself (add a page, filter, query data…).
+ *   3. If the model is unavailable (no key, rate limit, offline) a clearly LABELLED offline analyst
+ *      answers from the same data with deterministic rules — and, for the recovery report, still
+ *      issues a real Studio tool call so the dashboard really changes.
+ *
+ * Invariants: read-only analysis and dashboard edits only. No tool in the analyst's set can move
+ * money, approve a plan, or touch the ledger. Zero PII is sent to the model (the data model is
+ * pseudonymous demo data).
  */
 
-import type {
-  AgLlmAdapter,
-  AgLlmRequest,
-  AgLlmExecuteTurnOptions,
-  AgLlmResponseHandler,
-  AgLlmResponse,
-  AgAiEvent,
-} from "ag-studio";
-import { interpretStudioQuery, type StudioAgentCommand } from "./studio-bridge";
-import { answerFromReliefData } from "@/lib/studio/studio-answers";
+import type { AgLlmAdapter, AgLlmRequest, AgLlmExecuteTurnOptions, AgLlmResponseHandler, AgLlmResponse, AgAiEvent } from "ag-studio";
+import { interpretStudioQuery } from "./studio-bridge";
+import { answerFromReliefData, isMoneyMovementRequest, isRecoveryReportRequest } from "@/lib/studio/studio-answers";
+import { lastUserText, isToolFollowUp, turnToOutput, type ModelTurn } from "@/lib/ai/studio-llm-mapping";
 
+export const RECOVERY_PAGE_ID = "ai-payout-recovery";
+export const RECOVERY_PAGE_TITLE = "AI · Payout recovery";
+export const CREATE_RECOVERY_PAGE_TOOL = "create_recovery_page";
+
+const OFFLINE_NOTE =
+  "\n\n— Offline analyst: the live model is unavailable, so this answer comes from deterministic rules over the same data.";
+
+/** The page the agent adds. Pure data; no side effects. */
+export function buildRecoveryPage() {
+  const status = (title: string) => ({ type: "donut-chart", format: { title: { text: title, enabled: true, wrapping: true }, crossFilter: "filter" }, dataMapping: { categoryKey: [{ id: "payout_items.transaction_status" }], valueKey: [{ id: "payout_items.items_count", aggregation: "sum" }] } });
+  return {
+    id: RECOVERY_PAGE_ID,
+    crossFilter: { values: {} },
+    widgets: {
+      "kpi-ai-unresolved": { type: "value", format: { title: { text: "Unresolved value", enabled: true, wrapping: true } }, dataMapping: { value: [{ id: "payout_items.unresolved_usd", aggregation: "sum" }] } },
+      "kpi-ai-unclaimed": { type: "value", format: { title: { text: "Unresolved items", enabled: true, wrapping: true } }, dataMapping: { value: [{ id: "payout_items.is_unresolved", aggregation: "sum" }] } },
+      "kpi-ai-oldest": { type: "value", format: { title: { text: "Oldest exception (hours)", enabled: true, wrapping: true } }, dataMapping: { value: [{ id: "payout_items.age_hours", aggregation: "max" }] } },
+      "kpi-ai-dispatched": { type: "value", format: { title: { text: "Sent to PayPal", enabled: true, wrapping: true } }, dataMapping: { value: [{ id: "payout_items.amount_usd", aggregation: "sum" }] } },
+      "c-ai-status": status("PayPal status"),
+      "c-ai-aging": { type: "bar-chart-grouped", format: { title: { text: "Unresolved value by age", enabled: true, wrapping: true }, crossFilter: "filter" }, dataMapping: { categoryKey: [{ id: "payout_items.age_band" }], valueKey: [{ id: "payout_items.unresolved_usd", aggregation: "sum" }] } },
+      "g-ai-workbench": {
+        type: "grid",
+        format: { title: { text: "Recovery workbench", enabled: true, wrapping: true }, style: { columnAutoSize: true } },
+        dataMapping: {
+          cols: [
+            { id: "payout_items.item_id" },
+            { id: "payout_items.resident_name" },
+            { id: "payout_items.priority_tier" },
+            { id: "payout_items.amount_usd" },
+            { id: "payout_items.transaction_status" },
+            { id: "payout_items.age_hours" },
+            { id: "payout_items.safe_action" },
+          ],
+        },
+      },
+    },
+    widgetLayout: {
+      "kpi-ai-unresolved": { xTrack: 0, yTrack: 0, xSpan: 6, ySpan: 8 },
+      "kpi-ai-unclaimed": { xTrack: 6, yTrack: 0, xSpan: 6, ySpan: 8 },
+      "kpi-ai-oldest": { xTrack: 12, yTrack: 0, xSpan: 6, ySpan: 8 },
+      "kpi-ai-dispatched": { xTrack: 18, yTrack: 0, xSpan: 6, ySpan: 8 },
+      "c-ai-status": { xTrack: 0, yTrack: 8, xSpan: 12, ySpan: 14 },
+      "c-ai-aging": { xTrack: 12, yTrack: 8, xSpan: 12, ySpan: 14 },
+      "g-ai-workbench": { xTrack: 0, yTrack: 22, xSpan: 24, ySpan: 20 },
+    },
+  };
+}
+
+/**
+ * Add (or replace) the recovery page through Studio's own state API, tagged as an AI change so it
+ * appears in Studio's history and can be undone. Returns a plain-language result for the model.
+ */
+export function addRecoveryPage(api: any): { ok: boolean; message: string } {
+  if (!api || typeof api.getState !== "function" || typeof api.setState !== "function") return { ok: false, message: "Studio API not available" };
+  const state = api.getState();
+  const pages = (Array.isArray(state?.pages) ? state.pages : []).filter((p: any) => p.id !== RECOVERY_PAGE_ID);
+  api.setState({ ...state, pages: [...pages, buildRecoveryPage()], selectedPageId: RECOVERY_PAGE_ID }, { historyLabel: "AI: payout recovery page", source: { type: "ai", agent: "relief-finance-analyst" } });
+  return { ok: true, message: `Added the page “${RECOVERY_PAGE_TITLE}” (7 widgets: 4 KPIs, status donut, ageing bars, workbench grid) and opened it. Undo is available in Studio history.` };
+}
+
+/** Back-compat for callers/tests that pass the API directly. */
 export function createGeneratedReportPage(api: any) {
-  if (!api || typeof api.getState !== "function") return;
-  try {
-    const state = api.getState();
-    const newPageId = "ai-payout-recovery";
-    const newPage = {
-      id: newPageId,
-      title: "AI Generated: Payout Recovery Intelligence",
-      format: {
-        padding: { top: 12, right: 14, bottom: 14, left: 14 },
-        gap: 12,
-      },
-      crossFilter: { values: {} },
-      widgets: {
-        "kpi-ai-unresolved": {
-          type: "value",
-          format: { title: { text: "Unresolved Exposure (USD)", enabled: true, wrapping: true } },
-          dataMapping: {
-            value: [{ id: "payout_items.unresolved_usd", aggregation: "sum" }],
-          },
-        },
-        "kpi-ai-unclaimed": {
-          type: "value",
-          format: { title: { text: "Unresolved Items Count", enabled: true, wrapping: true } },
-          dataMapping: {
-            value: [{ id: "payout_items.is_unresolved", aggregation: "sum" }],
-          },
-        },
-        "kpi-ai-oldest": {
-          type: "value",
-          format: { title: { text: "Oldest Exception (Hours)", enabled: true, wrapping: true } },
-          dataMapping: {
-            value: [{ id: "payout_items.age_hours", aggregation: "max" }],
-          },
-        },
-        "kpi-ai-dispatched": {
-          type: "value",
-          format: { title: { text: "Gross Dispatched Volume", enabled: true, wrapping: true } },
-          dataMapping: {
-            value: [{ id: "payout_items.amount_usd", aggregation: "sum" }],
-          },
-        },
-        "c-ai-status": {
-          type: "donut-chart",
-          format: {
-            title: { text: "PayPal Status Breakdown", enabled: true, wrapping: true },
-            crossFilter: "filter",
-          },
-          dataMapping: {
-            categoryKey: [{ id: "payout_items.transaction_status" }],
-            valueKey: [{ id: "payout_items.items_count", aggregation: "sum" }],
-          },
-        },
-        "c-ai-aging": {
-          type: "bar-chart-grouped",
-          format: {
-            title: { text: "Exposure by Aging Bracket", enabled: true, wrapping: true },
-            crossFilter: "filter",
-          },
-          dataMapping: {
-            categoryKey: [{ id: "payout_items.age_band" }],
-            valueKey: [{ id: "payout_items.unresolved_usd", aggregation: "sum" }],
-          },
-        },
-        "g-ai-workbench": {
-          type: "grid",
-          format: {
-            title: { text: "Generated Payout Recovery Workbench", enabled: true, wrapping: true },
-            style: { columnAutoSize: true, headerRow: { wrapText: true } },
-          },
-          dataMapping: {
-            cols: [
-              { id: "payout_items.item_id" },
-              { id: "payout_items.resident_name" },
-              { id: "payout_items.zone" },
-              { id: "payout_items.priority_tier" },
-              { id: "payout_items.amount_usd" },
-              { id: "payout_items.transaction_status" },
-              { id: "payout_items.age_hours" },
-              { id: "payout_items.safe_action" },
-            ],
-          },
-        },
-      },
-      widgetLayout: {
-        "kpi-ai-unresolved": { xTrack: 0, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-ai-unclaimed": { xTrack: 6, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-ai-oldest": { xTrack: 12, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "kpi-ai-dispatched": { xTrack: 18, yTrack: 0, xSpan: 6, ySpan: 6 },
-        "c-ai-status": { xTrack: 0, yTrack: 6, xSpan: 12, ySpan: 12 },
-        "c-ai-aging": { xTrack: 12, yTrack: 6, xSpan: 12, ySpan: 12 },
-        "g-ai-workbench": { xTrack: 0, yTrack: 18, xSpan: 24, ySpan: 14 },
-      },
-    };
+  return addRecoveryPage(api);
+}
 
-    const existingPages = Array.isArray(state?.pages) ? state.pages : [];
-    const filteredPages = existingPages.filter((p: any) => p.id !== newPageId);
-    const updatedState = {
-      ...state,
-      pages: [...filteredPages, newPage],
-      selectedPageId: newPageId,
-    };
-    api.setState(updatedState);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("landfall_ag_studio_state_v4", JSON.stringify(updatedState));
-        window.dispatchEvent(new CustomEvent("ag-studio-state-update", { detail: updatedState }));
-      } catch {}
-    }
-  } catch (err) {
-    console.warn("Failed to create generated report page:", err);
-  }
+/* ── Adapter ───────────────────────────────────────────────── */
+
+export interface StudioAdapterOptions {
+  /** Model gateway. `null` forces the offline analyst (used in tests and when no server is reachable). */
+  endpoint?: string | null;
+  fetchImpl?: typeof fetch;
+  /** Retained for call-site compatibility; the adapter itself never needs the Studio API. */
+  api?: unknown;
+  model?: string;
 }
 
 export class GroqStudioLlmAdapter implements AgLlmAdapter {
-  private apiKey: string;
+  private endpoint: string | null;
+  private fetchImpl: typeof fetch | undefined;
   private model: string;
-  private api?: any;
 
-  constructor({
-    apiKey = process.env.GROQ_API_KEY || "",
-    model = "openai/gpt-oss-20b",
-    api,
-  }: {
-    apiKey?: string;
-    model?: string;
-    api?: any;
-  } = {}) {
-    this.apiKey = apiKey;
-    this.model = model;
-    this.api = api;
+  constructor(opts: StudioAdapterOptions = {}) {
+    this.endpoint = opts.endpoint === undefined ? "/api/studio-llm" : opts.endpoint;
+    this.fetchImpl = opts.fetchImpl ?? (typeof fetch === "function" ? fetch.bind(globalThis) : undefined);
+    this.model = opts.model ?? "groq/openai/gpt-oss-20b";
   }
 
   executeTurn(request: AgLlmRequest, options?: AgLlmExecuteTurnOptions): AgLlmResponseHandler {
-    const turnId = `turn_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const id = `turn_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     const createdAt = Date.now();
+    const run = this.run(request, options?.signal).then(
+      (turn): AgLlmResponse => ({
+        id,
+        createdAt,
+        status: "completed",
+        output: turnToOutput(turn, id) as any,
+        usage: turn.usage ?? estimateUsage(request, turn),
+        model: turn.model ?? this.model,
+      })
+    );
 
-    // Extract last user prompt
-    const lastItem = request.input[request.input.length - 1];
-    let userQuery = "";
-    if (lastItem) {
-      if (Array.isArray((lastItem as any).content)) {
-        const textItem = (lastItem as any).content.find(
-          (c: any) => c.type === "text" || typeof c.text === "string"
-        );
-        userQuery = textItem?.text || "";
-      } else if (typeof (lastItem as any).content === "string") {
-        userQuery = (lastItem as any).content;
-      } else if (Array.isArray((lastItem as any).parts)) {
-        const textPart = (lastItem as any).parts.find((p: any) => p.type === "text");
-        userQuery = textPart?.text || "";
-      } else if (typeof (lastItem as any).text === "string") {
-        userQuery = (lastItem as any).text;
+    const stream = {
+      async *[Symbol.asyncIterator](): AsyncIterator<AgAiEvent> {
+        const r = await run;
+        for (const item of r.output as any[]) {
+          if (item.type === "message") {
+            yield { type: "TEXT_MESSAGE_CHUNK", messageId: item.id, role: "assistant", delta: item.content?.[0]?.text ?? "" } as AgAiEvent;
+          } else if (item.type === "function_call") {
+            yield { type: "TOOL_CALL_CHUNK", toolCallId: item.callId, toolCallName: item.name, delta: item.arguments } as AgAiEvent;
+          }
+        }
+      },
+    };
+    return { stream, complete: run };
+  }
+
+  private async run(request: AgLlmRequest, signal?: AbortSignal): Promise<ModelTurn> {
+    const input = request.input as any[];
+    const question = lastUserText(input);
+
+    // 1. Deterministic guardrail — before any model sees it.
+    if (!isToolFollowUp(input) && isMoneyMovementRequest(question)) {
+      return { text: answerFromReliefData(question) ?? "ACCESS DENIED — read-only agent.", toolCalls: [], model: "guardrail/deterministic" };
+    }
+
+    // 2. Live model through the server gateway.
+    if (this.endpoint && this.fetchImpl) {
+      try {
+        const res = await this.fetchImpl(this.endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            input,
+            instructions: request.instructions,
+            tools: request.tools,
+            toolChoice: request.toolChoice,
+            responseFormat: request.responseFormat,
+          }),
+          signal,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.refused) return { text: answerFromReliefData(question) ?? "ACCESS DENIED — read-only agent.", toolCalls: [], model: "guardrail/deterministic" };
+          if (typeof data?.text === "string" || Array.isArray(data?.toolCalls)) {
+            return { text: data.text ?? "", toolCalls: data.toolCalls ?? [], model: data.model, usage: data.usage };
+          }
+        }
+      } catch {
+        /* fall through to the offline analyst */
       }
     }
 
-    console.log("ADAPTER TURN userQuery:", userQuery);
-
-    // Scenario B trigger: dynamically create report page on canvas
-    const isReportGen =
-      (userQuery.toLowerCase().includes("create") ||
-        userQuery.toLowerCase().includes("build") ||
-        userQuery.toLowerCase().includes("generate")) &&
-      (userQuery.toLowerCase().includes("payout recovery report") ||
-        (userQuery.toLowerCase().includes("recovery") &&
-          (userQuery.toLowerCase().includes("status") ||
-            userQuery.toLowerCase().includes("ageing") ||
-            userQuery.toLowerCase().includes("aging"))));
-
-    if (isReportGen && this.api) {
-      setTimeout(() => {
-        createGeneratedReportPage(this.api);
-      }, 500);
-    }
-
-    // Data-grounded answers for Studio prompt starters first; otherwise the deterministic bridge.
-    const grounded = answerFromReliefData(userQuery);
-    const command: StudioAgentCommand = interpretStudioQuery(userQuery);
-    const responseText = grounded ?? command.agentResponse;
-
-    const completePromise: Promise<AgLlmResponse> = Promise.resolve({
-      id: turnId,
-      createdAt,
-      status: "completed",
-      output: [
-        {
-          id: `out_${turnId}`,
-          kind: "output",
-          type: "message",
-          role: "assistant",
-          status: "completed",
-          parts: [{ type: "text", text: responseText }],
-          content: [{ type: "text", text: responseText, annotations: [] }],
-        } as any,
-      ],
-      usage: {
-        inputTokens: Math.max(1, Math.round(userQuery.length / 4)),
-        outputTokens: Math.max(1, Math.round(responseText.length / 4)),
-        totalTokens: Math.max(2, Math.round((userQuery.length + responseText.length) / 4)),
-      },
-      model: this.model,
-    });
-
-    // Provide async iterator for streaming events adhering to AgAiEvent protocol
-    const stream = {
-      async *[Symbol.asyncIterator](): AsyncIterator<AgAiEvent> {
-        yield {
-          type: "TEXT_MESSAGE_CHUNK",
-          messageId: turnId,
-          role: "assistant",
-          delta: responseText,
-        } as AgAiEvent;
-      },
-    };
-
-    return {
-      stream,
-      complete: completePromise,
-    };
+    // 3. Labelled offline analyst.
+    return this.offline(request, input, question);
   }
+
+  private offline(request: AgLlmRequest, input: any[], question: string): ModelTurn {
+    const tools = new Set((request.tools ?? []).map((t) => t.name));
+    const model = "offline-analyst/deterministic";
+
+    if (isToolFollowUp(input)) {
+      // A tool just ran. Only echo the result when it is OUR tool's short human message; raw tool output
+      // (e.g. a schema dump) is never shown as the answer.
+      const lastOut: any = input[input.length - 1];
+      const call: any = input.find((i: any) => i?.type === "function_call" && i.callId === lastOut.callId);
+      const output = String(lastOut.output ?? "");
+      if (call?.name === CREATE_RECOVERY_PAGE_TOOL && output && !output.trim().startsWith("{")) return { text: output + OFFLINE_NOTE, toolCalls: [], model };
+      const grounded = answerFromReliefData(question);
+      return { text: (grounded ?? "I read the data, but the live model is unavailable to finish the analysis. Try one of the suggested questions.") + OFFLINE_NOTE, toolCalls: [], model };
+    }
+    if (isRecoveryReportRequest(question) && tools.has(CREATE_RECOVERY_PAGE_TOOL)) {
+      return { text: "", toolCalls: [{ id: `call_${Date.now()}`, name: CREATE_RECOVERY_PAGE_TOOL, arguments: "{}" }], model };
+    }
+    const grounded = answerFromReliefData(question);
+    if (grounded) return { text: grounded + OFFLINE_NOTE, toolCalls: [], model };
+    return { text: interpretStudioQuery(question).agentResponse + OFFLINE_NOTE, toolCalls: [], model };
+  }
+}
+
+function estimateUsage(request: AgLlmRequest, turn: ModelTurn) {
+  const inChars = JSON.stringify(request.input ?? []).length;
+  const outChars = turn.text.length + turn.toolCalls.reduce((t, c) => t + c.arguments.length, 0);
+  const i = Math.max(1, Math.round(inChars / 4));
+  const o = Math.max(1, Math.round(outChars / 4));
+  return { inputTokens: i, outputTokens: o, totalTokens: i + o };
 }

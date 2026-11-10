@@ -4,23 +4,25 @@ import type { AgLlmRequest } from "ag-studio";
 import { TREASURY } from "@/lib/studio/landfall-studio-data";
 
 describe("Phase 4 — AG Studio Agent Framework 8-Prompt Evaluation Suite (§8.3)", () => {
-  const adapter = new GroqStudioLlmAdapter();
+  const adapter = new GroqStudioLlmAdapter({ endpoint: null }); // deterministic offline analyst
 
   async function ask(query: string): Promise<string> {
     const request: AgLlmRequest = {
       input: [
         {
           id: `msg_${Date.now()}`,
+          kind: "input",
           type: "message",
           role: "user",
-          parts: [{ type: "text", text: query }],
+          status: "completed",
+          content: [{ type: "text", text: query }],
         } as any,
       ],
       responseFormat: { type: "text" },
     };
     const handler = adapter.executeTurn(request);
     const response = await handler.complete;
-    return (response.output[0] as any).parts[0].text;
+    return (response.output[0] as any).content[0].text;
   }
 
   it("Prompt 1: Show payout items by PayPal status and sort unresolved amount", async () => {

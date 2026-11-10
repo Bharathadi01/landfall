@@ -55,6 +55,12 @@ export const MONEY_MOVEMENT_PATTERN = new RegExp(
   "i"
 );
 
+/** "Create / build / generate a payout recovery report | page | dashboard" */
+export function isRecoveryReportRequest(query: string): boolean {
+  const q = query.toLowerCase();
+  return /\b(create|build|generate|make|add)\b/.test(q) && /(payout recovery|recovery (report|page|dashboard|status|ageing|aging))/.test(q);
+}
+
 export function isMoneyMovementRequest(query: string): boolean {
   return MONEY_MOVEMENT_PATTERN.test(query);
 }

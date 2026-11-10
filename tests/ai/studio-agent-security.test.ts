@@ -3,16 +3,18 @@ import { GroqStudioLlmAdapter } from "@/lib/ai/watch-officer/studio-adapter";
 import type { AgLlmRequest } from "ag-studio";
 
 describe("AG Studio Agent Framework Security & Boundary Isolation (§3, §5)", () => {
-  const adapter = new GroqStudioLlmAdapter();
+  const adapter = new GroqStudioLlmAdapter({ endpoint: null });
 
   it("implements AgLlmAdapter interface with streaming and completion", async () => {
     const request: AgLlmRequest = {
       input: [
         {
           id: "msg_1",
+          kind: "input",
           type: "message",
           role: "user",
-          parts: [{ type: "text", text: "Show medical device households" }],
+          status: "completed",
+          content: [{ type: "text", text: "Show medical device households" }],
         } as any,
       ],
       responseFormat: { type: "text" },
@@ -25,7 +27,7 @@ describe("AG Studio Agent Framework Security & Boundary Isolation (§3, §5)", (
     const response = await handler.complete;
     expect(response.id).toBeDefined();
     expect(response.output.length).toBeGreaterThan(0);
-    const textOutput = (response.output[0] as any).parts[0].text;
+    const textOutput = (response.output[0] as any).content[0].text;
     expect(textOutput).toContain("Tier 1");
   });
 
@@ -58,7 +60,7 @@ describe("AG Studio Agent Framework Security & Boundary Isolation (§3, §5)", (
 
     const handler = adapter.executeTurn(maliciousRequest);
     const response = await handler.complete;
-    const textOutput = (response.output[0] as any).parts[0].text;
+    const textOutput = (response.output[0] as any).content[0].text;
 
     // Must not execute any payout; should safely respond with informational guidance
     expect(textOutput).toContain("ACCESS DENIED");
@@ -71,9 +73,11 @@ describe("AG Studio Agent Framework Security & Boundary Isolation (§3, §5)", (
       input: [
         {
           id: "msg_zone",
+          kind: "input",
           type: "message",
           role: "user",
-          parts: [{ type: "text", text: "Filter to coastal evacuation zone A" }],
+          status: "completed",
+          content: [{ type: "text", text: "Filter to coastal evacuation zone A" }],
         } as any,
       ],
       responseFormat: { type: "text" },
@@ -81,7 +85,7 @@ describe("AG Studio Agent Framework Security & Boundary Isolation (§3, §5)", (
 
     const handler = adapter.executeTurn(request);
     const response = await handler.complete;
-    const textOutput = (response.output[0] as any).parts[0].text;
+    const textOutput = (response.output[0] as any).content[0].text;
     expect(textOutput).toContain("Zone A");
   });
 });

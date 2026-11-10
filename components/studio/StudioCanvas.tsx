@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useMemo, useState, useEffect } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { LayoutDashboard, ShieldCheck, Zap, HeartHandshake, Sparkles, RotateCcw } from "lucide-react";
 import { AgStudio, createWidgets } from "ag-studio-react";
 import {
   AgStudioAiModule,
@@ -15,7 +16,13 @@ import {
 // Register the Studio AI Agent Module
 AgStudioModuleRegistry.registerModules([AgStudioAiModule]);
 
-import { GroqStudioLlmAdapter } from "@/lib/ai/watch-officer/studio-adapter";
+import {
+  GroqStudioLlmAdapter,
+  addRecoveryPage,
+  CREATE_RECOVERY_PAGE_TOOL,
+  RECOVERY_PAGE_ID,
+  RECOVERY_PAGE_TITLE,
+} from "@/lib/ai/watch-officer/studio-adapter";
 import { registerAgLicenses } from "@/lib/ag/license";
 import { landfallStudioParams } from "@/styles/ag-studio-theme";
 import {
@@ -529,225 +536,153 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
   ],
 } as any;
 
-const STORAGE_KEY = "landfall_ag_studio_state_v4";
+const STORAGE_KEY = "landfall_ag_studio_state_v5";
+
+const ANALYST_INSTRUCTIONS =
+  "You are Landfall's Relief Finance Analyst inside AG Studio. Help relief coordinators and auditors understand payout outcomes, exceptions, reserve compliance and ledger reconciliation.\n" +
+  "DATA: tables payout_items, payout_batches, relief_obligations, webhook_observations, ledger_reconciliation, treasury, solvency, households, grievance_summary, recovery_proofs. Use viewSchema / executeQuery before quoting numbers; never invent figures.\n" +
+  "FACTS TO RESPECT: PayPal item status SUCCESS means credited to the recipient's account — it is NOT proof the household can access or has received the money; keep provider status and recipient-reported confirmation separate. UNCLAIMED payments auto-return after 30 days and must be resolved by helping the resident claim, never by paying again. PENDING has no item webhook — monitor. ONHOLD/BLOCKED need investigation. FAILED/RETURNED need a NEW two-person-approved plan.\n" +
+  "TOOLS: you can read data, add/modify widgets and filters, and call " + CREATE_RECOVERY_PAGE_TOOL + " to add a ready-made recovery page. " +
+  "SAFETY: you are strictly read-only for money. You cannot execute, re-issue, approve or alter any payout, ledger entry or reserve — no such tool exists. If asked, refuse and explain the safe alternative. Keep answers short and cite the record ids you used.";
+
+const PAGE_LABELS: Record<string, { label: string; icon: React.ComponentType<{ size?: number }> }> = {
+  overview: { label: "Relief overview", icon: LayoutDashboard },
+  treasury: { label: "Treasury & reserve", icon: ShieldCheck },
+  recovery: { label: "Payout recovery", icon: Zap },
+  accountability: { label: "Accountability", icon: HeartHandshake },
+  [RECOVERY_PAGE_ID]: { label: RECOVERY_PAGE_TITLE, icon: Sparkles },
+};
+
+function loadSavedState(): AgReportState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    if (parsed && Array.isArray(parsed.pages) && parsed.pages.length >= 4) return parsed;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
 
 export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
-  const [reportState, setReportState] = useState<AgReportState>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed && Array.isArray(parsed.pages) && parsed.pages.length >= 4) {
-            return parsed;
-          }
-        }
-      } catch {
-        /* fallback */
-      }
-    }
-    return CANONICAL_REPORT_STATE;
-  });
-
-  const [activePageId, setActivePageId] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed && typeof parsed.selectedPageId === "string") {
-            return parsed.selectedPageId;
-          }
-        }
-      } catch {
-        /* fallback */
-      }
-    }
-    return "overview";
-  });
+  /** The live Studio API. Page switches, filters and AI edits go through it — nothing re-mounts Studio. */
+  const apiRef = useRef<any>(null);
+  /** Latest state, kept in a ref so reading it never triggers a render. */
+  const latestState = useRef<AgReportState | null>(null);
+  const [pages, setPages] = useState<{ id: string }[]>(() => (loadSavedState() ?? CANONICAL_REPORT_STATE).pages as any);
+  const [activePageId, setActivePageId] = useState<string>(() => (loadSavedState()?.selectedPageId as string) || "overview");
   const [activeCrossFilter, setActiveCrossFilter] = useState<{ key: string; value: string } | null>(null);
-  const [canvasRevision, setCanvasRevision] = useState<number>(0);
 
-  useEffect(() => {
-    const handleStateUpdate = (e: any) => {
-      if (e.detail) {
-        setReportState(e.detail);
-        if (e.detail.selectedPageId) {
-          setActivePageId(e.detail.selectedPageId);
-        }
-      }
-    };
-    if (typeof window !== "undefined") {
-      window.addEventListener("ag-studio-state-update", handleStateUpdate);
-      return () => window.removeEventListener("ag-studio-state-update", handleStateUpdate);
+  // Studio is (re)created only when the mode changes; it starts from the latest state so nothing is lost.
+  const initialState = useMemo(() => latestState.current ?? loadSavedState() ?? CANONICAL_REPORT_STATE, [mode]);
+
+  const data = useMemo(() => ({ sources: studioSources, relationships: studioRelationships, calendars: studioCalendars }), []);
+
+  /* Studio Agent Framework — a real agent with real Studio tools. */
+  const ai = useCallback(({ api }: { api: any }) => {
+    apiRef.current = api;
+    const adapter = new GroqStudioLlmAdapter({ api });
+
+    // Custom tool: add the recovery page through Studio's own state API (tagged as an AI change, undoable).
+    const createRecoveryPage = api.defineAiTool({
+      name: CREATE_RECOVERY_PAGE_TOOL,
+      description:
+        "Add a ready-made 'Payout recovery' page to the report: unresolved-value KPIs, a PayPal-status donut, an ageing chart and a record-level workbench. Use when asked to create or build a payout recovery report or dashboard.",
+      params: (shape: any) => shape.object({}),
+      execute: async (_args: unknown, ctx: any) => {
+        const r = addRecoveryPage(api);
+        return r.ok ? ctx.success(r.message) : ctx.error(r.message);
+      },
+    });
+
+    return createAiHarness(api, (ctx) => {
+      const analyst = directLlmRunner({
+        id: "relief-finance-analyst",
+        name: "Relief Finance Analyst",
+        description: "Specialist for PayPal payout outcomes, exceptions, reserve compliance and reconciliation. Read-only for money; can build dashboards.",
+        instructions: () => ANALYST_INSTRUCTIONS,
+        // A deliberately small tool set: every advertised tool costs prompt tokens on the free tier.
+        tools: (c: any) => [c.studio.viewSchema(), c.studio.executeQuery(), c.studio.viewPage(), c.studio.addPageFilter(), createRecoveryPage],
+        adapter,
+      } as any);
+
+      return {
+        agents: [analyst, directLlmRunner({ ...ctx.builtIn.lead, adapter }), directLlmRunner({ ...ctx.builtIn.data, adapter }), directLlmRunner({ ...ctx.builtIn.page, adapter }), directLlmRunner({ ...ctx.builtIn.widget, adapter }), directLlmRunner({ ...ctx.builtIn.planning, adapter })],
+        primary: "relief-finance-analyst",
+        promptStarters: STUDIO_PROMPT_STARTERS,
+      };
+    });
+  }, []);
+
+  const onStateUpdated = useCallback((evt: any) => {
+    const state = evt?.state;
+    if (!state) return;
+    latestState.current = state;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      /* ignore storage quota */
+    }
+    setPages(state.pages ?? []);
+    const selected = state.selectedPageId || state.pages?.[0]?.id;
+    if (selected) setActivePageId(selected);
+    const page = state.pages?.find((p: any) => p.id === selected);
+    const values = page?.crossFilter?.values;
+    if (values && Object.keys(values).length > 0) {
+      const key = Object.keys(values)[0];
+      const v = values[key]?.[0];
+      setActiveCrossFilter(v ? { key, value: String(v.values?.[0] ?? v.field?.id ?? "Filter") } : null);
+    } else {
+      setActiveCrossFilter(null);
     }
   }, []);
 
-  const clearCrossFilter = () => {
-    setActiveCrossFilter(null);
-    setReportState((prev: any) => ({
-      ...prev,
-      pages: prev.pages?.map((p: any) =>
-        p.id === activePageId ? { ...p, crossFilter: { values: {} } } : p
-      ),
-    }));
-    setCanvasRevision((r) => r + 1);
+  /** Apply a change through Studio's API (no re-mount, chat and history survive). */
+  const setStudioState = (next: (state: any) => any, historyLabel: string) => {
+    const api = apiRef.current;
+    if (!api) return;
+    api.setState(next(api.getState()), { historyLabel, source: { type: "ui" } });
   };
 
-  const applyCrossFilter = (status: string) => {
-    setActiveCrossFilter({ key: "c-recovery-status", value: status });
-    setReportState((prev: any) => ({
-      ...prev,
-      pages: prev.pages?.map((p: any) =>
-        p.id === "recovery"
-          ? {
-              ...p,
-              crossFilter: {
-                values: {
-                  "c-recovery-status": [
-                    {
-                      type: "value",
-                      group: 0,
-                      field: { id: "payout_items.transaction_status" },
-                      values: [status],
-                    },
-                  ],
-                },
-              },
-            }
-          : p
-      ),
-    }));
-    setCanvasRevision((r) => r + 1);
-  };
+  const switchPage = (pageId: string) => setStudioState((st) => ({ ...st, selectedPageId: pageId }), "Switch page");
 
-  const data = useMemo(
-    () => ({
-      sources: studioSources,
-      relationships: studioRelationships,
-      calendars: studioCalendars,
-    }),
-    []
-  );
-
-  // Studio Agent Framework: Coordinates Built-In Agents with Relief Finance Analyst
-  const ai = useCallback(
-    ({ api }: { api: any }) =>
-      createAiHarness(api, (ctx) => {
-        const adapter = new GroqStudioLlmAdapter({ api });
-
-        const analyst = directLlmRunner({
-          id: "relief-finance-analyst",
-          name: "Relief Finance Analyst",
-          description:
-            "Specialist relief-finance intelligence agent. Audits PayPal payout statuses, double-entry reconciliation, statutory reserve floors, exception aging, and recovery evidence.",
-          instructions: () =>
-            "You are Landfall's Relief Finance Analyst. You assist relief operators and auditors in analyzing disaster payout outcomes, identifying exceptions (Unclaimed, On-Hold, Failed), verifying ledger reconciliation, and auditing reserve compliance. " +
-            "SAFETY INVARIANT: You are strictly read-only for reporting and dashboard configuration. You CANNOT execute payouts, re-issue money, or alter ledger records.",
-          adapter,
-        });
-
-        const lead = directLlmRunner({ ...ctx.builtIn.lead, adapter });
-        const dataAgent = directLlmRunner({ ...ctx.builtIn.data, adapter });
-        const page = directLlmRunner({ ...ctx.builtIn.page, adapter });
-        const widget = directLlmRunner({ ...ctx.builtIn.widget, adapter });
-        const planning = directLlmRunner({ ...ctx.builtIn.planning, adapter });
-
-        return {
-          agents: [analyst, lead, dataAgent, page, widget, planning],
-          primary: "relief-finance-analyst",
-          promptStarters: STUDIO_PROMPT_STARTERS,
-        };
+  const applyCrossFilter = (status: string) =>
+    setStudioState(
+      (st) => ({
+        ...st,
+        pages: st.pages.map((p: any) =>
+          p.id === "recovery"
+            ? { ...p, crossFilter: { values: { "c-recovery-status": [{ type: "value", group: 0, field: { id: "payout_items.transaction_status" }, values: [status] }] } } }
+            : p
+        ),
       }),
-    []
-  );
+      `Filter: ${status}`
+    );
 
-  const onStateUpdated = useCallback((evt: any) => {
-    if (evt?.state) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(evt.state));
-        setReportState(evt.state);
-        if (evt.state.selectedPageId) {
-          setActivePageId(evt.state.selectedPageId);
-        }
-        const activePage = evt.state.pages?.find((p: any) => p.id === (evt.state.selectedPageId || activePageId));
-        if (activePage?.crossFilter?.values && Object.keys(activePage.crossFilter.values).length > 0) {
-          const firstKey = Object.keys(activePage.crossFilter.values)[0];
-          const valObj = activePage.crossFilter.values[firstKey]?.[0];
-          if (valObj) {
-            setActiveCrossFilter({
-              key: firstKey,
-              value: String(valObj.values?.[0] || valObj.field?.id || "Active Filter"),
-            });
-          }
-        } else {
-          setActiveCrossFilter(null);
-        }
-      } catch {
-        /* ignore storage quota */
-      }
-    }
-  }, [activePageId]);
+  const clearCrossFilter = () =>
+    setStudioState((st) => ({ ...st, pages: st.pages.map((p: any) => (p.id === activePageId ? { ...p, crossFilter: { values: {} } } : p)) }), "Clear filter");
 
   const resetToTemplate = () => {
     try {
       localStorage.removeItem(STORAGE_KEY);
-      setActiveCrossFilter(null);
-      setReportState({ ...CANONICAL_REPORT_STATE, selectedPageId: activePageId });
     } catch {
       /* ignore */
     }
+    setStudioState(() => ({ ...CANONICAL_REPORT_STATE, selectedPageId: "overview" }), "Reset to template");
   };
 
-  const switchPage = (pageId: string) => {
-    setActivePageId(pageId);
-    setReportState((prev: any) => {
-      const updated = {
-        ...prev,
-        selectedPageId: pageId,
-      };
-      if (typeof window !== "undefined") {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        } catch {
-          /* ignore */
-        }
-      }
-      return updated;
-    });
-  };
-
-  const currentReportState = useMemo(() => {
-    if (!reportState?.pages?.length) return reportState;
-    const targetPage = reportState.pages.find((p) => p.id === activePageId) || reportState.pages[0];
-    const otherPages = reportState.pages.filter((p) => p.id !== targetPage.id);
-    return {
-      ...reportState,
-      selectedPageId: targetPage.id,
-      pages: [targetPage, ...otherPages],
-    };
-  }, [reportState, activePageId]);
-
-  const PAGE_NAV = useMemo(() => {
-    const defaultPages = [
-      { id: "overview", label: "Relief Overview", icon: "📊" },
-      { id: "treasury", label: "Treasury & Reserve", icon: "🛡️" },
-      { id: "recovery", label: "Payout Recovery", icon: "⚡" },
-      { id: "accountability", label: "Beneficiary Accountability", icon: "🤝" },
-    ];
-    const customPages = (reportState?.pages || [])
-      .filter((p: any) => !defaultPages.some((dp) => dp.id === p.id))
-      .map((p: any) => ({
+  const nav = useMemo(
+    () =>
+      pages.map((p) => ({
         id: p.id,
-        label: p.title || p.id,
-        icon: "✨",
-      }));
-    return [...defaultPages, ...customPages];
-  }, [reportState?.pages]);
+        label: PAGE_LABELS[p.id]?.label ?? p.id,
+        Icon: PAGE_LABELS[p.id]?.icon ?? Sparkles,
+      })),
+    [pages]
+  );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%" }}>
-      {/* Top Studio Control Bar */}
       <div
         style={{
           display: "flex",
@@ -764,46 +699,21 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#5EEAD4", letterSpacing: "-0.01em" }}>
-            Relief Finance Intelligence
-          </span>
-          <span
-            style={{
-              fontSize: 10,
-              fontFamily: "var(--font-geist-mono)",
-              background: "rgba(84, 160, 255, 0.15)",
-              color: "#54A0FF",
-              border: "1px solid rgba(84, 160, 255, 0.3)",
-              borderRadius: 4,
-              padding: "2px 6px",
-            }}
-          >
-            SANDBOX REPLAY
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#5EEAD4", letterSpacing: "-0.01em" }}>Relief Finance Intelligence</span>
+          <span style={{ fontSize: 10, fontFamily: "var(--font-geist-mono)", background: "rgba(255, 255, 255, 0.06)", color: "#A3AEC2", border: "1px solid rgba(255, 255, 255, 0.12)", borderRadius: 4, padding: "2px 6px" }}>
+            REPLAY DATA · SYNTHETIC
           </span>
         </div>
 
-        {/* 4 Report Page Navigation Tabs */}
-        <div
-          role="tablist"
-          aria-label="Report Pages"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-            background: "rgba(255, 255, 255, 0.04)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            borderRadius: 8,
-            padding: 3,
-          }}
-        >
-          {PAGE_NAV.map((p) => {
-            const isActive = (reportState?.selectedPageId || activePageId) === p.id;
+        <div role="tablist" aria-label="Report pages" style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255, 255, 255, 0.04)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 8, padding: 3 }}>
+          {nav.map(({ id, label, Icon }) => {
+            const isActive = activePageId === id;
             return (
               <button
-                key={p.id}
+                key={id}
                 role="tab"
                 aria-selected={isActive}
-                onClick={() => switchPage(p.id)}
+                onClick={() => switchPage(id)}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -819,8 +729,8 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
                   transition: "all 150ms ease",
                 }}
               >
-                <span>{p.icon}</span>
-                <span>{p.label}</span>
+                <Icon size={14} />
+                <span>{label}</span>
               </button>
             );
           })}
@@ -831,55 +741,19 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
             <button
               data-testid="filter-unclaimed-btn"
               onClick={() => applyCrossFilter("UNCLAIMED")}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
-                background: "rgba(251, 191, 84, 0.12)",
-                border: "1px solid rgba(251, 191, 84, 0.35)",
-                borderRadius: 6,
-                padding: "3px 8px",
-                fontSize: 11,
-                color: "#FBBF54",
-                cursor: "pointer",
-                fontWeight: 600,
-              }}
-              title="Click to cross-filter report to UNCLAIMED payouts"
+              style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(251, 191, 84, 0.12)", border: "1px solid rgba(251, 191, 84, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#FBBF54", cursor: "pointer", fontWeight: 600 }}
+              title="Cross-filter the report to UNCLAIMED payouts"
             >
-              <span>⚡ Filter: UNCLAIMED</span>
+              Filter: UNCLAIMED
             </button>
           )}
 
           {activeCrossFilter && (
-            <div
-              data-testid="active-crossfilter-chip"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                background: "rgba(84, 160, 255, 0.15)",
-                border: "1px solid rgba(84, 160, 255, 0.35)",
-                borderRadius: 6,
-                padding: "3px 8px",
-                fontSize: 11,
-                color: "#54A0FF",
-              }}
-            >
-              <span>Active Filter: <strong>{activeCrossFilter.value}</strong></span>
-              <button
-                data-testid="clear-crossfilter-btn"
-                onClick={clearCrossFilter}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#EEF2F8",
-                  cursor: "pointer",
-                  padding: "0 2px",
-                  fontWeight: "bold",
-                  fontSize: 12,
-                }}
-                title="Clear cross-filter"
-              >
+            <div data-testid="active-crossfilter-chip" style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(84, 160, 255, 0.15)", border: "1px solid rgba(84, 160, 255, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#54A0FF" }}>
+              <span>
+                Filtered: <strong>{activeCrossFilter.value}</strong>
+              </span>
+              <button data-testid="clear-crossfilter-btn" onClick={clearCrossFilter} style={{ background: "none", border: "none", color: "#EEF2F8", cursor: "pointer", padding: "0 2px", fontWeight: "bold", fontSize: 12 }} title="Clear filter">
                 ✕
               </button>
             </div>
@@ -887,30 +761,20 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
 
           <button
             onClick={resetToTemplate}
-            style={{
-              background: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              borderRadius: 6,
-              color: "#A3AEC2",
-              padding: "4px 10px",
-              fontSize: 11,
-              cursor: "pointer",
-              transition: "all 150ms ease",
-            }}
-            title="Reset active dashboard layout to the canonical Landfall prize template"
+            style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: 6, color: "#A3AEC2", padding: "4px 10px", fontSize: 11, cursor: "pointer" }}
+            title="Reset the report to the Landfall template"
           >
-            Reset to Template
+            <RotateCcw size={12} /> Reset
           </button>
         </div>
       </div>
 
-      {/* Main AG Studio Component */}
       <div style={{ flex: 1, position: "relative", minHeight: 0, overflowX: "hidden" }}>
         <AgStudio
-          key={`${activePageId}-${mode}-${canvasRevision}`}
+          key={mode}
           {...({
             data,
-            initialState: currentReportState,
+            initialState,
             mode,
             theme: LANDFALL_STUDIO_THEME,
             widgets: widgetsConfig,
@@ -919,7 +783,8 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
             responsiveLayoutBreakpoints: [{ maxWidth: 768, layout: singleColumnLayout }],
             panels: {
               view: { right: [] },
-              edit: { left: ["ai"], right: [] },
+              // Edit mode shows the AI assistant AND the compose panel, where the custom "Landfall Relief Intelligence" widgets live.
+              edit: { left: ["ai"], right: ["edit"] },
             },
             style: { width: "100%", height: "100%" },
           } as any)}

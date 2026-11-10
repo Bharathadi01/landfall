@@ -7,9 +7,9 @@ import { PageHeader, Chip, IconTile } from "@/components/ui/primitives";
 
 const FEATURES = [
   { icon: Palette, tone: "accent" as const, title: "Landfall theme", body: "AG Theming API — canvas, widgets, grid & charts" },
-  { icon: Puzzle, tone: "paypal" as const, title: "Custom widget", body: "“Relief Solvency” reads Studio’s data engine" },
-  { icon: MousePointerClick, tone: "amber" as const, title: "Cross-filtering", body: "Tap a tier — every chart follows" },
-  { icon: Sparkles, tone: "ai" as const, title: "Studio Agent", body: "“Build with AI” — ask in plain English" },
+  { icon: Puzzle, tone: "paypal" as const, title: "Custom widgets", body: "Solvency, reserve guardrail, payout lifecycle" },
+  { icon: MousePointerClick, tone: "amber" as const, title: "Cross-filtering", body: "Click a status — the whole page follows" },
+  { icon: Sparkles, tone: "ai" as const, title: "Studio Agent", body: "Real tool calls · read-only for money" },
 ];
 
 export default function AnalyticsStudioPage() {
@@ -75,12 +75,8 @@ export default function AnalyticsStudioPage() {
             <Chip tone="ai">
               <Lock className="h-3 w-3" /> AI read-only
             </Chip>
-            <Chip tone="paypal">
-              PAYPAL SANDBOX
-            </Chip>
-            <Chip tone="amber">
-              HISTORICAL REPLAY · OCT 2024
-            </Chip>
+            <Chip tone="amber">Replay · Oct 2024</Chip>
+            <Chip tone="neutral">Synthetic data</Chip>
           </div>
         </div>
         <div className="h-[900px] w-full overflow-hidden rounded-[18px] border border-white/[0.06] bg-canvas/60">
