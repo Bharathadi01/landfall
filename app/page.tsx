@@ -30,6 +30,8 @@ import {
 } from "lucide-react";
 import { StormRadarHero } from "@/components/landing/StormRadarHero";
 import { CountUp } from "@/components/motion/CountUp";
+import { CASE_SUMMARY } from "@/lib/relief/cases";
+import { TREASURY } from "@/lib/studio/landfall-studio-data";
 import { IconTile, Chip, type Tone } from "@/components/ui/primitives";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -149,6 +151,51 @@ export default function HomePage() {
               $<CountUp value={0} decimals={2} />
             </div>
             <p className="mt-3 text-[13px] text-ink-3">Groq free tier with a deterministic offline fallback. Small funds can afford it.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── DELIVERY ASSURANCE ───────────────────────────── */}
+      <section id="assurance" className="mx-auto max-w-7xl scroll-mt-28 px-6 py-20">
+        <div className="glass-strong relative overflow-hidden p-8 md:p-12" data-reveal="scale">
+          <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-paypal/15 blur-[100px]" aria-hidden />
+          <div className="relative mx-auto max-w-3xl text-center">
+            <div className="eyebrow text-accent-strong">Beyond “paid”</div>
+            <h2 className="mt-4 text-title-1 text-ink">
+              PayPal says <span className="font-mono text-paypal">SUCCESS</span>.{" "}
+              <span className="font-accent italic font-normal text-ink-2">Did the family get it?</span>
+            </h2>
+            <p className="mt-4 text-body-base text-ink-2">
+              A PayPal payout marked SUCCESS means the money was credited to an account — not that a household can reach it, use it, or
+              even knows it’s there. Landfall follows every payment, case by case, and keeps each fact apart with who reported it.
+            </p>
+          </div>
+
+          <ol className="relative mt-10 grid grid-cols-1 gap-3 sm:grid-cols-5">
+            {[
+              ["Approved", "Two people approved the plan", "Landfall"],
+              ["Sent to PayPal", "It’s in a Payouts batch", "Landfall"],
+              ["Credited by PayPal", "Provider status SUCCESS", "PayPal"],
+              ["Resident confirmed", "The household says they have it", "Resident-reported"],
+              ["Closed", "Credited, confirmed, nothing open", "Operator"],
+            ].map(([t, d, who], i) => (
+              <li key={t} className={`rounded-2xl border p-4 ${i === 3 ? "border-accent/35 bg-accent/[0.07]" : "border-white/[0.08] bg-white/[0.025]"}`}>
+                <div className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-ink-3">0{i + 1}</div>
+                <div className="mt-2 text-[15px] font-semibold tracking-[-0.02em] text-ink">{t}</div>
+                <div className="mt-1 text-[12.5px] text-ink-3">{d}</div>
+                <div className="mt-3 text-[10.5px] font-mono uppercase tracking-wide text-ink-2">{who}</div>
+              </li>
+            ))}
+          </ol>
+
+          <div className="relative mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-[13px] text-ink-2">
+            <span>
+              In the Milton replay: <span className="tabular text-paypal">{CASE_SUMMARY.creditedCount}</span> credited by PayPal,{" "}
+              <span className="tabular text-accent-strong">{CASE_SUMMARY.confirmedCount}</span> confirmed by the household.
+            </span>
+            <Link href="/console/war-room" className="inline-flex items-center gap-1 text-accent-strong hover:underline">
+              See the cases <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
         </div>
       </section>
@@ -407,10 +454,12 @@ function DonationCard() {
 
 function StudioPreview() {
   const bars = [
-    { l: "Available", v: 9250, c: "bg-accent" },
-    { l: "Reserve", v: 5000, c: "bg-amber" },
-    { l: "Fees", v: 120, c: "bg-paypal" },
+    { l: "Available", v: TREASURY.allocatable, c: "bg-accent" },
+    { l: "Reserve", v: TREASURY.reserve, c: "bg-amber" },
+    { l: "Sent", v: TREASURY.paidOut + TREASURY.inFlight, c: "bg-paypal" },
   ];
+  const biggest = Math.max(...bars.map((b) => b.v));
+  const coverage = TREASURY.needsReissue > 0 ? (Math.round((TREASURY.allocatable / TREASURY.needsReissue) * 10) / 10).toFixed(1) : "—";
   return (
     <Link href="/console/studio" className="group relative block rounded-2xl border border-white/10 bg-canvas/70 p-3 shadow-2xl transition-transform duration-500 hover:-translate-y-1">
       <div className="flex items-center gap-1.5 px-1 pb-3">
@@ -419,9 +468,9 @@ function StudioPreview() {
       </div>
       <div className="grid grid-cols-3 gap-2">
         {[
-          ["Households", "6", "text-ink"],
-          ["Relief owed", "$2,500", "text-ink"],
-          ["Reserve", "$5,000", "text-amber"],
+          ["Households", String(CASE_SUMMARY.households), "text-ink"],
+          ["Unresolved", `$${CASE_SUMMARY.unresolvedUsd.toLocaleString("en-US")}`, "text-ink"],
+          ["Reserve", `$${TREASURY.reserve.toLocaleString("en-US")}`, "text-amber"],
         ].map(([k, v, c]) => (
           <div key={k} className="rounded-xl border border-white/[0.06] bg-surface-2/70 p-3">
             <div className="text-[10.5px] text-ink-3">{k}</div>
@@ -434,7 +483,7 @@ function StudioPreview() {
             {bars.map((b) => (
               <div key={b.l} className="flex items-center gap-2">
                 <span className="w-16 text-[10.5px] text-ink-3">{b.l}</span>
-                <span className={`h-3 rounded ${b.c}`} style={{ width: `${Math.max(3, (b.v / 9250) * 100)}%` }} />
+                <span className={`h-3 rounded ${b.c}`} style={{ width: `${Math.max(3, (b.v / biggest) * 100)}%` }} />
               </div>
             ))}
           </div>
@@ -443,7 +492,7 @@ function StudioPreview() {
           <svg width="74" height="74" viewBox="0 0 74 74">
             <circle cx="37" cy="37" r="28" stroke="rgba(255,255,255,0.08)" strokeWidth="8" fill="none" />
             <circle cx="37" cy="37" r="28" stroke="#2DD4BF" strokeWidth="8" fill="none" strokeLinecap="round" strokeDasharray="176 176" transform="rotate(-90 37 37)" />
-            <text x="37" y="42" textAnchor="middle" fill="#EEF2F8" fontSize="14" fontWeight="600">3.7×</text>
+            <text x="37" y="42" textAnchor="middle" fill="#EEF2F8" fontSize="14" fontWeight="600">{coverage}×</text>
           </svg>
           <div className="mt-1 text-[10px] text-ink-3">Can we pay everyone?</div>
         </div>

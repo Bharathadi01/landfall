@@ -577,6 +577,8 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
   const [activeCrossFilter, setActiveCrossFilter] = useState<{ key: string; value: string } | null>(null);
 
   // Studio is (re)created only when the mode changes; it starts from the latest state so nothing is lost.
+  // Intentionally keyed on `mode`: Studio is re-created on a mode switch and must start from the latest state.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const initialState = useMemo(() => latestState.current ?? loadSavedState() ?? CANONICAL_REPORT_STATE, [mode]);
 
   const data = useMemo(() => ({ sources: studioSources, relationships: studioRelationships, calendars: studioCalendars }), []);

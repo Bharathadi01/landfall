@@ -4,6 +4,8 @@ import React, { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { CloudLightning, ShieldCheck, Send, Sparkles } from "lucide-react";
+import { CASE_SUMMARY } from "@/lib/relief/cases";
+import { TREASURY } from "@/lib/studio/landfall-studio-data";
 
 gsap.registerPlugin(useGSAP);
 
@@ -20,6 +22,7 @@ const HOUSES = [
 ];
 
 export function StormRadarHero() {
+  const coverage = TREASURY.needsReissue > 0 ? (Math.round((TREASURY.allocatable / TREASURY.needsReissue) * 10) / 10).toFixed(1) : "—";
   const root = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -150,7 +153,7 @@ export function StormRadarHero() {
             <div className="text-[13px] font-semibold text-ink">Hurricane Warning issued</div>
           </div>
         </div>
-        <div className="mt-2 text-[11.5px] text-ink-3">5 enrolled households in the path</div>
+        <div className="mt-2 text-[11.5px] text-ink-3">{CASE_SUMMARY.households} enrolled households in the path</div>
       </div>
 
       <div className="rh-card rh-ai glass-strong absolute right-[0%] top-[40%] w-[220px] p-3.5" style={{ borderRadius: 16 }}>
@@ -158,7 +161,7 @@ export function StormRadarHero() {
           <span className="icon-tile icon-tile-sm tone-ai"><Sparkles /></span>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-ai">AI check · read-only</div>
-            <div className="text-[13px] font-semibold text-ink">No duplicates. Fund covers 3.7×</div>
+            <div className="text-[13px] font-semibold text-ink">No duplicates. Fund covers {coverage}×</div>
           </div>
         </div>
       </div>
@@ -178,7 +181,7 @@ export function StormRadarHero() {
           <span className="icon-tile icon-tile-sm tone-paypal"><Send /></span>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-paypal">PayPal Payouts</div>
-            <div className="text-[13px] font-semibold text-ink">$2,500 sent · 12h before landfall</div>
+            <div className="text-[13px] font-semibold text-ink">${CASE_SUMMARY.approvedUsd.toLocaleString("en-US")} sent · 12h before landfall</div>
           </div>
         </div>
       </div>
