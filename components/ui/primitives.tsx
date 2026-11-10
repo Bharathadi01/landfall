@@ -1,10 +1,16 @@
 import React from "react";
-import { CountUp } from "@/components/motion/CountUp";
+import { Ticker } from "@/components/ui/Ticker";
+import { Tag, type Tone } from "@/components/ui/Tag";
+import { cn } from "@/lib/utils";
 
-export type Tone = "accent" | "paypal" | "ai" | "amber" | "storm" | "danger" | "neutral";
+export type { Tone } from "@/components/ui/Tag";
+
+type IconType = React.ComponentType<{ className?: string; strokeWidth?: number }>;
 
 const toneText: Record<Tone, string> = {
   accent: "text-accent-strong",
+  money: "text-money",
+  delivered: "text-delivered",
   paypal: "text-paypal",
   ai: "text-ai",
   amber: "text-amber",
@@ -14,13 +20,15 @@ const toneText: Record<Tone, string> = {
 };
 
 const toneGlow: Record<Tone, string> = {
-  accent: "rgb(var(--c-accent) / 0.28)",
-  paypal: "rgb(var(--c-paypal) / 0.28)",
-  ai: "rgb(var(--c-ai) / 0.28)",
-  amber: "rgb(var(--c-amber) / 0.24)",
-  storm: "rgb(var(--c-storm) / 0.26)",
+  accent: "rgb(var(--c-accent) / 0.26)",
+  money: "rgb(var(--c-money) / 0.22)",
+  delivered: "rgb(var(--c-delivered) / 0.22)",
+  paypal: "rgb(var(--c-paypal) / 0.26)",
+  ai: "rgb(var(--c-ai) / 0.22)",
+  amber: "rgb(var(--c-amber) / 0.22)",
+  storm: "rgb(var(--c-storm) / 0.24)",
   danger: "rgb(var(--c-danger) / 0.26)",
-  neutral: "rgb(255 255 255 / 0.08)",
+  neutral: "rgb(255 244 232 / 0.07)",
 };
 
 export function IconTile({
@@ -29,7 +37,7 @@ export function IconTile({
   size = "md",
   className = "",
 }: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: IconType;
   tone?: Tone;
   size?: "sm" | "md" | "lg";
   className?: string;
@@ -43,6 +51,7 @@ export function IconTile({
   );
 }
 
+/** Thin wrapper kept for existing call sites — renders a broadcast Tag. */
 export function Chip({
   tone = "neutral",
   children,
@@ -54,23 +63,30 @@ export function Chip({
   live?: boolean;
   className?: string;
 }) {
-  const cls =
-    tone === "accent"
-      ? "field-badge-success"
-      : tone === "paypal"
-      ? "field-badge-info"
-      : tone === "ai"
-      ? "field-badge-ai"
-      : tone === "amber"
-      ? "field-badge-warning"
-      : tone === "storm" || tone === "danger"
-      ? "field-badge-critical"
-      : "field-badge-neutral";
   return (
-    <span className={`field-badge ${cls} ${className}`}>
-      {live && <span className="live-dot" />}
+    <Tag tone={tone} live={live} className={className}>
       {children}
-    </span>
+    </Tag>
+  );
+}
+
+function TitleBlock({
+  title,
+  accent,
+}: {
+  title: React.ReactNode;
+  accent?: React.ReactNode;
+}) {
+  return (
+    <h1 className="text-title-1 text-ink">
+      {title}
+      {accent && (
+        <>
+          {" "}
+          <span className="font-accent text-gradient-relief">{accent}</span>
+        </>
+      )}
+    </h1>
   );
 }
 
@@ -84,7 +100,7 @@ export function PageTitle({
   description,
 }: {
   eyebrow: string;
-  icon?: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon?: IconType;
   tone?: Tone;
   title: React.ReactNode;
   accent?: React.ReactNode;
@@ -94,17 +110,9 @@ export function PageTitle({
     <div className="max-w-3xl space-y-4" data-reveal>
       <div className="flex flex-wrap items-center gap-2.5">
         {icon && <IconTile icon={icon} tone={tone} size="sm" />}
-        <span className={`eyebrow ${toneText[tone]}`}>{eyebrow}</span>
+        <span className={cn("eyebrow", toneText[tone])}>{eyebrow}</span>
       </div>
-      <h1 className="text-title-1 text-ink">
-        {title}
-        {accent && (
-          <>
-            {" "}
-            <span className="font-accent italic font-normal text-ink-2">{accent}</span>
-          </>
-        )}
-      </h1>
+      <TitleBlock title={title} accent={accent} />
       {description && <p className="text-body-base max-w-2xl text-ink-2">{description}</p>}
     </div>
   );
@@ -125,7 +133,7 @@ export function PageHeader({
   meta,
 }: {
   eyebrow: string;
-  icon?: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon?: IconType;
   tone?: Tone;
   title: React.ReactNode;
   accent?: React.ReactNode;
@@ -138,20 +146,10 @@ export function PageHeader({
       <div className="max-w-3xl space-y-4">
         <div className="flex flex-wrap items-center gap-2.5">
           {icon && <IconTile icon={icon} tone={tone} size="sm" />}
-          <span className={`eyebrow ${toneText[tone]}`} style={{ color: undefined }}>
-            {eyebrow}
-          </span>
+          <span className={cn("eyebrow", toneText[tone])}>{eyebrow}</span>
           {meta}
         </div>
-        <h1 className="text-title-1 text-ink">
-          {title}
-          {accent && (
-            <>
-              {" "}
-              <span className="font-accent italic font-normal text-ink-2">{accent}</span>
-            </>
-          )}
-        </h1>
+        <TitleBlock title={title} accent={accent} />
         {description && <p className="text-body-base max-w-2xl text-ink-2">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-3">{actions}</div>}
@@ -179,13 +177,13 @@ export function StatCard({
   display?: React.ReactNode;
   hint?: React.ReactNode;
   tone?: Tone;
-  icon?: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon?: IconType;
   footer?: React.ReactNode;
 }) {
   return (
     <div className="glass card-hover overflow-hidden p-5" data-reveal>
       <div
-        className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl"
+        className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full blur-3xl"
         style={{ background: toneGlow[tone] }}
         aria-hidden
       />
@@ -193,8 +191,13 @@ export function StatCard({
         <span className="eyebrow">{label}</span>
         {icon && <IconTile icon={icon} tone={tone} size="sm" />}
       </div>
-      <div className={`relative mt-4 text-[30px] font-semibold leading-none tracking-[-0.035em] tabular ${tone === "neutral" ? "text-ink" : toneText[tone]}`}>
-        {display ?? (value !== undefined ? <CountUp value={value} prefix={prefix} suffix={suffix} decimals={decimals} /> : null)}
+      <div
+        className={cn(
+          "relative mt-4 font-serif text-[36px] font-normal leading-none tracking-[-0.03em] tabular",
+          tone === "neutral" ? "text-ink" : toneText[tone]
+        )}
+      >
+        {display ?? (value !== undefined ? <Ticker value={value} prefix={prefix} suffix={suffix} decimals={decimals} /> : null)}
       </div>
       {hint && <p className="relative mt-2.5 text-[12.5px] leading-snug text-ink-3">{hint}</p>}
       {footer && <div className="relative mt-4">{footer}</div>}
@@ -211,7 +214,7 @@ export function SectionHeader({
 }: {
   title: React.ReactNode;
   description?: React.ReactNode;
-  icon?: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon?: IconType;
   tone?: Tone;
   right?: React.ReactNode;
 }) {
@@ -220,7 +223,9 @@ export function SectionHeader({
       <div className="flex items-center gap-3">
         {icon && <IconTile icon={icon} tone={tone} />}
         <div>
-          <h2 className="text-heading text-ink">{title}</h2>
+          <h2 className="text-heading font-sans text-ink" style={{ fontFamily: "var(--font-sans)", letterSpacing: "-0.015em" }}>
+            {title}
+          </h2>
           {description && <p className="text-[13px] text-ink-3">{description}</p>}
         </div>
       </div>
@@ -231,7 +236,9 @@ export function SectionHeader({
 
 /** The colour-meaning legend. Shown once in the shell so every screen reads the same way. */
 export const MEANING: { tone: Tone; label: string }[] = [
-  { tone: "accent", label: "Relief cash" },
+  { tone: "accent", label: "Action · live" },
+  { tone: "money", label: "Relief dollars" },
+  { tone: "delivered", label: "Delivered" },
   { tone: "paypal", label: "PayPal" },
   { tone: "ai", label: "AI (read-only)" },
   { tone: "amber", label: "Reserve" },
@@ -241,6 +248,8 @@ export const MEANING: { tone: Tone; label: string }[] = [
 export function MeaningDot({ tone }: { tone: Tone }) {
   const bg: Record<Tone, string> = {
     accent: "bg-accent",
+    money: "bg-money",
+    delivered: "bg-delivered",
     paypal: "bg-paypal",
     ai: "bg-ai",
     amber: "bg-amber",

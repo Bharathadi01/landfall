@@ -65,6 +65,8 @@ const ALL_ITEMS = NAV.flatMap((g) => g.items);
 
 const toneActive: Record<Tone, string> = {
   accent: "text-accent-strong",
+  money: "text-money",
+  delivered: "text-delivered",
   paypal: "text-paypal",
   ai: "text-ai",
   amber: "text-amber",
@@ -75,6 +77,8 @@ const toneActive: Record<Tone, string> = {
 
 const toneBar: Record<Tone, string> = {
   accent: "bg-accent",
+  money: "bg-money",
+  delivered: "bg-delivered",
   paypal: "bg-paypal",
   ai: "bg-ai",
   amber: "bg-amber",

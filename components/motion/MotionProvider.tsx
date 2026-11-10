@@ -21,6 +21,10 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useIsoLayoutEffect(() => {
+    // Backdrop refraction through an SVG filter only works in Chromium; everything else keeps plain blur.
+    const ua = navigator.userAgent;
+    if (/Chrome\//.test(ua) && !/Edg\/|OPR\//.test(ua)) document.documentElement.classList.add("supports-refract");
+
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
     document.documentElement.classList.add("js-motion");
