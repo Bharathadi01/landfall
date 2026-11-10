@@ -1,0 +1,152 @@
+[
+  {
+    "timestamp": "3.5s",
+    "step": 1,
+    "route": "/console/war-room",
+    "action": "Viewport Check Mobile 390px",
+    "target": "Body (390px)",
+    "expected": "Zero horizontal overflow (scrollWidth <= clientWidth)",
+    "actual": "scrollWidth: 390, clientWidth: 390",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "6.0s",
+    "step": 2,
+    "route": "/console/studio",
+    "action": "Studio Responsive Mobile 390px",
+    "target": "Studio Canvas (390px)",
+    "expected": "Zero horizontal overflow in nested AG Studio canvas",
+    "actual": "scrollWidth: 390, clientWidth: 390",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "10.3s",
+    "step": 3,
+    "route": "/console/war-room",
+    "action": "Viewport Check Large Mobile 480px",
+    "target": "Body (480px)",
+    "expected": "Zero horizontal overflow (scrollWidth <= clientWidth)",
+    "actual": "scrollWidth: 480, clientWidth: 480",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "12.9s",
+    "step": 4,
+    "route": "/console/studio",
+    "action": "Studio Responsive Large Mobile 480px",
+    "target": "Studio Canvas (480px)",
+    "expected": "Zero horizontal overflow in nested AG Studio canvas",
+    "actual": "scrollWidth: 480, clientWidth: 480",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "17.1s",
+    "step": 5,
+    "route": "/console/war-room",
+    "action": "Viewport Check Tablet 768px",
+    "target": "Body (768px)",
+    "expected": "Zero horizontal overflow (scrollWidth <= clientWidth)",
+    "actual": "scrollWidth: 768, clientWidth: 768",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "19.7s",
+    "step": 6,
+    "route": "/console/studio",
+    "action": "Studio Responsive Tablet 768px",
+    "target": "Studio Canvas (768px)",
+    "expected": "Zero horizontal overflow in nested AG Studio canvas",
+    "actual": "scrollWidth: 768, clientWidth: 768",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "24.1s",
+    "step": 7,
+    "route": "/console/war-room",
+    "action": "Viewport Check Small Desktop 1024px",
+    "target": "Body (1024px)",
+    "expected": "Zero horizontal overflow (scrollWidth <= clientWidth)",
+    "actual": "scrollWidth: 1024, clientWidth: 1024",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "26.8s",
+    "step": 8,
+    "route": "/console/studio",
+    "action": "Studio Responsive Small Desktop 1024px",
+    "target": "Studio Canvas (1024px)",
+    "expected": "Zero horizontal overflow in nested AG Studio canvas",
+    "actual": "scrollWidth: 1024, clientWidth: 1024",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "31.1s",
+    "step": 9,
+    "route": "/console/war-room",
+    "action": "Viewport Check Laptop 1280px",
+    "target": "Body (1280px)",
+    "expected": "Zero horizontal overflow (scrollWidth <= clientWidth)",
+    "actual": "scrollWidth: 1280, clientWidth: 1280",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "33.8s",
+    "step": 10,
+    "route": "/console/studio",
+    "action": "Studio Responsive Laptop 1280px",
+    "target": "Studio Canvas (1280px)",
+    "expected": "Zero horizontal overflow in nested AG Studio canvas",
+    "actual": "scrollWidth: 1280, clientWidth: 1280",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "38.0s",
+    "step": 11,
+    "route": "/console/war-room",
+    "action": "Viewport Check Desktop 1440px",
+    "target": "Body (1440px)",
+    "expected": "Zero horizontal overflow (scrollWidth <= clientWidth)",
+    "actual": "scrollWidth: 1440, clientWidth: 1440",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "40.8s",
+    "step": 12,
+    "route": "/console/studio",
+    "action": "Studio Responsive Desktop 1440px",
+    "target": "Studio Canvas (1440px)",
+    "expected": "Zero horizontal overflow in nested AG Studio canvas",
+    "actual": "scrollWidth: 1440, clientWidth: 1440",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "45.4s",
+    "step": 13,
+    "route": "/console/war-room",
+    "action": "Viewport Check Widescreen 1920px",
+    "target": "Body (1920px)",
+    "expected": "Zero horizontal overflow (scrollWidth <= clientWidth)",
+    "actual": "scrollWidth: 1920, clientWidth: 1920",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "48.1s",
+    "step": 14,
+    "route": "/console/studio",
+    "action": "Studio Responsive Widescreen 1920px",
+    "target": "Studio Canvas (1920px)",
+    "expected": "Zero horizontal overflow in nested AG Studio canvas",
+    "actual": "scrollWidth: 1920, clientWidth: 1920",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "54.3s",
+    "step": 15,
+    "route": "/console/war-room",
+    "action": "Keyboard Tab Traversal",
+    "target": "Focus Rings",
+    "expected": "Visible focus outline on active interactive elements",
+    "actual": "Focus indicator visible",
+    "status": "PASS"
+  }
+]

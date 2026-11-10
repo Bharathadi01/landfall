@@ -1,0 +1,52 @@
+[
+  {
+    "timestamp": "8.7s",
+    "step": 1,
+    "route": "/",
+    "action": "Landing Page Visual Review",
+    "target": "Hero typography, dark glass cards, gradient borders",
+    "expected": "Clear typography hierarchy and dark glass aesthetic",
+    "actual": "Rendered clean dark glass aesthetic with teal/emerald accents",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "17.1s",
+    "step": 2,
+    "route": "/console/war-room",
+    "action": "Command Center HUD & Master/Detail Micro-interactions",
+    "target": "HUD metrics, pulsing live status dots, Arthur Pendelton detail grid",
+    "expected": "High-density telemetry without clipping, clear status taxonomy, inline detail expansion",
+    "actual": "Pristine telemetry layout, clear status chip hierarchy, detail grid rendered",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "25.3s",
+    "step": 3,
+    "route": "/console/studio",
+    "action": "AG Studio Theme & AG Charts Visual Review",
+    "target": "Toolbar, page switcher tabs, AG Charts dark-mode palettes",
+    "expected": "Seamless dark glass theme integration with AG Charts and AG Grid",
+    "actual": "Cohesive dark theme, custom chart palette, unclipped headers",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "30.9s",
+    "step": 4,
+    "route": "/console/studio",
+    "action": "Custom Studio Widgets Inspection",
+    "target": "Reserve Guardrail, Payout Lifecycle, Recovery Evidence Chain",
+    "expected": "Native-feeling widgets with responsive SVG/visual indicators",
+    "actual": "All 3 custom widgets styled and integrated flawlessly",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "50.2s",
+    "step": 5,
+    "route": "/console/studio",
+    "action": "Highlight Moments Showcase",
+    "target": "Sentinel Map, Golden Flow Pipeline, Studio Agent Drawer",
+    "expected": "Smooth transitions across key flagship capabilities",
+    "actual": "All 5 highlight moments rendered and recorded crisply",
+    "status": "PASS"
+  }
+]

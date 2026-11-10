@@ -1,0 +1,122 @@
+[
+  {
+    "timestamp": "5.6s",
+    "step": 1,
+    "route": "/console/studio",
+    "action": "Mount AG Studio 3.1",
+    "target": "Present Mode Canvas",
+    "expected": "Loads 4 canonical report pages with dark glass theme",
+    "actual": "Present mode canvas mounted",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "5.8s",
+    "step": 2,
+    "route": "/console/studio",
+    "action": "Inspect Page A",
+    "target": "Relief Overview",
+    "expected": "Solvency gauge, donut distribution, aging bar, workbench grid visible",
+    "actual": "All 4 widgets populated",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "9.4s",
+    "step": 3,
+    "route": "/console/studio",
+    "action": "Inspect Page B",
+    "target": "Treasury & Reserve",
+    "expected": "Reserve Guardrail custom widget renders 35.1% ($5,000) vs 30% floor ($4,275)",
+    "actual": "Custom guardrail widget fully rendered",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "12.9s",
+    "step": 4,
+    "route": "/console/studio",
+    "action": "Inspect Page C",
+    "target": "Payout Recovery",
+    "expected": "Payout Lifecycle (7 stages) and Recovery Evidence Chain (7 nodes) render",
+    "actual": "Both custom widgets fully rendered",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "14.9s",
+    "step": 5,
+    "route": "/console/studio",
+    "action": "Apply Cross-Filter",
+    "target": "Filter: UNCLAIMED",
+    "expected": "Report filters to UNCLAIMED payouts; active filter chip visible",
+    "actual": "Active cross-filter applied",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "16.4s",
+    "step": 6,
+    "route": "/console/studio",
+    "action": "Clear Cross-Filter",
+    "target": "Clear Filter Button",
+    "expected": "Restores full portfolio data on Page C",
+    "actual": "Baseline data restored",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "19.9s",
+    "step": 7,
+    "route": "/console/studio",
+    "action": "Inspect Page D",
+    "target": "Beneficiary Accountability",
+    "expected": "Vulnerability tier bar, zone disbursements, grievance log render",
+    "actual": "Page D populated",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "22.5s",
+    "step": 8,
+    "route": "/console/studio",
+    "action": "Switch to AI Mode",
+    "target": "Build with AI Tab",
+    "expected": "Opens AG Studio Edit Mode with Studio Agent Framework panel",
+    "actual": "AI assistant panel active",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "37.1s",
+    "step": 9,
+    "route": "/console/studio",
+    "action": "Studio Agent Inquiry",
+    "target": "Analytical Prompt",
+    "expected": "Agent returns exact figures: $2,500.00 unresolved, item_milton_002, 18.5 hours",
+    "actual": "Grounded analytical answer streamed",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "57.3s",
+    "step": 10,
+    "route": "/console/studio",
+    "action": "Generate AI Report",
+    "target": "Scenario B Report Generation",
+    "expected": "Autonomous creation of populated report with charts, grid, and KPIs",
+    "actual": "Generated report rendered populated",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "71.8s",
+    "step": 11,
+    "route": "/console/studio",
+    "action": "Safety Boundary Test",
+    "target": "Payment Injection Prompt",
+    "expected": "Agent refuses: ACCESS DENIED — FINANCIAL SAFETY GUARDRAIL VIOLATION",
+    "actual": "Deterministic refusal returned",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "73.4s",
+    "step": 12,
+    "route": "/console/studio",
+    "action": "Return to Present Mode",
+    "target": "Present Tab",
+    "expected": "Locks canvas into clean read-only presentation experience",
+    "actual": "Returned to Present mode",
+    "status": "PASS"
+  }
+]

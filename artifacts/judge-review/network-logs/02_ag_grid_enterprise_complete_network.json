@@ -1,0 +1,86 @@
+[
+  {
+    "timestamp": "2026-11-10T17:18:27.179Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/war-room",
+    "status": 200,
+    "durationMs": 20
+  },
+  {
+    "timestamp": "2026-11-10T17:18:27.185Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:18:27.185Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:18:27.185Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 3
+  },
+  {
+    "timestamp": "2026-11-10T17:18:27.185Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:18:27.186Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331107169",
+    "status": 200,
+    "durationMs": 3
+  },
+  {
+    "timestamp": "2026-11-10T17:18:27.187Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331107169",
+    "status": 200,
+    "durationMs": 4
+  },
+  {
+    "timestamp": "2026-11-10T17:18:27.203Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 20
+  },
+  {
+    "timestamp": "2026-11-10T17:18:27.232Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 49
+  },
+  {
+    "timestamp": "2026-11-10T17:18:27.356Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331107169",
+    "status": 200,
+    "durationMs": 173
+  },
+  {
+    "timestamp": "2026-11-10T17:18:28.017Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/war-room/page.js",
+    "status": 200,
+    "durationMs": 834
+  },
+  {
+    "timestamp": "2026-11-10T17:18:28.987Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 661
+  }
+]

@@ -1,0 +1,1262 @@
+[
+  {
+    "timestamp": "2026-11-10T17:25:55.858Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/war-room",
+    "status": 200,
+    "durationMs": 15
+  },
+  {
+    "timestamp": "2026-11-10T17:25:55.863Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331555847",
+    "status": 200,
+    "durationMs": 3
+  },
+  {
+    "timestamp": "2026-11-10T17:25:55.865Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 5
+  },
+  {
+    "timestamp": "2026-11-10T17:25:55.865Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 5
+  },
+  {
+    "timestamp": "2026-11-10T17:25:55.865Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 5
+  },
+  {
+    "timestamp": "2026-11-10T17:25:55.865Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 5
+  },
+  {
+    "timestamp": "2026-11-10T17:25:55.875Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331555847",
+    "status": 200,
+    "durationMs": 15
+  },
+  {
+    "timestamp": "2026-11-10T17:25:55.876Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 16
+  },
+  {
+    "timestamp": "2026-11-10T17:25:55.896Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 36
+  },
+  {
+    "timestamp": "2026-11-10T17:25:55.953Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331555847",
+    "status": 200,
+    "durationMs": 93
+  },
+  {
+    "timestamp": "2026-11-10T17:25:56.636Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/war-room/page.js",
+    "status": 200,
+    "durationMs": 776
+  },
+  {
+    "timestamp": "2026-11-10T17:25:57.725Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 769
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.248Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 11
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.255Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.255Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.255Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.255Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.256Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331559242",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.257Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331559242",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.264Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 9
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.277Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 22
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.285Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 30
+  },
+  {
+    "timestamp": "2026-11-10T17:25:59.335Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331559242",
+    "status": 200,
+    "durationMs": 80
+  },
+  {
+    "timestamp": "2026-11-10T17:26:00.059Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 657
+  },
+  {
+    "timestamp": "2026-11-10T17:26:02.804Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/war-room",
+    "status": 200,
+    "durationMs": 13
+  },
+  {
+    "timestamp": "2026-11-10T17:26:02.811Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:02.811Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:02.811Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:02.811Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:02.811Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331562797",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:02.812Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331562797",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:02.821Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:26:02.841Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 30
+  },
+  {
+    "timestamp": "2026-11-10T17:26:02.891Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331562797",
+    "status": 200,
+    "durationMs": 80
+  },
+  {
+    "timestamp": "2026-11-10T17:26:03.592Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/war-room/page.js",
+    "status": 200,
+    "durationMs": 781
+  },
+  {
+    "timestamp": "2026-11-10T17:26:04.510Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 763
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.031Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.038Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.038Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.038Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.038Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.039Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331566024",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.039Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331566024",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.068Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 29
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.079Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 40
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.091Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 52
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.140Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331566024",
+    "status": 200,
+    "durationMs": 101
+  },
+  {
+    "timestamp": "2026-11-10T17:26:06.881Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 677
+  },
+  {
+    "timestamp": "2026-11-10T17:26:09.532Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/war-room",
+    "status": 200,
+    "durationMs": 11
+  },
+  {
+    "timestamp": "2026-11-10T17:26:09.537Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:09.538Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:09.538Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:09.538Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:09.538Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331569524",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:09.539Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331569524",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:09.548Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:26:09.568Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 30
+  },
+  {
+    "timestamp": "2026-11-10T17:26:09.623Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331569524",
+    "status": 200,
+    "durationMs": 85
+  },
+  {
+    "timestamp": "2026-11-10T17:26:10.395Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/war-room/page.js",
+    "status": 200,
+    "durationMs": 857
+  },
+  {
+    "timestamp": "2026-11-10T17:26:11.301Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 748
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.828Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 16
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.834Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.834Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.834Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.834Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.835Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331572822",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.836Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331572822",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.843Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 9
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.856Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 22
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.864Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 30
+  },
+  {
+    "timestamp": "2026-11-10T17:26:12.913Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331572822",
+    "status": 200,
+    "durationMs": 79
+  },
+  {
+    "timestamp": "2026-11-10T17:26:13.740Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 767
+  },
+  {
+    "timestamp": "2026-11-10T17:26:16.624Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/war-room",
+    "status": 200,
+    "durationMs": 18
+  },
+  {
+    "timestamp": "2026-11-10T17:26:16.629Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:16.629Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:16.630Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:16.630Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:16.630Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331576609",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:16.632Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331576609",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:26:16.641Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 11
+  },
+  {
+    "timestamp": "2026-11-10T17:26:16.663Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 33
+  },
+  {
+    "timestamp": "2026-11-10T17:26:16.724Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331576609",
+    "status": 200,
+    "durationMs": 94
+  },
+  {
+    "timestamp": "2026-11-10T17:26:17.512Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/war-room/page.js",
+    "status": 200,
+    "durationMs": 882
+  },
+  {
+    "timestamp": "2026-11-10T17:26:18.366Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 678
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.887Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 11
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.893Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.893Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.893Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.893Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.894Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331579880",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.895Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331579880",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.903Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.914Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 21
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.928Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 35
+  },
+  {
+    "timestamp": "2026-11-10T17:26:19.981Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331579880",
+    "status": 200,
+    "durationMs": 88
+  },
+  {
+    "timestamp": "2026-11-10T17:26:20.788Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 741
+  },
+  {
+    "timestamp": "2026-11-10T17:26:23.500Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/war-room",
+    "status": 200,
+    "durationMs": 15
+  },
+  {
+    "timestamp": "2026-11-10T17:26:23.506Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:23.507Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:23.507Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:23.507Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:23.510Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331583489",
+    "status": 200,
+    "durationMs": 3
+  },
+  {
+    "timestamp": "2026-11-10T17:26:23.529Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331583489",
+    "status": 200,
+    "durationMs": 22
+  },
+  {
+    "timestamp": "2026-11-10T17:26:23.530Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 23
+  },
+  {
+    "timestamp": "2026-11-10T17:26:23.561Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 54
+  },
+  {
+    "timestamp": "2026-11-10T17:26:23.625Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331583489",
+    "status": 200,
+    "durationMs": 118
+  },
+  {
+    "timestamp": "2026-11-10T17:26:24.405Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/war-room/page.js",
+    "status": 200,
+    "durationMs": 898
+  },
+  {
+    "timestamp": "2026-11-10T17:26:25.364Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 784
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.883Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 11
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.889Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.889Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.890Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.890Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.892Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331586876",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.895Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331586876",
+    "status": 200,
+    "durationMs": 5
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.903Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 13
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.918Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 28
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.930Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 40
+  },
+  {
+    "timestamp": "2026-11-10T17:26:26.982Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331586876",
+    "status": 200,
+    "durationMs": 92
+  },
+  {
+    "timestamp": "2026-11-10T17:26:27.833Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 784
+  },
+  {
+    "timestamp": "2026-11-10T17:26:30.551Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/war-room",
+    "status": 200,
+    "durationMs": 13
+  },
+  {
+    "timestamp": "2026-11-10T17:26:30.556Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:30.556Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:30.556Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:30.556Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:30.557Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331590541",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:30.558Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331590541",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:26:30.564Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 8
+  },
+  {
+    "timestamp": "2026-11-10T17:26:30.589Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 33
+  },
+  {
+    "timestamp": "2026-11-10T17:26:30.643Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331590541",
+    "status": 200,
+    "durationMs": 87
+  },
+  {
+    "timestamp": "2026-11-10T17:26:31.375Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/war-room/page.js",
+    "status": 200,
+    "durationMs": 819
+  },
+  {
+    "timestamp": "2026-11-10T17:26:32.258Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 715
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.779Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.785Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.785Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.785Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.785Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.787Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331593772",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.788Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331593772",
+    "status": 200,
+    "durationMs": 3
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.795Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.808Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 23
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.821Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 36
+  },
+  {
+    "timestamp": "2026-11-10T17:26:33.871Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331593772",
+    "status": 200,
+    "durationMs": 86
+  },
+  {
+    "timestamp": "2026-11-10T17:26:34.791Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 853
+  },
+  {
+    "timestamp": "2026-11-10T17:26:37.826Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/war-room",
+    "status": 200,
+    "durationMs": 23
+  },
+  {
+    "timestamp": "2026-11-10T17:26:37.842Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:37.842Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:37.842Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:37.842Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:37.842Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331597808",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:37.852Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331597808",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:26:37.865Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 23
+  },
+  {
+    "timestamp": "2026-11-10T17:26:37.894Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 52
+  },
+  {
+    "timestamp": "2026-11-10T17:26:37.963Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331597808",
+    "status": 200,
+    "durationMs": 121
+  },
+  {
+    "timestamp": "2026-11-10T17:26:38.769Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/war-room/page.js",
+    "status": 200,
+    "durationMs": 927
+  },
+  {
+    "timestamp": "2026-11-10T17:26:39.638Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 695
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.156Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 11
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.162Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.162Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.162Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.162Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.164Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331601149",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.165Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331601149",
+    "status": 200,
+    "durationMs": 3
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.172Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.181Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 19
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.194Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 32
+  },
+  {
+    "timestamp": "2026-11-10T17:26:41.252Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331601149",
+    "status": 200,
+    "durationMs": 90
+  },
+  {
+    "timestamp": "2026-11-10T17:26:42.141Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 822
+  },
+  {
+    "timestamp": "2026-11-10T17:26:45.365Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/war-room",
+    "status": 200,
+    "durationMs": 17
+  },
+  {
+    "timestamp": "2026-11-10T17:26:45.370Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:45.370Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:45.370Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:45.370Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:26:45.372Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331605353",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:26:45.373Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331605353",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:26:45.383Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 12
+  },
+  {
+    "timestamp": "2026-11-10T17:26:45.405Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 34
+  },
+  {
+    "timestamp": "2026-11-10T17:26:45.465Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331605353",
+    "status": 200,
+    "durationMs": 94
+  },
+  {
+    "timestamp": "2026-11-10T17:26:46.259Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/war-room/page.js",
+    "status": 200,
+    "durationMs": 888
+  },
+  {
+    "timestamp": "2026-11-10T17:26:47.159Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 727
+  }
+]

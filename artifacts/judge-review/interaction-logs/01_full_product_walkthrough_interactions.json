@@ -1,0 +1,172 @@
+[
+  {
+    "timestamp": "1.9s",
+    "step": 1,
+    "route": "/",
+    "action": "Direct Route Load",
+    "target": "Document",
+    "expected": "Page loads with 200 OK and storm-radar hero renders",
+    "actual": "Landing hero rendered with heading & mission",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "11.1s",
+    "step": 2,
+    "route": "/",
+    "action": "Inspect Landing Page Content",
+    "target": "Full Page",
+    "expected": "Landing sections (Radar, Principles, Technology, PayPal, AG Grid) visible",
+    "actual": "Sections fully articulated",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "16.0s",
+    "step": 3,
+    "route": "/console/war-room",
+    "action": "Navigation Click",
+    "target": "Navbar War Room Link",
+    "expected": "Command Center loads with active response overview",
+    "actual": "Command Center HUD rendered",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "22.3s",
+    "step": 4,
+    "route": "/console/war-room",
+    "action": "Tab Switch",
+    "target": "Households · AG Grid Tab",
+    "expected": "AG Grid Enterprise relief roster mounts",
+    "actual": "Grid rendered with status columns and pinned total",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "23.3s",
+    "step": 5,
+    "route": "/console/war-room",
+    "action": "Quick Filter Input",
+    "target": "Quick Search",
+    "expected": "Grid filters to Barrier Island rows",
+    "actual": "Filtered rows displayed",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "28.4s",
+    "step": 6,
+    "route": "/console/studio",
+    "action": "Direct Route Load",
+    "target": "AG Studio Workspace",
+    "expected": "AG Studio 3.1 mounts canonical Relief Overview page",
+    "actual": "Studio loaded cleanly",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "31.5s",
+    "step": 7,
+    "route": "/console/studio",
+    "action": "Page Tab Switch",
+    "target": "Treasury & Reserve Tab",
+    "expected": "Renders Treasury Tranches, Reserve Guardrail, Ledger",
+    "actual": "Page B rendered with custom guardrail widget",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "34.4s",
+    "step": 8,
+    "route": "/console/studio",
+    "action": "Page Tab Switch",
+    "target": "Payout Recovery Tab",
+    "expected": "Renders Recovery Status, Payout Lifecycle, Evidence Chain",
+    "actual": "Page C rendered with custom lifecycle & evidence widgets",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "37.3s",
+    "step": 9,
+    "route": "/console/studio",
+    "action": "Page Tab Switch",
+    "target": "Beneficiary Accountability Tab",
+    "expected": "Renders Vulnerability Tiers, Grievances Log, Resident Roster",
+    "actual": "Page D rendered with privacy-preserving roster",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "43.2s",
+    "step": 10,
+    "route": "/console/golden-flow",
+    "action": "Direct Route Load",
+    "target": "Golden Flow Engine",
+    "expected": "4-Stage end-to-end relief pipeline displayed",
+    "actual": "Pipeline displayed with live state transitions",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "53.6s",
+    "step": 11,
+    "route": "/console/sentinel",
+    "action": "Direct Route Load",
+    "target": "Sentinel Map & Warning HUD",
+    "expected": "MapLibre geospatial canvas and NWS warning polygons render",
+    "actual": "Map loaded with storm track and exposed households",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "58.5s",
+    "step": 12,
+    "route": "/console/rehearsal",
+    "action": "Direct Route Load",
+    "target": "Scenario Simulator",
+    "expected": "Stress tests and reserve headroom simulation render",
+    "actual": "Rehearsal lab loaded with comparison scenarios",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "62.3s",
+    "step": 13,
+    "route": "/console/watch-officer",
+    "action": "Direct Route Load",
+    "target": "AI Watch Officer Workspace",
+    "expected": "Forensic AI investigation briefing with read-only badge",
+    "actual": "Watch officer briefing loaded with evidence citations",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "65.9s",
+    "step": 14,
+    "route": "/console/recipients",
+    "action": "Direct Route Load",
+    "target": "Resident Directory",
+    "expected": "Priority tier relief roster displayed with privacy safeguards",
+    "actual": "Directory rendered",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "68.6s",
+    "step": 15,
+    "route": "/r/enroll",
+    "action": "Direct Route Load",
+    "target": "Enrollment Form",
+    "expected": "Clean public enrollment form for affected storm victims",
+    "actual": "Resident enrollment form rendered",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "71.2s",
+    "step": 16,
+    "route": "/r/complaints",
+    "action": "Direct Route Load",
+    "target": "Grievance Portal",
+    "expected": "Resident dispute and appeals intake interface",
+    "actual": "Complaints portal rendered",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "76.7s",
+    "step": 17,
+    "route": "/spike",
+    "action": "Direct Route Load",
+    "target": "Sandbox Diagnostics",
+    "expected": "Live Sandbox API diagnostic verification",
+    "actual": "Spike diagnostics rendered",
+    "status": "PASS"
+  }
+]

@@ -1,0 +1,5 @@
+[2026-11-10T17:19:28.979Z] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[2026-11-10T17:19:30.435Z] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[2026-11-10T17:19:51.583Z] [LOG] ADAPTER TURN userQuery: How much unclaimed assistance remains outstanding, and which payout exceptions are oldest?
+[2026-11-10T17:20:06.137Z] [LOG] ADAPTER TURN userQuery: Create a payout recovery report showing PayPal statuses, ageing buckets, unresolved value and the oldest exceptions.
+[2026-11-10T17:20:26.331Z] [LOG] ADAPTER TURN userQuery: Send another payout to every household with an UNCLAIMED payment.

@@ -1,0 +1,112 @@
+[
+  {
+    "timestamp": "6.4s",
+    "step": 1,
+    "route": "/console/war-room",
+    "action": "Mount AG Grid Enterprise",
+    "target": "Grid Tab",
+    "expected": "AG Grid Enterprise mounts with relief roster",
+    "actual": "Grid mounted cleanly",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "7.3s",
+    "step": 2,
+    "route": "/console/war-room",
+    "action": "Column Sort (Asc)",
+    "target": "Resident Header",
+    "expected": "Roster sorted alphabetically by resident name",
+    "actual": "Sorted ascending",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "8.1s",
+    "step": 3,
+    "route": "/console/war-room",
+    "action": "Column Sort (Desc)",
+    "target": "Resident Header",
+    "expected": "Roster sorted descending",
+    "actual": "Sorted descending",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "9.0s",
+    "step": 4,
+    "route": "/console/war-room",
+    "action": "Column Sort",
+    "target": "Priority Tier Header",
+    "expected": "Roster sorted by vulnerability tier",
+    "actual": "Sorted by tier",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "10.2s",
+    "step": 5,
+    "route": "/console/war-room",
+    "action": "Quick Filter",
+    "target": "Search Input ('Oxygen')",
+    "expected": "Filters immediately to Elena Rodriguez (Oxygen Concentrator)",
+    "actual": "1 row displayed",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "11.2s",
+    "step": 6,
+    "route": "/console/war-room",
+    "action": "Group By Status",
+    "target": "Toggle Grouping Button",
+    "expected": "Grid groups into 6 authoritative PayPal status bands with counts & sums",
+    "actual": "6 status groups rendered",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "12.9s",
+    "step": 7,
+    "route": "/console/war-room",
+    "action": "Expand All Groups",
+    "target": "Expand All Button",
+    "expected": "All rows inside SUCCESS, UNCLAIMED, ONHOLD, FAILED, RETURNED, PENDING expanded",
+    "actual": "All rows and sums displayed",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "14.0s",
+    "step": 8,
+    "route": "/console/war-room",
+    "action": "Collapse All Groups",
+    "target": "Collapse All Button",
+    "expected": "Groups collapsed to status summary rows with counts",
+    "actual": "All groups collapsed",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "17.4s",
+    "step": 9,
+    "route": "/console/war-room",
+    "action": "Master/Detail Inline Expansion",
+    "target": "Arthur Pendelton Row",
+    "expected": "Embedded detail grid renders 6 cryptographic stages, showing NOT LINKED for Arthur",
+    "actual": "Detail grid rendered inline with 6 stages",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "19.1s",
+    "step": 10,
+    "route": "/console/war-room",
+    "action": "Export CSV",
+    "target": "Export Button",
+    "expected": "Triggers client-side CSV download of grid dataset",
+    "actual": "CSV export invoked",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "20.9s",
+    "step": 11,
+    "route": "/console/war-room",
+    "action": "Reset Filters",
+    "target": "Reset Button",
+    "expected": "Restores grid filters and default sort order",
+    "actual": "Grid restored to baseline",
+    "status": "PASS"
+  }
+]

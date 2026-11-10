@@ -1,0 +1,170 @@
+[
+  {
+    "timestamp": "2026-11-10T17:19:28.846Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 35
+  },
+  {
+    "timestamp": "2026-11-10T17:19:28.858Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 8
+  },
+  {
+    "timestamp": "2026-11-10T17:19:28.858Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 8
+  },
+  {
+    "timestamp": "2026-11-10T17:19:28.858Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331168828",
+    "status": 200,
+    "durationMs": 8
+  },
+  {
+    "timestamp": "2026-11-10T17:19:28.859Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 9
+  },
+  {
+    "timestamp": "2026-11-10T17:19:28.859Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 9
+  },
+  {
+    "timestamp": "2026-11-10T17:19:28.861Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331168828",
+    "status": 200,
+    "durationMs": 11
+  },
+  {
+    "timestamp": "2026-11-10T17:19:28.873Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 23
+  },
+  {
+    "timestamp": "2026-11-10T17:19:28.885Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 35
+  },
+  {
+    "timestamp": "2026-11-10T17:19:28.898Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 48
+  },
+  {
+    "timestamp": "2026-11-10T17:19:28.947Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331168828",
+    "status": 200,
+    "durationMs": 97
+  },
+  {
+    "timestamp": "2026-11-10T17:19:29.721Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 694
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.314Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 21
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.322Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.322Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.322Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.322Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.323Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331170302",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.325Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331170302",
+    "status": 200,
+    "durationMs": 3
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.332Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.345Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 23
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.357Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 35
+  },
+  {
+    "timestamp": "2026-11-10T17:19:30.406Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331170302",
+    "status": 200,
+    "durationMs": 84
+  },
+  {
+    "timestamp": "2026-11-10T17:19:31.327Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 856
+  }
+]

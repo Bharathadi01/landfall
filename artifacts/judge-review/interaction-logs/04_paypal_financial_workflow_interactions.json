@@ -1,0 +1,42 @@
+[
+  {
+    "timestamp": "4.1s",
+    "step": 1,
+    "route": "/console/golden-flow",
+    "action": "Mount Golden Workflow",
+    "target": "Pipeline",
+    "expected": "Loads 4-stage end-to-end emergency disaster relief flow",
+    "actual": "Pipeline loaded",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "14.2s",
+    "step": 2,
+    "route": "/console/war-room",
+    "action": "Open Passkey Modal",
+    "target": "Authorization Button",
+    "expected": "Two-Person WebAuthn passkey custody dialog opens",
+    "actual": "Passkey modal rendered with dual signature requirement",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "20.2s",
+    "step": 3,
+    "route": "/spike",
+    "action": "Sandbox Verification",
+    "target": "Diagnostics Panel",
+    "expected": "Shows active PayPal Sandbox environment, client ID, API latency",
+    "actual": "Sandbox diagnostics active",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "25.6s",
+    "step": 4,
+    "route": "/console/war-room",
+    "action": "Inspect Settlements",
+    "target": "Settlement Tab",
+    "expected": "Displays double-entry ledger settlement and PayPal money path",
+    "actual": "Settlement stream displayed",
+    "status": "PASS"
+  }
+]

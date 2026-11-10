@@ -71,12 +71,15 @@ export default function AnalyticsStudioPage() {
             </span>
             <span className="ml-2 text-[12.5px] font-medium text-ink-2">Hurricane Milton · Relief board</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Chip tone="ai">
               <Lock className="h-3 w-3" /> AI read-only
             </Chip>
-            <Chip tone="accent" live>
-              Live data
+            <Chip tone="paypal">
+              PAYPAL SANDBOX
+            </Chip>
+            <Chip tone="amber">
+              HISTORICAL REPLAY · OCT 2024
             </Chip>
           </div>
         </div>

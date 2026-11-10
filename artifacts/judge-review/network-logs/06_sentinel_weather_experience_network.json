@@ -1,0 +1,835 @@
+[
+  {
+    "timestamp": "2026-11-10T17:25:07.166Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/sentinel",
+    "status": 200,
+    "durationMs": 21
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.180Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331507157",
+    "status": 200,
+    "durationMs": 6
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.180Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 7
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.181Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 7
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.181Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 7
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.181Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 8
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.181Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331507157",
+    "status": 200,
+    "durationMs": 7
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.211Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 37
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.211Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 37
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.215Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/sentinel/page.js",
+    "status": 200,
+    "durationMs": 41
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.262Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331507157",
+    "status": 200,
+    "durationMs": 88
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.550Z",
+    "method": "GET",
+    "url": "http://localhost:3000/api/sentinel/live?fundId=fund_tbw_001&mode=LIVE",
+    "status": 200,
+    "durationMs": 6
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.604Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_maplibre-gl_6_17_0_node_modules_maplibre-gl_dist_maplibr-e29d06.js",
+    "status": 200,
+    "durationMs": 60
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.648Z",
+    "method": "GET",
+    "url": "http://localhost:3000/maplibre-gl-worker.mjs",
+    "status": 200,
+    "durationMs": 18
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.794Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/138",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.794Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/137",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.794Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/139",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.794Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/138",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.794Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/137",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.803Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/138",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.804Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/137",
+    "status": 200,
+    "durationMs": 11
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.806Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/139",
+    "status": 200,
+    "durationMs": 13
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.809Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/138",
+    "status": 200,
+    "durationMs": 16
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.815Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/136",
+    "status": 200,
+    "durationMs": 22
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.821Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/137",
+    "status": 200,
+    "durationMs": 28
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.822Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/136",
+    "status": 200,
+    "durationMs": 28
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.929Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/139",
+    "status": 200,
+    "durationMs": 135
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/139",
+    "status": 200,
+    "durationMs": 136
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/136",
+    "status": 200,
+    "durationMs": 136
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/136",
+    "status": 200,
+    "durationMs": 136
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/140",
+    "status": 200,
+    "durationMs": 124
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/140",
+    "status": 200,
+    "durationMs": 125
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/140",
+    "status": 200,
+    "durationMs": 124
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/135",
+    "status": 200,
+    "durationMs": 124
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/140",
+    "status": 200,
+    "durationMs": 124
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/135",
+    "status": 200,
+    "durationMs": 124
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/135",
+    "status": 200,
+    "durationMs": 124
+  },
+  {
+    "timestamp": "2026-11-10T17:25:07.930Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/135",
+    "status": 200,
+    "durationMs": 120
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://demotiles.maplibre.org/font/Open%20Sans%20Regular,Arial%20Unicode%20MS%20Regular/0-255.pbf",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9314310.518718438,3130860.6785608195,-9236039.001754418,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9236039.001754418,3209132.1955248415,-9157767.484790396,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9236039.001754418,3130860.6785608195,-9157767.484790396,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9157767.484790396,3130860.6785608195,-9079495.967826376,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9314310.518718438,3209132.1955248415,-9236039.001754418,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/6/17/26.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/35/53.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/5/8/13.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/6/16/26.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/33/53.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/34/54.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/33/54.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/6/17/27.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/35/54.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/6/16/27.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:09.719Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/34/53.png",
+    "status": 200,
+    "durationMs": 1241
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.215Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,3130860.6785608195,-9314310.518718438,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 493
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.216Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9236039.001754418,3052589.1615967974,-9157767.484790396,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 494
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.216Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9314310.518718438,3052589.1615967974,-9236039.001754418,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 494
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.216Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9236039.001754418,3287403.71248886,-9157767.484790396,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 494
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.216Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9314310.518718438,3287403.71248886,-9236039.001754418,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 490
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.216Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9157767.484790396,3209132.1955248415,-9079495.967826376,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 494
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.217Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9157767.484790396,3052589.1615967974,-9079495.967826376,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 491
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.217Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,3287403.71248886,-9314310.518718438,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 491
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.217Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9157767.484790396,3287403.71248886,-9079495.967826376,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 491
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.217Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,3052589.1615967974,-9314310.518718438,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 491
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.217Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9079495.967826376,3130860.6785608195,-9001224.450862356,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 491
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.217Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,3209132.1955248415,-9314310.518718438,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 491
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.861Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9470853.552646479,3209132.1955248415,-9392582.035682458,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 196
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.861Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9470853.552646479,3130860.6785608195,-9392582.035682458,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 196
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.861Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9470853.552646479,3052589.1615967974,-9392582.035682458,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 196
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.861Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9079495.967826376,3052589.1615967974,-9001224.450862356,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 196
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.861Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9079495.967826376,3209132.1955248415,-9001224.450862356,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 197
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.861Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9079495.967826376,3287403.71248886,-9001224.450862356,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 196
+  },
+  {
+    "timestamp": "2026-11-10T17:25:10.861Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9470853.552646479,3287403.71248886,-9392582.035682458,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 196
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.012Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/217/135",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.236Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/217/139",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.236Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/217/137",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.236Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/217/136",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.236Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/217/140",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.236Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9470853.552646479,2974317.644632779,-9392582.035682458,3052589.1615967974&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 224
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.369Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/217/138",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.369Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,2974317.644632779,-9314310.518718438,3052589.1615967974&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 133
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.369Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9314310.518718438,2974317.644632779,-9236039.001754418,3052589.1615967974&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 133
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.369Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9157767.484790396,2974317.644632779,-9079495.967826376,3052589.1615967974&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 133
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.574Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9079495.967826376,2974317.644632779,-9001224.450862356,3052589.1615967974&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 338
+  },
+  {
+    "timestamp": "2026-11-10T17:25:15.574Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9236039.001754418,2974317.644632779,-9157767.484790396,3052589.1615967974&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 205
+  },
+  {
+    "timestamp": "2026-11-10T17:25:18.354Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/8/69/108.png",
+    "status": 200,
+    "durationMs": 677
+  },
+  {
+    "timestamp": "2026-11-10T17:25:18.354Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/8/69/107.png",
+    "status": 200,
+    "durationMs": 677
+  },
+  {
+    "timestamp": "2026-11-10T17:25:18.354Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/8/68/107.png",
+    "status": 200,
+    "durationMs": 677
+  },
+  {
+    "timestamp": "2026-11-10T17:25:18.354Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/8/69/106.png",
+    "status": 200,
+    "durationMs": 677
+  },
+  {
+    "timestamp": "2026-11-10T17:25:18.354Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/8/68/106.png",
+    "status": 200,
+    "durationMs": 677
+  },
+  {
+    "timestamp": "2026-11-10T17:25:18.354Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/8/68/108.png",
+    "status": 200,
+    "durationMs": 677
+  },
+  {
+    "timestamp": "2026-11-10T17:25:18.946Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/8/70/107.png",
+    "status": 200,
+    "durationMs": 938
+  },
+  {
+    "timestamp": "2026-11-10T17:25:20.647Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/141",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:20.740Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/141",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:20.955Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/141",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:20.955Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/217/141",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:20.955Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/141",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:21.164Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9001224.450862356,2974317.644632779,-8922952.933898335,3052589.1615967974&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 209
+  },
+  {
+    "timestamp": "2026-11-10T17:25:21.411Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9001224.450862356,3287403.71248886,-8922952.933898335,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 764
+  },
+  {
+    "timestamp": "2026-11-10T17:25:21.412Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9001224.450862356,3130860.6785608195,-8922952.933898335,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 457
+  },
+  {
+    "timestamp": "2026-11-10T17:25:21.412Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9001224.450862356,3209132.1955248415,-8922952.933898335,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 672
+  },
+  {
+    "timestamp": "2026-11-10T17:25:21.526Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9001224.450862356,3052589.1615967974,-8922952.933898335,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 571
+  },
+  {
+    "timestamp": "2026-11-10T17:25:21.636Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/8/107/67",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:21.636Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/8/106/67",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:21.636Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/8/108/67",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:21.871Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9549125.069610499,2974317.644632779,-9392582.035682458,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 235
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.000Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/8/109/67",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.141Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/8/106/70",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.141Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/8/106/69",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.141Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/8/106/68",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.141Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/8/109/68",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.324Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9549125.069610499,2817774.6107047386,-9392582.035682458,2974317.644632779&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 324
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.324Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9549125.069610499,3130860.6785608195,-9392582.035682458,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 688
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.324Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9549125.069610499,3287403.71248886,-9392582.035682458,3443946.7464169003&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 688
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.339Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,2817774.6107047386,-9236039.001754418,2974317.644632779&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 198
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.486Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,3287403.71248886,-9236039.001754418,3443946.7464169003&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 344
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.833Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9236039.001754418,3287403.71248886,-9079495.967826376,3443946.7464169003&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 692
+  },
+  {
+    "timestamp": "2026-11-10T17:25:22.958Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9079495.967826376,3287403.71248886,-8922952.933898335,3443946.7464169003&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 817
+  }
+]

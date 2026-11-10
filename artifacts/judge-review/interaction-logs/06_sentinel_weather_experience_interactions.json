@@ -1,0 +1,42 @@
+[
+  {
+    "timestamp": "4.0s",
+    "step": 1,
+    "route": "/console/sentinel",
+    "action": "Mount Sentinel HUD",
+    "target": "Map & Telemetry",
+    "expected": "Loads MapLibre geospatial canvas and NWS warning polygons",
+    "actual": "Sentinel HUD mounted with live NWS check",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "10.4s",
+    "step": 2,
+    "route": "/console/sentinel",
+    "action": "Pan Map",
+    "target": "MapLibre Canvas",
+    "expected": "Pans map across Tampa Bay and coastal barrier islands",
+    "actual": "Map panned smoothly",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "11.4s",
+    "step": 3,
+    "route": "/console/sentinel",
+    "action": "Zoom Map",
+    "target": "MapLibre Wheel Event",
+    "expected": "Zooms map closer to barrier islands",
+    "actual": "Map zoom level updated",
+    "status": "PASS"
+  },
+  {
+    "timestamp": "16.4s",
+    "step": 4,
+    "route": "/console/sentinel",
+    "action": "Inspect Exposed Households",
+    "target": "Impact List",
+    "expected": "Displays 5 vulnerable households prioritized for evacuation grants",
+    "actual": "Exposed households displayed",
+    "status": "PASS"
+  }
+]

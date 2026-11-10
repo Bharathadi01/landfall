@@ -80,12 +80,11 @@ export const landfallChartTheme = {
   baseTheme: "ag-default-dark",
   palette: { fills: LANDFALL_PALETTE, strokes: LANDFALL_PALETTE },
   params: {
-    fontFamily: LANDFALL.font,
+    fontFamily: "Inter, system-ui, sans-serif",
     backgroundColor: "transparent",
     foregroundColor: LANDFALL.ink,
     textColor: LANDFALL.ink,
     subtleTextColor: LANDFALL.ink3,
-    axisColor: "rgba(255,255,255,0.12)",
     gridLineColor: "rgba(255,255,255,0.06)",
     chromeBackgroundColor: LANDFALL.surface2,
   },

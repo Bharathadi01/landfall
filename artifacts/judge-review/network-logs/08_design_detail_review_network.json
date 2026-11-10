@@ -1,0 +1,933 @@
+[
+  {
+    "timestamp": "2026-11-10T17:32:21.063Z",
+    "method": "GET",
+    "url": "http://localhost:3000/",
+    "status": 200,
+    "durationMs": 13
+  },
+  {
+    "timestamp": "2026-11-10T17:32:21.070Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331941054",
+    "status": 200,
+    "durationMs": 4
+  },
+  {
+    "timestamp": "2026-11-10T17:32:21.071Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331941054",
+    "status": 200,
+    "durationMs": 5
+  },
+  {
+    "timestamp": "2026-11-10T17:32:21.071Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 5
+  },
+  {
+    "timestamp": "2026-11-10T17:32:21.071Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 5
+  },
+  {
+    "timestamp": "2026-11-10T17:32:21.071Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 5
+  },
+  {
+    "timestamp": "2026-11-10T17:32:21.072Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 6
+  },
+  {
+    "timestamp": "2026-11-10T17:32:21.089Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 23
+  },
+  {
+    "timestamp": "2026-11-10T17:32:21.106Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 40
+  },
+  {
+    "timestamp": "2026-11-10T17:32:21.109Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/page.js",
+    "status": 200,
+    "durationMs": 43
+  },
+  {
+    "timestamp": "2026-11-10T17:32:21.173Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331941054",
+    "status": 200,
+    "durationMs": 107
+  },
+  {
+    "timestamp": "2026-11-10T17:32:29.663Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/war-room",
+    "status": 200,
+    "durationMs": 13
+  },
+  {
+    "timestamp": "2026-11-10T17:32:29.667Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:32:29.667Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:32:29.667Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:32:29.667Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:32:29.669Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331949654",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:32:29.670Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331949654",
+    "status": 200,
+    "durationMs": 3
+  },
+  {
+    "timestamp": "2026-11-10T17:32:29.683Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 16
+  },
+  {
+    "timestamp": "2026-11-10T17:32:29.699Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 32
+  },
+  {
+    "timestamp": "2026-11-10T17:32:29.761Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331949654",
+    "status": 200,
+    "durationMs": 94
+  },
+  {
+    "timestamp": "2026-11-10T17:32:30.458Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/war-room/page.js",
+    "status": 200,
+    "durationMs": 791
+  },
+  {
+    "timestamp": "2026-11-10T17:32:31.570Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 780
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.094Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 14
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.100Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.100Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.100Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.100Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.102Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331958087",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.103Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331958087",
+    "status": 200,
+    "durationMs": 3
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.110Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.121Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 21
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.135Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 35
+  },
+  {
+    "timestamp": "2026-11-10T17:32:38.190Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331958087",
+    "status": 200,
+    "durationMs": 90
+  },
+  {
+    "timestamp": "2026-11-10T17:32:39.010Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 753
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.865Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/sentinel",
+    "status": 200,
+    "durationMs": 16
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.871Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.871Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.871Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.871Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.873Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331971855",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.874Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331971855",
+    "status": 200,
+    "durationMs": 3
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.883Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 12
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.907Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 36
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.912Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/sentinel/page.js",
+    "status": 200,
+    "durationMs": 41
+  },
+  {
+    "timestamp": "2026-11-10T17:32:51.965Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331971855",
+    "status": 200,
+    "durationMs": 94
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.261Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_maplibre-gl_6_17_0_node_modules_maplibre-gl_dist_maplibr-e29d06.js",
+    "status": 200,
+    "durationMs": 51
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.300Z",
+    "method": "GET",
+    "url": "http://localhost:3000/maplibre-gl-worker.mjs",
+    "status": 200,
+    "durationMs": 15
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.469Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/138",
+    "status": 200,
+    "durationMs": 8
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.469Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/137",
+    "status": 200,
+    "durationMs": 8
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.470Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/138",
+    "status": 200,
+    "durationMs": 9
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.472Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/139",
+    "status": 200,
+    "durationMs": 11
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.472Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/138",
+    "status": 200,
+    "durationMs": 11
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.474Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/137",
+    "status": 200,
+    "durationMs": 13
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.495Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/137",
+    "status": 200,
+    "durationMs": 34
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.496Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/139",
+    "status": 200,
+    "durationMs": 35
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.597Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/138",
+    "status": 200,
+    "durationMs": 136
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.598Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/136",
+    "status": 200,
+    "durationMs": 137
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.598Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/136",
+    "status": 200,
+    "durationMs": 137
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.598Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/137",
+    "status": 200,
+    "durationMs": 137
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.598Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/139",
+    "status": 200,
+    "durationMs": 137
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.598Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/139",
+    "status": 200,
+    "durationMs": 137
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.599Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/136",
+    "status": 200,
+    "durationMs": 138
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.599Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/140",
+    "status": 200,
+    "durationMs": 127
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.599Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/136",
+    "status": 200,
+    "durationMs": 138
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.599Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/140",
+    "status": 200,
+    "durationMs": 127
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.599Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/214/135",
+    "status": 200,
+    "durationMs": 125
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.599Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/140",
+    "status": 200,
+    "durationMs": 120
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.599Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/140",
+    "status": 200,
+    "durationMs": 120
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.599Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/215/135",
+    "status": 200,
+    "durationMs": 127
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.599Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/216/135",
+    "status": 200,
+    "durationMs": 104
+  },
+  {
+    "timestamp": "2026-11-10T17:32:52.635Z",
+    "method": "GET",
+    "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/9/213/135",
+    "status": 200,
+    "durationMs": 35
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.563Z",
+    "method": "GET",
+    "url": "http://localhost:3000/api/sentinel/live?fundId=fund_tbw_001&mode=LIVE",
+    "status": 200,
+    "durationMs": 2352
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.563Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/33/53.png",
+    "status": 200,
+    "durationMs": 1378
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.563Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/35/54.png",
+    "status": 200,
+    "durationMs": 1378
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.563Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/34/54.png",
+    "status": 200,
+    "durationMs": 1378
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.563Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/33/54.png",
+    "status": 200,
+    "durationMs": 1378
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.563Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/6/16/27.png",
+    "status": 200,
+    "durationMs": 1378
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.563Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/6/17/26.png",
+    "status": 200,
+    "durationMs": 1378
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.563Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9236039.001754418,3130860.6785608195,-9157767.484790396,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 1300
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.563Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9314310.518718438,3130860.6785608195,-9236039.001754418,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 1300
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.564Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9236039.001754418,3209132.1955248415,-9157767.484790396,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 1301
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.565Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/34/53.png",
+    "status": 200,
+    "durationMs": 1380
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.565Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/6/16/26.png",
+    "status": 200,
+    "durationMs": 1380
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.565Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/7/35/53.png",
+    "status": 200,
+    "durationMs": 1380
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.565Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/5/8/13.png",
+    "status": 200,
+    "durationMs": 1380
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.565Z",
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/6/17/27.png",
+    "status": 200,
+    "durationMs": 1380
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.565Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9314310.518718438,3209132.1955248415,-9236039.001754418,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 1302
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.565Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9157767.484790396,3130860.6785608195,-9079495.967826376,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 1302
+  },
+  {
+    "timestamp": "2026-11-10T17:32:54.792Z",
+    "method": "GET",
+    "url": "https://demotiles.maplibre.org/font/Open%20Sans%20Regular,Arial%20Unicode%20MS%20Regular/0-255.pbf",
+    "status": 200,
+    "durationMs": 217
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.397Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9157767.484790396,3209132.1955248415,-9079495.967826376,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 826
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9157767.484790396,3052589.1615967974,-9079495.967826376,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 828
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9157767.484790396,3287403.71248886,-9079495.967826376,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 826
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9079495.967826376,3209132.1955248415,-9001224.450862356,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 826
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,3130860.6785608195,-9314310.518718438,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 828
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9079495.967826376,3130860.6785608195,-9001224.450862356,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 826
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9314310.518718438,3052589.1615967974,-9236039.001754418,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 828
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9236039.001754418,3287403.71248886,-9157767.484790396,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 828
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9314310.518718438,3287403.71248886,-9236039.001754418,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 828
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9470853.552646479,3130860.6785608195,-9392582.035682458,3209132.1955248415&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 826
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9079495.967826376,3052589.1615967974,-9001224.450862356,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 826
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9236039.001754418,3052589.1615967974,-9157767.484790396,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 828
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,3287403.71248886,-9314310.518718438,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 826
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,3052589.1615967974,-9314310.518718438,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 826
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9392582.035682458,3209132.1955248415,-9314310.518718438,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 828
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.399Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9470853.552646479,3209132.1955248415,-9392582.035682458,3287403.71248886&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 826
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.682Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9079495.967826376,3287403.71248886,-9001224.450862356,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 283
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.682Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9470853.552646479,3052589.1615967974,-9392582.035682458,3130860.6785608195&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 283
+  },
+  {
+    "timestamp": "2026-11-10T17:32:55.694Z",
+    "method": "GET",
+    "url": "https://nowcoast.noaa.gov/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=weather_radar:conus_base_reflectivity_mosaic&styles=&bbox=-9470853.552646479,3287403.71248886,-9392582.035682458,3365675.229452882&width=256&height=256&crs=EPSG:3857&format=image/png&transparent=true",
+    "status": 200,
+    "durationMs": 294
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.751Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/golden-flow",
+    "status": 200,
+    "durationMs": 14
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.759Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.759Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.759Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.759Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.760Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331981742",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.762Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331981742",
+    "status": 200,
+    "durationMs": 2
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.770Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 10
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.781Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/golden-flow/page.js",
+    "status": 200,
+    "durationMs": 21
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.792Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 32
+  },
+  {
+    "timestamp": "2026-11-10T17:33:01.847Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331981742",
+    "status": 200,
+    "durationMs": 87
+  },
+  {
+    "timestamp": "2026-11-10T17:33:03.142Z",
+    "method": "POST",
+    "url": "http://localhost:3000/api/workflow/golden",
+    "status": 200,
+    "durationMs": 1226
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.671Z",
+    "method": "GET",
+    "url": "http://localhost:3000/console/studio",
+    "status": 200,
+    "durationMs": 13
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.675Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/2bcd4b1f8f3a3e9f.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.676Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/9cc5b37ab1350db7-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.676Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/cf72403939ff961f-s.p.woff2",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.677Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/media/e6099e249fd938cc-s.p.woff2",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.677Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1794331987664",
+    "status": 200,
+    "durationMs": 0
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.678Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1794331987664",
+    "status": 200,
+    "durationMs": 1
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.685Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+    "status": 200,
+    "durationMs": 8
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.697Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/console/studio/page.js",
+    "status": 200,
+    "durationMs": 20
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.706Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+    "status": 200,
+    "durationMs": 29
+  },
+  {
+    "timestamp": "2026-11-10T17:33:07.761Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1794331987664",
+    "status": 200,
+    "durationMs": 84
+  },
+  {
+    "timestamp": "2026-11-10T17:33:08.630Z",
+    "method": "GET",
+    "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_components_studio_StudioCanvas_tsx.js",
+    "status": 200,
+    "durationMs": 801
+  }
+]
