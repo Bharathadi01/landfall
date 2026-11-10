@@ -1,18 +1,22 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { I } from "@/components/icons";
+import { gsap } from "gsap";
+import { I, type IconType } from "@/components/icons";
 import { LandfallMark, LandfallWordmark } from "@/components/brand/LandfallMark";
 import { MEANING, MeaningDot, type Tone } from "@/components/ui/primitives";
+import { Button } from "@/components/ui/Button";
+import { Tag } from "@/components/ui/Tag";
+import { LiveClock } from "@/components/ui/LiveClock";
 
 type Variant = "PUBLIC" | "OPERATIONS" | "RESIDENT";
 
 interface NavItem {
   label: string;
   href: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: IconType;
   tone: Tone;
   hint: string;
   tag?: string;
@@ -30,7 +34,7 @@ const NAV: { group: string; items: NavItem[] }[] = [
     group: "Respond",
     items: [
       { label: "Guided Response", href: "/console/golden-flow", icon: I.flow, tone: "accent", hint: "Warning to payout in 8 steps" },
-      { label: "Storm Map", href: "/console/sentinel", icon: I.radar, tone: "storm", hint: "Who is in the storm's path" },
+      { label: "Storm Desk", href: "/console/sentinel", icon: I.radar, tone: "storm", hint: "Live weather and who is in the path" },
       { label: "Storm Drill", href: "/console/rehearsal", icon: I.lab, tone: "amber", hint: "Rehearse on past hurricanes" },
     ],
   },
@@ -38,7 +42,7 @@ const NAV: { group: string; items: NavItem[] }[] = [
     group: "Verify",
     items: [
       { label: "AI Watch Officer", href: "/console/watch-officer", icon: I.aiAdvisor, tone: "ai", hint: "Read-only briefing & investigation" },
-      { label: "Households", href: "/console/recipients", icon: I.household, tone: "accent", hint: "Enrolled residents & priority" },
+      { label: "Households", href: "/console/recipients", icon: I.household, tone: "money", hint: "Enrolled residents & priority" },
       { label: "Money Trail", href: "/spike", icon: I.ledger, tone: "paypal", hint: "Every PayPal dollar, reconciled" },
     ],
   },
@@ -69,6 +73,8 @@ const toneBar: Record<Tone, string> = {
   danger: "bg-danger",
   neutral: "bg-ink",
 };
+
+const useIso = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 function useVariant(pathname: string): Variant {
   return useMemo(() => {
@@ -101,45 +107,43 @@ function PublicShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col">
       <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
         <header
-          className={`flex w-full max-w-5xl items-center justify-between gap-4 px-3 py-2.5 transition-all duration-500 ${
-            scrolled ? "glass-strong" : "border border-transparent"
+          className={`flex w-full max-w-5xl items-center justify-between gap-4 rounded-full py-2 pl-4 pr-2 transition-all duration-500 ${
+            scrolled ? "glass-hud" : "border border-transparent"
           }`}
-          style={{ borderRadius: 18 }}
         >
-          <Link href="/" className="pl-1">
+          <Link href="/" aria-label="Landfall home">
             <LandfallWordmark size={30} />
           </Link>
-          <nav className="hidden md:flex items-center gap-1 text-[13.5px] text-ink-2">
+          <nav className="hidden md:flex items-center gap-1 text-[13.5px] text-ink-2" aria-label="Sections">
             {[
               ["How it works", "#how-it-works"],
               ["PayPal", "#paypal"],
               ["AG Studio", "#studio"],
               ["Safety", "#safety"],
             ].map(([l, h]) => (
-              <a key={h} href={h} className="rounded-lg px-3 py-2 transition-colors hover:bg-white/5 hover:text-ink">
+              <a key={h} href={h} className="rounded-full px-3.5 py-2 font-medium transition-colors hover:bg-white/[0.06] hover:text-ink">
                 {l}
               </a>
             ))}
           </nav>
-          <div className="flex items-center gap-2">
-            <Link href="/r/enroll" className="field-btn field-btn-subtle hidden sm:inline-flex text-[13px] px-3 py-2">
+          <div className="flex items-center gap-1.5">
+            <Button href="/r/enroll" variant="ghost" size="sm" className="hidden sm:inline-flex">
               I need help
-            </Link>
-            <Link href="/console/war-room" className="field-btn field-btn-primary text-[13px] px-4 py-2.5">
+            </Button>
+            <Button href="/console/war-room" variant="signal" size="sm" trailing={<I.arrowUpRight className="h-4 w-4" />}>
               Open console
-              <I.arrowUpRight className="h-4 w-4" />
-            </Link>
+            </Button>
           </div>
         </header>
       </div>
 
       <main className="flex-1">{children}</main>
 
-      <footer className="relative border-t border-white/5 py-14">
-        <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-3">
-            <LandfallWordmark size={28} sub="Relief before landfall" />
-            <p className="max-w-sm text-[13px] text-ink-3">
+      <footer className="relative border-t border-white/[0.06] py-14">
+        <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 md:flex-row md:items-end md:justify-between">
+          <div className="space-y-4">
+            <LandfallWordmark size={30} sub="Relief before landfall" />
+            <p className="max-w-sm text-[13px] leading-relaxed text-ink-3">
               Open-source, PayPal-native relief payouts for community funds. Built for the PayPal AI Hackathon 2026. MIT licensed.
             </p>
           </div>
@@ -161,23 +165,17 @@ function PublicShell({ children }: { children: React.ReactNode }) {
 function ResidentShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-40 border-b border-white/5 bg-canvas/70 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-canvas/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between gap-4 px-4">
-          <Link href="/">
+          <Link href="/" aria-label="Landfall home">
             <LandfallWordmark size={30} sub="Resident help" />
           </Link>
-          <nav className="hidden sm:flex items-center gap-1 rounded-xl border border-white/5 bg-white/[0.03] p-1 text-[13px]">
+          <nav className="seg hidden sm:inline-flex" aria-label="Resident pages">
             {[
               ["Get help", "/r/enroll"],
               ["Report a problem", "/r/complaints"],
             ].map(([l, h]) => (
-              <Link
-                key={h}
-                href={h}
-                className={`rounded-lg px-3 py-1.5 transition-colors ${
-                  pathname === h ? "bg-white/10 text-ink" : "text-ink-2 hover:text-ink"
-                }`}
-              >
+              <Link key={h} href={h} aria-current={pathname === h ? "page" : undefined} className="seg-btn">
                 {l}
               </Link>
             ))}
@@ -191,7 +189,7 @@ function ResidentShell({ children, pathname }: { children: React.ReactNode; path
 
       <main className="flex-1 px-4 py-10">{children}</main>
 
-      <footer className="border-t border-white/5 px-4 py-8 text-center text-[12.5px] text-ink-3">
+      <footer className="border-t border-white/[0.06] px-4 py-8 text-center text-[12.5px] text-ink-3">
         Your details are encrypted. Need a person? Use “Report a problem” — a coordinator replies within 24 hours.
       </footer>
     </div>
@@ -210,8 +208,8 @@ function OperationsShell({ children, pathname }: { children: React.ReactNode; pa
   return (
     <div className="flex min-h-screen">
       <aside
-        className={`sticky top-0 z-30 hidden h-screen shrink-0 flex-col border-r border-white/[0.06] bg-canvas/40 backdrop-blur-2xl transition-[width] duration-500 ease-[cubic-bezier(.16,1,.3,1)] lg:flex ${
-          collapsed ? "w-[76px]" : "w-[268px]"
+        className={`sticky top-3 z-30 my-3 ml-3 hidden h-[calc(100vh-24px)] shrink-0 flex-col overflow-hidden rounded-[26px] glass transition-[width] duration-500 ease-[cubic-bezier(.16,1,.3,1)] lg:flex ${
+          collapsed ? "w-[76px]" : "w-[262px]"
         }`}
       >
         <SidebarContent pathname={pathname} collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
@@ -220,10 +218,10 @@ function OperationsShell({ children, pathname }: { children: React.ReactNode; pa
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 flex w-[284px] max-w-[86vw] flex-col border-r border-white/10 bg-canvas/95 backdrop-blur-2xl animate-field-drawer">
+          <aside className="glass-strong absolute inset-y-3 left-3 flex w-[284px] max-w-[86vw] flex-col overflow-hidden animate-field-drawer">
             <button
               onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-4 z-10 rounded-lg p-2 text-ink-2 hover:bg-white/5"
+              className="absolute right-3 top-4 z-10 rounded-full p-2 text-ink-2 hover:bg-white/5"
               aria-label="Close navigation"
             >
               <I.close className="h-5 w-5" />
@@ -234,33 +232,32 @@ function OperationsShell({ children, pathname }: { children: React.ReactNode; pa
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-white/[0.06] bg-canvas/55 px-4 backdrop-blur-2xl sm:px-6 lg:px-8">
+        <header className="sticky top-3 z-20 mx-3 mt-3 flex h-14 items-center justify-between gap-4 rounded-[20px] glass-hud px-3 sm:px-4 lg:mx-4">
           <div className="flex min-w-0 items-center gap-3">
-            <button
-              onClick={() => setMobileOpen(true)}
-              className="rounded-lg border border-white/10 p-2 text-ink-2 hover:bg-white/5 lg:hidden"
-              aria-label="Open navigation"
-            >
+            <Button variant="ghost" size="sm" iconOnly aria-label="Open navigation" className="lg:hidden" onClick={() => setMobileOpen(true)}>
               <I.menu className="h-4 w-4" />
-            </button>
+            </Button>
             <div className="flex min-w-0 items-center gap-2 text-[13px]">
               <span className="hidden text-ink-3 sm:inline">Tampa Bay Relief Fund</span>
               <span className="hidden text-ink-3/50 sm:inline">/</span>
-              <span className="truncate font-medium text-ink">{current?.label ?? "Console"}</span>
+              <span className="truncate font-semibold text-ink">{current?.label ?? "Console"}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="hidden md:inline-flex items-center gap-2 rounded-full border border-paypal/25 bg-paypal/10 px-3 py-1.5 text-[11.5px] font-medium text-paypal">
-              <span className="live-dot" />
-              PayPal Sandbox mode
-            </span>
+          {/* the on-air storm bug — always says whether the storm is live or a replay */}
+          <div className="hidden min-w-0 items-center gap-2.5 xl:flex" aria-label="Active incident">
+            <Tag tone="storm" solid>Replay · Oct 2024</Tag>
+            <span className="font-mono text-[12px] tracking-[0.04em] text-ink-2">MILTON · CAT 4 · T−12H</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <LiveClock className="hidden md:inline-flex" />
+            <Tag tone="paypal" solid className="hidden sm:inline-flex">Sandbox</Tag>
             {pathname !== "/console/golden-flow" && (
-              <Link href="/console/golden-flow" className="field-btn field-btn-primary px-3.5 py-2 text-[13px]">
-                <I.playCircle className="h-4 w-4" />
+              <Button href="/console/golden-flow" variant="signal" size="sm" leading={<I.playCircle className="h-4 w-4" />}>
                 <span className="hidden sm:inline">Run guided response</span>
                 <span className="sm:hidden">Run</span>
-              </Link>
+              </Button>
             )}
           </div>
         </header>
@@ -282,73 +279,101 @@ function SidebarContent({
   collapsed: boolean;
   onToggle?: () => void;
 }) {
+  const navRef = useRef<HTMLElement>(null);
+  const indRef = useRef<HTMLSpanElement>(null);
+  const links = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const first = useRef(true);
+  const active = ALL_ITEMS.find((i) => i.href === pathname);
+
+  // GSAP-driven active marker that glides between items.
+  useIso(() => {
+    const link = links.current[pathname];
+    const ind = indRef.current;
+    if (!ind) return;
+    if (!link) {
+      gsap.set(ind, { opacity: 0 });
+      return;
+    }
+    const props = { y: link.offsetTop, height: link.offsetHeight, opacity: 1 };
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (first.current || reduce) gsap.set(ind, props);
+    else gsap.to(ind, { ...props, duration: 0.55, ease: "expo.out", overwrite: "auto" });
+    first.current = false;
+  }, [pathname, collapsed]);
+
   return (
     <>
-      <div className={`flex h-16 shrink-0 items-center border-b border-white/[0.06] ${collapsed ? "justify-center px-2" : "justify-between px-5"}`}>
+      <div className={`flex h-16 shrink-0 items-center ${collapsed ? "justify-center px-2" : "justify-between px-5"}`}>
         <Link href="/" aria-label="Landfall home">
           {collapsed ? <LandfallMark size={32} /> : <LandfallWordmark size={30} sub="Relief console" />}
         </Link>
         {onToggle && !collapsed && (
-          <button onClick={onToggle} className="rounded-lg p-1.5 text-ink-3 hover:bg-white/5 hover:text-ink" aria-label="Collapse sidebar">
+          <button onClick={onToggle} className="rounded-full p-1.5 text-ink-3 hover:bg-white/5 hover:text-ink" aria-label="Collapse sidebar">
             <I.sidebarClose className="h-4 w-4" />
           </button>
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-5">
+      <div className="flex-1 overflow-y-auto px-3 pb-4 pt-2">
         {!collapsed ? (
           <Link
             href="/console/sentinel"
-            className="group relative mb-6 block overflow-hidden rounded-2xl border border-storm/25 bg-gradient-to-br from-storm/[0.14] via-storm/[0.05] to-transparent p-3.5"
+            className="group relative mb-6 block overflow-hidden rounded-[20px] border border-storm/25 bg-gradient-to-br from-storm/[0.16] via-storm/[0.05] to-transparent p-3.5"
           >
-            <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full border border-storm/30" aria-hidden />
+            <div className="absolute -right-7 -top-7 h-24 w-24 rounded-full border border-storm/30" aria-hidden />
             <div className="absolute -right-2 -top-2 h-12 w-12 rounded-full border border-storm/40" aria-hidden />
-            <div className="flex items-center gap-2 text-[10.5px] font-mono uppercase tracking-[0.12em] text-storm">
-              <span className="live-dot" />
-              Active incident
-            </div>
-            <div className="mt-2 text-[14px] font-semibold text-ink">Hurricane Milton</div>
-            <div className="mt-0.5 text-[12px] text-ink-2">Cat 4 · Tampa Bay · landfall in ~12h</div>
-            <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-ink-3">
-              Replay of Oct 2024 data
+            <Tag tone="storm" solid live>Replay</Tag>
+            <div className="mt-2.5 font-serif text-[22px] leading-none tracking-[-0.02em] text-ink">Hurricane Milton</div>
+            <div className="mt-1.5 text-[12px] text-ink-2">Cat 4 · Tampa Bay · landfall in ~12h</div>
+            <div className="mt-2.5 flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-3">
+              Oct 2024 data · open storm desk
               <I.arrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </div>
           </Link>
         ) : (
-          <Link href="/console/sentinel" className="mb-5 flex justify-center" title="Active incident: Hurricane Milton">
-            <span className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-storm/30 bg-storm/10 text-storm">
-              <I.radar className="h-4 w-4" />
+          <Link href="/console/sentinel" className="mb-5 flex justify-center" title="Active incident: Hurricane Milton (replay)">
+            <span className="relative flex h-10 w-10 items-center justify-center rounded-2xl border border-storm/30 bg-storm/10 text-storm">
+              <I.stormEye className="h-[18px] w-[18px]" />
             </span>
           </Link>
         )}
 
-        <nav className="space-y-6">
+        <nav ref={navRef} className="relative space-y-6" aria-label="Console">
+          {/* sliding active marker */}
+          <span
+            ref={indRef}
+            aria-hidden
+            className="pointer-events-none absolute left-0 right-0 top-0 rounded-2xl border border-white/[0.1] bg-white/[0.07] opacity-0 shadow-[inset_0_1px_0_rgb(255_244_232/0.14)]"
+            style={{ height: 0 }}
+          >
+            <span className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full ${toneBar[active?.tone ?? "neutral"]}`} />
+          </span>
+
           {NAV.map((g) => (
             <div key={g.group}>
-              {!collapsed && <div className="mb-2 px-3 text-[10.5px] font-mono uppercase tracking-[0.14em] text-ink-3">{g.group}</div>}
+              {!collapsed && <div className="mb-2 px-3 eyebrow">{g.group}</div>}
               <ul className="space-y-0.5">
                 {g.items.map((item) => {
-                  const active = pathname === item.href;
+                  const isActive = pathname === item.href;
                   const Icon = item.icon;
                   return (
                     <li key={item.href}>
                       <Link
+                        ref={(el) => {
+                          links.current[item.href] = el;
+                        }}
                         href={item.href}
                         title={collapsed ? item.label : item.hint}
-                        className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] transition-all ${
+                        aria-current={isActive ? "page" : undefined}
+                        className={`group relative z-10 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-[13.5px] transition-colors ${
                           collapsed ? "justify-center" : ""
-                        } ${active ? "bg-white/[0.07] text-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]" : "text-ink-2 hover:bg-white/[0.04] hover:text-ink"}`}
+                        } ${isActive ? "text-ink" : "text-ink-2 hover:bg-white/[0.04] hover:text-ink"}`}
                       >
-                        {active && <span className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full ${toneBar[item.tone]}`} />}
-                        <Icon className={`h-[18px] w-[18px] shrink-0 ${active ? toneActive[item.tone] : "text-ink-3 group-hover:text-ink-2"}`} strokeWidth={1.75} />
+                        <Icon className={`h-[19px] w-[19px] shrink-0 ${isActive ? toneActive[item.tone] : "text-ink-3 group-hover:text-ink-2"}`} />
                         {!collapsed && (
                           <>
-                            <span className="flex-1 truncate font-medium">{item.label}</span>
-                            {item.tag && (
-                              <span className="rounded-md border border-paypal/30 bg-paypal/10 px-1.5 py-0.5 text-[9.5px] font-mono font-semibold tracking-wider text-paypal">
-                                {item.tag}
-                              </span>
-                            )}
+                            <span className="flex-1 truncate font-semibold">{item.label}</span>
+                            {item.tag && <Tag tone="paypal">{item.tag}</Tag>}
                           </>
                         )}
                       </Link>
@@ -360,7 +385,7 @@ function SidebarContent({
           ))}
 
           <div>
-            {!collapsed && <div className="mb-2 px-3 text-[10.5px] font-mono uppercase tracking-[0.14em] text-ink-3">Public</div>}
+            {!collapsed && <div className="mb-2 px-3 eyebrow">Public</div>}
             <ul className="space-y-0.5">
               {[
                 { label: "Public site", href: "/", icon: I.globe },
@@ -370,9 +395,9 @@ function SidebarContent({
                   <Link
                     href={l.href}
                     title={l.label}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] text-ink-3 transition-colors hover:bg-white/[0.04] hover:text-ink ${collapsed ? "justify-center" : ""}`}
+                    className={`flex items-center gap-3 rounded-2xl px-3 py-2 text-[13px] text-ink-3 transition-colors hover:bg-white/[0.04] hover:text-ink ${collapsed ? "justify-center" : ""}`}
                   >
-                    <l.icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                    <l.icon className="h-4 w-4 shrink-0" />
                     {!collapsed && <span>{l.label}</span>}
                   </Link>
                 </li>
@@ -382,11 +407,22 @@ function SidebarContent({
         </nav>
       </div>
 
-      <div className="shrink-0 border-t border-white/[0.06] p-4">
+      <div className="relative shrink-0 border-t border-white/[0.06] p-3">
         {!collapsed ? (
-          <div className="space-y-2">
-            <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-ink-3">Colour key</div>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11.5px] text-ink-2">
+          <div className="group relative">
+            <button className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left text-[12px] text-ink-3 hover:bg-white/[0.04] hover:text-ink-2" aria-describedby="colour-key">
+              <span className="eyebrow">Colour key</span>
+              <span className="flex items-center gap-1" aria-hidden>
+                {MEANING.slice(0, 5).map((m) => (
+                  <MeaningDot key={m.label} tone={m.tone} />
+                ))}
+              </span>
+            </button>
+            <div
+              id="colour-key"
+              role="tooltip"
+              className="glass-hud pointer-events-none absolute bottom-full left-0 right-0 mb-2 grid translate-y-1 grid-cols-2 gap-x-3 gap-y-1.5 p-3.5 text-[11.5px] text-ink-2 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100"
+            >
               {MEANING.map((m) => (
                 <span key={m.label} className="flex items-center gap-1.5">
                   <MeaningDot tone={m.tone} />
@@ -397,7 +433,7 @@ function SidebarContent({
           </div>
         ) : (
           onToggle && (
-            <button onClick={onToggle} className="mx-auto flex rounded-lg p-2 text-ink-3 hover:bg-white/5 hover:text-ink" aria-label="Expand sidebar">
+            <button onClick={onToggle} className="mx-auto flex rounded-full p-2 text-ink-3 hover:bg-white/5 hover:text-ink" aria-label="Expand sidebar">
               <I.sidebarOpen className="h-4 w-4" />
             </button>
           )
