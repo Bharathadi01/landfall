@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { LayoutDashboard, ShieldCheck, Zap, HeartHandshake, Sparkles, RotateCcw } from "lucide-react";
+import { I } from "@/components/icons";
 import { AgStudio, createWidgets } from "ag-studio-react";
 import {
   AgStudioAiModule,
@@ -546,11 +546,11 @@ const ANALYST_INSTRUCTIONS =
   "SAFETY: you are strictly read-only for money. You cannot execute, re-issue, approve or alter any payout, ledger entry or reserve — no such tool exists. If asked, refuse and explain the safe alternative. Keep answers short and cite the record ids you used.";
 
 const PAGE_LABELS: Record<string, { label: string; icon: React.ComponentType<{ size?: number }> }> = {
-  overview: { label: "Relief overview", icon: LayoutDashboard },
-  treasury: { label: "Treasury & reserve", icon: ShieldCheck },
-  recovery: { label: "Payout recovery", icon: Zap },
-  accountability: { label: "Accountability", icon: HeartHandshake },
-  [RECOVERY_PAGE_ID]: { label: RECOVERY_PAGE_TITLE, icon: Sparkles },
+  overview: { label: "Relief overview", icon: I.dashboard },
+  treasury: { label: "Treasury & reserve", icon: I.reserve },
+  recovery: { label: "Payout recovery", icon: I.recovery },
+  accountability: { label: "Accountability", icon: I.evidence },
+  [RECOVERY_PAGE_ID]: { label: RECOVERY_PAGE_TITLE, icon: I.aiAdvisor },
 };
 
 function loadSavedState(): AgReportState | null {
@@ -681,7 +681,7 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
       pages.map((p) => ({
         id: p.id,
         label: PAGE_LABELS[p.id]?.label ?? p.id,
-        Icon: PAGE_LABELS[p.id]?.icon ?? Sparkles,
+        Icon: PAGE_LABELS[p.id]?.icon ?? I.aiAdvisor,
       })),
     [pages]
   );
@@ -769,7 +769,7 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
             style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: 6, color: "#A3AEC2", padding: "4px 10px", fontSize: 11, cursor: "pointer" }}
             title="Reset the report to the Landfall template"
           >
-            <RotateCcw size={12} /> Reset
+            <I.retry size={12} /> Reset
           </button>
         </div>
       </div>

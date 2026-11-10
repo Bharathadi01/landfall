@@ -2,27 +2,8 @@
 
 
 import { PageTitle } from "@/components/ui/primitives";
-import { Sparkles as __HeaderIcon } from "lucide-react";
+import { I } from "@/components/icons";
 import React, { useState, useEffect } from "react";
-import {
-  ShieldAlert,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  DollarSign,
-  Users,
-  Layers,
-  HelpCircle,
-  FileText,
-  RefreshCw,
-  Search,
-  ExternalLink,
-  ChevronRight,
-  Info,
-  ShieldCheck,
-  Lock,
-  Sparkles,
-} from "lucide-react";
 
 export default function WatchOfficerConsolePage() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -120,7 +101,7 @@ export default function WatchOfficerConsolePage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
         <PageTitle
           eyebrow="AI Watch Officer · read-only"
-          icon={__HeaderIcon}
+          icon={I.aiAdvisor}
           tone="ai"
           title="An AI that explains,"
           accent="never one that pays."
@@ -133,7 +114,7 @@ export default function WatchOfficerConsolePage() {
             disabled={analyzing}
             className="field-btn field-btn-primary text-xs flex items-center gap-2"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${analyzing ? "animate-spin" : ""}`} />
+            <I.refresh className={`w-3.5 h-3.5 ${analyzing ? "animate-spin" : ""}`} />
             <span>{analyzing ? "Synthesizing Briefing..." : "Refresh Intelligence"}</span>
           </button>
         </div>
@@ -141,7 +122,7 @@ export default function WatchOfficerConsolePage() {
 
       {errorMessage && (
         <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+          <I.warning className="w-5 h-5 flex-shrink-0" />
           <div>
             <strong className="font-semibold">Analysis Notice:</strong> {errorMessage}
           </div>
@@ -150,7 +131,7 @@ export default function WatchOfficerConsolePage() {
 
       {loading ? (
         <div className="field-paper py-24 text-center text-ink-3 flex flex-col items-center justify-center gap-3">
-          <RefreshCw className="w-8 h-8 animate-spin text-accent" />
+          <I.refresh className="w-8 h-8 animate-spin text-accent" />
           <p className="font-mono text-xs">Connecting to Sentinel, Treasury & Policy telemetry...</p>
         </div>
       ) : (
@@ -163,7 +144,7 @@ export default function WatchOfficerConsolePage() {
                 Disaster Context
               </div>
               <div className="mt-2 text-lg font-serif font-bold text-ink flex items-center gap-2">
-                <ShieldAlert className="w-5 h-5 text-storm" />
+                <I.hazard className="w-5 h-5 text-storm" />
                 <span className="truncate">{event?.eventName || "No Active Alert"}</span>
               </div>
               <div className="mt-1 text-xs text-ink-2 font-mono">
@@ -228,11 +209,11 @@ export default function WatchOfficerConsolePage() {
           <div className="field-paper p-6 bg-surface border border-line shadow-sm">
             <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2 text-accent text-xs font-mono font-bold uppercase tracking-wider">
-                <FileText className="w-4 h-4" />
+                <I.document className="w-4 h-4" />
                 Executive Operational Brief
               </div>
               <span className="field-badge-neutral text-[10px] font-mono flex items-center gap-1">
-                <Lock className="w-3 h-3" />
+                <I.locked className="w-3 h-3" />
                 AI Output: Read-Only (Non-Authoritative)
               </span>
             </div>
@@ -257,7 +238,7 @@ export default function WatchOfficerConsolePage() {
               <div className="field-paper p-5 space-y-3 border-t-4 border-t-accent">
                 <div className="flex items-center justify-between border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-accent" />
+                    <I.done className="w-4 h-4 text-accent" />
                     <h3 className="text-sm font-serif font-bold text-ink">
                       1. Verified Facts (Ground Truth)
                     </h3>
@@ -285,7 +266,7 @@ export default function WatchOfficerConsolePage() {
               <div className="field-paper p-5 space-y-3 border-t-4 border-t-paypal">
                 <div className="flex items-center justify-between border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-paypal" />
+                    <I.layers className="w-4 h-4 text-paypal" />
                     <h3 className="text-sm font-serif font-bold text-ink">
                       2. Working Hypotheses & Model Scenarios
                     </h3>
@@ -319,7 +300,7 @@ export default function WatchOfficerConsolePage() {
               <div className="field-paper p-5 space-y-3 border-t-4 border-t-amber">
                 <div className="flex items-center justify-between border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
-                    <HelpCircle className="w-4 h-4 text-amber" />
+                    <I.help className="w-4 h-4 text-amber" />
                     <h3 className="text-sm font-serif font-bold text-ink">
                       3. Key Unknowns & Uncertainties
                     </h3>
@@ -354,7 +335,7 @@ export default function WatchOfficerConsolePage() {
               <div className="field-paper p-5 space-y-3 border-t-4 border-t-storm">
                 <div className="flex items-center justify-between border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-storm" />
+                    <I.people className="w-4 h-4 text-storm" />
                     <h3 className="text-sm font-serif font-bold text-ink">
                       4. Human Action Required
                     </h3>
@@ -392,7 +373,7 @@ export default function WatchOfficerConsolePage() {
             {/* Ask the Watch Officer */}
             <div className="lg:col-span-7 field-paper p-6 space-y-4">
               <div className="text-xs font-mono font-bold uppercase text-ink-2 tracking-wider flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-accent" />
+                <I.aiAdvisor className="w-4 h-4 text-accent" />
                 Ask the Watch Officer Copilot
               </div>
               <p className="text-xs text-ink-2 leading-relaxed">
@@ -429,7 +410,7 @@ export default function WatchOfficerConsolePage() {
                       className="w-full text-left p-2.5 rounded-lg hover:bg-surface-2 text-xs text-ink-2 hover:text-ink transition flex items-center justify-between group border border-line/60 bg-surface"
                     >
                       <span className="line-clamp-1">{q}</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-ink-3 group-hover:text-accent shrink-0" />
+                      <I.chevronRight className="w-3.5 h-3.5 text-ink-3 group-hover:text-accent shrink-0" />
                     </button>
                   ))}
                 </div>
@@ -439,7 +420,7 @@ export default function WatchOfficerConsolePage() {
             {/* Evidence Provenance Registry */}
             <div className="lg:col-span-5 field-paper p-6 space-y-4">
               <div className="text-xs font-mono font-bold uppercase text-ink-2 tracking-wider flex items-center gap-2">
-                <Info className="w-4 h-4 text-accent" />
+                <I.info className="w-4 h-4 text-accent" />
                 Evidence Provenance Registry ({analysisData?.evidenceReferences?.length || 0})
               </div>
               <p className="text-xs text-ink-2">

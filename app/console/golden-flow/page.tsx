@@ -2,33 +2,10 @@
 
 
 import { PageTitle } from "@/components/ui/primitives";
-import { Workflow as __HeaderIcon } from "lucide-react";
+import { I } from "@/components/icons";
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { type GoldenWorkflowState, type GoldenWorkflowStage } from "@/lib/workflow/golden";
-import {
-  CheckCircle2,
-  ChevronRight,
-  ChevronLeft,
-  ArrowRight,
-  ArrowLeft,
-  ShieldCheck,
-  Zap,
-  RotateCcw,
-  ExternalLink,
-  Lock,
-  Layers,
-  FileCheck2,
-  AlertTriangle,
-  Clock,
-  Sparkles,
-  HeartHandshake,
-  CloudLightning,
-  MapPin,
-  Scale,
-  KeyRound,
-  Send,
-} from "lucide-react";
 
 const STAGE_METADATA: Record<
   number,
@@ -108,14 +85,14 @@ const STAGE_METADATA: Record<
 };
 
 const STAGE_VISUAL: Record<number, { icon: React.ComponentType<any>; tone: string }> = {
-  1: { icon: HeartHandshake, tone: "paypal" },
-  2: { icon: Lock, tone: "amber" },
-  3: { icon: CloudLightning, tone: "storm" },
-  4: { icon: MapPin, tone: "storm" },
-  5: { icon: Scale, tone: "accent" },
-  6: { icon: KeyRound, tone: "amber" },
-  7: { icon: Send, tone: "paypal" },
-  8: { icon: FileCheck2, tone: "accent" },
+  1: { icon: I.donation, tone: "money" },
+  2: { icon: I.reserve, tone: "amber" },
+  3: { icon: I.stormEye, tone: "storm" },
+  4: { icon: I.household, tone: "storm" },
+  5: { icon: I.balance, tone: "accent" },
+  6: { icon: I.twoKeyApproval, tone: "amber" },
+  7: { icon: I.payout, tone: "paypal" },
+  8: { icon: I.ledger, tone: "delivered" },
 };
 
 export default function GoldenWorkflowPage() {
@@ -177,7 +154,7 @@ export default function GoldenWorkflowPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-8">
         <PageTitle
           eyebrow="Guided Response · 8 steps"
-          icon={__HeaderIcon}
+          icon={I.flow}
           tone="accent"
           title="From donation to doorstep,"
           accent="one step at a time."
@@ -206,7 +183,7 @@ export default function GoldenWorkflowPage() {
             className="field-btn field-btn-secondary text-xs flex items-center gap-1.5"
             title="Reset to Stage 1"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-ink-2" />
+            <I.retry className="w-3.5 h-3.5 text-ink-2" />
             Restart
           </button>
 
@@ -220,7 +197,7 @@ export default function GoldenWorkflowPage() {
             ) : (
               <>
                 <span>Next step</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <I.arrowRight className="w-3.5 h-3.5" />
               </>
             )}
           </button>
@@ -230,7 +207,7 @@ export default function GoldenWorkflowPage() {
             disabled={loading}
             className="field-btn field-btn-primary text-xs flex items-center gap-1.5"
           >
-            <Zap className="w-3.5 h-3.5" />
+            <I.bolt className="w-3.5 h-3.5" />
             {loading ? "Running…" : "Run all 8 steps"}
           </button>
         </div>
@@ -238,7 +215,7 @@ export default function GoldenWorkflowPage() {
 
       {error && (
         <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+          <I.warning className="w-5 h-5 flex-shrink-0" />
           <div>
             <strong className="font-semibold">Pipeline Exception:</strong> {error}
           </div>
@@ -280,7 +257,7 @@ export default function GoldenWorkflowPage() {
                     <Icon />
                   </span>
                   {isPassed ? (
-                    <CheckCircle2 className="h-4 w-4 text-accent-strong" />
+                    <I.done className="h-4 w-4 text-accent-strong" />
                   ) : (
                     <span className="font-mono text-[10px] text-ink-3">0{stageNum}</span>
                   )}
@@ -580,7 +557,7 @@ export default function GoldenWorkflowPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono text-ink-3">Canonical SHA-256 Plan Hash</span>
                 <span className="field-badge-evergreen font-mono text-xs flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5" />
+                  <I.locked className="w-3.5 h-3.5" />
                   DUAL-CUSTODY AUTHORISED
                 </span>
               </div>
@@ -666,7 +643,7 @@ export default function GoldenWorkflowPage() {
               disabled={selectedStage === 1}
               className="field-btn field-btn-secondary text-xs flex items-center gap-1.5 disabled:opacity-40"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <I.chevronLeft className="w-4 h-4" />
               Previous Stage
             </button>
 
@@ -680,7 +657,7 @@ export default function GoldenWorkflowPage() {
               className="field-btn field-btn-primary text-xs flex items-center gap-1.5 disabled:opacity-40"
             >
               Next Stage
-              <ChevronRight className="w-4 h-4" />
+              <I.chevronRight className="w-4 h-4" />
             </button>
           </div>
 

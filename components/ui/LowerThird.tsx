@@ -32,14 +32,16 @@ export function LowerThird({
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const tabEl = tab.current;
+    const bodyEl = body.current;
     const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
     tl.fromTo(tab.current, { scaleX: 0 }, { scaleX: 1, duration: 0.55 })
       .fromTo(body.current, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.8 }, "-=0.25")
       .fromTo(body.current, { x: -10 }, { x: 0, duration: 0.8 }, "<");
     return () => {
       tl.kill();
-      if (tab.current) gsap.set(tab.current, { clearProps: "all" });
-      if (body.current) gsap.set(body.current, { clearProps: "all" });
+      if (tabEl) gsap.set(tabEl, { clearProps: "all" });
+      if (bodyEl) gsap.set(bodyEl, { clearProps: "all" });
     };
   }, []);
 

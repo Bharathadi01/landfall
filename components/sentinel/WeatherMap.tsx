@@ -21,32 +21,7 @@ import {
   MILTON_HISTORICAL_TRACK,
   type NHCTrackPoint,
 } from "@/lib/sentinel/nhc-track";
-import {
-  Globe,
-  Compass,
-  Layers,
-  Eye,
-  Play,
-  Pause,
-  SkipForward,
-  RotateCcw,
-  Sparkles,
-  ShieldAlert,
-  CloudRain,
-  Radio,
-  MapPin,
-  Sliders,
-  X,
-  Activity,
-  Maximize2,
-  Minimize2,
-  Wind,
-  Gauge,
-  Clock,
-  Info,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { I } from "@/components/icons";
 
 export interface WeatherMapProps {
   fund: CommunityFundGeoScope;
@@ -1401,21 +1376,21 @@ export function WeatherMap({
 
           {/* Scope Badge */}
           <div className="px-2.5 py-1 rounded-xl text-xs font-semibold text-slate-200 bg-slate-900/90 border border-slate-700/80 backdrop-blur-md flex items-center gap-1.5 shadow-lg">
-            <MapPin className="w-3.5 h-3.5 text-blue-400" />
+            <I.pin className="w-3.5 h-3.5 text-blue-400" />
             <span>Tampa Bay, FL</span>
             <span className="text-[10px] text-slate-400 font-mono">(WFO TBW)</span>
           </div>
 
           {/* Sensor Identification */}
           <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-mono text-cyan-300 bg-cyan-950/70 border border-cyan-800/80 backdrop-blur-md shadow-lg">
-            <Activity className="w-3 h-3 text-cyan-400" />
+            <I.pulse className="w-3 h-3 text-cyan-400" />
             <span>GOES-16 ABI · nowCOAST WMS</span>
           </div>
         </div>
 
         {/* Observation Timestamp & Sensor Attribution */}
         <div className="text-[10px] text-slate-300/90 font-mono bg-slate-950/75 border border-slate-800/80 px-2 py-0.5 rounded-lg backdrop-blur-md self-start pointer-events-auto flex items-center gap-2">
-          <Clock className="w-3 h-3 text-slate-400" />
+          <I.clock className="w-3 h-3 text-slate-400" />
           <span>Valid: {currentFrame.displayTime}</span>
           <span className="text-slate-500">|</span>
           <span className="text-slate-400">Esri / NASA GIBS / NOAA</span>
@@ -1436,7 +1411,7 @@ export function WeatherMap({
               }`}
               title="Overhead Meteorological Weather View (Default)"
             >
-              <Compass className="w-3.5 h-3.5" />
+              <I.compass className="w-3.5 h-3.5" />
               <span>Weather View</span>
             </button>
 
@@ -1449,7 +1424,7 @@ export function WeatherMap({
               }`}
               title="Optional 3D Perspective Explore Mode with Terrain Tilt"
             >
-              <Maximize2 className="w-3.5 h-3.5" />
+              <I.maximize className="w-3.5 h-3.5" />
               <span>3D Explore</span>
             </button>
 
@@ -1462,7 +1437,7 @@ export function WeatherMap({
               }`}
               title="Orbital Weather Globe View"
             >
-              <Globe className="w-3.5 h-3.5" />
+              <I.world className="w-3.5 h-3.5" />
               <span>Globe</span>
             </button>
           </div>
@@ -1477,7 +1452,7 @@ export function WeatherMap({
             }`}
             title="Launch 10-step Demonstration Sequence (Finishes Overhead)"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <I.aiAdvisor className="w-3.5 h-3.5" />
             <span>{isCinematicTourActive ? `Tour ${cinematicStep}/10` : "Tour"}</span>
           </button>
 
@@ -1487,7 +1462,7 @@ export function WeatherMap({
             className="p-1.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-slate-300 hover:text-white transition-colors shadow-lg backdrop-blur-md"
             title="Weather Layer Controls & Display Settings"
           >
-            <Sliders className="w-4 h-4" />
+            <I.sliders className="w-4 h-4" />
           </button>
         </div>
 
@@ -1716,7 +1691,7 @@ export function WeatherMap({
         <div className="absolute bottom-20 left-3 z-10 max-w-xs bg-slate-950/90 border border-slate-800 rounded-2xl p-3 backdrop-blur-xl shadow-2xl text-xs space-y-2">
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
             <div className="flex items-center gap-1.5">
-              <Wind className="w-4 h-4 text-red-400" />
+              <I.wind className="w-4 h-4 text-red-400" />
               <span className="font-bold text-white tracking-wide">HURRICANE MILTON</span>
             </div>
             <span className="px-2 py-0.5 bg-red-950/80 text-red-300 border border-red-800 rounded text-[10px] font-extrabold uppercase tracking-wider">
@@ -1768,7 +1743,7 @@ export function WeatherMap({
             className="w-8 h-8 rounded-xl bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition-colors shadow-lg"
             title={isPlayingTimeline ? "Pause timeline replay" : "Play timeline progression"}
           >
-            {isPlayingTimeline ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+            {isPlayingTimeline ? <I.pause className="w-4 h-4" /> : <I.play className="w-4 h-4 ml-0.5" />}
           </button>
 
           <div className="flex flex-col">

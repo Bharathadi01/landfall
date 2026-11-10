@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { browserSupportsPasskeys, startAuthentication } from "@simplewebauthn/browser";
 import { type ApprovalKeyVerification, validateTwoKeyApproval } from "@/lib/security/passkeys";
-import { KeyRound, X, Fingerprint, AlertTriangle, Check, ShieldCheck, Send } from "lucide-react";
+import { I } from "@/components/icons";
 
 export interface PasskeyApprovalModalProps {
   isOpen: boolean;
@@ -150,7 +150,7 @@ export function PasskeyApprovalModal({
         <div className="relative flex items-start justify-between gap-4">
           <div className="flex items-start gap-3.5">
             <span className="icon-tile icon-tile-lg tone-amber">
-              <KeyRound />
+              <I.passkey />
             </span>
             <div>
               <div className="eyebrow text-amber">Two-person approval</div>
@@ -161,7 +161,7 @@ export function PasskeyApprovalModal({
             </div>
           </div>
           <button onClick={handleClose} className="rounded-lg p-1.5 text-ink-3 transition-colors hover:bg-white/5 hover:text-ink" aria-label="Close">
-            <X className="h-5 w-5" />
+            <I.close className="h-5 w-5" />
           </button>
         </div>
 
@@ -173,7 +173,7 @@ export function PasskeyApprovalModal({
             <span className="text-[13px] text-ink-2">{summary.householdsCount} households</span>
           </div>
           <div className="mt-3 flex items-center gap-2 border-t border-white/[0.06] pt-3 font-mono text-[10.5px] text-ink-3">
-            <Fingerprint className="h-3.5 w-3.5 shrink-0" />
+            <I.biometric className="h-3.5 w-3.5 shrink-0" />
             <span className="shrink-0">Plan hash</span>
             <span className="truncate text-paypal" title={planHash}>{planHash}</span>
           </div>
@@ -181,7 +181,7 @@ export function PasskeyApprovalModal({
 
         {errorMsg && (
           <div className="mt-4 flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 p-3 text-[12.5px] text-danger">
-            <AlertTriangle className="h-4 w-4 shrink-0" /> {errorMsg}
+            <I.warning className="h-4 w-4 shrink-0" /> {errorMsg}
           </div>
         )}
 
@@ -200,7 +200,7 @@ export function PasskeyApprovalModal({
                     s.signed ? "bg-accent text-on-accent" : s.tone === "amber" ? "bg-amber/15 text-amber" : "bg-paypal/15 text-paypal"
                   }`}
                 >
-                  {s.signed ? <Check className="h-5 w-5" strokeWidth={2.5} /> : s.name.split(" ").map((n) => n[0]).join("")}
+                  {s.signed ? <I.check className="h-5 w-5" strokeWidth={2.5} /> : s.name.split(" ").map((n) => n[0]).join("")}
                 </span>
                 <div>
                   <div className="text-[14px] font-semibold text-ink">
@@ -211,7 +211,7 @@ export function PasskeyApprovalModal({
               </div>
               {s.signed ? (
                 <span className="flex items-center gap-1.5 text-[12.5px] font-semibold text-accent-strong">
-                  <ShieldCheck className="h-4 w-4" /> Signed
+                  <I.signed className="h-4 w-4" /> Signed
                 </span>
               ) : (
                 <button
@@ -219,7 +219,7 @@ export function PasskeyApprovalModal({
                   disabled={signingApprover !== null || released}
                   className={`field-btn px-3.5 py-2 text-[13px] ${s.tone === "amber" ? "field-btn-secondary !border-amber/40 !text-amber" : "field-btn-paypal"}`}
                 >
-                  <KeyRound className="h-4 w-4" />
+                  <I.passkey className="h-4 w-4" />
                   {signingApprover === s.idx ? "Signing…" : `Sign ${s.key}`}
                 </button>
               )}
@@ -231,7 +231,7 @@ export function PasskeyApprovalModal({
         <div className="relative mt-5">
           {released ? (
             <div className="flex items-center gap-3 rounded-2xl border border-accent/40 bg-accent/10 p-4 animate-field-scale" style={{ boxShadow: "var(--glow-accent)" }}>
-              <span className="icon-tile tone-accent"><Send /></span>
+              <span className="icon-tile tone-accent"><I.send /></span>
               <div>
                 <div className="text-[14px] font-semibold text-ink">Plan released to PayPal Payouts</div>
                 <div className="text-[12px] text-ink-3">Both signatures verified against the plan hash.</div>

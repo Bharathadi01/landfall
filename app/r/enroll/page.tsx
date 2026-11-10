@@ -4,25 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ResidentStatus } from "@/components/relief/ResidentStatus";
 import type { PaymentChannelType, EvidenceLevel } from "@/lib/recipients/types";
-import {
-  HeartHandshake,
-  CheckCircle2,
-  ArrowRight,
-  ArrowLeft,
-  ShieldCheck,
-  Lock,
-  Globe2,
-  HelpCircle,
-  AlertCircle,
-  FileText,
-  User,
-  Home,
-  CreditCard,
-  Search,
-  ExternalLink,
-  ChevronRight,
-  Clock,
-} from "lucide-react";
+import { I } from "@/components/icons";
 
 interface I18nContent {
   title: string;
@@ -452,7 +434,7 @@ export default function ResidentEnrollPage() {
       <div className="max-w-xl mx-auto py-8">
         <div className="field-paper p-8 text-center space-y-6 shadow-md border-line">
           <div className="w-16 h-16 rounded-full bg-accent-soft border border-accent-line flex items-center justify-center mx-auto text-accent">
-            <CheckCircle2 className="w-8 h-8" />
+            <I.done className="w-8 h-8" />
           </div>
 
           <div className="space-y-2">
@@ -474,7 +456,7 @@ export default function ResidentEnrollPage() {
             <div className="flex justify-between items-center py-1 border-b border-line">
               <span className="text-ink-2">Data Protection:</span>
               <span className="text-accent font-semibold flex items-center gap-1">
-                <Lock className="w-3 h-3" />
+                <I.locked className="w-3 h-3" />
                 <span>AES-256 Encrypted</span>
               </span>
             </div>
@@ -523,7 +505,7 @@ export default function ResidentEnrollPage() {
 
         {/* Language Picker */}
         <div className="flex items-center gap-1.5 self-start sm:self-auto">
-          <Globe2 className="w-4 h-4 text-accent" />
+          <I.globe className="w-4 h-4 text-accent" />
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
@@ -590,7 +572,7 @@ export default function ResidentEnrollPage() {
 
           {formError && (
             <div className="p-3.5 rounded-xl bg-storm-soft border border-danger-line text-xs text-danger flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <I.alert className="w-4 h-4 flex-shrink-0" />
               <span>{formError}</span>
             </div>
           )}
@@ -608,7 +590,7 @@ export default function ResidentEnrollPage() {
               <div className="space-y-3">
                 <div>
                   <label className="field-label flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-ink-2" />
+                    <I.person className="w-3.5 h-3.5 text-ink-2" />
                     <span>{t.fullName} *</span>
                   </label>
                   <input
@@ -623,7 +605,7 @@ export default function ResidentEnrollPage() {
 
                 <div>
                   <label className="field-label flex items-center gap-1.5">
-                    <Home className="w-3.5 h-3.5 text-ink-2" />
+                    <I.household className="w-3.5 h-3.5 text-ink-2" />
                     <span>{t.address} *</span>
                   </label>
                   <input
@@ -808,7 +790,7 @@ export default function ResidentEnrollPage() {
                 {paymentChannel !== "MANUAL" && (
                   <div className="pt-2">
                     <label className="field-label flex items-center gap-1.5">
-                      <CreditCard className="w-3.5 h-3.5 text-ink-2" />
+                      <I.card className="w-3.5 h-3.5 text-ink-2" />
                       <span>{t.paypalFieldLabel} *</span>
                     </label>
                     <input
@@ -873,7 +855,7 @@ export default function ResidentEnrollPage() {
                 </label>
 
                 <div className="p-3.5 rounded-xl bg-surface-2 border border-line text-xs text-ink-2 flex items-start gap-2.5">
-                  <Lock className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                  <I.locked className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
                   <p className="leading-relaxed">{t.privacyNote}</p>
                 </div>
               </div>
@@ -937,7 +919,7 @@ export default function ResidentEnrollPage() {
                 onClick={handlePrevStep}
                 className="field-btn field-btn-secondary text-xs flex items-center gap-1.5"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
+                <I.arrowLeft className="w-3.5 h-3.5" />
                 <span>{t.back}</span>
               </button>
             ) : (
@@ -951,7 +933,7 @@ export default function ResidentEnrollPage() {
                 className="field-btn field-btn-primary text-xs flex items-center gap-1.5"
               >
                 <span>{t.continue}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <I.arrowRight className="w-3.5 h-3.5" />
               </button>
             ) : (
               <button
@@ -965,7 +947,7 @@ export default function ResidentEnrollPage() {
                 ) : (
                   <>
                     <span>{t.submit}</span>
-                    <CheckCircle2 className="w-4 h-4" />
+                    <I.done className="w-4 h-4" />
                   </>
                 )}
               </button>

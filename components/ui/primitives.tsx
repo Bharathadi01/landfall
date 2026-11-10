@@ -2,10 +2,10 @@ import React from "react";
 import { Ticker } from "@/components/ui/Ticker";
 import { Tag, type Tone } from "@/components/ui/Tag";
 import { cn } from "@/lib/utils";
+import type { IconType } from "@/components/icons/glyphs";
 
 export type { Tone } from "@/components/ui/Tag";
 
-type IconType = React.ComponentType<{ className?: string; strokeWidth?: number }>;
 
 const toneText: Record<Tone, string> = {
   accent: "text-accent-strong",

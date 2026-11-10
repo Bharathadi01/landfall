@@ -48,34 +48,7 @@ import {
   RecipientRescueQueue,
   ImpactEvidenceWidget,
 } from "./widgets";
-import {
-  LayoutDashboard,
-  Wallet,
-  Lock,
-  HandCoins,
-  AlertTriangle,
-  ShieldCheck,
-  BarChart3,
-  Sparkles,
-  ArrowRight,
-  ArrowUpRight,
-  CloudLightning,
-  KeyRound,
-  Send,
-  Landmark,
-  HeartHandshake,
-  CheckCheck,
-  Clock,
-  Users,
-  Boxes,
-  FileCheck2,
-  RotateCcw,
-  CornerDownLeft,
-  Zap,
-  Download,
-  ChevronsDownUp,
-  ChevronsUpDown,
-} from "lucide-react";
+import { I } from "@/components/icons";
 
 ModuleRegistry.registerModules([AllCommunityModule, AllEnterpriseModule]);
 AgChartsModuleRegistry.registerModules([AgChartsAllCommunityModule]);
@@ -87,11 +60,11 @@ type GroupBy = "stage" | "status" | "none";
 const GRID_STATE_KEY = "landfall.cases.grid.v1";
 
 const STAGE_ICON = {
-  APPROVED: ShieldCheck,
-  SENT: Send,
-  CREDITED: Landmark,
-  CONFIRMED: HeartHandshake,
-  CLOSED: CheckCheck,
+  APPROVED: I.approved,
+  SENT: I.send,
+  CREDITED: I.treasury,
+  CONFIRMED: I.relief,
+  CLOSED: I.doubleCheck,
 } as const;
 const STAGE_TONE: Record<string, Tone> = { APPROVED: "neutral", SENT: "neutral", CREDITED: "paypal", CONFIRMED: "accent", CLOSED: "accent" };
 
@@ -192,11 +165,11 @@ export default function CommandCenterPage() {
 
   const activity = useMemo(() => {
     const ev = [
-      { t: "2024-10-09T18:05:00Z", icon: CloudLightning, tone: "storm" as Tone, text: "NWS Hurricane Warning TBW:HU.W:0009 issued" },
-      ...studioApprovalEvents.map((a) => ({ t: a.approved_at, icon: KeyRound, tone: "amber" as Tone, text: `${a.approver_role} signed the plan (demo passkey)` })),
+      { t: "2024-10-09T18:05:00Z", icon: I.stormEye, tone: "storm" as Tone, text: "NWS Hurricane Warning TBW:HU.W:0009 issued" },
+      ...studioApprovalEvents.map((a) => ({ t: a.approved_at, icon: I.twoKeyApproval, tone: "amber" as Tone, text: `${a.approver_role} signed the plan (demo passkey)` })),
       ...studioWebhookObservations.map((w) => ({
         t: w.received_time,
-        icon: Send,
+        icon: I.send,
         tone: "paypal" as Tone,
         text: `PayPal ${w.event_type.replace("PAYMENT.PAYOUTS-ITEM.", "")} · ${w.item_id}`,
       })),
@@ -429,11 +402,11 @@ export default function CommandCenterPage() {
   );
 
   const TABS: { id: Tab; label: string; icon: any }[] = [
-    { id: "OVERVIEW", label: "Overview", icon: LayoutDashboard },
-    { id: "GRID", label: "Cases · AG Grid", icon: Users },
-    { id: "STUDIO", label: "Relief Studio · AG Studio", icon: BarChart3 },
-    { id: "WIDGETS", label: "All widgets", icon: Boxes },
-    { id: "SETTLEMENT", label: "Settlement proof", icon: FileCheck2 },
+    { id: "OVERVIEW", label: "Overview", icon: I.dashboard },
+    { id: "GRID", label: "Cases · AG Grid", icon: I.people },
+    { id: "STUDIO", label: "Relief Studio · AG Studio", icon: I.chart },
+    { id: "WIDGETS", label: "All widgets", icon: I.boxes },
+    { id: "SETTLEMENT", label: "Settlement proof", icon: I.evidence },
   ];
 
   const statusTone = (s: string): Tone => (s === "UNCLAIMED" || s === "RETURNED" ? "amber" : s === "SUCCESS" ? "paypal" : s === "PENDING" ? "neutral" : "danger");
@@ -442,7 +415,7 @@ export default function CommandCenterPage() {
     <div className="space-y-8 pb-12">
       <PageHeader
         eyebrow="Command Center · Hurricane Milton"
-        icon={LayoutDashboard}
+        icon={I.dashboard}
         tone="accent"
         title="12 hours to landfall."
         accent="Here’s what needs you."
@@ -458,10 +431,10 @@ export default function CommandCenterPage() {
         actions={
           <>
             <Link href="/console/studio" className="field-btn field-btn-secondary">
-              <BarChart3 className="h-4 w-4 text-paypal" /> Analytics Studio
+              <I.chart className="h-4 w-4 text-paypal" /> Analytics Studio
             </Link>
             <button onClick={() => setPasskeyOpen(true)} className="field-btn field-btn-primary">
-              <ShieldCheck className="h-4 w-4" /> Approve payout plan
+              <I.twoKeyApproval className="h-4 w-4" /> Approve payout plan
             </button>
           </>
         }
@@ -487,7 +460,7 @@ export default function CommandCenterPage() {
                     {gap ? `${sum.creditedUnconfirmedCount} credited, not confirmed` : s.help}
                   </div>
                 </div>
-                {i < sum.stageCounts.length - 1 && <ArrowRight className="absolute -right-2 top-1/2 hidden h-3.5 w-3.5 -translate-y-1/2 text-ink-3/50 sm:block" />}
+                {i < sum.stageCounts.length - 1 && <I.arrowRight className="absolute -right-2 top-1/2 hidden h-3.5 w-3.5 -translate-y-1/2 text-ink-3/50 sm:block" />}
               </li>
             );
           })}
@@ -501,10 +474,10 @@ export default function CommandCenterPage() {
 
       {/* KPIs */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Cash in PayPal account" value={TREASURY.available} prefix="$" tone="paypal" icon={Wallet} hint="Replay data · includes the protected reserve" />
-        <StatCard label="Protected reserve" value={TREASURY.reserve} prefix="$" tone="amber" icon={Lock} hint={`Policy floor ${money(TREASURY.requiredReserve)} (${TREASURY.policyFloorPct}%) · can’t be spent`} />
-        <StatCard label="Ready to allocate" value={TREASURY.allocatable} prefix="$" tone="accent" icon={HandCoins} hint="Cash in account minus the reserve" />
-        <StatCard label="Need a person" value={sum.needPersonCount} tone="danger" icon={AlertTriangle} hint={`${money(sum.needPersonUsd)} across cases needing follow-up`} />
+        <StatCard label="Cash in PayPal account" value={TREASURY.available} prefix="$" tone="paypal" icon={I.wallet} hint="Replay data · includes the protected reserve" />
+        <StatCard label="Protected reserve" value={TREASURY.reserve} prefix="$" tone="amber" icon={I.reserve} hint={`Policy floor ${money(TREASURY.requiredReserve)} (${TREASURY.policyFloorPct}%) · can’t be spent`} />
+        <StatCard label="Ready to allocate" value={TREASURY.allocatable} prefix="$" tone="accent" icon={I.payout} hint="Cash in account minus the reserve" />
+        <StatCard label="Need a person" value={sum.needPersonCount} tone="danger" icon={I.needPerson} hint={`${money(sum.needPersonUsd)} across cases needing follow-up`} />
       </section>
 
       {/* Tabs */}
@@ -529,19 +502,19 @@ export default function CommandCenterPage() {
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-12 animate-field-fade">
           <section className="glass p-6 xl:col-span-7" data-reveal>
             <SectionHeader
-              icon={AlertTriangle}
+              icon={I.warning}
               tone="danger"
               title="Needs your attention"
               description="Ranked by explainable rules — every point has a stated reason"
               right={
                 <Link href="/console/watch-officer" className="field-btn field-btn-secondary px-3.5 py-2 text-[13px]">
-                  <Sparkles className="h-4 w-4 text-ai" /> Ask the AI why
+                  <I.aiAdvisor className="h-4 w-4 text-ai" /> Ask the AI why
                 </Link>
               }
             />
             {reports.length > 0 && (
               <div className="mt-5 flex items-start gap-3 rounded-2xl border border-accent/30 bg-accent/[0.07] p-3.5" data-testid="resident-reports-banner">
-                <HeartHandshake className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong" />
+                <I.relief className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong" />
                 <div className="text-[13px] text-ink">
                   <span className="font-semibold">{reports.length} resident report{reports.length === 1 ? "" : "s"} received</span>{" "}
                   <ProvenanceTag provenance="RECIPIENT_REPORTED" className="ml-1" />
@@ -574,10 +547,10 @@ export default function CommandCenterPage() {
                   </div>
                   <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <p className="flex items-start gap-2 text-[13px] text-accent-strong">
-                      <CornerDownLeft className="mt-0.5 h-3.5 w-3.5 shrink-0 rotate-180" /> {c.nextAction.plain}
+                      <I.enter className="mt-0.5 h-3.5 w-3.5 shrink-0 rotate-180" /> {c.nextAction.plain}
                     </p>
                     <button onClick={() => openCase(c)} className="field-btn field-btn-secondary shrink-0 px-3 py-2 text-[12.5px]">
-                      Open case evidence <ArrowUpRight className="h-3.5 w-3.5" />
+                      Open case evidence <I.arrowUpRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
                   <div className="mt-2 font-mono text-[10.5px] text-ink-3">{c.caseRef}</div>
@@ -588,7 +561,7 @@ export default function CommandCenterPage() {
 
             <div className="relative mt-5 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.04] to-transparent p-4">
               <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.12em] text-ink-3">
-                <Sparkles className="h-3.5 w-3.5" /> Plain-English summary · computed from the case data
+                <I.summary className="h-3.5 w-3.5" /> Plain-English summary · computed from the case data
               </div>
               <p className="mt-2 text-[14px] leading-relaxed text-ink">
                 {sum.needPersonCount} of {sum.households} cases need a person, and none of them should trigger a second payout.{" "}
@@ -602,14 +575,14 @@ export default function CommandCenterPage() {
 
           <div className="space-y-6 xl:col-span-5">
             <section className="glass p-6" data-reveal>
-              <SectionHeader icon={Wallet} tone="paypal" title="Where the money sits" right={<Chip tone="accent">Ledger balanced</Chip>} />
+              <SectionHeader icon={I.wallet} tone="paypal" title="Where the money sits" right={<Chip tone="accent">Ledger balanced</Chip>} />
               <div className="mt-2 h-[300px]">
                 <AgCharts options={chartOptions} />
               </div>
             </section>
 
             <section className="glass p-6" data-reveal>
-              <SectionHeader icon={Clock} title="Latest activity" description="Replay clock · UTC" />
+              <SectionHeader icon={I.clock} title="Latest activity" description="Replay clock · UTC" />
               <ol className="relative mt-5 space-y-4 before:absolute before:bottom-2 before:left-[13px] before:top-2 before:w-px before:bg-white/[0.07]">
                 {activity.map((a) => (
                   <li key={a.t + a.text} className="relative flex items-center gap-3">
@@ -647,13 +620,13 @@ export default function CommandCenterPage() {
           </div>
 
           <Link href="/console/studio" className="glass card-hover group flex flex-col gap-4 p-6 sm:flex-row sm:items-center xl:col-span-12" data-reveal>
-            <IconTile icon={BarChart3} tone="paypal" size="lg" />
+            <IconTile icon={I.chart} tone="paypal" size="lg" />
             <div className="flex-1">
               <div className="text-[16px] font-semibold text-ink">Explore this response in Analytics Studio</div>
               <div className="text-[13.5px] text-ink-3">AG Studio workspace · custom widgets · cross-filters · ask the Studio agent in plain English</div>
             </div>
             <span className="field-btn field-btn-secondary">
-              Open Studio <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              Open Studio <I.arrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </span>
           </Link>
         </div>
@@ -662,7 +635,7 @@ export default function CommandCenterPage() {
       {tab === "GRID" && (
         <section className="glass overflow-hidden animate-field-fade">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
-            <SectionHeader icon={Users} tone="accent" title="Relief delivery cases" description="AG Grid Enterprise · group, filter, expand a case to see its evidence" />
+            <SectionHeader icon={I.people} tone="accent" title="Relief delivery cases" description="AG Grid Enterprise · group, filter, expand a case to see its evidence" />
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1 text-[12px]" role="group" aria-label="Group cases by">
                 {(
@@ -687,10 +660,10 @@ export default function CommandCenterPage() {
                 ))}
               </div>
               <button onClick={() => setGroupsExpanded(true)} className="field-btn field-btn-subtle px-2 py-1.5 text-[12px]" title="Expand all groups">
-                <ChevronsUpDown className="h-3.5 w-3.5" />
+                <I.expandAll className="h-3.5 w-3.5" />
               </button>
               <button onClick={() => setGroupsExpanded(false)} className="field-btn field-btn-subtle px-2 py-1.5 text-[12px]" title="Collapse all groups">
-                <ChevronsDownUp className="h-3.5 w-3.5" />
+                <I.collapseAll className="h-3.5 w-3.5" />
               </button>
               <input
                 type="text"
@@ -701,13 +674,13 @@ export default function CommandCenterPage() {
                 aria-label="Quick search cases"
               />
               <button onClick={() => gridApi?.exportDataAsCsv({ fileName: "landfall_relief_cases.csv" })} className="field-btn field-btn-subtle px-2.5 py-1.5 text-[12px]">
-                <Download className="h-3.5 w-3.5" /> CSV
+                <I.download className="h-3.5 w-3.5" /> CSV
               </button>
               <button onClick={() => gridApi?.exportDataAsExcel({ fileName: "landfall_relief_cases.xlsx" })} className="field-btn field-btn-subtle px-2.5 py-1.5 text-[12px]">
-                <Download className="h-3.5 w-3.5" /> Excel
+                <I.download className="h-3.5 w-3.5" /> Excel
               </button>
               <button onClick={resetGrid} className="field-btn field-btn-subtle px-2.5 py-1.5 text-[12px]">
-                <RotateCcw className="h-3.5 w-3.5" /> Reset
+                <I.retry className="h-3.5 w-3.5" /> Reset
               </button>
             </div>
           </div>
@@ -721,10 +694,10 @@ export default function CommandCenterPage() {
               }}
               className="flex flex-1 items-center gap-2"
             >
-              <Sparkles className="h-4 w-4 shrink-0 text-ai" />
+              <I.aiAdvisor className="h-4 w-4 shrink-0 text-ai" />
               <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Ask the grid: “credited but not confirmed”, “Zone A”…" className="field-input h-9 text-[13px]" aria-label="Ask the grid" />
               <button type="submit" className="field-btn field-btn-primary h-9 px-3" aria-label="Send">
-                <Zap className="h-4 w-4" />
+                <I.bolt className="h-4 w-4" />
               </button>
             </form>
             <div className="flex flex-wrap gap-1.5">

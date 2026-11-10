@@ -5,29 +5,7 @@ import Link from "next/link";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  ArrowRight,
-  PlayCircle,
-  CloudLightning,
-  Scale,
-  Sparkles,
-  KeyRound,
-  Send,
-  ShieldCheck,
-  Lock,
-  BadgeCheck,
-  HeartHandshake,
-  CheckCircle2,
-  ArrowUpRight,
-  Webhook,
-  Repeat,
-  Landmark,
-
-  BarChart3,
-  Database,
-  Puzzle,
-  Palette,
-} from "lucide-react";
+import { I } from "@/components/icons";
 import { StormRadarHero } from "@/components/landing/StormRadarHero";
 import { CountUp } from "@/components/motion/CountUp";
 import { CASE_SUMMARY } from "@/lib/relief/cases";
@@ -37,19 +15,19 @@ import { IconTile, Chip, type Tone } from "@/components/ui/primitives";
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const STEPS: { icon: any; tone: Tone; who: string; title: string; body: string }[] = [
-  { icon: CloudLightning, tone: "storm", who: "NOAA · NWS", title: "Warn", body: "An official hurricane warning maps every enrolled home inside the storm’s path." },
-  { icon: Scale, tone: "accent", who: "Policy engine", title: "Decide", body: "Fixed rules — not AI — set who is paid and how much. Medical-device homes first." },
-  { icon: Sparkles, tone: "ai", who: "AI Watch Officer", title: "Check", body: "AI challenges the plan for duplicates and shortfalls. It can read; it cannot pay." },
-  { icon: KeyRound, tone: "amber", who: "Two people", title: "Approve", body: "A coordinator and a finance officer each sign with a passkey. One isn’t enough." },
-  { icon: Send, tone: "paypal", who: "PayPal", title: "Pay & prove", body: "PayPal Payouts sends the cash. Webhooks and a double-entry ledger prove every cent." },
+  { icon: I.stormEye, tone: "storm", who: "NOAA · NWS", title: "Warn", body: "An official hurricane warning maps every enrolled home inside the storm’s path." },
+  { icon: I.balance, tone: "accent", who: "Policy engine", title: "Decide", body: "Fixed rules — not AI — set who is paid and how much. Medical-device homes first." },
+  { icon: I.aiAdvisor, tone: "ai", who: "AI Watch Officer", title: "Check", body: "AI challenges the plan for duplicates and shortfalls. It can read; it cannot pay." },
+  { icon: I.twoKeyApproval, tone: "amber", who: "Two people", title: "Approve", body: "A coordinator and a finance officer each sign with a passkey. One isn’t enough." },
+  { icon: I.send, tone: "paypal", who: "PayPal", title: "Pay & prove", body: "PayPal Payouts sends the cash. Webhooks and a double-entry ledger prove every cent." },
 ];
 
 const PAYPAL_APIS = [
-  { icon: HeartHandshake, name: "Orders v2", role: "Donations in" },
-  { icon: Send, name: "Payouts", role: "Relief out, idempotent" },
-  { icon: Webhook, name: "Webhooks", role: "Signed status updates" },
-  { icon: Landmark, name: "Reporting", role: "Ledger reconciliation" },
-  { icon: Repeat, name: "Subscriptions", role: "Monthly sustainers" },
+  { icon: I.donation, name: "Orders v2", role: "Donations in" },
+  { icon: I.send, name: "Payouts", role: "Relief out, idempotent" },
+  { icon: I.webhook, name: "Webhooks", role: "Signed status updates" },
+  { icon: I.treasury, name: "Reporting", role: "Ledger reconciliation" },
+  { icon: I.repeat, name: "Subscriptions", role: "Monthly sustainers" },
 ];
 
 export default function HomePage() {
@@ -107,19 +85,19 @@ export default function HomePage() {
 
           <div className="hero-cta flex flex-wrap items-center gap-3">
             <Link href="/console/golden-flow" className="field-btn field-btn-primary px-6 py-4 text-[15px]">
-              <PlayCircle className="h-5 w-5" />
+              <I.playCircle className="h-5 w-5" />
               Watch a live response
             </Link>
             <Link href="/console/war-room" className="field-btn field-btn-secondary px-6 py-4 text-[15px]">
               Open Command Center
-              <ArrowRight className="h-4 w-4" />
+              <I.arrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           <div className="hero-trust flex flex-wrap items-center gap-x-6 gap-y-3 pt-2 text-[13px] text-ink-3">
-            <span className="flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-paypal" /> Verified on PayPal Sandbox</span>
-            <span className="flex items-center gap-2"><KeyRound className="h-4 w-4 text-amber" /> Two-person passkey approval</span>
-            <span className="flex items-center gap-2"><Lock className="h-4 w-4 text-ai" /> AI can’t move money</span>
+            <span className="flex items-center gap-2"><I.verified className="h-4 w-4 text-paypal" /> Verified on PayPal Sandbox</span>
+            <span className="flex items-center gap-2"><I.twoKeyApproval className="h-4 w-4 text-amber" /> Two-person passkey approval</span>
+            <span className="flex items-center gap-2"><I.readOnly className="h-4 w-4 text-ai" /> AI can’t move money</span>
           </div>
         </div>
 
@@ -194,7 +172,7 @@ export default function HomePage() {
               <span className="tabular text-accent-strong">{CASE_SUMMARY.confirmedCount}</span> confirmed by the household.
             </span>
             <Link href="/console/war-room" className="inline-flex items-center gap-1 text-accent-strong hover:underline">
-              See the cases <ArrowUpRight className="h-3.5 w-3.5" />
+              See the cases <I.arrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
@@ -270,7 +248,7 @@ export default function HomePage() {
           <div className="relative grid grid-cols-1 items-center gap-10 lg:grid-cols-[1fr_1.15fr]">
             <div className="space-y-6">
               <div className="flex items-center gap-2">
-                <IconTile icon={BarChart3} tone="paypal" size="sm" />
+                <IconTile icon={I.chart} tone="paypal" size="sm" />
                 <span className="eyebrow text-paypal">Analytics Studio · powered by AG Studio</span>
               </div>
               <h2 className="text-title-1 text-ink">
@@ -282,9 +260,9 @@ export default function HomePage() {
               </p>
               <ul className="space-y-2.5 text-[14px] text-ink-2">
                 {[
-                  [Palette, "Landfall theme across canvas, widgets, grids & charts"],
-                  [Puzzle, "Custom “Relief Solvency” widget on Studio’s data engine"],
-                  [Sparkles, "Studio Agent Framework with relief-specific prompts"],
+                  [I.palette, "Landfall theme across canvas, widgets, grids & charts"],
+                  [I.widget, "Custom “Relief Solvency” widget on Studio’s data engine"],
+                  [I.aiAdvisor, "Studio Agent Framework with relief-specific prompts"],
                 ].map(([Icon, t]: any) => (
                   <li key={t} className="flex items-center gap-3">
                     <Icon className="h-4 w-4 shrink-0 text-paypal" strokeWidth={1.75} />
@@ -293,7 +271,7 @@ export default function HomePage() {
                 ))}
               </ul>
               <Link href="/console/studio" className="field-btn field-btn-secondary">
-                Open Analytics Studio <ArrowUpRight className="h-4 w-4" />
+                Open Analytics Studio <I.arrowUpRight className="h-4 w-4" />
               </Link>
             </div>
             <StudioPreview />
@@ -311,9 +289,9 @@ export default function HomePage() {
         </div>
         <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
           {[
-            { icon: Scale, tone: "accent" as Tone, t: "Rules decide money", b: "Eligibility and amounts come from a tested policy engine. AI never sets either." },
-            { icon: Sparkles, tone: "ai" as Tone, t: "AI can’t move money", b: "The AI has no write tools. Payment code can’t even import an AI SDK — enforced in CI." },
-            { icon: KeyRound, tone: "amber" as Tone, t: "Two keys, one plan", b: "Two different people sign the exact plan hash. Change one number and both must sign again." },
+            { icon: I.balance, tone: "accent" as Tone, t: "Rules decide money", b: "Eligibility and amounts come from a tested policy engine. AI never sets either." },
+            { icon: I.readOnly, tone: "ai" as Tone, t: "AI can’t move money", b: "The AI has no write tools. Payment code can’t even import an AI SDK — enforced in CI." },
+            { icon: I.twoKeyApproval, tone: "amber" as Tone, t: "Two keys, one plan", b: "Two different people sign the exact plan hash. Change one number and both must sign again." },
           ].map((c) => (
             <div key={c.t} className="glass card-hover p-6" data-reveal>
               <IconTile icon={c.icon} tone={c.tone} size="lg" />
@@ -323,7 +301,7 @@ export default function HomePage() {
           ))}
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[12.5px] text-ink-3" data-reveal>
-          <Database className="h-4 w-4" /> Database truth overrides model output — any number an AI writes is checked against the ledger.
+          <I.database className="h-4 w-4" /> Database truth overrides model output — any number an AI writes is checked against the ledger.
         </div>
       </section>
 
@@ -339,10 +317,10 @@ export default function HomePage() {
           </p>
           <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link href="/console/golden-flow" className="field-btn field-btn-primary px-6 py-4 text-[15px]">
-              <PlayCircle className="h-5 w-5" /> Run the guided response
+              <I.playCircle className="h-5 w-5" /> Run the guided response
             </Link>
             <Link href="/r/enroll" className="field-btn field-btn-secondary px-6 py-4 text-[15px]">
-              <HeartHandshake className="h-4 w-4" /> I’m a resident
+              <I.household className="h-4 w-4" /> I’m a resident
             </Link>
           </div>
         </div>
@@ -386,7 +364,7 @@ function DonationCard() {
     <div className="glass-strong relative p-6 sm:p-7" data-reveal="scale">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <IconTile icon={HeartHandshake} tone="accent" />
+          <IconTile icon={I.donation} tone="money" />
           <div>
             <div className="text-[15px] font-semibold text-ink">Fund the next storm</div>
             <div className="text-[12.5px] text-ink-3">Tampa Bay Relief Fund</div>
@@ -425,8 +403,8 @@ function DonationCard() {
 
       <div className="mt-5 rounded-xl border border-white/[0.06] bg-black/20 p-3.5 text-[12.5px] text-ink-2">
         <div className="flex justify-between"><span>Your gift</span><span className="tabular text-ink">${value}</span></div>
-        <div className="mt-1.5 flex justify-between"><span>Protected reserve floor enforced</span><Lock className="h-4 w-4 text-amber" /></div>
-        <div className="mt-1.5 flex justify-between"><span>Paid out only after a warning + two approvals</span><CheckCircle2 className="h-4 w-4 text-accent-strong" /></div>
+        <div className="mt-1.5 flex justify-between"><span>Protected reserve floor enforced</span><I.reserve className="h-4 w-4 text-amber" /></div>
+        <div className="mt-1.5 flex justify-between"><span>Paid out only after a warning + two approvals</span><I.done className="h-4 w-4 text-accent-strong" /></div>
       </div>
 
       <button onClick={donate} disabled={loading} className="field-btn field-btn-paypal mt-5 w-full py-4 text-[15px]">
@@ -436,7 +414,7 @@ function DonationCard() {
       {success && (
         <div className="mt-4 rounded-xl border border-accent/30 bg-accent/10 p-3.5 text-[12.5px] animate-field-fade">
           <div className="flex items-center gap-2 font-semibold text-accent-strong">
-            <CheckCircle2 className="h-4 w-4" /> Order created · {success.orderId}
+            <I.done className="h-4 w-4" /> Order created · {success.orderId}
           </div>
           <div className="mt-1 font-mono text-[11.5px] text-ink-3">${success.amount} USD · {success.status}</div>
         </div>
@@ -444,7 +422,7 @@ function DonationCard() {
       {error && <div className="mt-4 rounded-xl border border-danger/30 bg-danger/10 p-3.5 text-[12.5px] text-danger animate-field-fade">{error}</div>}
 
       <div className="mt-4 flex items-center justify-center gap-2 text-[11.5px] text-ink-3">
-        <ShieldCheck className="h-3.5 w-3.5" /> PayPal Orders v2 · POST /v2/checkout/orders
+        <I.api className="h-3.5 w-3.5" /> PayPal Orders v2 · POST /v2/checkout/orders
       </div>
     </div>
   );

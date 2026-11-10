@@ -2,23 +2,9 @@
 
 
 import { PageTitle } from "@/components/ui/primitives";
-import { Users as __HeaderIcon } from "lucide-react";
+import { I } from "@/components/icons";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { RecipientProfileView } from "@/components/recipients/RecipientProfileView";
-import {
-  Search,
-  Filter,
-  ShieldCheck,
-  Lock,
-  Eye,
-  EyeOff,
-  AlertTriangle,
-  Clock,
-  CheckCircle2,
-  Users,
-  ChevronRight,
-  ExternalLink,
-} from "lucide-react";
 
 export default function CoordinatorRecipientsPage() {
   const [recipients, setRecipients] = useState<any[]>([]);
@@ -117,7 +103,7 @@ export default function CoordinatorRecipientsPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
         <PageTitle
           eyebrow="Households · enrolled residents"
-          icon={__HeaderIcon}
+          icon={I.household}
           tone="accent"
           title="Every household,"
           accent="verified and protected."
@@ -161,7 +147,7 @@ export default function CoordinatorRecipientsPage() {
             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
               {/* Search box */}
               <div className="relative min-w-[240px]">
-                <Search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
+                <I.search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
@@ -222,9 +208,9 @@ export default function CoordinatorRecipientsPage() {
                 />
                 <span className="flex items-center gap-1.5 font-mono text-[11px]">
                   {decryptPII ? (
-                    <Eye className="w-3.5 h-3.5 text-accent" />
+                    <I.view className="w-3.5 h-3.5 text-accent" />
                   ) : (
-                    <Lock className="w-3.5 h-3.5 text-ink-3" />
+                    <I.locked className="w-3.5 h-3.5 text-ink-3" />
                   )}
                   Decrypt PII (Audit Logged)
                 </span>
@@ -234,7 +220,7 @@ export default function CoordinatorRecipientsPage() {
 
           {error && (
             <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
-              <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+              <I.warning className="w-5 h-5 flex-shrink-0" />
               <div>
                 <strong className="font-semibold">Directory Error:</strong> {error}
               </div>

@@ -3,24 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { type ComplaintCategory } from "@/lib/recipients/complaints";
-import {
-  HeartHandshake,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  Search,
-  ArrowRight,
-  ShieldCheck,
-  Globe2,
-  FileText,
-  ChevronRight,
-  ExternalLink,
-  User,
-  Mail,
-  HelpCircle,
-  Calendar,
-  Lock,
-} from "lucide-react";
+import { I } from "@/components/icons";
 
 interface I18nComplaintsContent {
   title: string;
@@ -343,7 +326,7 @@ export default function ComplaintsAppealsPage() {
 
         {/* Language Picker */}
         <div className="flex items-center gap-1.5 self-start sm:self-auto">
-          <Globe2 className="w-4 h-4 text-accent" />
+          <I.globe className="w-4 h-4 text-accent" />
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
@@ -361,7 +344,7 @@ export default function ComplaintsAppealsPage() {
 
       {/* SLA Banner */}
       <div className="p-3.5 rounded-xl bg-accent-soft/50 border border-accent-line text-xs text-accent flex items-center gap-2.5">
-        <Clock className="w-4 h-4 flex-shrink-0 text-accent" />
+        <I.clock className="w-4 h-4 flex-shrink-0 text-accent" />
         <span className="font-medium">{t.slaNotice}</span>
       </div>
 
@@ -398,7 +381,7 @@ export default function ComplaintsAppealsPage() {
           {submitSuccess ? (
             <div className="text-center space-y-5 py-4">
               <div className="w-14 h-14 rounded-full bg-accent-soft border border-accent-line flex items-center justify-center mx-auto text-accent">
-                <CheckCircle2 className="w-7 h-7" />
+                <I.done className="w-7 h-7" />
               </div>
               <div className="space-y-1.5">
                 <h3 className="text-xl font-serif font-bold text-ink">
@@ -460,7 +443,7 @@ export default function ComplaintsAppealsPage() {
 
               {errorMsg && (
                 <div className="p-3 rounded-xl bg-storm-soft border border-danger-line text-xs text-danger flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <I.alert className="w-4 h-4 flex-shrink-0" />
                   <span>{errorMsg}</span>
                 </div>
               )}
@@ -468,7 +451,7 @@ export default function ComplaintsAppealsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="field-label flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-ink-2" />
+                    <I.person className="w-3.5 h-3.5 text-ink-2" />
                     <span>{t.householdId} *</span>
                   </label>
                   <input
@@ -483,7 +466,7 @@ export default function ComplaintsAppealsPage() {
 
                 <div>
                   <label className="field-label flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-ink-2" />
+                    <I.mail className="w-3.5 h-3.5 text-ink-2" />
                     <span>{t.email} *</span>
                   </label>
                   <input
@@ -526,7 +509,7 @@ export default function ComplaintsAppealsPage() {
               </div>
 
               <div className="p-3.5 rounded-xl bg-surface-2 border border-line text-xs text-ink-2 flex items-start gap-2.5">
-                <Lock className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                <I.locked className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
                 <p className="leading-relaxed">{t.securityNotice}</p>
               </div>
 
@@ -556,7 +539,7 @@ export default function ComplaintsAppealsPage() {
 
           <form onSubmit={handleLookup} className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
+              <I.search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={lookupId}
@@ -659,7 +642,7 @@ export default function ComplaintsAppealsPage() {
 
                   <div className="p-3 bg-surface-2/40 border-t border-line flex items-center justify-between text-xs text-ink-3">
                     <span className="flex items-center gap-1 font-mono text-[11px]">
-                      <Calendar className="w-3 h-3" />
+                      <I.calendar className="w-3 h-3" />
                       <span>{new Date(appeal.submittedAt || Date.now()).toLocaleDateString()}</span>
                     </span>
                     <span>Contact: {appeal.contactEmail}</span>

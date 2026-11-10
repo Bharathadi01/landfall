@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Search, Check, ExternalLink, HeartHandshake, HandHelping, CircleAlert } from "lucide-react";
+import { I } from "@/components/icons";
 
 /**
  * Resident "Check my payment" — plain language, five languages.
@@ -205,7 +205,7 @@ export function ResidentStatus({ lang }: { lang: string }) {
         className="flex gap-2"
       >
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
+          <I.search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
           <input value={ref} onChange={(e) => setRef(e.target.value)} placeholder={c.placeholder} className="field-input pl-10" aria-label={c.title} />
         </div>
         <button type="submit" className="field-btn field-btn-primary" disabled={loading || !ref.trim()}>
@@ -224,7 +224,7 @@ export function ResidentStatus({ lang }: { lang: string }) {
 
       {error && (
         <div className="flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 p-3.5 text-[13px] text-danger" role="alert">
-          <CircleAlert className="h-4 w-4 shrink-0" /> {error}
+          <I.alert className="h-4 w-4 shrink-0" /> {error}
         </div>
       )}
 
@@ -243,7 +243,7 @@ export function ResidentStatus({ lang }: { lang: string }) {
               <li key={s.key} className="space-y-2">
                 <span className={`block h-1.5 rounded-full ${s.reached ? (s.key === "CREDITED" ? "bg-paypal" : "bg-accent") : "bg-white/10"}`} />
                 <span className={`flex items-start gap-1 text-[11px] leading-tight ${s.reached ? "text-ink" : "text-ink-3"}`}>
-                  {s.reached && <Check className="mt-px h-3 w-3 shrink-0 text-accent-strong" strokeWidth={2.5} />}
+                  {s.reached && <I.check className="mt-px h-3 w-3 shrink-0 text-accent-strong" strokeWidth={2.5} />}
                   {c.steps[s.key]}
                 </span>
               </li>
@@ -258,14 +258,14 @@ export function ResidentStatus({ lang }: { lang: string }) {
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber/25 bg-amber/[0.06] p-3.5 text-[13px] text-amber">
               <span>{c.daysLeft(view.claimDaysLeft)}</span>
               <a href="https://www.paypal.com/signin" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold underline">
-                {c.claim} <ExternalLink className="h-3.5 w-3.5" />
+                {c.claim} <I.external className="h-3.5 w-3.5" />
               </a>
             </div>
           )}
 
           {sent ? (
             <div className="flex items-start gap-3 rounded-2xl border border-accent/30 bg-accent/[0.08] p-4 text-[14px] text-ink" role="status">
-              <HeartHandshake className="mt-0.5 h-5 w-5 shrink-0 text-accent-strong" /> {c.thanks}
+              <I.relief className="mt-0.5 h-5 w-5 shrink-0 text-accent-strong" /> {c.thanks}
             </div>
           ) : (
             view.canReport && (
@@ -274,11 +274,11 @@ export function ResidentStatus({ lang }: { lang: string }) {
                   <div className="flex flex-wrap gap-2">
                     {view.paypalStatus === "SUCCESS" && !view.barrier && (
                       <button onClick={() => report("RECEIVED")} disabled={loading} className="field-btn field-btn-primary" data-testid="btn-received">
-                        <Check className="h-4 w-4" /> {c.received}
+                        <I.check className="h-4 w-4" /> {c.received}
                       </button>
                     )}
                     <button onClick={() => setAskProblem(true)} className="field-btn field-btn-secondary" data-testid="btn-cant-access">
-                      <HandHelping className="h-4 w-4" /> {c.cant}
+                      <I.needHelp className="h-4 w-4" /> {c.cant}
                     </button>
                   </div>
                 ) : (

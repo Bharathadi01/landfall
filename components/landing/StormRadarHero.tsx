@@ -3,7 +3,7 @@
 import React, { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { CloudLightning, ShieldCheck, Send, Sparkles } from "lucide-react";
+import { I } from "@/components/icons";
 import { CASE_SUMMARY } from "@/lib/relief/cases";
 import { TREASURY } from "@/lib/studio/landfall-studio-data";
 
@@ -147,7 +147,7 @@ export function StormRadarHero() {
       {/* Story cards */}
       <div className="rh-card rh-warning glass-strong absolute left-[2%] top-[8%] w-[230px] p-3.5" style={{ borderRadius: 16 }}>
         <div className="flex items-center gap-2.5">
-          <span className="icon-tile icon-tile-sm tone-storm"><CloudLightning /></span>
+          <span className="icon-tile icon-tile-sm tone-storm"><I.stormEye /></span>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-storm">NWS · Official</div>
             <div className="text-[13px] font-semibold text-ink">Hurricane Warning issued</div>
@@ -158,7 +158,7 @@ export function StormRadarHero() {
 
       <div className="rh-card rh-ai glass-strong absolute right-[0%] top-[40%] w-[220px] p-3.5" style={{ borderRadius: 16 }}>
         <div className="flex items-center gap-2.5">
-          <span className="icon-tile icon-tile-sm tone-ai"><Sparkles /></span>
+          <span className="icon-tile icon-tile-sm tone-ai"><I.aiAdvisor /></span>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-ai">AI check · read-only</div>
             <div className="text-[13px] font-semibold text-ink">No duplicates. Fund covers {coverage}×</div>
@@ -168,7 +168,7 @@ export function StormRadarHero() {
 
       <div className="rh-card rh-approve glass-strong absolute bottom-[22%] left-[0%] w-[220px] p-3.5" style={{ borderRadius: 16 }}>
         <div className="flex items-center gap-2.5">
-          <span className="icon-tile icon-tile-sm tone-amber"><ShieldCheck /></span>
+          <span className="icon-tile icon-tile-sm tone-amber"><I.twoKeyApproval /></span>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-amber">Two-person approval</div>
             <div className="text-[13px] font-semibold text-ink">Coordinator ✓ · Finance ✓</div>
@@ -178,7 +178,7 @@ export function StormRadarHero() {
 
       <div className="rh-card rh-sent glass-strong absolute bottom-[4%] right-[6%] w-[250px] p-3.5" style={{ borderRadius: 16, boxShadow: "var(--glow-accent)" }}>
         <div className="flex items-center gap-2.5">
-          <span className="icon-tile icon-tile-sm tone-paypal"><Send /></span>
+          <span className="icon-tile icon-tile-sm tone-paypal"><I.send /></span>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-paypal">PayPal Payouts</div>
             <div className="text-[13px] font-semibold text-ink">${CASE_SUMMARY.approvedUsd.toLocaleString("en-US")} sent · 12h before landfall</div>

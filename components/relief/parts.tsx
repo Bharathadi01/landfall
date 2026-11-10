@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, Minus } from "lucide-react";
+import { I } from "@/components/icons";
 import type { Provenance, StageKey, ReliefCase } from "@/lib/relief/cases";
 import { STAGES } from "@/lib/relief/cases";
 import { Tag, type Tone } from "@/components/ui/Tag";
@@ -82,14 +82,14 @@ export function EvidenceState({ state }: { state: "present" | "missing" | "not_e
   if (state === "present")
     return (
       <span className="inline-flex items-center gap-1 text-[12px] font-medium leading-none text-delivered">
-        <Check className="h-3.5 w-3.5" strokeWidth={2.5} /> Present
+        <I.check className="h-3.5 w-3.5" strokeWidth={2.5} /> Present
       </span>
     );
   if (state === "missing")
     return <span className="inline-flex items-center gap-1 text-[12px] font-medium leading-none text-amber">● Missing</span>;
   return (
     <span className="inline-flex items-center gap-1 text-[12px] leading-none text-ink-3">
-      <Minus className="h-3.5 w-3.5" /> Not expected
+      <I.minus className="h-3.5 w-3.5" /> Not expected
     </span>
   );
 }

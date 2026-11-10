@@ -2,7 +2,7 @@
 
 
 import { PageTitle } from "@/components/ui/primitives";
-import { Radar as __HeaderIcon } from "lucide-react";
+import { I } from "@/components/icons";
 import React, { useState, useEffect, useCallback } from "react";
 import type { NormalizedAlert, ServiceHealth } from "@/lib/sentinel/types";
 import { WeatherMap } from "@/components/sentinel/WeatherMap";
@@ -13,18 +13,6 @@ import {
   type UnifiedWeatherIntelligence,
 } from "@/lib/sentinel/weather-client";
 import type { ClusterExposureSummary, ExposureCluster } from "@/lib/sentinel/clusters";
-import {
-  RotateCcw,
-  RefreshCw,
-  Play,
-  AlertTriangle,
-  Radio,
-  MapPin,
-  Shield,
-  Layers,
-  ChevronRight,
-  ExternalLink,
-} from "lucide-react";
 
 export default function StormIntelligenceConsolePage() {
   const [selectedFund, setSelectedFund] = useState<CommunityFundGeoScope>(COMMUNITY_FUNDS_GEO[0]);
@@ -145,7 +133,7 @@ export default function StormIntelligenceConsolePage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
         <PageTitle
           eyebrow="Storm Map · NOAA & NWS"
-          icon={__HeaderIcon}
+          icon={I.forecastCone}
           tone="storm"
           title="Who is in the storm’s path?"
           accent="Answered by official data."
@@ -158,7 +146,7 @@ export default function StormIntelligenceConsolePage() {
             disabled={loading}
             className="field-btn field-btn-secondary text-xs flex items-center gap-1.5"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+            <I.refresh className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
             <span>{loading ? "Polling..." : "Poll Live NWS"}</span>
           </button>
 
@@ -167,7 +155,7 @@ export default function StormIntelligenceConsolePage() {
             disabled={replaying}
             className="field-btn field-btn-primary text-xs flex items-center gap-1.5"
           >
-            <Play className="w-3.5 h-3.5 fill-current" />
+            <I.play className="w-3.5 h-3.5 fill-current" />
             <span>{replaying ? "Replaying..." : "Replay Milton 2024"}</span>
           </button>
         </div>
@@ -175,7 +163,7 @@ export default function StormIntelligenceConsolePage() {
 
       {error && (
         <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+          <I.warning className="w-5 h-5 flex-shrink-0" />
           <div>
             <strong className="font-semibold">Weather Engine Error:</strong> {error}
           </div>

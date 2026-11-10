@@ -1,21 +1,6 @@
 import { PageTitle } from "@/components/ui/primitives";
-import { ReceiptText as __HeaderIcon } from "lucide-react";
+import { I } from "@/components/icons";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Shield,
-  Terminal,
-  DollarSign,
-  Send,
-  UserCheck,
-  RefreshCw,
-  AlertTriangle,
-  CheckCircle2,
-  Lock,
-  ExternalLink,
-  Layers,
-  FileCheck2,
-} from "lucide-react";
 import { db } from "@/lib/db/client";
 import { auditEvents, webhookEvents, donations } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
@@ -73,7 +58,7 @@ export default async function SpikePage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
         <PageTitle
           eyebrow="Money Trail · PayPal Sandbox"
-          icon={__HeaderIcon}
+          icon={I.ledger}
           tone="paypal"
           title="Every dollar,"
           accent="proven on PayPal."
@@ -100,7 +85,7 @@ export default async function SpikePage() {
         <div className="field-paper p-5 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono text-accent font-bold flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4" /> PAYOUTS BATCH
+              <I.payout className="w-4 h-4" /> PAYOUTS BATCH
             </span>
             <span className="field-badge-evergreen font-mono text-[10px]">
               CONFIRMED
@@ -136,7 +121,7 @@ export default async function SpikePage() {
         <div className="field-paper p-5 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono text-accent font-bold flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4" /> REPLAY PROTECTION
+              <I.repeat className="w-4 h-4" /> REPLAY PROTECTION
             </span>
             <span className="field-badge-evergreen font-mono text-[10px]">
               GUARDED
@@ -168,7 +153,7 @@ export default async function SpikePage() {
         <div className="field-paper p-5 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono text-accent font-bold flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4" /> ORDERS V2 INFLOW
+              <I.donation className="w-4 h-4" /> ORDERS V2 INFLOW
             </span>
             <span className="field-badge-evergreen font-mono text-[10px]">
               SETTLED
@@ -200,7 +185,7 @@ export default async function SpikePage() {
         <div className="field-paper p-5 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono text-amber font-bold flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4" /> VENMO WALLET RAIL
+              <I.wallet className="w-4 h-4" /> VENMO WALLET RAIL
             </span>
             <span className="field-badge-warning font-mono text-[10px]">
               RESTRICTED
@@ -236,7 +221,7 @@ export default async function SpikePage() {
             href="/api/auth/paypal/start"
             className="field-btn field-btn-primary text-xs flex items-center gap-2"
           >
-            <UserCheck className="w-4 h-4" />
+            <I.personVerified className="w-4 h-4" />
             <span>Test Log in with PayPal (Sandbox OAuth)</span>
           </Link>
           <span className="text-xs text-ink-2 hidden md:inline">
@@ -253,7 +238,7 @@ export default async function SpikePage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-[15px] font-semibold tracking-[-0.015em] text-ink flex items-center gap-2">
-            <Shield className="w-4 h-4 text-accent" />
+            <I.safety className="w-4 h-4 text-accent" />
             Immutable PayPal Audit Trail ({events.length} Events Logged)
           </h2>
           <span className="text-xs text-ink-3 font-mono">

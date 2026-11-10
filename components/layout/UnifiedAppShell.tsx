@@ -3,24 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  BarChart3,
-  Workflow,
-  Radar,
-  FlaskConical,
-  Sparkles,
-  Users,
-  ReceiptText,
-  Globe2,
-  HeartHandshake,
-  Menu,
-  X,
-  ArrowUpRight,
-  PlayCircle,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
+import { I } from "@/components/icons";
 import { LandfallMark, LandfallWordmark } from "@/components/brand/LandfallMark";
 import { MEANING, MeaningDot, type Tone } from "@/components/ui/primitives";
 
@@ -39,24 +22,24 @@ const NAV: { group: string; items: NavItem[] }[] = [
   {
     group: "Overview",
     items: [
-      { label: "Command Center", href: "/console/war-room", icon: LayoutDashboard, tone: "accent", hint: "What needs attention right now" },
-      { label: "Analytics Studio", href: "/console/studio", icon: BarChart3, tone: "paypal", hint: "Ask questions of the relief data", tag: "AG" },
+      { label: "Command Center", href: "/console/war-room", icon: I.dashboard, tone: "accent", hint: "What needs attention right now" },
+      { label: "Analytics Studio", href: "/console/studio", icon: I.chart, tone: "paypal", hint: "Ask questions of the relief data", tag: "AG" },
     ],
   },
   {
     group: "Respond",
     items: [
-      { label: "Guided Response", href: "/console/golden-flow", icon: Workflow, tone: "accent", hint: "Warning to payout in 8 steps" },
-      { label: "Storm Map", href: "/console/sentinel", icon: Radar, tone: "storm", hint: "Who is in the storm's path" },
-      { label: "Storm Drill", href: "/console/rehearsal", icon: FlaskConical, tone: "amber", hint: "Rehearse on past hurricanes" },
+      { label: "Guided Response", href: "/console/golden-flow", icon: I.flow, tone: "accent", hint: "Warning to payout in 8 steps" },
+      { label: "Storm Map", href: "/console/sentinel", icon: I.radar, tone: "storm", hint: "Who is in the storm's path" },
+      { label: "Storm Drill", href: "/console/rehearsal", icon: I.lab, tone: "amber", hint: "Rehearse on past hurricanes" },
     ],
   },
   {
     group: "Verify",
     items: [
-      { label: "AI Watch Officer", href: "/console/watch-officer", icon: Sparkles, tone: "ai", hint: "Read-only briefing & investigation" },
-      { label: "Households", href: "/console/recipients", icon: Users, tone: "accent", hint: "Enrolled residents & priority" },
-      { label: "Money Trail", href: "/spike", icon: ReceiptText, tone: "paypal", hint: "Every PayPal dollar, reconciled" },
+      { label: "AI Watch Officer", href: "/console/watch-officer", icon: I.aiAdvisor, tone: "ai", hint: "Read-only briefing & investigation" },
+      { label: "Households", href: "/console/recipients", icon: I.household, tone: "accent", hint: "Enrolled residents & priority" },
+      { label: "Money Trail", href: "/spike", icon: I.ledger, tone: "paypal", hint: "Every PayPal dollar, reconciled" },
     ],
   },
 ];
@@ -144,7 +127,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
             </Link>
             <Link href="/console/war-room" className="field-btn field-btn-primary text-[13px] px-4 py-2.5">
               Open console
-              <ArrowUpRight className="h-4 w-4" />
+              <I.arrowUpRight className="h-4 w-4" />
             </Link>
           </div>
         </header>
@@ -200,7 +183,7 @@ function ResidentShell({ children, pathname }: { children: React.ReactNode; path
             ))}
           </nav>
           <span className="hidden md:inline-flex items-center gap-2 text-[12px] text-ink-3">
-            <Globe2 className="h-4 w-4 text-accent-strong" />
+            <I.globe className="h-4 w-4 text-accent-strong" />
             5 languages
           </span>
         </div>
@@ -243,7 +226,7 @@ function OperationsShell({ children, pathname }: { children: React.ReactNode; pa
               className="absolute right-3 top-4 z-10 rounded-lg p-2 text-ink-2 hover:bg-white/5"
               aria-label="Close navigation"
             >
-              <X className="h-5 w-5" />
+              <I.close className="h-5 w-5" />
             </button>
             <SidebarContent pathname={pathname} collapsed={false} />
           </aside>
@@ -258,7 +241,7 @@ function OperationsShell({ children, pathname }: { children: React.ReactNode; pa
               className="rounded-lg border border-white/10 p-2 text-ink-2 hover:bg-white/5 lg:hidden"
               aria-label="Open navigation"
             >
-              <Menu className="h-4 w-4" />
+              <I.menu className="h-4 w-4" />
             </button>
             <div className="flex min-w-0 items-center gap-2 text-[13px]">
               <span className="hidden text-ink-3 sm:inline">Tampa Bay Relief Fund</span>
@@ -274,7 +257,7 @@ function OperationsShell({ children, pathname }: { children: React.ReactNode; pa
             </span>
             {pathname !== "/console/golden-flow" && (
               <Link href="/console/golden-flow" className="field-btn field-btn-primary px-3.5 py-2 text-[13px]">
-                <PlayCircle className="h-4 w-4" />
+                <I.playCircle className="h-4 w-4" />
                 <span className="hidden sm:inline">Run guided response</span>
                 <span className="sm:hidden">Run</span>
               </Link>
@@ -307,7 +290,7 @@ function SidebarContent({
         </Link>
         {onToggle && !collapsed && (
           <button onClick={onToggle} className="rounded-lg p-1.5 text-ink-3 hover:bg-white/5 hover:text-ink" aria-label="Collapse sidebar">
-            <PanelLeftClose className="h-4 w-4" />
+            <I.sidebarClose className="h-4 w-4" />
           </button>
         )}
       </div>
@@ -328,13 +311,13 @@ function SidebarContent({
             <div className="mt-0.5 text-[12px] text-ink-2">Cat 4 · Tampa Bay · landfall in ~12h</div>
             <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-ink-3">
               Replay of Oct 2024 data
-              <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              <I.arrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </div>
           </Link>
         ) : (
           <Link href="/console/sentinel" className="mb-5 flex justify-center" title="Active incident: Hurricane Milton">
             <span className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-storm/30 bg-storm/10 text-storm">
-              <Radar className="h-4 w-4" />
+              <I.radar className="h-4 w-4" />
             </span>
           </Link>
         )}
@@ -380,8 +363,8 @@ function SidebarContent({
             {!collapsed && <div className="mb-2 px-3 text-[10.5px] font-mono uppercase tracking-[0.14em] text-ink-3">Public</div>}
             <ul className="space-y-0.5">
               {[
-                { label: "Public site", href: "/", icon: Globe2 },
-                { label: "Resident portal", href: "/r/enroll", icon: HeartHandshake },
+                { label: "Public site", href: "/", icon: I.globe },
+                { label: "Resident portal", href: "/r/enroll", icon: I.household },
               ].map((l) => (
                 <li key={l.href}>
                   <Link
@@ -415,7 +398,7 @@ function SidebarContent({
         ) : (
           onToggle && (
             <button onClick={onToggle} className="mx-auto flex rounded-lg p-2 text-ink-3 hover:bg-white/5 hover:text-ink" aria-label="Expand sidebar">
-              <PanelLeftOpen className="h-4 w-4" />
+              <I.sidebarOpen className="h-4 w-4" />
             </button>
           )
         )}

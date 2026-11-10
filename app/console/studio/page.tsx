@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { BarChart3, Palette, Puzzle, MousePointerClick, Sparkles, Eye, PencilRuler, Lock } from "lucide-react";
+import { I } from "@/components/icons";
 import { LandfallStudio } from "@/components/studio/LandfallStudio";
 import { PageHeader, Chip, IconTile } from "@/components/ui/primitives";
 
 const FEATURES = [
-  { icon: Palette, tone: "accent" as const, title: "Landfall theme", body: "AG Theming API — canvas, widgets, grid & charts" },
-  { icon: Puzzle, tone: "paypal" as const, title: "Custom widgets", body: "Solvency, reserve guardrail, payout lifecycle" },
-  { icon: MousePointerClick, tone: "amber" as const, title: "Cross-filtering", body: "Click a status — the whole page follows" },
-  { icon: Sparkles, tone: "ai" as const, title: "Studio Agent", body: "Real tool calls · read-only for money" },
+  { icon: I.palette, tone: "accent" as const, title: "Landfall theme", body: "AG Theming API — canvas, widgets, grid & charts" },
+  { icon: I.widget, tone: "paypal" as const, title: "Custom widgets", body: "Solvency, reserve guardrail, payout lifecycle" },
+  { icon: I.click, tone: "amber" as const, title: "Cross-filtering", body: "Click a status — the whole page follows" },
+  { icon: I.aiAdvisor, tone: "ai" as const, title: "Studio Agent", body: "Real tool calls · read-only for money" },
 ];
 
 export default function AnalyticsStudioPage() {
@@ -19,7 +19,7 @@ export default function AnalyticsStudioPage() {
     <div className="space-y-6 pb-10">
       <PageHeader
         eyebrow="Analytics Studio · AG Studio 3.1"
-        icon={BarChart3}
+        icon={I.chart}
         tone="paypal"
         title="Every relief dollar,"
         accent="explorable."
@@ -28,8 +28,8 @@ export default function AnalyticsStudioPage() {
           <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1" role="tablist" aria-label="Studio mode">
             {(
               [
-                ["view", "Present", Eye],
-                ["edit", "Build with AI", PencilRuler],
+                ["view", "Present", I.view],
+                ["edit", "Build with AI", I.design],
               ] as const
             ).map(([m, label, Icon]) => (
               <button
@@ -73,7 +73,7 @@ export default function AnalyticsStudioPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Chip tone="ai">
-              <Lock className="h-3 w-3" /> AI read-only
+              <I.readOnly className="h-3 w-3" /> AI read-only
             </Chip>
             <Chip tone="amber">Replay · Oct 2024</Chip>
             <Chip tone="neutral">Synthetic data</Chip>

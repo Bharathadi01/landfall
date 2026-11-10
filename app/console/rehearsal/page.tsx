@@ -2,7 +2,7 @@
 
 
 import { PageTitle } from "@/components/ui/primitives";
-import { FlaskConical as __HeaderIcon } from "lucide-react";
+import { I } from "@/components/icons";
 import React, { useState, useEffect } from "react";
 import {
   REHEARSAL_STORMS,
@@ -13,21 +13,6 @@ import {
   type RehearsalExecutionResult,
 } from "@/lib/rehearsal/lab";
 import { PasskeyApprovalModal } from "@/components/security/PasskeyApprovalModal";
-import {
-  Zap,
-  Play,
-  RotateCcw,
-  CheckCircle2,
-  Clock,
-  ShieldCheck,
-  AlertTriangle,
-  Lock,
-  Layers,
-  ArrowRight,
-  TrendingDown,
-  DollarSign,
-  Users,
-} from "lucide-react";
 
 export default function StormRehearsalLabPage() {
   const [selectedStormId, setSelectedStormId] = useState<string>("milton-2024");
@@ -77,7 +62,7 @@ export default function StormRehearsalLabPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
         <PageTitle
           eyebrow="Storm Drill · past hurricanes"
-          icon={__HeaderIcon}
+          icon={I.lab}
           tone="amber"
           title="Practice on real storms"
           accent="before the next one."
@@ -337,7 +322,7 @@ export default function StormRehearsalLabPage() {
                 onClick={() => setIsPasskeyModalOpen(true)}
                 className="w-full py-2.5 rounded-xl text-xs font-medium border border-paypal/30 bg-paypal/10 hover:bg-paypal/20 text-paypal transition flex items-center justify-center gap-2"
               >
-                <Lock className="w-3.5 h-3.5" />
+                <I.locked className="w-3.5 h-3.5" />
                 <span>
                   {passkeysApproved
                     ? "Passkeys Verified (Click to Re-authenticate)"
@@ -356,7 +341,7 @@ export default function StormRehearsalLabPage() {
                     : "field-btn-primary"
                 }`}
               >
-                <Zap className="w-3.5 h-3.5" />
+                <I.bolt className="w-3.5 h-3.5" />
                 <span>
                   {rehearsalExecuted
                     ? "Rehearsal Sandbox Payout Completed"
