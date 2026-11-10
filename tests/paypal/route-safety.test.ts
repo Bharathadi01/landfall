@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const run = vi.fn(async () => ({ stages: [] }));
+const run = vi.fn(async (..._args: unknown[]) => ({ stages: [] }));
 vi.mock("@/lib/workflow/golden", () => ({ executeGoldenWorkflow: (...a: unknown[]) => run(...a) }));
 
 import { GET, POST } from "@/app/api/workflow/golden/route";
