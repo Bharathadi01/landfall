@@ -6,23 +6,16 @@
  * 1. Strict separation of currencies (USD-denominated integer cents mapped to formatted dollars).
  * 2. Exact PayPal Payouts v1 statuses: SUCCESS, FAILED, PENDING, UNCLAIMED, RETURNED, ONHOLD, BLOCKED, REFUNDED, REVERSED.
  * 3. Provider SUCCESS is never conflated with verified beneficiary receipt confirmation.
- * 4. Deterministic 30% reserve floor invariant: $5,000.00 protected reserve against $14,250.00 available balance.
+ * 4. Every treasury figure is DERIVED from funding events and item statuses below (see TREASURY) — nothing is typed twice.
  * 5. Immutable audit grain: 1 row per payout item, 1 row per batch, 1 row per obligation, 1 row per ledger posting.
  */
 
 import { SYNTHETIC_HOUSEHOLDS } from "@/lib/fixtures/households";
 
 export const GRANT_USD = 500;
-export const TREASURY = {
-  total: 14250,
-  available: 14250,
-  reserve: 5000,
-  policyFloorPct: 30,
-  requiredReserve: 4275, // 30% of $14,250
-  reserveHeadroom: 725,  // $5,000 - $4,275
-  feeBuffer: 120,
-  allocatable: 9250,
-} as const;
+/** Protected reserve held back from relief cash (policy: must stay ≥ policyFloorPct of funds received). */
+const RESERVE_USD = 5000;
+const POLICY_FLOOR_PCT = 30;
 
 export function priorityTierOf(h: (typeof SYNTHETIC_HOUSEHOLDS)[number]): number {
   return h.hasMedicalDevice ? 1 : h.isElderlyLivingAlone ? 2 : h.hasDisability ? 3 : h.hasChildrenUnder5 ? 4 : 5;
@@ -339,6 +332,10 @@ export interface ReliefObligationRow {
   households: number;
 }
 
+/** One zone label per household: the payout item's zone is canonical. */
+const ITEM_ZONE: Record<string, string> = Object.fromEntries(studioPayoutItems.map((i) => [i.household_ref, i.zone]));
+const zoneOf = (id: string, fallback: string) => ITEM_ZONE[id] ?? fallback;
+
 export const studioObligations: ReliefObligationRow[] = [
   ...SYNTHETIC_HOUSEHOLDS.map((h, i) => {
     const tier = priorityTierOf(h);
@@ -346,7 +343,7 @@ export const studioObligations: ReliefObligationRow[] = [
     return {
       obligation_id: `obl_milton_${String(i + 1).padStart(3, "0")}`,
       household_ref: h.id,
-      zone: h.zone,
+      zone: zoneOf(h.id, h.zone),
       priority_tier: TIER_LABEL[tier],
       tier_number: tier,
       exposure_status: exposed ? "In warning area" : "Outside warning",
@@ -440,12 +437,42 @@ export const studioFundingEvents: FundingEventRow[] = [
   },
 ];
 
-/* ── 5. TREASURY BUCKETS ───────────────────────────────────── */
+/* ── 5. TREASURY (derived — single source of truth for every surface) ───────── */
+
+const sumUsd = (rows: { amount_usd: number }[]) => rows.reduce((t, r) => t + r.amount_usd, 0);
+const itemsWhere = (...st: PayoutItemRow["transaction_status"][]) => studioPayoutItems.filter((i) => st.includes(i.transaction_status));
+
+/** PayPal item statuses whose funds have LEFT available cash (credited, or reserved while pending/held/unclaimed). FAILED = never deducted; RETURNED = back in the account. */
+const fundsReceived = sumUsd(studioFundingEvents);
+const paidOut = sumUsd(itemsWhere("SUCCESS"));
+const inFlight = sumUsd(itemsWhere("UNCLAIMED", "ONHOLD", "PENDING"));
+const needsReissue = sumUsd(itemsWhere("FAILED", "RETURNED"));
+const operatingCash = fundsReceived - paidOut - inFlight;
+const requiredReserve = Math.round((fundsReceived * POLICY_FLOOR_PCT) / 100);
+
+export const TREASURY = {
+  /** Total funds captured (sandbox donations + sustainers + pledges). */
+  total: fundsReceived,
+  /** Cash still in the PayPal account (includes the protected reserve). */
+  available: operatingCash,
+  reserve: RESERVE_USD,
+  policyFloorPct: POLICY_FLOOR_PCT,
+  requiredReserve,
+  reserveHeadroom: RESERVE_USD - requiredReserve,
+  /** Credited to recipients' PayPal accounts (provider SUCCESS — not proof of receipt). */
+  paidOut,
+  /** Sent to PayPal but not settled: UNCLAIMED + ONHOLD + PENDING. */
+  inFlight,
+  /** FAILED + RETURNED: funds did not land and are owed again, pending a new two-key approval. */
+  needsReissue,
+  /** Relief cash that can be allocated: operating cash minus the protected reserve. */
+  allocatable: operatingCash - RESERVE_USD,
+} as const;
 
 export const studioTreasury = [
-  { bucket: "Available to allocate", amount_usd: TREASURY.allocatable, meaning: "Relief cash available for approved households", currency: "USD" },
-  { bucket: "Protected reserve", amount_usd: TREASURY.reserve, meaning: "Immutable 30% reserve floor enforced by code", currency: "USD" },
-  { bucket: "PayPal fee buffer", amount_usd: TREASURY.feeBuffer, meaning: "Domestic rail flat transaction fees ($0.25/item)", currency: "USD" },
+  { bucket: "Available to allocate", amount_usd: TREASURY.allocatable, meaning: "Relief cash available for new approved households", currency: "USD" },
+  { bucket: "Protected reserve", amount_usd: TREASURY.reserve, meaning: "Immutable reserve floor enforced by code", currency: "USD" },
+  { bucket: "Paid out or in flight", amount_usd: TREASURY.paidOut + TREASURY.inFlight, meaning: "Already sent to PayPal (credited, unclaimed, held or pending)", currency: "USD" },
 ];
 
 /* ── 6. SOLVENCY & RESERVE GUARDRAIL ───────────────────────── */
@@ -454,19 +481,19 @@ export const studioSolvency = [
   {
     total_balance_usd: TREASURY.total,
     allocatable_usd: TREASURY.allocatable,
-    required_usd: 2500,
+    required_usd: TREASURY.needsReissue,
     reserve_usd: TREASURY.reserve,
     policy_floor_pct: TREASURY.policyFloorPct,
     required_reserve_usd: TREASURY.requiredReserve,
     headroom_usd: TREASURY.reserveHeadroom,
-    reserve_ratio_pct: 35.1,
-    coverage_ratio: 3.7,
-    status: "Within policy",
+    reserve_ratio_pct: Math.round((TREASURY.reserve / TREASURY.total) * 1000) / 10,
+    coverage_ratio: TREASURY.needsReissue > 0 ? Math.round((TREASURY.allocatable / TREASURY.needsReissue) * 10) / 10 : 0,
+    status: TREASURY.reserve >= TREASURY.requiredReserve ? "Within policy" : "Below policy floor",
     as_of: "2024-10-09T18:30:00Z",
   },
 ];
 
-/* ── 7. LEDGER RECONCILIATION ──────────────────────────────── */
+/* ── 7. LEDGER RECONCILIATION (balances derive from the same figures; Σ balances = funds received) ── */
 
 export interface LedgerReconciliationRow {
   ledger_id: string;
@@ -480,51 +507,23 @@ export interface LedgerReconciliationRow {
   last_verified: string;
 }
 
+const ledgerRow = (n: number, account_id: string, account_name: string, debit_usd: number, credit_usd: number): LedgerReconciliationRow => ({
+  ledger_id: `ledg_00${n}`,
+  account_id,
+  account_name,
+  debit_usd,
+  credit_usd,
+  balance_usd: debit_usd - credit_usd,
+  variance_cents: 0,
+  match_status: "MATCHED_ZERO_DISCREPANCY",
+  last_verified: "2024-10-09T18:25:00Z",
+});
+
 export const studioLedgerReconciliation: LedgerReconciliationRow[] = [
-  {
-    ledger_id: "ledg_001",
-    account_id: "paypal_available",
-    account_name: "PayPal Sandbox Operating Cash",
-    debit_usd: 14250,
-    credit_usd: 2500,
-    balance_usd: 11750,
-    variance_cents: 0,
-    match_status: "MATCHED_ZERO_DISCREPANCY",
-    last_verified: "2024-10-09T18:25:00Z",
-  },
-  {
-    ledger_id: "ledg_002",
-    account_id: "reserve_protected",
-    account_name: "30% Invariant Reserve Floor",
-    debit_usd: 5000,
-    credit_usd: 0,
-    balance_usd: 5000,
-    variance_cents: 0,
-    match_status: "MATCHED_ZERO_DISCREPANCY",
-    last_verified: "2024-10-09T18:25:00Z",
-  },
-  {
-    ledger_id: "ledg_003",
-    account_id: "committed_obligations",
-    account_name: "Committed Payout Obligations (Tranche 1)",
-    debit_usd: 2500,
-    credit_usd: 2500,
-    balance_usd: 0,
-    variance_cents: 0,
-    match_status: "MATCHED_ZERO_DISCREPANCY",
-    last_verified: "2024-10-09T18:25:00Z",
-  },
-  {
-    ledger_id: "ledg_004",
-    account_id: "disbursed_delivered",
-    account_name: "Disbursed Relief Capital (PayPal Payouts)",
-    debit_usd: 2500,
-    credit_usd: 0,
-    balance_usd: 2500,
-    variance_cents: 0,
-    match_status: "MATCHED_ZERO_DISCREPANCY",
-    last_verified: "2024-10-09T18:25:00Z",
-  },
+  ledgerRow(1, "paypal_available", "PayPal Sandbox Relief Cash (unallocated)", TREASURY.total, TREASURY.reserve + TREASURY.paidOut + TREASURY.inFlight),
+  ledgerRow(2, "reserve_protected", "Protected Reserve", TREASURY.reserve, 0),
+  ledgerRow(3, "committed_obligations", "In Flight at PayPal (unclaimed, held, pending)", TREASURY.paidOut + TREASURY.inFlight, TREASURY.paidOut),
+  ledgerRow(4, "disbursed_delivered", "Credited to Recipients (provider SUCCESS)", TREASURY.paidOut, 0),
 ];
 
 /* ── 8. APPROVAL EVENTS (Dual-Key Custody) ─────────────────── */
@@ -689,7 +688,7 @@ export const studioHouseholds = SYNTHETIC_HOUSEHOLDS.map((h) => {
   const exposed = h.id !== "hh_orl_006";
   return {
     household_id: h.id,
-    zone: h.zone,
+    zone: zoneOf(h.id, h.zone),
     priority_tier: `Tier ${tier}`,
     tier_label: TIER_LABEL[tier],
     exposure: exposed ? "In warning area" : "Outside warning",

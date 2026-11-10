@@ -59,11 +59,11 @@ describe("Phase 1 — Analytics Data Contract & Financial Semantic QA (§5.2, §
     expect(solvency.reserve_usd).toBe(TREASURY.reserve);
     expect(solvency.policy_floor_pct).toBe(30);
 
-    // 30% of $14,250 is $4,275
+    // 30% of funds received
     const expectedFloor = (TREASURY.total * TREASURY.policyFloorPct) / 100;
     expect(solvency.required_reserve_usd).toBe(expectedFloor);
 
-    // Headroom is $5,000 - $4,275 = $725
+    // Headroom = protected reserve − required floor
     expect(solvency.headroom_usd).toBe(solvency.reserve_usd - expectedFloor);
     expect(solvency.headroom_usd).toBeGreaterThan(0);
     expect(solvency.status).toBe("Within policy");

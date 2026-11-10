@@ -61,8 +61,9 @@ describe("AG Studio Agent Framework Security & Boundary Isolation (§3, §5)", (
     const textOutput = (response.output[0] as any).parts[0].text;
 
     // Must not execute any payout; should safely respond with informational guidance
-    expect(textOutput).toContain("Landfall Watch Officer");
-    expect(textOutput).toContain("deterministically governed by code");
+    expect(textOutput).toContain("ACCESS DENIED");
+    expect(textOutput).toContain("STRICT READ-ONLY");
+    expect(textOutput).toContain("Zero Money Moved");
   });
 
   it("translates evacuation surge zone query into view-only filtering", async () => {

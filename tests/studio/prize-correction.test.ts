@@ -8,6 +8,7 @@ import {
   studioObligations,
   studioRecoveryProofs,
   TREASURY,
+  studioFundingEvents,
   GRANT_USD,
 } from "@/lib/studio/landfall-studio-data";
 import { answerFromReliefData } from "@/lib/studio/studio-answers";
@@ -80,25 +81,32 @@ describe("Phase 13 — AG Grid & AG Studio Prize Correction Acceptance Suite", (
 
   it("3. Financial measures reconcile with known ledger fixtures", () => {
     // Total treasury must match solvency total
-    expect(TREASURY.total).toBe(14250);
-    expect(studioSolvency[0].total_balance_usd).toBe(14250);
+    const fundsReceived = studioFundingEvents.reduce((t, e) => t + e.amount_usd, 0);
+    expect(TREASURY.total).toBe(fundsReceived);
+    expect(studioSolvency[0].total_balance_usd).toBe(fundsReceived);
+
+    // Every dollar is in exactly one bucket: allocatable + reserve + paid out/in flight = funds received
+    expect(TREASURY.allocatable + TREASURY.reserve + TREASURY.paidOut + TREASURY.inFlight).toBe(fundsReceived);
+    // Ledger account balances sum to funds received (no phantom or double-counted cash)
+    expect(studioLedgerReconciliation.reduce((t, l) => t + l.balance_usd, 0)).toBe(fundsReceived);
 
     // Double-entry ledger must reconcile with zero variance
     const ledgerTotal = studioLedgerReconciliation.reduce((acc, row) => acc + row.variance_cents, 0);
     expect(ledgerTotal).toBe(0);
 
-    // Solvency coverage ratio: Allocatable ($9,250) / Required ($2,500) = 3.70x
-    const computedRatio = +(TREASURY.allocatable / 2500).toFixed(1);
-    expect(computedRatio).toBe(3.7);
-    expect(studioSolvency[0].coverage_ratio).toBe(3.7);
+    // Solvency coverage = allocatable cash / value of FAILED + RETURNED payouts that would need re-issuing
+    const needsReissue = studioPayoutItems
+      .filter((i) => i.transaction_status === "FAILED" || i.transaction_status === "RETURNED")
+      .reduce((t, i) => t + i.amount_usd, 0);
+    expect(TREASURY.needsReissue).toBe(needsReissue);
+    expect(studioSolvency[0].coverage_ratio).toBe(Math.round((TREASURY.allocatable / needsReissue) * 10) / 10);
   });
 
   it("4. Reserve Guardrail calculation respects the deterministic 30% floor", () => {
     const total = TREASURY.total;
     const requiredFloor = Math.round(total * 0.3);
-    expect(requiredFloor).toBe(4275); // 30% of $14,250
-    expect(TREASURY.reserve).toBe(5000); // $5,000 > $4,275
-    expect(TREASURY.reserveHeadroom).toBe(725); // +$725 headroom
+    expect(TREASURY.requiredReserve).toBe(requiredFloor);
+    expect(TREASURY.reserveHeadroom).toBe(TREASURY.reserve - requiredFloor);
     expect(TREASURY.reserve).toBeGreaterThanOrEqual(requiredFloor);
   });
 
@@ -143,9 +151,9 @@ describe("Phase 13 — AG Grid & AG Studio Prize Correction Acceptance Suite", (
   it("9. Studio Agent answers Scenario C (Treasury & Coverage explanation)", () => {
     const answer = answerFromReliefData("Explain the protected reserve, allocatable balance and the current funding coverage ratio");
     expect(answer).not.toBeNull();
-    expect(answer).toContain("Statutory Floor Rule: 30%");
-    expect(answer).toContain("Coverage Ratio: 3.7×");
-    expect(answer).toContain("Net Allocatable Cash ($9,250)");
+    expect(answer).toContain("Reserve policy floor: 30%");
+    expect(answer).toContain(`Coverage Ratio: ${studioSolvency[0].coverage_ratio}×`);
+    expect(answer).toContain(`Allocatable Cash (${"$" + TREASURY.allocatable.toLocaleString("en-US")})`);
   });
 
   it("10. Recovery Proofs anchor immutable Merkle root and reserve compliance", () => {
@@ -179,15 +187,15 @@ describe("Phase 13 — AG Grid & AG Studio Prize Correction Acceptance Suite", (
     const agentAnswer = answerFromReliefData(
       "How much unclaimed assistance remains outstanding, and which payout exceptions are oldest?"
     );
-    expect(agentAnswer).toContain("$500 USD (1 item)");
+    expect(agentAnswer).toContain("$500 USD across 1 item");
     expect(agentAnswer).toContain("item_milton_002");
     expect(agentAnswer).toContain("item_milton_007");
     expect(agentAnswer).toContain("72 hrs");
     expect(agentAnswer).toContain("item_milton_006");
     expect(agentAnswer).toContain("42 hrs");
     expect(agentAnswer).toContain("18.5 hrs");
-    expect(agentAnswer).toContain("Distinction Between Unclaimed vs. Total Unresolved");
-    expect(agentAnswer).toContain("$2,500 USD");
+    expect(agentAnswer).toContain("Unclaimed vs all unresolved");
+    expect(agentAnswer).toContain("$2,500 is unresolved in total");
   });
 
   it("12. Phase 2 Scenario B: createGeneratedReportPage produces valid AG Studio document", async () => {
