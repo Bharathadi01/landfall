@@ -2,8 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![TypeScript Strict](https://img.shields.io/badge/typescript-strict-blue.svg)](tsconfig.json)
-[![Tests Passing](https://img.shields.io/badge/tests-312%2F312%20passing-brightgreen.svg)](tests/)
-[![Build Passing](https://img.shields.io/badge/build-43%2F43%20routes-brightgreen.svg)](app/)
+[![Tests Passing](https://img.shields.io/badge/tests-350%20passing%20%2B%2054%20DB--gated-brightgreen.svg)](tests/)
 [![AI Inference Cost](https://img.shields.io/badge/AI%20Cost-%240.00%20(Groq%20Free)-success.svg)](docs/M6_ZERO_COST_VERIFICATION.md)
 
 > **"Cash before the storm. Accounted for on every payout state."**  
@@ -107,7 +106,7 @@ pnpm dev
 
 ## Live Status & Empirical Evidence Matrix
 
-Every claim below is verified against the real PayPal Sandbox (`api-m.sandbox.paypal.com`):
+Everything below runs against the PayPal **Sandbox** (`api-m.sandbox.paypal.com`) with synthetic households. Nothing here is production, and no customer validation is claimed. 'Verified' means we called the API and recorded the result; rows that are code-only say so.
 
 | Capability / API | Status | Evidence / Sandbox ID | Technical Notes |
 |---|---|---|---|
@@ -116,7 +115,7 @@ Every claim below is verified against the real PayPal Sandbox (`api-m.sandbox.pa
 | **PayPal Batch Payouts** | **VERIFIED** | Batch `7Y5GP4ETNLCUQ` ($2.00 total) | Item `FR7DHMX8QE59A` (`SUCCESS`, $1.00); Item `2FN4JTY2SF8A2` (`UNCLAIMED`, $1.00) |
 | **PayPal Orders v2** | **VERIFIED** | Order `35996334K7032164X` | Created in Sandbox (`POST /v2/checkout/orders`); requires buyer authorization before capture; unapproved orders strictly segregated from ledger cash |
 | **PayPal Subscriptions v1**| **VERIFIED** | Product `PROD-4HV976845W620203M`, Plan `P-5A327449X7452233TNLYQY3A` | Monthly sustainer billing for standby liquidity |
-| **PayPal Webhook Verification** | **VERIFIED** | Webhook ID `6PH637488P683361F` (`verified: true`) | Cryptographically validated via `POST /v1/notifications/verify-webhook-signature` with live RSA-SHA256 signatures |
+| **PayPal Webhook Verification** | **CODE COMPLETE · live delivery not demonstrated** | `app/api/paypal/webhook/route.ts`, `lib/paypal/webhooks.ts` | The receiver calls `POST /v1/notifications/verify-webhook-signature` and rejects (401) anything unsigned or unverified before it touches the ledger (503 if `PAYPAL_WEBHOOK_ID` is unset). Covered by mocked-signature tests; a webhook delivered by PayPal to a public URL has not been recorded yet. |
 | **PayPal Vault v3 (Pledges)** | **RESTRICTED / CODE COMPLETE** | `lib/pledges/index.ts` | Sandbox `POST /v3/vault/setup-tokens` returns `403 NOT_AUTHORIZED` (requires custom merchant underwriting); badged as *"Production path — Requires PayPal Vault approval"* |
 | **Double-Entry General Ledger** | **VERIFIED** | `lib/ledger/index.ts` | Balanced debits and credits; immutable audit trail; negative balance guards |
 | **Treasury Waterfall Engine** | **VERIFIED** | `components/treasury/TreasuryWaterfall.tsx` | Segregates available, committed, reserved, contingent, and disbursed funds |
@@ -124,10 +123,11 @@ Every claim below is verified against the real PayPal Sandbox (`api-m.sandbox.pa
 | **Sentinel NWS Alert Ingestion** | **VERIFIED** | `lib/sentinel/weather-client.ts` | Live `api.weather.gov/alerts/active` polling with RFC 7231 User-Agent |
 | **Turf.js Exposure Engine** | **VERIFIED** | `lib/sentinel/exposure.ts`, `lib/sentinel/clusters.ts` | Privacy-preserving 0.01° centroid grid snapping; zero PII leakage |
 | **Storm Readiness Drill** | **VERIFIED** | `lib/rehearsal/lab.ts`, `/console/rehearsal` | 3 historical hurricanes (Milton, Helene, Idalia) + 7 stress scenarios |
-| **WebAuthn Dual Passkeys** | **VERIFIED** | `lib/security/two-key.ts`, `PasskeyApprovalModal.tsx` | Requires 2 distinct approvers (1 Finance) over plan SHA-256 hash |
-| **Watch Officer AI Copilot** | **VERIFIED** | `lib/ai/watch-officer/`, Groq Free Plan | `openai/gpt-oss-20b`; read-only tools; $0.00 cost; offline fallback |
+| **Dual approval (passkey UI)** | **DEMO** | `lib/security/passkeys.ts`, `PasskeyApprovalModal.tsx` | Two distinct approvers (one Finance) must approve the plan SHA-256 hash. Assertions are collected in the browser but not verified server-side in this build; the UI says so. Approvers are demo personas. |
+| **Watch Officer AI Copilot** | **VERIFIED** | `lib/ai/watch-officer/`, Groq Free Plan | `openai/gpt-oss-20b`; read-only tools; $0.00 cost; labelled deterministic offline fallback |
 | **Relief Money Investigator AI** | **VERIFIED** | `lib/ai/investigator/agent.ts`, Groq Free Plan | Sub-1.2s forensic decomposition on Sandbox exceptions with 30-day escrow invariant lock |
-| **AG Studio War Room** | **VERIFIED** | `app/console/war-room/`, `ag-studio-react@3.1.0` | 12 custom emergency telemetry widgets; Enterprise Trial License; live AG Grid & AG Charts |
+| **Command Center + AG Studio** | **VERIFIED** | `app/console/war-room/`, `components/studio/`, `ag-studio-react@3.1.0` | Case-level AG Grid Enterprise (row grouping, master/detail evidence, grand total, status bar, side bar, Excel/CSV export, saved grid state); AG Studio with custom widgets and a Studio Agent that calls the model through a server gateway and Studio tools (read-only; refuses money-moving requests). Requires AG licence keys. |
+| **Relief Delivery Assurance** | **VERIFIED (replay data)** | `lib/relief/cases.ts`, `lib/recovery/decision.ts`, `components/relief/` | One case per payment, joined from approval, PayPal item, webhook, ledger, resident report and recovery. A PayPal `SUCCESS` is shown as 'credited', never as 'received'; provenance (PayPal / Landfall / Resident-reported / Operator) is kept per fact and missing evidence is shown as Missing. |
 
 ---
 
@@ -197,13 +197,11 @@ $ pnpm exec tsc --noEmit
 
 # 3. Vitest Test Suite (Unit, Integration, Architectural)
 $ pnpm test
- Test Files  35 passed (35)
-      Tests  312 passed (312)
-   Duration  7.93s
+ Test Files  38 passed | 5 skipped (43)
+      Tests  350 passed | 54 skipped (404)   # DB suites need TEST_DATABASE_URL
 
 # 4. Next.js Production Build
 $ pnpm build
-   ✔ Generating static pages (43/43)
    ✔ Finalizing page optimization
 ```
 
