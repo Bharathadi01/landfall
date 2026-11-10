@@ -9,8 +9,17 @@
  * - Does not call PayPal Payouts or approve payout plans.
  */
 
+import { RELIEF_CASES } from "@/lib/relief/cases";
+import { TREASURY } from "@/lib/studio/landfall-studio-data";
+
+const usd0 = (n: number) => "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+const caseStats = (pred: (c: (typeof RELIEF_CASES)[number]) => boolean) => {
+  const rows = RELIEF_CASES.filter(pred);
+  return { n: rows.length, usd: rows.reduce((t, c) => t + c.amountUsd, 0) };
+};
+
 export interface GridFilterIntent {
-  column: "priorityTier" | "zone" | "status" | "hasMedicalDevice" | "recipientPath";
+  column: "priorityTier" | "zone" | "status" | "hasMedicalDevice" | "recipientPath" | "payoutStatus" | "nextActionKey" | "needsPerson";
   operator: "equals" | "contains" | "in" | "lessThanOrEqual";
   value: any;
   explanation: string;
@@ -58,8 +67,10 @@ export function interpretStudioQuery(query: string): StudioAgentCommand {
           explanation: "Filtered to highest-risk Coastal Surge Evacuation Zone A households.",
         },
       ],
-      agentResponse:
-        "Filtered grid to highest-risk Zone A households (4 registered). Required assistance is $401.00 ($100/hh + $0.25 flat PayPal domestic rail fee) against $650.00 in currently allocatable liquid funds. 100% immediate coverage is available.",
+      agentResponse: (() => {
+        const z = caseStats((c) => c.zone.includes("Zone A"));
+        return `Filtered to Zone A, the highest-risk coastal zone: ${z.n} households, ${usd0(z.usd)} approved (already sent to PayPal). Allocatable cash remaining is ${usd0(TREASURY.allocatable)} after the ${usd0(TREASURY.reserve)} protected reserve — ${(TREASURY.allocatable / Math.max(z.usd, 1)).toFixed(1)}× the value of Zone A's grants.`;
+      })(),
     };
   }
 
@@ -73,9 +84,43 @@ export function interpretStudioQuery(query: string): StudioAgentCommand {
     return {
       type: "RESET_FILTERS",
       agentResponse:
-        "Cleared all grid filters. Displaying all registered households across all vulnerability tiers.",
+        "Cleared all grid filters. Showing every case.",
     };
   }
+
+  // Case-centric questions (Relief Delivery Assurance)
+  const statusIntent = (kw: RegExp, status: string, plain: string, advice: string) => {
+    if (!kw.test(normalized)) return null;
+    const st = caseStats((c) => c.status === status);
+    return {
+      type: "FILTER_GRID" as const,
+      filters: [{ column: "payoutStatus" as const, operator: "equals" as const, value: status, explanation: plain }],
+      agentResponse: `${st.n} ${plain} (${usd0(st.usd)}). ${advice}`,
+    } satisfies StudioAgentCommand;
+  };
+  if (/(credited|success).*(not|un).*confirm|(not|un)confirmed|awaiting confirmation|resident.*confirm/.test(normalized)) {
+    const g = caseStats((c) => c.nextAction.safeAction === "ASK_RECIPIENT_TO_CONFIRM");
+    return {
+      type: "FILTER_GRID",
+      filters: [{ column: "nextActionKey", operator: "equals", value: "ASK_RECIPIENT_TO_CONFIRM", explanation: "PayPal credited, resident has not confirmed." }],
+      agentResponse: `${g.n} payment${g.n === 1 ? "" : "s"} (${usd0(g.usd)}) PayPal credited but the resident has not confirmed. SUCCESS means credited to the account — not proof the household can use it.`,
+    };
+  }
+  if (/(needs? (a )?person|follow.?up|need attention|needs? attention|open case)/.test(normalized)) {
+    const p = caseStats((c) => c.nextAction.needsPerson && c.openIssue);
+    return {
+      type: "FILTER_GRID",
+      filters: [{ column: "needsPerson", operator: "equals", value: "YES", explanation: "Cases that need a human follow-up." }],
+      agentResponse: `${p.n} cases (${usd0(p.usd)}) need a person. None of them should trigger a second payout.`,
+    };
+  }
+  const byStatus =
+    statusIntent(/unclaimed/, "UNCLAIMED", "unclaimed payment(s)", "Help the resident claim it; PayPal auto-returns after 30 days. Do not send again.") ||
+    statusIntent(/(on.?hold|\bheld\b|onhold)/, "ONHOLD", "payment(s) on PayPal hold", "Escalate to PayPal support; do not resend.") ||
+    statusIntent(/failed/, "FAILED", "failed payout(s)", "Funds were not sent; fix the route, then a new two-key plan.") ||
+    statusIntent(/returned/, "RETURNED", "returned payout(s)", "Confirm the ledger reflects the return before any new approval.") ||
+    statusIntent(/pending/, "PENDING", "pending payout(s)", "PayPal sends no item webhook for PENDING — poll, don't resubmit.");
+  if (byStatus) return byStatus;
 
   // Medical device / Tier 1 focus
   if (
@@ -163,31 +208,22 @@ export function interpretStudioQuery(query: string): StudioAgentCommand {
     };
   }
 
-  // Confirmed exposure only
-  if (normalized.includes("confirmed") || normalized.includes("exposed")) {
+  // Exposure
+  if (normalized.includes("exposed") || normalized.includes("exposure")) {
     return {
-      type: "FILTER_GRID",
-      filters: [
-        {
-          column: "status",
-          operator: "equals",
-          value: "CONFIRMED",
-          explanation: "Filtered to households with confirmed geographic exposure within the alert polygon.",
-        },
-      ],
-      agentResponse:
-        "Displaying households with confirmed exposure inside the active Hurricane Milton warning polygon.",
+      type: "RESET_FILTERS",
+      agentResponse: `All ${RELIEF_CASES.length} cases are for households inside the Hurricane Milton warning area, so no filter is needed. Cleared filters.`,
     };
   }
 
   // Sort by priority tier
-  if (normalized.includes("sort by tier") || normalized.includes("rank by priority")) {
+  if (/(sort|rank|order).*(priority|tier)/.test(normalized)) {
     return {
       type: "SORT_GRID",
       sortColumn: "priorityTier",
       sortDirection: "asc",
       agentResponse:
-        "Sorted households by priority tier (Tier 1 Life-Safety first to Tier 6 General).",
+        "Sorted cases by priority tier (Tier 1 medical-device households first).",
     };
   }
 
@@ -209,7 +245,7 @@ export function interpretStudioQuery(query: string): StudioAgentCommand {
   return {
     type: "INFO",
     agentResponse:
-      "I am the Landfall Watch Officer. You can instruct me to 'show medical device households', 'filter to Zone A', 'sort by priority tier', or 'reset filters'. My recommendations are purely informational; all financial disbursements remain deterministically governed by code.",
+      "I am the Landfall Watch Officer. You can ask me to 'show medical device households', 'filter to Zone A', 'show unclaimed payments', 'credited but not confirmed', 'sort by priority tier', or 'reset filters'. My recommendations are purely informational; all financial disbursements remain deterministically governed by code.",
   };
 }
 

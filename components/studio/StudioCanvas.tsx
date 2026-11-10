@@ -4,7 +4,6 @@ import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { AgStudio, createWidgets } from "ag-studio-react";
 import {
   AgStudioAiModule,
-  AgStudioLicenseManager,
   AgStudioModuleRegistry,
   createAiHarness,
   directLlmRunner,
@@ -12,12 +11,12 @@ import {
   studioTheme,
   type AgReportState,
 } from "ag-studio";
-import { LicenseManager } from "ag-grid-enterprise";
 
 // Register the Studio AI Agent Module
 AgStudioModuleRegistry.registerModules([AgStudioAiModule]);
 
 import { GroqStudioLlmAdapter } from "@/lib/ai/watch-officer/studio-adapter";
+import { registerAgLicenses } from "@/lib/ag/license";
 import { landfallStudioParams } from "@/styles/ag-studio-theme";
 import {
   studioSources,
@@ -41,33 +40,7 @@ import {
   EVIDENCE_CHAIN_WIDGET_TYPE,
 } from "./widgets/RecoveryEvidenceChainWidget";
 
-const licenseKey = process.env.NEXT_PUBLIC_AG_STUDIO_LICENSE;
-if (licenseKey) {
-  try {
-    AgStudioLicenseManager.setLicenseKey(licenseKey);
-    LicenseManager.setLicenseKey(licenseKey);
-  } catch {
-    /* continue with evaluation watermark */
-  }
-}
-
-if (typeof window !== "undefined") {
-  const _origError = window.console.error;
-  window.console.error = function (...args: any[]) {
-    const msg = typeof args[0] === "string" ? args[0] : "";
-    if (
-      msg.includes("AG Grid") ||
-      msg.includes("License Key") ||
-      msg.includes("ag-grid.com/licensing") ||
-      msg.includes("license key") ||
-      msg.startsWith("********************************")
-    ) {
-      window.console.warn(...args);
-      return;
-    }
-    _origError.apply(window.console, args);
-  };
-}
+registerAgLicenses();
 
 /** Official Landfall theme configured via AG Studio's modern Theming API. */
 const LANDFALL_STUDIO_THEME = (studioTheme as any).withParams(landfallStudioParams);
