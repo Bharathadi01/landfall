@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { ResidentStatus } from "@/components/relief/ResidentStatus";
 import type { PaymentChannelType, EvidenceLevel } from "@/lib/recipients/types";
 import {
   HeartHandshake,
@@ -360,58 +361,6 @@ export default function ResidentEnrollPage() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [successResult, setSuccessResult] = useState<any | null>(null);
-
-  // Status Lookup State
-  const [lookupId, setLookupId] = useState("hh_tbw_001");
-  const [lookupData, setLookupData] = useState<any | null>({
-    householdId: "hh_tbw_001",
-    name: "Elena Rodriguez",
-    address: "2410 Bayshore Blvd, Tampa, FL 33629",
-    zone: "Zone A (Surge Evacuation)",
-    tier: "Tier 1: High Priority (Medical Equipment)",
-    disasterExposure: "CONFIRMED (Hurricane Milton Warning TBW:HU.W:0009)",
-    paymentRoute: "PayPal Instant Transfer",
-    payoutStatus: "DISBURSED",
-    amountDisbursed: "$500.00 USD",
-    paypalTransactionId: "81V948123A849204P",
-    disbursedAt: "Oct 9, 2024 · 01:45 UTC",
-  });
-  const [hasSearched, setHasSearched] = useState(false);
-
-  const handleLookup = (id: string) => {
-    setLookupId(id);
-    setHasSearched(true);
-    if (id.toLowerCase().includes("002")) {
-      setLookupData({
-        householdId: "hh_tbw_002",
-        name: "Arthur Pendelton",
-        address: "412 Gulf Way, St. Pete Beach, FL 33706",
-        zone: "Zone A (Barrier Island)",
-        tier: "Tier 2: Elderly Resident Living Alone",
-        disasterExposure: "CONFIRMED (Hurricane Milton Warning)",
-        paymentRoute: "PayPal Email Claim Link",
-        payoutStatus: "CLAIM_PENDING",
-        amountDisbursed: "$500.00 USD",
-        paypalTransactionId: "UNCLAIMED (Link Active)",
-        claimUrl: "https://www.paypal.com/signin",
-        disbursedAt: "Oct 9, 2024 · 01:45 UTC",
-      });
-    } else {
-      setLookupData({
-        householdId: id || "hh_tbw_001",
-        name: "Elena Rodriguez",
-        address: "2410 Bayshore Blvd, Tampa, FL 33629",
-        zone: "Zone A (Surge Evacuation)",
-        tier: "Tier 1: High Priority (Medical Equipment)",
-        disasterExposure: "CONFIRMED (Hurricane Milton Warning TBW:HU.W:0009)",
-        paymentRoute: "PayPal Instant Transfer",
-        payoutStatus: "DISBURSED",
-        amountDisbursed: "$500.00 USD",
-        paypalTransactionId: "81V948123A849204P",
-        disbursedAt: "Oct 9, 2024 · 01:45 UTC",
-      });
-    }
-  };
 
   const handleNextStep = () => {
     setFormError(null);
@@ -1025,121 +974,8 @@ export default function ResidentEnrollPage() {
         </div>
       )}
 
-      {/* TAB 2: STATUS & APPEAL TRACKER */}
-      {activeTab === "STATUS" && (
-        <div className="field-paper p-6 sm:p-8 space-y-6 shadow-sm border-line">
-          <div>
-            <h2 className="text-lg font-serif font-bold text-ink">
-              {t.lookupTitle}
-            </h2>
-            <p className="text-xs text-ink-2 mt-0.5">
-              Enter your household reference code to view payout progress or verify linked records.
-            </p>
-          </div>
-
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={lookupId}
-                onChange={(e) => setLookupId(e.target.value)}
-                placeholder={t.lookupPlaceholder}
-                className="field-input pl-9 pr-3 py-2 text-xs w-full bg-surface"
-              />
-            </div>
-            <button
-              onClick={() => handleLookup(lookupId)}
-              className="field-btn field-btn-primary text-xs py-2 px-4"
-            >
-              {t.lookupBtn}
-            </button>
-          </div>
-
-          {lookupData && (
-            <div className="border border-line rounded-xl overflow-hidden bg-surface">
-              <div className="p-4 bg-surface-2 border-b border-line flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <span className="font-mono text-xs font-bold text-ink">
-                    {lookupData.householdId}
-                  </span>
-                  <p className="text-xs text-ink-2">{lookupData.name} · {lookupData.address}</p>
-                </div>
-                <span className="field-badge-evergreen text-xs">
-                  {lookupData.payoutStatus}
-                </span>
-              </div>
-
-              <div className="p-4 space-y-3 text-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <span className="text-ink-2 block text-[11px]">Evacuation Zone</span>
-                    <span className="font-semibold text-ink">{lookupData.zone}</span>
-                  </div>
-                  <div>
-                    <span className="text-ink-2 block text-[11px]">Priority Classification</span>
-                    <span className="font-semibold text-accent">{lookupData.tier}</span>
-                  </div>
-                  <div>
-                    <span className="text-ink-2 block text-[11px]">Disaster Trigger</span>
-                    <span className="text-ink">{lookupData.disasterExposure}</span>
-                  </div>
-                  <div>
-                    <span className="text-ink-2 block text-[11px]">Assistance Amount</span>
-                    <span className="font-bold text-accent text-sm tabular-nums">
-                      {lookupData.amountDisbursed}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-ink-2 block text-[11px]">Payment Route</span>
-                    <span className="text-ink">{lookupData.paymentRoute}</span>
-                  </div>
-                  <div>
-                    <span className="text-ink-2 block text-[11px]">PayPal Transaction / Reference</span>
-                    <span className="font-mono text-ink text-[11px]">
-                      {lookupData.paypalTransactionId}
-                    </span>
-                  </div>
-                </div>
-
-                {lookupData.claimUrl && (
-                  <div className="p-3 bg-amber-soft border border-amber-line rounded-lg text-xs text-amber flex items-center justify-between">
-                    <span>Payment is waiting for claim link confirmation on PayPal.</span>
-                    <a
-                      href={lookupData.claimUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-bold underline flex items-center gap-1"
-                    >
-                      <span>Claim on PayPal</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-3 bg-surface-2/40 border-t border-line flex items-center justify-between text-xs">
-                <span className="text-ink-2 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-ink-3" />
-                  <span>Disbursed: {lookupData.disbursedAt}</span>
-                </span>
-                <Link
-                  href="/r/complaints"
-                  className="text-accent font-semibold hover:underline flex items-center gap-1"
-                >
-                  <span>Submit Correction or Appeal</span>
-                  <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
-          )}
-
-          <div className="p-4 rounded-xl bg-accent-soft/40 border border-accent-line text-xs text-accent flex items-start gap-2.5">
-            <HeartHandshake className="w-4 h-4 flex-shrink-0 mt-0.5" />
-            <p className="leading-relaxed">{t.appealNotice}</p>
-          </div>
-        </div>
-      )}
+      {/* TAB 2: STATUS — real case API; residents can confirm receipt or report an access problem */}
+      {activeTab === "STATUS" && <ResidentStatus lang={lang} />}
     </div>
   );
 }

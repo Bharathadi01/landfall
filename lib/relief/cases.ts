@@ -286,9 +286,9 @@ export function buildReliefCases(accessReports: AccessReport[] = []): ReliefCase
     if (claimDaysLeft !== null && claimDaysLeft <= 10) reasons.push({ label: `Only ${claimDaysLeft} days left to claim`, points: 15 });
     else if (claimDaysLeft !== null && claimDaysLeft <= 20) reasons.push({ label: `${claimDaysLeft} days left to claim`, points: 8 });
     if (credUnconfirmed) reasons.push({ label: "Credited but not confirmed by the resident", points: 12 });
-    if (barrier) reasons.push({ label: `Resident reported: ${ACCESS_REASON_LABEL[barrier]}`, points: 20 });
+    if (barrier) reasons.push({ label: `Resident reported: ${ACCESS_REASON_LABEL[barrier]}`, points: 35 });
     const tierPts = { 1: 20, 2: 14, 3: 8, 4: 4 }[item.tier_number as 1 | 2 | 3 | 4] ?? 0;
-    if (tierPts && sp + (credUnconfirmed ? 12 : 0) + (barrier ? 20 : 0) > 0) reasons.push({ label: item.priority_tier, points: tierPts });
+    if (tierPts && sp + (credUnconfirmed ? 12 : 0) + (barrier ? 35 : 0) > 0) reasons.push({ label: item.priority_tier, points: tierPts });
     if (item.age_hours > 48 && item.transaction_status !== "SUCCESS") reasons.push({ label: `Open for ${Math.round(item.age_hours)} hours`, points: 10 });
     const gaps = evidence.filter((e) => e.state === "missing" && e.key !== "recipient").length;
     if (gaps > 0 && item.transaction_status !== "SUCCESS") reasons.push({ label: `${gaps} evidence gap${gaps > 1 ? "s" : ""}`, points: gaps * 5 });

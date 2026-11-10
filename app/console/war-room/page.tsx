@@ -30,6 +30,7 @@ import {
   summarizeCases,
   attentionQueue,
   STAGES,
+  ACCESS_REASON_LABEL,
   type AccessReport,
   type ReliefCase,
 } from "@/lib/relief/cases";
@@ -539,6 +540,23 @@ export default function CommandCenterPage() {
                 </Link>
               }
             />
+            {reports.length > 0 && (
+              <div className="mt-5 flex items-start gap-3 rounded-2xl border border-accent/30 bg-accent/[0.07] p-3.5" data-testid="resident-reports-banner">
+                <HeartHandshake className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong" />
+                <div className="text-[13px] text-ink">
+                  <span className="font-semibold">{reports.length} resident report{reports.length === 1 ? "" : "s"} received</span>{" "}
+                  <ProvenanceTag provenance="RECIPIENT_REPORTED" className="ml-1" />
+                  <div className="mt-1 text-ink-2">
+                    {reports
+                      .slice(-3)
+                      .reverse()
+                      .map((r) => (r.kind === "RECEIVED" ? "“I received it”" : `“Can’t access: ${ACCESS_REASON_LABEL[r.reason ?? "OTHER"].toLowerCase()}”`))
+                      .join(" · ")}
+                    . Self-reported — shown as such, never as PayPal confirmation.
+                  </div>
+                </div>
+              </div>
+            )}
             <ul className="mt-5 space-y-3">
               {queue.map((c) => (
                 <li key={c.caseRef} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4 transition-colors hover:border-white/15 hover:bg-white/[0.035]">
