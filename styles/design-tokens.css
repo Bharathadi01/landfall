@@ -1,13 +1,15 @@
 /**
- * LANDFALL · "EYE OF THE STORM" DESIGN TOKENS
+ * LANDFALL · "BROADCAST WEATHER DESK" DESIGN TOKENS
  *
- * Dark-first glass command surface. Colour carries meaning, everywhere:
- *   accent  (teal)    → relief money, safe, done
- *   paypal  (blue)    → PayPal rails & sandbox evidence
- *   ai      (violet)  → AI agents (read-only)
- *   amber             → protected reserve, caution, pending
- *   storm   (coral)   → hazard, storm, exposure
- *   danger  (rose)    → failure / blocked
+ * Warm graphite canvas, frosted glass panes, on-air colour. Colour carries meaning, everywhere:
+ *   accent    (flare orange) → the action / the live moment / "now"
+ *   money     (gold)         → relief dollars
+ *   delivered (green)        → confirmed delivery, done, safe
+ *   paypal    (blue)         → PayPal rails & sandbox evidence only
+ *   ai        (ice)          → AI advises (read-only)
+ *   amber                    → protected reserve, caution, pending
+ *   storm     (magenta)      → hazard, storm, exposure
+ *   danger    (red)          → failure / blocked
  *
  * Channels are space-separated RGB so Tailwind can apply alpha: rgb(var(--c-ink) / 0.6)
  */
@@ -15,45 +17,53 @@
 :root {
   color-scheme: dark;
 
-  /* ── Surfaces ─────────────────────────────────────────── */
-  --c-canvas: 5 7 12;          /* #05070C page */
-  --c-surface: 12 17 27;       /* #0C111B card */
-  --c-surface-2: 18 24 37;     /* #121825 inset / hover */
-  --c-surface-3: 26 33 49;     /* #1A2131 pressed / track */
-  --c-line: 32 40 56;          /* #202838 hairline */
-  --c-line-strong: 48 58 78;   /* #303A4E */
+  /* ── Surfaces (warm graphite, never navy) ─────────────── */
+  --c-canvas: 10 10 12;        /* #0A0A0C page */
+  --c-surface: 20 19 22;       /* #141316 pane */
+  --c-surface-2: 28 27 31;     /* #1C1B1F inset / hover */
+  --c-surface-3: 38 36 41;     /* #262429 pressed / track */
+  --c-line: 44 42 47;          /* #2C2A2F hairline */
+  --c-line-strong: 66 63 70;   /* #423F46 */
 
-  /* ── Ink ──────────────────────────────────────────────── */
-  --c-ink: 238 242 248;        /* #EEF2F8 */
-  --c-ink-2: 163 174 194;      /* #A3AEC2 */
-  --c-ink-3: 110 122 145;      /* #6E7A91 */
-  --c-on-accent: 3 22 19;      /* text on bright fills */
+  /* ── Ink (warm paper white) ───────────────────────────── */
+  --c-ink: 243 239 232;        /* #F3EFE8 */
+  --c-ink-2: 185 179 170;      /* #B9B3AA */
+  --c-ink-3: 138 132 123;      /* #8A847B — 5.3:1 on canvas */
+  --c-on-accent: 32 12 0;      /* text on bright fills */
 
   /* ── Meaning ──────────────────────────────────────────── */
-  --c-accent: 45 212 191;      /* #2DD4BF relief / safe */
-  --c-accent-strong: 94 234 212;
-  --c-accent-soft: 10 40 38;
-  --c-accent-line: 22 86 78;
+  --c-accent: 255 107 44;      /* #FF6B2C flare */
+  --c-accent-strong: 255 144 92;
+  --c-accent-soft: 46 20 10;
+  --c-accent-line: 120 52 22;
 
-  --c-paypal: 84 160 255;      /* #54A0FF */
-  --c-paypal-soft: 12 29 54;
-  --c-paypal-line: 30 70 128;
+  --c-money: 242 193 78;       /* #F2C14E gold */
+  --c-money-soft: 40 31 10;
+  --c-money-line: 102 78 20;
 
-  --c-ai: 167 139 250;         /* #A78BFA */
-  --c-ai-soft: 30 22 54;
-  --c-ai-line: 76 58 140;
+  --c-delivered: 111 212 154;  /* #6FD49A */
+  --c-delivered-soft: 12 38 26;
+  --c-delivered-line: 30 96 64;
 
-  --c-amber: 251 191 84;       /* #FBBF54 */
-  --c-amber-soft: 42 31 12;
-  --c-amber-line: 100 74 24;
+  --c-paypal: 76 155 255;      /* #4C9BFF */
+  --c-paypal-soft: 12 28 52;
+  --c-paypal-line: 30 68 128;
 
-  --c-storm: 255 122 89;       /* #FF7A59 */
-  --c-storm-soft: 46 22 16;
-  --c-storm-line: 112 48 34;
+  --c-ai: 142 227 245;         /* #8EE3F5 ice */
+  --c-ai-soft: 10 36 42;
+  --c-ai-line: 30 88 100;
 
-  --c-danger: 255 99 120;      /* #FF6378 */
-  --c-danger-soft: 48 16 24;
-  --c-danger-line: 118 36 52;
+  --c-amber: 255 176 32;       /* #FFB020 */
+  --c-amber-soft: 44 30 8;
+  --c-amber-line: 108 72 12;
+
+  --c-storm: 255 79 163;       /* #FF4FA3 */
+  --c-storm-soft: 48 14 34;
+  --c-storm-line: 120 30 80;
+
+  --c-danger: 255 59 78;       /* #FF3B4E */
+  --c-danger-soft: 50 14 20;
+  --c-danger-line: 124 30 42;
 
   /* ── Legacy variable names (kept so existing CSS keeps working) ── */
   --canvas: rgb(var(--c-canvas));
@@ -66,10 +76,10 @@
   --secondary-ink: rgb(var(--c-ink-2));
   --muted-ink: rgb(var(--c-ink-3));
   --inverse-ink: rgb(var(--c-canvas));
-  --evergreen: rgb(var(--c-accent));
-  --evergreen-hover: rgb(var(--c-accent-strong));
-  --evergreen-light: rgb(var(--c-accent-soft));
-  --evergreen-glow: rgb(var(--c-accent) / 0.18);
+  --evergreen: rgb(var(--c-delivered));
+  --evergreen-hover: rgb(var(--c-delivered));
+  --evergreen-light: rgb(var(--c-delivered-soft));
+  --evergreen-glow: rgb(var(--c-delivered) / 0.18);
   --signal-coral: rgb(var(--c-storm));
   --signal-coral-light: rgb(var(--c-storm-soft));
   --warm-amber: rgb(var(--c-amber));
@@ -77,9 +87,9 @@
   --atlas-blue: rgb(var(--c-paypal));
   --atlas-blue-light: rgb(var(--c-paypal-soft));
 
-  --status-success: rgb(var(--c-accent));
-  --status-success-bg: rgb(var(--c-accent-soft));
-  --status-success-border: rgb(var(--c-accent-line));
+  --status-success: rgb(var(--c-delivered));
+  --status-success-bg: rgb(var(--c-delivered-soft));
+  --status-success-border: rgb(var(--c-delivered-line));
   --status-warning: rgb(var(--c-amber));
   --status-warning-bg: rgb(var(--c-amber-soft));
   --status-warning-border: rgb(var(--c-amber-line));
@@ -93,13 +103,13 @@
   --status-neutral-bg: rgb(var(--c-surface-2));
   --status-neutral-border: rgb(var(--c-line-strong));
 
-  /* ── Glass ────────────────────────────────────────────── */
-  --glass-fill: linear-gradient(180deg, rgb(255 255 255 / 0.055) 0%, rgb(255 255 255 / 0.02) 100%);
-  --glass-fill-strong: linear-gradient(180deg, rgb(255 255 255 / 0.085) 0%, rgb(255 255 255 / 0.035) 100%);
-  --glass-border: rgb(255 255 255 / 0.08);
-  --glass-border-strong: rgb(255 255 255 / 0.14);
-  --glass-highlight: inset 0 1px 0 0 rgb(255 255 255 / 0.07);
-  --glass-blur: 22px;
+  /* ── Glass (warm-tinted, specular) ────────────────────── */
+  --glass-fill: linear-gradient(180deg, rgb(255 244 232 / 0.07) 0%, rgb(255 244 232 / 0.025) 100%);
+  --glass-fill-strong: linear-gradient(180deg, rgb(255 244 232 / 0.11) 0%, rgb(255 244 232 / 0.04) 100%);
+  --glass-border: rgb(255 244 232 / 0.09);
+  --glass-border-strong: rgb(255 244 232 / 0.16);
+  --glass-highlight: inset 0 1px 0 0 rgb(255 244 232 / 0.09);
+  --glass-blur: 24px;
 
   /* ── Spacing (4px base) ───────────────────────────────── */
   --space-1: 4px;
@@ -115,19 +125,19 @@
   --space-20: 80px;
   --space-24: 96px;
 
-  /* ── Radii ────────────────────────────────────────────── */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
+  /* ── Radii (softer, pill-forward) ─────────────────────── */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 30px;
   --radius-full: 9999px;
 
-  /* ── Elevation ────────────────────────────────────────── */
-  --shadow-subtle: 0 1px 2px rgb(0 0 0 / 0.4);
-  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 12px 32px -12px rgb(0 0 0 / 0.6);
-  --shadow-raised: 0 1px 0 0 rgb(255 255 255 / 0.06) inset, 0 24px 60px -20px rgb(0 0 0 / 0.75);
-  --shadow-floating: 0 1px 0 0 rgb(255 255 255 / 0.08) inset, 0 32px 80px -24px rgb(0 0 0 / 0.85);
-  --glow-accent: 0 0 0 1px rgb(var(--c-accent) / 0.35), 0 8px 32px -6px rgb(var(--c-accent) / 0.45);
+  /* ── Elevation (warm black) ───────────────────────────── */
+  --shadow-subtle: 0 1px 2px rgb(0 0 0 / 0.45);
+  --shadow-card: 0 1px 0 0 rgb(255 244 232 / 0.05) inset, 0 14px 36px -14px rgb(0 0 0 / 0.7);
+  --shadow-raised: 0 1px 0 0 rgb(255 244 232 / 0.07) inset, 0 28px 64px -22px rgb(0 0 0 / 0.8);
+  --shadow-floating: 0 1px 0 0 rgb(255 244 232 / 0.1) inset, 0 36px 90px -26px rgb(0 0 0 / 0.9);
+  --glow-accent: 0 0 0 1px rgb(var(--c-accent) / 0.4), 0 8px 34px -6px rgb(var(--c-accent) / 0.5);
 
   /* ── Motion ───────────────────────────────────────────── */
   --duration-instant: 100ms;

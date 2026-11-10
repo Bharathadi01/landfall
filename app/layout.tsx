@@ -1,16 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
-import { Instrument_Serif } from "next/font/google";
+import { Fraunces, Schibsted_Grotesk, Martian_Mono } from "next/font/google";
 import "./globals.css";
 import { UnifiedAppShell } from "@/components/layout/UnifiedAppShell";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 
-const accent = Instrument_Serif({
+const display = Fraunces({
   subsets: ["latin"],
-  weight: "400",
+  axes: ["opsz", "SOFT", "WONK"],
   style: ["normal", "italic"],
-  variable: "--font-accent",
+  variable: "--font-display",
+  display: "swap",
+});
+
+const ui = Schibsted_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-ui",
+  display: "swap",
+});
+
+const data = Martian_Mono({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  variable: "--font-data",
   display: "swap",
 });
 
@@ -21,19 +32,34 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#05070C",
+  themeColor: "#0A0A0C",
   colorScheme: "dark",
 };
 
+/**
+ * Shared SVG filter for liquid-glass refraction (Chromium: backdrop-filter: url(#lg-refract)).
+ * Other engines ignore it and fall back to plain blur.
+ */
+function GlassDefs() {
+  return (
+    <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden focusable="false">
+      <defs>
+        <filter id="lg-refract" x="-8%" y="-8%" width="116%" height="116%" colorInterpolationFilters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.011 0.017" numOctaves="2" seed="7" result="noise" />
+          <feGaussianBlur in="noise" stdDeviation="2.2" result="soft" />
+          <feDisplacementMap in="SourceGraphic" in2="soft" scale="16" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+    </svg>
+  );
+}
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${accent.variable}`}>
-      <body className="antialiased min-h-screen bg-canvas text-ink">
-        <div className="atmosphere" aria-hidden>
-          <div className="grid-lines" />
-          <div className="orb" style={{ width: 520, height: 520, top: -160, right: -80, background: "rgb(84 160 255 / 0.35)" }} />
-          <div className="orb" style={{ width: 460, height: 460, top: 120, left: -180, background: "rgb(45 212 191 / 0.22)", animationDelay: "-8s" }} />
-        </div>
+    <html lang="en" className={`${display.variable} ${ui.variable} ${data.variable}`}>
+      <body className="antialiased min-h-screen bg-canvas text-ink grain">
+        <GlassDefs />
+        <div className="vignette" aria-hidden />
         <MotionProvider>
           <div className="relative z-10">
             <UnifiedAppShell>{children}</UnifiedAppShell>

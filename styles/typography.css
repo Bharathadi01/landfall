@@ -1,37 +1,60 @@
 /**
- * LANDFALL TYPOGRAPHY
- * Geist (UI + display) · Geist Mono (numbers, evidence) · Instrument Serif italic (emotional accent only)
+ * LANDFALL TYPOGRAPHY — broadcast desk
+ *   Fraunces          → display & headlines (editorial, warm; italic for the one emphasised phrase)
+ *   Schibsted Grotesk → UI & body (newsroom grotesk, crisp at small sizes)
+ *   Martian Mono      → data, labels, tickers, timestamps (run condensed via font-stretch)
  */
 
 :root {
-  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
-  --font-serif: var(--font-accent), Georgia, serif;
+  --font-sans: var(--font-ui), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-data), ui-monospace, "SF Mono", Menlo, monospace;
+  --font-serif: var(--font-display), Georgia, serif;
+
+  /* Studio / AG widgets still reference the old variable names; point them at the new faces. */
+  --font-geist-sans: var(--font-ui);
+  --font-geist-mono: var(--font-data);
+  --font-accent: var(--font-display);
 }
 
 body {
   font-family: var(--font-sans);
-  font-feature-settings: "ss01" 1, "cv11" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-h1, h2, h3, h4 {
-  letter-spacing: -0.025em;
+h1, h2 {
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 40, "WONK" 0;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+h3, h4 {
+  letter-spacing: -0.015em;
   text-wrap: balance;
 }
 
 p { text-wrap: pretty; }
 
-/* One emotional accent per headline — "before" the storm. */
+/* Condensed mono everywhere — Martian Mono is wide by default. */
+.font-mono,
+code, kbd, samp, pre {
+  font-family: var(--font-mono);
+  font-stretch: 87.5%;
+}
+
+/* One emphasised phrase per headline — "before the storm." */
 .font-editorial,
 .font-editorial-italic,
-.text-accent-serif {
-  font-family: var(--font-accent), Georgia, serif;
+.text-accent-serif,
+.font-accent {
+  font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
-  letter-spacing: -0.01em;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  letter-spacing: -0.02em;
 }
 
 .font-tabular,
@@ -42,31 +65,35 @@ p { text-wrap: pretty; }
 
 /* Scale */
 .text-hero {
-  font-size: clamp(44px, 6.6vw, 96px);
-  line-height: 0.98;
-  letter-spacing: -0.045em;
-  font-weight: 650;
+  font-family: var(--font-serif);
+  font-size: clamp(48px, 7.4vw, 116px);
+  line-height: 0.96;
+  letter-spacing: -0.028em;
+  font-weight: 380;
+  font-variation-settings: "SOFT" 30, "WONK" 0;
 }
 
 .text-title-1 {
-  font-size: clamp(28px, 3.2vw, 40px);
-  line-height: 1.08;
-  letter-spacing: -0.035em;
-  font-weight: 650;
+  font-family: var(--font-serif);
+  font-size: clamp(30px, 3.6vw, 48px);
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  font-weight: 400;
 }
 
 .text-title-2 {
-  font-size: clamp(22px, 2.2vw, 28px);
-  line-height: 1.2;
+  font-family: var(--font-serif);
+  font-size: clamp(23px, 2.3vw, 31px);
+  line-height: 1.15;
   letter-spacing: -0.025em;
-  font-weight: 600;
+  font-weight: 420;
 }
 
 .text-heading {
   font-size: 17px;
   line-height: 1.35;
   letter-spacing: -0.015em;
-  font-weight: 600;
+  font-weight: 620;
 }
 
 .text-body-large {
@@ -89,30 +116,33 @@ p { text-wrap: pretty; }
 .text-micro,
 .eyebrow {
   font-family: var(--font-mono);
+  font-stretch: 87.5%;
   font-size: 11px;
   line-height: 1.3;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(var(--c-ink-3));
 }
 
 .text-code {
   font-family: var(--font-mono);
+  font-stretch: 87.5%;
   font-size: 12.5px;
   letter-spacing: -0.01em;
 }
 
 /* Gradient ink for hero numerals & headline accents */
 .text-gradient {
-  background: linear-gradient(180deg, rgb(var(--c-ink)) 0%, rgb(var(--c-ink) / 0.62) 100%);
+  background: linear-gradient(180deg, rgb(var(--c-ink)) 0%, rgb(var(--c-ink) / 0.6) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
+/* Flare → gold: the "now" colour pair */
 .text-gradient-relief {
-  background: linear-gradient(100deg, rgb(var(--c-accent-strong)) 0%, rgb(var(--c-paypal)) 55%, rgb(var(--c-ai)) 100%);
+  background: linear-gradient(100deg, rgb(var(--c-accent-strong)) 0%, rgb(var(--c-accent)) 45%, rgb(var(--c-money)) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

@@ -20,6 +20,8 @@ const config: Config = {
         ink: { DEFAULT: c("ink"), 2: c("ink-2"), 3: c("ink-3") },
         "on-accent": c("on-accent"),
         accent: { DEFAULT: c("accent"), strong: c("accent-strong"), soft: c("accent-soft"), line: c("accent-line") },
+        money: { DEFAULT: c("money"), soft: c("money-soft"), line: c("money-line") },
+        delivered: { DEFAULT: c("delivered"), soft: c("delivered-soft"), line: c("delivered-line") },
         paypal: { DEFAULT: c("paypal"), soft: c("paypal-soft"), line: c("paypal-line") },
         ai: { DEFAULT: c("ai"), soft: c("ai-soft"), line: c("ai-line") },
         amber: { DEFAULT: c("amber"), soft: c("amber-soft"), line: c("amber-line") },
@@ -39,20 +41,17 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        // Legacy `font-serif` headings now render in the display face.
-        serif: ["var(--font-sans)", "system-ui", "sans-serif"],
-        display: ["var(--font-sans)", "system-ui", "sans-serif"],
-        accent: ["var(--font-accent)", "Georgia", "serif"],
+        // `font-serif`, `font-display` and `font-accent` all resolve to the display face (Fraunces).
+        serif: ["var(--font-serif)", "Georgia", "serif"],
+        display: ["var(--font-serif)", "Georgia", "serif"],
+        accent: ["var(--font-serif)", "Georgia", "serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: {
         "4xl": "2rem",
+        "5xl": "2.5rem",
       },
       keyframes: {
-        "aurora-drift": {
-          "0%, 100%": { transform: "translate3d(0,0,0) scale(1)" },
-          "50%": { transform: "translate3d(4%, -3%, 0) scale(1.08)" },
-        },
         "sweep": {
           from: { transform: "rotate(0deg)" },
           to: { transform: "rotate(360deg)" },
@@ -67,7 +66,6 @@ const config: Config = {
         },
       },
       animation: {
-        "aurora-drift": "aurora-drift 18s ease-in-out infinite",
         "sweep": "sweep 6s linear infinite",
         "shimmer": "shimmer 3s linear infinite",
         "ping-soft": "ping-soft 2.2s cubic-bezier(0,0,0.2,1) infinite",
