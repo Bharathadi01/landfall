@@ -3,7 +3,7 @@
 
 import { PageTitle } from "@/components/ui/primitives";
 import { Radar as __HeaderIcon } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import type { NormalizedAlert, ServiceHealth } from "@/lib/sentinel/types";
 import { WeatherMap } from "@/components/sentinel/WeatherMap";
 import { WeatherIntelligencePanel } from "@/components/sentinel/WeatherIntelligencePanel";
@@ -45,7 +45,7 @@ export default function StormIntelligenceConsolePage() {
   const [replayPackage, setReplayPackage] = useState<any | null>(null);
   const [selectedRadarIndex, setSelectedRadarIndex] = useState(0);
 
-  const fetchUnifiedWeather = async (modeOverride?: "LIVE" | "HISTORICAL_REPLAY") => {
+  const fetchUnifiedWeather = useCallback(async (modeOverride?: "LIVE" | "HISTORICAL_REPLAY") => {
     setLoading(true);
     setError(null);
     try {
@@ -57,15 +57,15 @@ export default function StormIntelligenceConsolePage() {
       setWeatherData(data.weather || null);
       setClusterData(data.clusters || null);
 
-      if (data.weather?.nwsAlerts?.length > 0 && !selectedAlert) {
-        setSelectedAlert(data.weather.nwsAlerts[0]);
+      if (data.weather?.nwsAlerts?.length > 0) {
+        setSelectedAlert((prev: any) => prev ?? data.weather.nwsAlerts[0]);
       }
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeMode, selectedFund.id]);
 
   const handleTriggerReplay = async () => {
     setReplaying(true);
@@ -102,7 +102,7 @@ export default function StormIntelligenceConsolePage() {
 
   useEffect(() => {
     fetchUnifiedWeather();
-  }, [selectedFund.id, activeMode]);
+  }, [fetchUnifiedWeather]);
 
   const displayedAlerts = weatherData?.nwsAlerts || [];
   const mapMode =

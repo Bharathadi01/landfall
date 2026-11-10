@@ -3,7 +3,7 @@
 
 import { PageTitle } from "@/components/ui/primitives";
 import { Users as __HeaderIcon } from "lucide-react";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { RecipientProfileView } from "@/components/recipients/RecipientProfileView";
 import {
   Search,
@@ -41,7 +41,7 @@ export default function CoordinatorRecipientsPage() {
   const [activeTab, setActiveTab] = useState<"directory" | "appeals">("directory");
   const [appeals, setAppeals] = useState<any[]>([]);
 
-  const fetchRecipients = async () => {
+  const fetchRecipients = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -64,9 +64,9 @@ export default function CoordinatorRecipientsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, channelFilter, displacedFilter, decryptPII]);
 
-  const fetchAppeals = async () => {
+  const fetchAppeals = useCallback(async () => {
     try {
       const res = await fetch("/api/recipients/appeal");
       const data = await res.json();
@@ -76,17 +76,17 @@ export default function CoordinatorRecipientsPage() {
     } catch (err) {
       console.error("Failed to load appeals:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchRecipients();
-  }, [statusFilter, channelFilter, displacedFilter, decryptPII]);
+  }, [fetchRecipients]);
 
   useEffect(() => {
     if (activeTab === "appeals") {
       fetchAppeals();
     }
-  }, [activeTab]);
+  }, [activeTab, fetchAppeals]);
 
   const handleReconfirm = async (householdId: string) => {
     const res = await fetch("/api/recipients/reconfirm", {
