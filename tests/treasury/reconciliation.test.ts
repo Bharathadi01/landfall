@@ -6,7 +6,7 @@ import { db } from "@/lib/db/client";
 import { auditEvents, ledgerAccounts, ledgerEntries } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-describe("Treasury Reconciliation Engine", () => {
+describe.skipIf(!process.env.LANDFALL_DB_TESTS)("Treasury Reconciliation Engine", () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
     await db.delete(ledgerEntries);

@@ -11,7 +11,29 @@ import { subscriptions, ledgerEntries, webhookEvents } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getAccountBalance } from "@/lib/ledger/index";
 
-describe("Monthly Sustainers & Subscriptions Engine", () => {
+// Verification is delegated to PayPal's verify-webhook-signature API; mock it so these
+// suites exercise the processing logic. Rejection paths are tested in tests/paypal/webhook-gate.test.ts.
+vi.mock("@/lib/paypal/webhooks", async (orig) => ({
+  ...(await orig<typeof import("@/lib/paypal/webhooks")>()),
+  verifyWebhookSignature: vi.fn(async () => true),
+}));
+
+function signedWebhookRequest(payload: unknown) {
+  process.env.PAYPAL_WEBHOOK_ID = "WH-TEST";
+  return new NextRequest("http://localhost:3000/api/paypal/webhook", {
+    method: "POST",
+    headers: {
+      "paypal-auth-algo": "SHA256withRSA",
+      "paypal-cert-url": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-TEST",
+      "paypal-transmission-id": "tx-test",
+      "paypal-transmission-sig": "sig-test",
+      "paypal-transmission-time": "2026-11-11T00:00:00Z",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+describe.skipIf(!process.env.LANDFALL_DB_TESTS)("Monthly Sustainers & Subscriptions Engine", () => {
   beforeEach(async () => {
     // Clear test subscriptions and events if any
     await db.delete(subscriptions);
@@ -107,10 +129,7 @@ describe("Monthly Sustainers & Subscriptions Engine", () => {
         },
       };
 
-      const req = new NextRequest("http://localhost:3000/api/paypal/webhook", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
+      const req = signedWebhookRequest(payload);
 
       const res = await webhookHandler(req);
       expect(res.status).toBe(200);
@@ -148,10 +167,7 @@ describe("Monthly Sustainers & Subscriptions Engine", () => {
         },
       };
 
-      const req = new NextRequest("http://localhost:3000/api/paypal/webhook", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
+      const req = signedWebhookRequest(payload);
 
       const res = await webhookHandler(req);
       expect(res.status).toBe(200);
@@ -198,10 +214,7 @@ describe("Monthly Sustainers & Subscriptions Engine", () => {
         },
       };
 
-      const req1 = new NextRequest("http://localhost:3000/api/paypal/webhook", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
+      const req1 = signedWebhookRequest(payload);
 
       const res1 = await webhookHandler(req1);
       expect(res1.status).toBe(200);
@@ -220,10 +233,7 @@ describe("Monthly Sustainers & Subscriptions Engine", () => {
       expect(subRecord.lastPaymentAt).toBeDefined();
 
       // REPLAY / DUPLICATE TEST: Same webhook event sent again
-      const req2 = new NextRequest("http://localhost:3000/api/paypal/webhook", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
+      const req2 = signedWebhookRequest(payload);
 
       const res2 = await webhookHandler(req2);
       expect(res2.status).toBe(200);
@@ -252,10 +262,7 @@ describe("Monthly Sustainers & Subscriptions Engine", () => {
       };
 
       await webhookHandler(
-        new NextRequest("http://localhost:3000/api/paypal/webhook", {
-          method: "POST",
-          body: JSON.stringify(suspendPayload),
-        })
+        signedWebhookRequest(suspendPayload)
       );
 
       let [sub] = await db
@@ -271,10 +278,7 @@ describe("Monthly Sustainers & Subscriptions Engine", () => {
       };
 
       await webhookHandler(
-        new NextRequest("http://localhost:3000/api/paypal/webhook", {
-          method: "POST",
-          body: JSON.stringify(cancelPayload),
-        })
+        signedWebhookRequest(cancelPayload)
       );
 
       [sub] = await db
@@ -308,10 +312,7 @@ describe("Monthly Sustainers & Subscriptions Engine", () => {
       };
 
       await webhookHandler(
-        new NextRequest("http://localhost:3000/api/paypal/webhook", {
-          method: "POST",
-          body: JSON.stringify(delayedCreatedPayload),
-        })
+        signedWebhookRequest(delayedCreatedPayload)
       );
 
       // Status must remain ACTIVE (precedence prevents rollback to APPROVAL_PENDING)

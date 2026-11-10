@@ -37,4 +37,12 @@ describe("PayPal Webhook Status Precedence & HATEOAS Traversal (§2, §3)", () =
     expect(PAYOUT_STATUS_PRECEDENCE["FAILED"]).toBe(6);
     expect(PAYOUT_STATUS_PRECEDENCE["PENDING"]).toBe(1);
   });
+
+  it("ranks ONHOLD and REVERSED so out-of-order events behave (provider vocabulary)", () => {
+    expect(PAYOUT_STATUS_PRECEDENCE.ONHOLD).toBeDefined();
+    expect(PAYOUT_STATUS_PRECEDENCE.REVERSED).toBeDefined();
+    expect(shouldUpdatePayoutStatus("PENDING", "ONHOLD")).toBe(true);
+    expect(shouldUpdatePayoutStatus("UNCLAIMED", "ONHOLD")).toBe(false);
+    expect(shouldUpdatePayoutStatus("ONHOLD", "SUCCESS")).toBe(true);
+  });
 });

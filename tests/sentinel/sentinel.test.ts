@@ -361,7 +361,7 @@ describe("Sentinel Disaster Intelligence Engine (§4.3, M5)", () => {
   });
 
   describe("5. Idempotent Ingestion & Financial Safety Invariants", () => {
-    it("ingests alert into database and handles updates idempotently", async () => {
+    it.skipIf(!process.env.LANDFALL_DB_TESTS)("ingests alert into database and handles updates idempotently", async () => {
       const testAlert = normalizeNWSAlert({
         id: `test_alert_${Date.now()}`,
         properties: {
@@ -385,7 +385,7 @@ describe("Sentinel Disaster Intelligence Engine (§4.3, M5)", () => {
       expect(res2.alertRecordId).toBe(res1.alertRecordId);
     });
 
-    it("creates activation for Tranche 1 eligible alert without calling PayPal Payouts", async () => {
+    it.skipIf(!process.env.LANDFALL_DB_TESTS)("creates activation for Tranche 1 eligible alert without calling PayPal Payouts", async () => {
       const replay = loadMiltonHistoricalReplay();
       const miltonWarning = replay.alerts[0]; // KTBW.HU.W.0009
 

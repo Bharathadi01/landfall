@@ -7,18 +7,34 @@ const RequestSchema = z.object({
   donationAmountUsd: z.number().positive().optional().default(1000.0),
 });
 
+/**
+ * Running the workflow can submit a real PayPal Sandbox payout batch (stage 7), so it is
+ * POST-only (never a crawlable GET), switchable off, and rate limited per client.
+ */
+const WINDOW_MS = 60_000;
+const MAX_RUNS_PER_WINDOW = 8;
+const hits = new Map<string, number[]>();
+
+function rateLimited(key: string): boolean {
+  const now = Date.now();
+  const recent = (hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
+  recent.push(now);
+  hits.set(key, recent);
+  return recent.length > MAX_RUNS_PER_WINDOW;
+}
+
 export async function GET() {
-  // Returns initial state at Stage 0 / default snapshot
-  try {
-    const result = await executeGoldenWorkflow({ targetStage: 8 });
-    return NextResponse.json(result);
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: msg }, { status: 500 });
-  }
+  return NextResponse.json({ error: "Use POST to run the workflow" }, { status: 405, headers: { Allow: "POST" } });
 }
 
 export async function POST(req: NextRequest) {
+  if (process.env.JUDGE_MODE_ENABLED === "false") {
+    return NextResponse.json({ error: "Workflow runs are disabled on this deployment" }, { status: 403 });
+  }
+  const client = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+  if (rateLimited(client)) {
+    return NextResponse.json({ error: "Too many workflow runs; try again in a minute" }, { status: 429 });
+  }
   try {
     let body = {};
     try {

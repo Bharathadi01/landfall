@@ -13,7 +13,7 @@ import { ledgerEntries, auditEvents, stormPledges, subscriptions } from "@/lib/d
 import { runTreasuryReconciliation } from "@/lib/treasury/reconciler";
 import { eq } from "drizzle-orm";
 
-describe("Adversarial Financial Integrity & Ledger Audit (§3, §4.2)", () => {
+describe.skipIf(!process.env.LANDFALL_DB_TESTS)("Adversarial Financial Integrity & Ledger Audit (§3, §4.2)", () => {
   beforeEach(async () => {
     // Clear ledger entries and pledges for clean test isolation
     await db.delete(ledgerEntries);

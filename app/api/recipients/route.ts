@@ -13,9 +13,11 @@ export async function GET(req: Request) {
     const pathFilter = url.searchParams.get("path");
     const channelFilter = url.searchParams.get("channel");
     const displacedFilter = url.searchParams.get("isDisplaced");
-    const shouldDecrypt = url.searchParams.get("decrypt") === "true";
-    const actorId = url.searchParams.get("actorId") || "system_coordinator";
-    const actorRole = (url.searchParams.get("actorRole") || "coordinator") as Role;
+    // PII is masked unless the SERVER operator enables reveal (demo recordings). The caller can
+    // neither request decryption nor choose its own role/identity: both come from server config.
+    const shouldDecrypt = process.env.PII_DECRYPT_ENABLED === "true" && url.searchParams.get("decrypt") === "true";
+    const actorId = "demo_operator";
+    const actorRole: Role = "coordinator";
 
     const allHouseholds = await db
       .select()

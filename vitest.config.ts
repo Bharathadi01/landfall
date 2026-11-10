@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: true,
+    setupFiles: ["./tests/setup/db-guard.ts"],
     fileParallelism: false,
     testTimeout: 30000,
     hookTimeout: 30000,

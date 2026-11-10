@@ -12,7 +12,7 @@ import { eq } from "drizzle-orm";
 import fs from "fs";
 import path from "path";
 
-describe("Watch Officer AI Operational Intelligence Engine (§5, §6, §10, M6)", () => {
+describe.skipIf(!process.env.LANDFALL_DB_TESTS)("Watch Officer AI Operational Intelligence Engine (§5, §6, §10, M6)", () => {
   let testFundId: string;
 
   beforeAll(async () => {

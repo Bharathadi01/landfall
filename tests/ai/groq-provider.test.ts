@@ -16,7 +16,7 @@ import { funds } from "@/lib/db/schema";
 import fs from "fs";
 import path from "path";
 
-describe("Groq Free Plan AI Provider & Zero-Cost Architecture (§1, §2, §5, §7)", () => {
+describe.skipIf(!process.env.LANDFALL_DB_TESTS)("Groq Free Plan AI Provider & Zero-Cost Architecture (§1, §2, §5, §7)", () => {
   let testFundId: string;
 
   beforeEach(async () => {

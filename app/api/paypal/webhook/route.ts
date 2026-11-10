@@ -26,18 +26,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing webhook event id" }, { status: 400 });
     }
 
-    // 1. Deduplication Check on Webhook Event ID
-    const existing = await db
-      .select()
-      .from(webhookEvents)
-      .where(eq(webhookEvents.paypalEventId, eventId))
-      .limit(1);
-
-    if (existing.length > 0) {
-      return NextResponse.json({ message: "Duplicate event already processed" }, { status: 200 });
-    }
-
-    // 2. Cryptographic Signature Verification
+    // 1. Signature verification FIRST, via PayPal's verify-webhook-signature API.
+    //    Nothing is persisted and no state changes until PayPal confirms the signature,
+    //    so a forged event can neither move money nor pre-empt the real delivery's event id.
     const authAlgo = req.headers.get("paypal-auth-algo") || "";
     const certUrl = req.headers.get("paypal-cert-url") || "";
     const transmissionId = req.headers.get("paypal-transmission-id") || "";
@@ -45,31 +36,46 @@ export async function POST(req: NextRequest) {
     const transmissionTime = req.headers.get("paypal-transmission-time") || "";
     const webhookId = process.env.PAYPAL_WEBHOOK_ID || "";
 
-    let isVerified = false;
-    if (authAlgo && certUrl && transmissionId && transmissionSig && webhookId) {
-      isVerified = await verifyWebhookSignature({
-        auth_algo: authAlgo,
-        cert_url: certUrl,
-        transmission_id: transmissionId,
-        transmission_sig: transmissionSig,
-        transmission_time: transmissionTime,
-        webhook_id: webhookId,
-        webhook_event: event,
-      });
-    } else {
-      // In local dev without tunnel headers, mark appropriately
-      console.warn("Webhook received without complete PayPal signature headers");
+    if (!webhookId) {
+      return NextResponse.json(
+        { error: "Webhook receiver not configured (PAYPAL_WEBHOOK_ID unset); event rejected" },
+        { status: 503 }
+      );
+    }
+    if (!(authAlgo && certUrl && transmissionId && transmissionSig && transmissionTime)) {
+      return NextResponse.json({ error: "Missing PayPal signature headers; event rejected" }, { status: 401 });
     }
 
-    // 3. Persist Event to webhook_events Table
-    await db.insert(webhookEvents).values({
-      paypalEventId: eventId,
-      type: eventType,
-      verified: isVerified,
-      payload: event,
-      receivedAt: new Date(),
-      processedAt: new Date(),
+    const isVerified = await verifyWebhookSignature({
+      auth_algo: authAlgo,
+      cert_url: certUrl,
+      transmission_id: transmissionId,
+      transmission_sig: transmissionSig,
+      transmission_time: transmissionTime,
+      webhook_id: webhookId,
+      webhook_event: event,
     });
+    if (!isVerified) {
+      return NextResponse.json({ error: "PayPal signature verification failed; event rejected" }, { status: 401 });
+    }
+
+    // 2. Atomic de-duplication on the PayPal event id (redeliveries are acknowledged, not reprocessed).
+    const inserted = await db
+      .insert(webhookEvents)
+      .values({
+        paypalEventId: eventId,
+        type: eventType,
+        verified: true,
+        payload: event,
+        receivedAt: new Date(),
+        processedAt: new Date(),
+      })
+      .onConflictDoNothing({ target: webhookEvents.paypalEventId })
+      .returning({ id: webhookEvents.paypalEventId });
+
+    if (inserted.length === 0) {
+      return NextResponse.json({ message: "Duplicate event already processed" }, { status: 200 });
+    }
 
     // 4. Handle Event Payload
     const resource = (event.resource || {}) as Record<string, unknown>;
@@ -81,7 +87,9 @@ export async function POST(req: NextRequest) {
     ) {
       const payoutItemId = String(resource.payout_item_id || "");
       let rawStatus = String(resource.transaction_status || eventType.split(".").pop() || "");
-      const newStatus = rawStatus.toUpperCase() === "SUCCEEDED" ? "SUCCESS" : rawStatus.toUpperCase();
+      // Event suffixes differ from item transaction_status values (SUCCEEDED→SUCCESS, HELD→ONHOLD).
+      const upper = rawStatus.toUpperCase();
+      const newStatus = upper === "SUCCEEDED" ? "SUCCESS" : upper === "HELD" ? "ONHOLD" : upper;
 
       if (payoutItemId) {
         const currentItem = await db
