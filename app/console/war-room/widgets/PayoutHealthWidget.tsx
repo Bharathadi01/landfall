@@ -50,7 +50,7 @@ export function PayoutHealthWidget({
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-            5. PayPal Payout Settlement Health
+            Real PayPal Sandbox test payouts
           </h3>
         </div>
         <div className="flex gap-2">

@@ -28,7 +28,7 @@ export function ExposureDistributionWidget({
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-            2. Exposure by Evacuation Zone
+            Exposure by Evacuation Zone
           </h3>
         </div>
         <span className="text-xs text-slate-400 font-mono">{total} Enrolled Households</span>

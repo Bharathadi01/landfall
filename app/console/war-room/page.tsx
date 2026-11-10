@@ -42,7 +42,6 @@ import {
   ResponseFunnelWidget,
   PayoutHealthWidget,
   ReadinessMonitorWidget,
-  ScenarioComparisonWidget,
   ImpactTimelineWidget,
   PayPalMoneyPathExplorer,
   SettlementIntegrityBridge,
@@ -790,7 +789,6 @@ export default function CommandCenterPage() {
           <ResponseFunnelWidget />
           <PayoutHealthWidget />
           <ReadinessMonitorWidget />
-          <ScenarioComparisonWidget />
           <ImpactTimelineWidget />
           <PayPalMoneyPathExplorer />
           <SettlementIntegrityBridge />

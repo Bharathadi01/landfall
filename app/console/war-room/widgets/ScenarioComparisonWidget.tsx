@@ -44,7 +44,7 @@ export function ScenarioComparisonWidget({
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-purple-500" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-            7. Response Scenario Stress Simulation
+            Response Scenario Stress Simulation
           </h3>
         </div>
         <span className="text-xs text-purple-400 font-mono">Deterministic Policy Simulator</span>

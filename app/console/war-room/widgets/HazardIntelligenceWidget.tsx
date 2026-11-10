@@ -31,7 +31,7 @@ export function HazardIntelligenceWidget({
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-            1. Hazard Intelligence & Telemetry
+            Hazard Intelligence & Telemetry
           </h3>
         </div>
         {isRehearsal && (

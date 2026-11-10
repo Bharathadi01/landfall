@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { TREASURY } from "@/lib/studio/landfall-studio-data";
 
 export interface TreasuryWaterfallProps {
   totalCashCents?: number;
@@ -10,12 +11,14 @@ export interface TreasuryWaterfallProps {
   committedCents?: number;
 }
 
+const SENT_USD = TREASURY.paidOut + TREASURY.inFlight;
+
 export function TreasuryWaterfallWidget({
-  totalCashCents = 100000, // $1,000.00
-  reserveProtectedCents = 30000, // $300.00 (30%)
-  feesReservedCents = 5000, // $50.00
-  allocatableCents = 65000, // $650.00
-  committedCents = 50000, // $500.00 committed (5 x $100)
+  totalCashCents = TREASURY.total * 100, // funds received
+  reserveProtectedCents = TREASURY.reserve * 100, // protected reserve
+  feesReservedCents = 0, // PayPal bills $0.25 per item; not reserved separately in this demo
+  allocatableCents = (TREASURY.allocatable + SENT_USD) * 100, // tranche budget = still-allocatable + already sent
+  committedCents = SENT_USD * 100, // credited, unclaimed, held or pending at PayPal
 }: TreasuryWaterfallProps) {
   const formatUsd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
@@ -25,7 +28,7 @@ export function TreasuryWaterfallWidget({
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-            3. Treasury Waterfall & Liquidity
+            Treasury waterfall
           </h3>
         </div>
         <span className="text-xs font-mono font-bold text-emerald-400">
@@ -35,7 +38,7 @@ export function TreasuryWaterfallWidget({
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-slate-400 font-mono">Protected Floor (30%)</div>
+          <div className="text-[11px] text-slate-400 font-mono">Protected reserve</div>
           <div className="text-sm font-bold text-amber-400 mt-0.5">
             {formatUsd(reserveProtectedCents)}
           </div>
@@ -47,23 +50,23 @@ export function TreasuryWaterfallWidget({
           <div className="text-sm font-bold text-slate-300 mt-0.5">
             {formatUsd(feesReservedCents)}
           </div>
-          <div className="text-[10px] text-slate-500 mt-0.5">PayPal batch costs</div>
+          <div className="text-[10px] text-slate-500 mt-0.5">Billed per item, not reserved</div>
         </div>
 
         <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-slate-400 font-mono">Allocatable Limit</div>
+          <div className="text-[11px] text-slate-400 font-mono">Tranche 1 budget</div>
           <div className="text-sm font-bold text-sky-400 mt-0.5">
             {formatUsd(allocatableCents)}
           </div>
-          <div className="text-[10px] text-slate-500 mt-0.5">Max Tranche 1 budget</div>
+          <div className="text-[10px] text-slate-500 mt-0.5">Cash minus reserve, incl. already sent</div>
         </div>
 
         <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-slate-400 font-mono">Committed Plan</div>
+          <div className="text-[11px] text-slate-400 font-mono">Sent so far</div>
           <div className="text-sm font-bold text-emerald-400 mt-0.5">
             {formatUsd(committedCents)}
           </div>
-          <div className="text-[10px] text-emerald-500 mt-0.5">5 households @ $100</div>
+          <div className="text-[10px] text-emerald-500 mt-0.5">Sent to PayPal (credited, unclaimed, held or pending)</div>
         </div>
       </div>
 
@@ -108,7 +111,7 @@ export function TreasuryWaterfallWidget({
             <span className="w-2 h-2 rounded bg-slate-600/60" /> Fees
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded bg-amber-500/80" /> 30% Floor
+            <span className="w-2 h-2 rounded bg-amber-500/80" /> Protected reserve
           </span>
         </div>
       </div>

@@ -1,6 +1,9 @@
 "use client";
 
 import React from "react";
+import { TREASURY } from "@/lib/studio/landfall-studio-data";
+import { CASE_SUMMARY } from "@/lib/relief/cases";
+import { money } from "@/components/relief/parts";
 import { type ReadinessEvaluationResult } from "@/lib/treasury/readiness-monitor";
 
 export function ReadinessMonitorWidget({
@@ -49,8 +52,8 @@ export function ReadinessMonitorWidget({
     },
     allBlockingReasons: [],
     actionableChecklist: [
-      { pillar: "FINANCIAL", title: "Treasury Solvency & Reserve Floor", isSatisfied: true, detail: "$650.00 allocatable ($300.00 protected)" },
-      { pillar: "RECIPIENT", title: "Household Directory Verification", isSatisfied: true, detail: "6 of 6 recipients verified for instant disbursement" },
+      { pillar: "FINANCIAL", title: "Treasury Solvency & Reserve Floor", isSatisfied: true, detail: `${money(TREASURY.allocatable)} allocatable (${money(TREASURY.reserve)} protected reserve)` },
+      { pillar: "RECIPIENT", title: "Household Directory Verification", isSatisfied: true, detail: `${CASE_SUMMARY.households} of ${CASE_SUMMARY.households} approved households have a verified payout route` },
       { pillar: "OPERATIONAL", title: "Dual-Custody WebAuthn Governance", isSatisfied: true, detail: "Two-key passkey signatories active" },
       { pillar: "HAZARD", title: "Sentinel Disaster Telemetry", isSatisfied: true, detail: "HU.W Warning active with valid polygon" },
     ],
@@ -75,7 +78,7 @@ export function ReadinessMonitorWidget({
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-            6. Pre-Disaster Readiness Monitor
+            Pre-disaster readiness
           </h3>
         </div>
         <div className="flex items-center gap-2 font-mono">

@@ -1,128 +1,85 @@
 "use client";
 
 import React from "react";
+import { TREASURY, studioLedgerReconciliation, studioRecoveryProofs } from "@/lib/studio/landfall-studio-data";
+import { money } from "@/components/relief/parts";
 
-export interface SettlementIntegrityProps {
-  paypalAvailableCents?: number;
-  reserveProtectedCents?: number;
-  feesReservedCents?: number;
-  committedCents?: number;
-  allocatableCents?: number;
-  contingentPledgesCents?: number;
-  lastSyncedAt?: string;
-  reconciliationAuditHash?: string;
-}
-
-export function SettlementIntegrityBridge({
-  paypalAvailableCents = 100000, // $1,000.00
-  reserveProtectedCents = 30000, // $300.00 (30% floor)
-  feesReservedCents = 5000, // $50.00 fee reserve
-  committedCents = 0,
-  allocatableCents = 65000, // $650.00 net allocatable
-  contingentPledgesCents = 25000, // $250.00 uncaptured pledges
-  lastSyncedAt = "Just now (42s ago)",
-  reconciliationAuditHash = "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
-}: SettlementIntegrityProps) {
-  const isStale = false; // Fresh sync within 10m SLA
+/**
+ * Settlement & financial-integrity bridge.
+ * Every figure derives from the same treasury and ledger rows as the rest of the app; the
+ * "reconciled" badge is COMPUTED from the ledger (balances must sum to funds received and every
+ * variance must be 0¢) rather than asserted. Data is replay data, labelled as such.
+ */
+export function SettlementIntegrityBridge() {
+  const sumBalances = studioLedgerReconciliation.reduce((t, l) => t + l.balance_usd, 0);
+  const reconciled = sumBalances === TREASURY.total && studioLedgerReconciliation.every((l) => l.variance_cents === 0);
+  const sent = TREASURY.paidOut + TREASURY.inFlight;
+  const pct = (n: number) => `${(n / TREASURY.total) * 100}%`;
+  const proof = studioRecoveryProofs[0];
 
   return (
-    <div className="glass p-5 space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.07] pb-3">
+    <div className="glass space-y-4 p-5">
+      <div className="flex flex-col justify-between gap-2 border-b border-white/[0.07] pb-3 sm:flex-row sm:items-center">
         <div>
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Settlement & Financial Integrity Bridge
+          <span className="flex items-center gap-1.5 text-[15px] font-semibold tracking-[-0.015em] text-ink">
+            <span className={`h-2 w-2 rounded-full ${reconciled ? "bg-accent" : "bg-danger"}`} />
+            Settlement &amp; financial integrity
           </span>
-          <p className="text-xs text-slate-400 mt-0.5">
-            PayPal Reporting API vs Double-Entry Ledger reconciliation and reserve isolation
-          </p>
+          <p className="mt-0.5 text-[12.5px] text-ink-3">Ledger vs treasury, with the reserve kept apart</p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
-            Ledger Reconciled: 100% In-Sync
-          </span>
+        <span className={`field-badge ${reconciled ? "field-badge-success" : "field-badge-critical"}`}>
+          {reconciled ? "Ledger balances · 0¢ variance" : "Ledger mismatch — investigate"}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 text-xs lg:grid-cols-4">
+        <div className="space-y-1 rounded-xl border border-white/[0.07] bg-black/20 p-3">
+          <div className="text-[10px] uppercase text-ink-3">Funds received</div>
+          <div className="text-base font-semibold tabular text-ink">{money(TREASURY.total)}</div>
+          <div className="text-[10px] text-ink-3">Replay data</div>
+        </div>
+        <div className="space-y-1 rounded-xl border border-white/[0.07] bg-black/20 p-3">
+          <div className="text-[10px] uppercase text-ink-3">Protected reserve</div>
+          <div className="text-base font-semibold tabular text-amber">{money(TREASURY.reserve)}</div>
+          <div className="text-[10px] text-ink-3">Policy floor {money(TREASURY.requiredReserve)} ({TREASURY.policyFloorPct}%)</div>
+        </div>
+        <div className="space-y-1 rounded-xl border border-white/[0.07] bg-black/20 p-3">
+          <div className="text-[10px] uppercase text-ink-3">Ready to allocate</div>
+          <div className="text-base font-semibold tabular text-accent-strong">{money(TREASURY.allocatable)}</div>
+          <div className="text-[10px] text-ink-3">Cash in account minus reserve</div>
+        </div>
+        <div className="space-y-1 rounded-xl border border-white/[0.07] bg-black/20 p-3">
+          <div className="text-[10px] uppercase text-ink-3">Sent to PayPal</div>
+          <div className="text-base font-semibold tabular text-paypal">{money(sent)}</div>
+          <div className="text-[10px] text-ink-3">
+            {money(TREASURY.paidOut)} credited · {money(TREASURY.inFlight)} in flight
+          </div>
         </div>
       </div>
 
-      {/* Primary KPI Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs font-mono">
-        <div className="p-3 bg-slate-950 rounded-xl border border-white/[0.07] space-y-1">
-          <div className="text-slate-400 text-[10px] uppercase">PayPal Liquid Cash</div>
-          <div className="text-white font-bold text-base">
-            ${(paypalAvailableCents / 100).toFixed(2)}
-          </div>
-          <div className="text-[10px] text-emerald-400">api-m.sandbox.paypal.com</div>
+      <div className="space-y-2 rounded-xl border border-white/[0.07] bg-black/20 p-3.5 text-xs">
+        <div className="flex items-center justify-between text-[11px]">
+          <span className="font-semibold text-ink-2">Every dollar is in exactly one place</span>
+          <span className="text-ink-3">Replay clock · 2024-10-09 18:30 UTC</span>
         </div>
-
-        <div className="p-3 bg-slate-950 rounded-xl border border-white/[0.07] space-y-1">
-          <div className="text-slate-400 text-[10px] uppercase">Protected Reserve Floor (30%)</div>
-          <div className="text-amber-400 font-bold text-base">
-            -${(reserveProtectedCents / 100).toFixed(2)}
-          </div>
-          <div className="text-[10px] text-slate-400">Inviolable operating buffer</div>
+        <div className="flex h-3 w-full overflow-hidden rounded-full bg-white/[0.06]">
+          <div className="h-full bg-accent" style={{ width: pct(TREASURY.allocatable) }} title={`Ready to allocate ${money(TREASURY.allocatable)}`} />
+          <div className="h-full bg-amber" style={{ width: pct(TREASURY.reserve) }} title={`Protected reserve ${money(TREASURY.reserve)}`} />
+          <div className="h-full bg-paypal" style={{ width: pct(sent) }} title={`Sent to PayPal ${money(sent)}`} />
         </div>
-
-        <div className="p-3 bg-slate-950 rounded-xl border border-white/[0.07] space-y-1">
-          <div className="text-slate-400 text-[10px] uppercase">Net Allocatable (Tranche 1)</div>
-          <div className="text-emerald-400 font-bold text-base">
-            ${(allocatableCents / 100).toFixed(2)}
-          </div>
-          <div className="text-[10px] text-slate-400">Free deployable capital</div>
-        </div>
-
-        <div className="p-3 bg-slate-950 rounded-xl border border-white/[0.07] space-y-1">
-          <div className="text-slate-400 text-[10px] uppercase">Contingent Standby Pledges</div>
-          <div className="text-blue-400 font-bold text-base">
-            ${(contingentPledgesCents / 100).toFixed(2)}
-          </div>
-          <div className="text-[10px] text-blue-300">Segregated until captured</div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-[10.5px] text-ink-2">
+          <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-accent" /> Ready to allocate {money(TREASURY.allocatable)}</span>
+          <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-amber" /> Protected reserve {money(TREASURY.reserve)}</span>
+          <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-paypal" /> Sent to PayPal {money(sent)}</span>
         </div>
       </div>
 
-      {/* Accounting Breakdown Bar */}
-      <div className="p-3.5 bg-slate-950/70 rounded-xl border border-white/[0.07] space-y-2 text-xs">
-        <div className="flex items-center justify-between text-[11px] font-mono">
-          <span className="text-slate-300 font-bold">Solvency Waterfall Equation</span>
-          <span className="text-slate-400">Sync: {lastSyncedAt}</span>
-        </div>
-        <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden flex">
-          <div
-            className="bg-emerald-500 h-full"
-            style={{ width: `${(allocatableCents / paypalAvailableCents) * 100}%` }}
-            title="Allocatable (65%)"
-          ></div>
-          <div
-            className="bg-amber-500 h-full"
-            style={{ width: `${(reserveProtectedCents / paypalAvailableCents) * 100}%` }}
-            title="Protected Reserve (30%)"
-          ></div>
-          <div
-            className="bg-slate-500 h-full"
-            style={{ width: `${(feesReservedCents / paypalAvailableCents) * 100}%` }}
-            title="Fees (5%)"
-          ></div>
-        </div>
-        <div className="flex flex-wrap items-center justify-between text-[10px] font-mono text-slate-400 pt-1">
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Allocatable: $650.00
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Protected Reserve: $300.00
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-slate-500 inline-block"></span> Rail Fee Buffer: $50.00
-          </span>
-        </div>
-      </div>
-
-      {/* Immutable SHA-256 Audit Footer */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-slate-950 rounded-lg border border-white/[0.06] text-[11px] font-mono">
-        <span className="text-slate-500">Reconciliation Proof Hash:</span>
-        <span className="text-sky-400 truncate max-w-sm" title={reconciliationAuditHash}>
-          {reconciliationAuditHash}
+      <div className="flex flex-col justify-between gap-2 rounded-lg border border-white/[0.06] bg-black/20 p-2.5 text-[11px] sm:flex-row sm:items-center">
+        <span className="text-ink-3">Recovery proof root (replay data):</span>
+        <span className="max-w-sm truncate font-mono text-paypal" title={proof.merkle_root}>
+          {proof.merkle_root}
         </span>
       </div>
     </div>
   );
 }
-

@@ -65,7 +65,7 @@ export function ImpactTimelineWidget({
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
             <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-              8. Anticipatory Impact Timeline (Cash Before The Storm)
+              Anticipatory Impact Timeline (Cash Before The Storm)
             </h3>
           </div>
           <p className="text-[10px] text-slate-400 mt-0.5 font-mono">

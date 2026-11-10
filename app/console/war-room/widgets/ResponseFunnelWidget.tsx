@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { CASE_SUMMARY } from "@/lib/relief/cases";
 
 export interface FunnelStage {
   label: string;
@@ -10,14 +11,12 @@ export interface FunnelStage {
 }
 
 export function ResponseFunnelWidget({
-  stages = [
-    { label: "1. Enrolled Directory", count: 6, percentage: 100, description: "Total registered households" },
-    { label: "2. Geo-Screened", count: 6, percentage: 100, description: "Verified coordinates & boundaries" },
-    { label: "3. Storm Polygon Exposed", count: 5, percentage: 83, description: "Inside NWS Hurricane Warning polygon" },
-    { label: "4. Policy Eligible", count: 5, percentage: 83, description: "Qualified by vulnerability priority (P1-P4)" },
-    { label: "5. Passkey Approved", count: 5, percentage: 83, description: "Dual WebAuthn signatures executed" },
-    { label: "6. Disbursed via PayPal", count: 5, percentage: 83, description: "Payout batch submitted to PayPal Sandbox" },
-  ],
+  stages = CASE_SUMMARY.stageCounts.map((st, i) => ({
+    label: `${i + 1}. ${st.label}`,
+    count: st.count,
+    percentage: Math.round((st.count / CASE_SUMMARY.households) * 100),
+    description: st.help,
+  })),
 }: {
   stages?: FunnelStage[];
 }) {
@@ -27,7 +26,7 @@ export function ResponseFunnelWidget({
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-sky-500" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-            4. Anticipatory Response Funnel
+            Delivery funnel
           </h3>
         </div>
         <span className="text-xs text-emerald-400 font-mono font-semibold">
