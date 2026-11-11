@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/primitives";
+import { CaseOfficerPanel } from "@/components/ai/CaseOfficerPanel";
 import { RecoveryPanel, useMe } from "@/components/recovery/RecoveryPanel";
 import { ProvenanceTag, PayPalStatusBadge, StageDots, EvidenceState, money2 } from "@/components/relief/parts";
 import type { ReliefCase } from "@/lib/relief/case-types";
@@ -69,6 +70,7 @@ export default function CasePage() {
           ))}
         </ul>
       </section>
+      <CaseOfficerPanel caseRef={c.caseRef} />
       <div className="glass p-4">
         <RecoveryPanel c={c} me={me} />
       </div>

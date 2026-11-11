@@ -205,6 +205,19 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
         filter: "agTextColumnFilter",
         cellClass: "font-semibold text-ink",
       },
+      {
+        headerName: "Case",
+        field: "caseRef",
+        width: 110,
+        sortable: false,
+        filter: false,
+        cellRenderer: (p: { value?: string }) =>
+          p.value ? (
+            <a href={`/console/cases/${encodeURIComponent(p.value)}`} className="text-[12.5px] font-medium text-accent-strong underline-offset-2 hover:underline" aria-label="Open case, investigate and recover">
+              Open ›
+            </a>
+          ) : null,
+      },
       { headerName: "Priority", field: "priorityTier", width: 130, filter: "agSetColumnFilter", enableRowGroup: true, cellRenderer: TierCell },
       {
         headerName: "PayPal status",
