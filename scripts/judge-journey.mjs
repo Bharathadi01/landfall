@@ -116,22 +116,22 @@ await step("a viewer (Judge) cannot propose money movement", async () => {
 
 await step("anonymous cannot read resident cases or mutate", async () => {
   const a = await browser.newContext();
-  const g = await a.request.get(base + "/api/recipients/case?ref=hh_tbw_002");
-  const p = await a.request.post(base + "/api/recipients/access-report", { data: { caseRef: "hh_tbw_002", reason: "CANT_ACCESS" }, headers: { Origin: base } });
+  const g = await a.request.get(base + "/api/recipients/case?ref=hh_tbw_003");
+  const p = await a.request.post(base + "/api/recipients/access-report", { data: { caseRef: "hh_tbw_003", reason: "CANT_ACCESS" }, headers: { Origin: base } });
   await a.close();
   if (![401, 403].includes(g.status()) || ![401, 403].includes(p.status())) throw new Error(`got ${g.status()} / ${p.status()}`);
 });
 
 await step("resident journey: code → status → report a barrier", async () => {
   const j = await (await ctx.request.get(base + "/judges")).text();
-  const m = j.match(/hh_tbw_002[\s\S]{0,400}?(\d{6})/);
+  const m = j.match(/hh_tbw_003[\s\S]{0,400}?(\d{6})/);
   if (!m) throw new Error("could not find a resident code on /judges");
   const rp = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const pg = await rp.newPage();
   await pg.goto(base + "/signin", { waitUntil: "networkidle" });
-  const sess = await rp.request.post(base + "/api/resident/session", { data: { ref: "hh_tbw_002", code: m[1] }, headers: { Origin: base } });
+  const sess = await rp.request.post(base + "/api/resident/session", { data: { ref: "hh_tbw_003", code: m[1] }, headers: { Origin: base } });
   if (!sess.ok()) throw new Error("resident session " + sess.status());
-  const c = await rp.request.get(base + "/api/recipients/case?ref=hh_tbw_002");
+  const c = await rp.request.get(base + "/api/recipients/case?ref=hh_tbw_003");
   const cj = await c.json();
   await pg.goto(base + "/r/enroll", { waitUntil: "networkidle" });
   await pg.screenshot({ path: `${out}/09-resident-phone.png` });

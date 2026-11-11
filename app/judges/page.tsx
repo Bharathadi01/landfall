@@ -16,9 +16,9 @@ export const dynamic = "force-dynamic";
  * In a real deployment this page is switched off (JUDGE_MODE_ENABLED=false) and codes are handed to residents by a coordinator.
  */
 const FEATURED = [
-  { hh: "hh_tbw_002", why: "UNCLAIMED — PayPal says sent, the resident hasn't claimed it. Try “I can’t get to it”." },
+  { hh: "hh_tbw_003", why: "UNCLAIMED — PayPal says sent, the resident hasn't claimed it. Try “I can’t get to it” (no PayPal account), then, as the coordinator, propose cancelling it." },
   { hh: "hh_tbw_001", why: "SUCCESS — PayPal credited the money. Try “I received it”: the coordinator sees it as resident-reported." },
-  { hh: "hh_tbw_005", why: "Another payment: try “I can’t get to it” or report that you can’t use PayPal." },
+  { hh: "hh_tbw_004", why: "UNCLAIMED — a second waiting payment. Use it to compare what the resident sees with what the coordinator sees." },
 ];
 
 export default async function JudgesPage() {
@@ -123,7 +123,7 @@ export default async function JudgesPage() {
         <table className="w-full min-w-[640px] text-left text-[13px]">
           <tbody className="divide-y divide-white/[0.06] text-ink-2">
             {[
-              ["REAL", "PayPal Sandbox payouts, statuses, transaction ids, fees (batch VTJG3SR5BY56C: $500 sent, 1 credited, 4 unclaimed)."],
+              ["REAL", "PayPal Sandbox payouts, statuses, transaction ids, fees (batch VTJG3SR5BY56C: $500 sent; 1 credited, 3 still unclaimed, and 1 cancelled through the two-person flow and returned by PayPal — see docs/LIVE_PROOF.md)."],
               ["REAL", "Groq model calls for the AI case officer, Watch Officer and Studio agent (the answer says which model, or that a labelled offline fallback answered)."],
               ["REAL", "Live weather: NHC storms, NASA GIBS satellite, RainViewer radar, Open-Meteo forecast."],
               ["SANDBOX", "No real money moves. Sandbox accounts are play accounts."],
