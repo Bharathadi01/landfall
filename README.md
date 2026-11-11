@@ -15,6 +15,10 @@
 **Live demo:** https://landfall-web-t5rw.onrender.com — open the **[judge test card](https://landfall-web-t5rw.onrender.com/judges)**.
 The free server sleeps when idle, so the first request can take ~30 s.
 
+**Fastest way in:** press the orange **Take the tour** button at the bottom right of any page. Landfall signs you in read-only and walks the whole product by itself (13 steps, about 2½ minutes), with a badge on every screen saying whether you are looking at real PayPal Sandbox data, live feeds, live AI, replay data or a simulation. It cannot pay, approve, refresh PayPal or change data; Esc exits.
+
+Or go manually:
+
 1. **Sign in** as a demo persona (Dana = coordinator, Sam = finance, Judge = read-only). The server enforces each role.
 2. **Command Center → Cases**: five *real* PayPal Sandbox payments (batch `VTJG3SR5BY56C`): one credited, three unclaimed and one returned (PayPal's current statuses). The live Cases view also includes two $1 Sandbox payouts from a separate batch. Open one and press **Investigate with AI**: a `gpt-oss-120b` agent reads the stored evidence, PayPal's live item status and PayPal's own transaction record (through the official **PayPal Agent Toolkit**), cites every fact, and drafts a resident message in EN/ES/VI/HT. It cannot change anything.
 3. **Be the resident** (codes on the judge card): see the status, report "I can't get to it".

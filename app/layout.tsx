@@ -4,6 +4,7 @@ import "./globals.css";
 import { UnifiedAppShell } from "@/components/layout/UnifiedAppShell";
 import { ToastProvider } from "@/components/ui/Toast";
 import { MotionProvider } from "@/components/motion/MotionProvider";
+import { TourProvider } from "@/components/tour/TourProvider";
 
 const display = Fraunces({
   subsets: ["latin"],
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div className="relative z-10">
             <ToastProvider>
               <UnifiedAppShell>{children}</UnifiedAppShell>
+              <TourProvider />
             </ToastProvider>
           </div>
         </MotionProvider>
