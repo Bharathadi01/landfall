@@ -204,7 +204,8 @@ describe.skipIf(!process.env.LANDFALL_DB_TESTS)("Groq Free Plan AI Provider & Ze
     const result = await executeServerTool("get_disaster_context", "{}", ctx);
     expect(result.success).toBe(true);
     expect(result.result).toBeDefined();
-    expect(result.evidenceId).toMatch(/^ev_disaster_/);
+    // stable (not time-based) so ids the model saw in Stage A still match the server's integrity check
+    expect(result.evidenceId).toBe("ev_disaster");
   });
 
   // Test 3: Multiple sequential tool calls

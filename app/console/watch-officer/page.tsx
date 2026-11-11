@@ -12,6 +12,7 @@ export default function WatchOfficerConsolePage() {
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [queryInput, setQueryInput] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [runInfo, setRunInfo] = useState<{ model: string | null; latencyMs: number | null; at: string | null } | null>(null);
 
   useEffect(() => {
     fetchInitialStatus();
@@ -24,10 +25,10 @@ export default function WatchOfficerConsolePage() {
     try {
       const res = await fetch("/api/watch-officer");
       const data = await res.json();
+      // Opening this page never starts a run (runs call the model and write a record): show the last one, or wait for a click.
       if (data.latestRun?.analysis) {
         setAnalysisData(data.latestRun.analysis);
-      } else {
-        await runAnalysis();
+        setRunInfo({ model: data.latestRun.model ?? null, latencyMs: data.latestRun.latencyMs ?? null, at: data.latestRun.createdAt ?? null });
       }
       if (data.suggestedQuestions) {
         setSuggestedQuestions(data.suggestedQuestions);
@@ -52,6 +53,7 @@ export default function WatchOfficerConsolePage() {
       const data = await res.json();
       if (data.success && data.analysis) {
         setAnalysisData(data.analysis);
+        setRunInfo({ model: data.modelUsed ?? null, latencyMs: data.latencyMs ?? null, at: new Date().toISOString() });
       } else {
         setErrorMessage(data.error || "Analysis failed");
       }
@@ -126,6 +128,20 @@ export default function WatchOfficerConsolePage() {
           <div>
             <strong className="font-semibold">Analysis Notice:</strong> {errorMessage}
           </div>
+        </div>
+      )}
+
+      {!loading && !analysisData && (
+        <div className="field-paper p-6 text-sm text-ink-2" data-testid="wo-empty">
+          No briefing has been run yet. Opening this page doesn’t start one. <button type="button" className="ml-2 underline text-accent" onClick={() => runAnalysis("")} disabled={analyzing}>{analyzing ? "Running…" : "Run the Watch Officer"}</button>
+        </div>
+      )}
+      {!loading && analysisData && runInfo && (
+        <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono" data-testid="wo-answered-by">
+          {runInfo.model && !/OFFLINE/i.test(runInfo.model)
+            ? <span className="field-badge-evergreen">AI · {runInfo.model.replace(/^groq\//, "")}{runInfo.latencyMs ? ` · ${(runInfo.latencyMs / 1000).toFixed(1)} s` : ""}</span>
+            : <span className="field-badge-warning" title="The model was unavailable or its answer failed validation; the deterministic template answered.">OFFLINE TEMPLATE (AI unavailable)</span>}
+          {runInfo.at && <span className="text-ink-3">{new Date(runInfo.at).toLocaleString()}</span>}
         </div>
       )}
 

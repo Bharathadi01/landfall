@@ -14,6 +14,7 @@
  */
 
 import Groq from "groq-sdk";
+import { zodToJsonSchema } from "zod-to-json-schema";
 import {
   getDisasterContext,
   getExposureSummary,
@@ -28,10 +29,10 @@ import type { WatchOfficerContext, AllToolEvidence, EvidenceItem } from "./types
 
 // 1. Model Allowlist & Zero-Cost Enforcement
 export const GROQ_FREE_MODEL = "openai/gpt-oss-20b" as const;
-export const FREE_MODEL_ALLOWLIST = [GROQ_FREE_MODEL] as const;
+export const FREE_MODEL_ALLOWLIST = [GROQ_FREE_MODEL, "openai/gpt-oss-120b"] as const;
 
 export function validateModelName(modelName?: string): string {
-  const selected = modelName || process.env.WATCH_OFFICER_MODEL || GROQ_FREE_MODEL;
+  const selected = modelName || process.env.WATCH_OFFICER_MODEL || process.env.GROQ_MODEL_REASONING || GROQ_FREE_MODEL;
   if (!FREE_MODEL_ALLOWLIST.includes(selected as any)) {
     throw new Error(
       `[ZERO_COST_VIOLATION] Model '${selected}' is not permitted. Only free-tier model '${GROQ_FREE_MODEL}' is allowed.`
@@ -343,9 +344,12 @@ export async function executeGroqWatchOfficerSession({
         tools: GROQ_TOOLS,
         tool_choice: "auto",
         temperature: 0.1,
-        max_tokens: 1024,
-      });
+        reasoning_effort: "low",
+        max_completion_tokens: 2048,
+      } as any);
     } catch (err: any) {
+      // The model sometimes writes its final JSON as a "tool call". If evidence is already gathered, go on to Stage B.
+      if (err?.status === 400 && /tool_use_failed|tool call validation/i.test(String(err?.message)) && Object.keys(evidenceMap).length > 0) break;
       handleGroqApiError(err);
     }
 
@@ -390,9 +394,13 @@ export async function executeGroqWatchOfficerSession({
 
   // Stage B: Structured Output Synthesis
   // Groq requires tool use and structured outputs to be executed in separate requests.
+  const validIds = Object.values(evidenceMap).map((r: any) => r?.evidenceId).filter((x: unknown): x is string => typeof x === "string");
+  if (validIds.length === 0) {
+    throw new GroqProviderError("INVALID_OUTPUT", "The model gathered no evidence, so there is nothing to ground an answer in.");
+  }
   messages.push({
     role: "user",
-    content: `All domain evidence collection is complete. Synthesize the findings into the final structured Watch Officer operational response JSON. Output valid JSON strictly adhering to the schema. Ensure every key finding is bound to a valid evidenceId from the gathered evidence.`,
+    content: `All domain evidence collection is complete. Synthesize the final Watch Officer response as JSON that matches the provided schema exactly. Every evidenceId you write MUST be one of: ${validIds.join(", ")}. Use only numbers present in the tool results.`,
   });
 
   let stageBResponse: any;
@@ -400,10 +408,11 @@ export async function executeGroqWatchOfficerSession({
     stageBResponse = await client.chat.completions.create({
       model: validatedModel,
       messages,
-      response_format: { type: "json_object" },
+      response_format: { type: "json_schema", json_schema: { name: "watch_officer_response", strict: false, schema: zodToJsonSchema(WatchOfficerResponseSchema, { $refStrategy: "none" }) } },
       temperature: 0.1,
-      max_tokens: 4096,
-    });
+      reasoning_effort: "low",
+      max_completion_tokens: 6000,
+    } as any);
   } catch (err: any) {
     handleGroqApiError(err);
   }

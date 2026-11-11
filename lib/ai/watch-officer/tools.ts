@@ -51,7 +51,7 @@ export async function getDisasterContext(ctx: WatchOfficerContext): Promise<{
     .orderBy(desc(alerts.lastSyncedAt))
     .limit(1);
 
-  const evidenceId = `ev_disaster_${Date.now()}`;
+  const evidenceId = "ev_disaster";
   const now = new Date();
 
   if (!latestAlert) {
@@ -125,7 +125,7 @@ export async function getExposureSummary(ctx: WatchOfficerContext): Promise<{
     .from(households)
     .where(eq(households.fundId, ctx.fundId));
 
-  const evidenceId = `ev_exposure_${Date.now()}`;
+  const evidenceId = "ev_exposure";
   const now = new Date();
 
   let displacedCount = 0;
@@ -188,7 +188,7 @@ export async function getTreasurySnapshot(ctx: WatchOfficerContext): Promise<{
   result: TreasurySnapshotToolResult;
   evidence: EvidenceItem;
 }> {
-  const evidenceId = `ev_treasury_${Date.now()}`;
+  const evidenceId = "ev_treasury";
   const now = new Date();
 
   // Ledger Balances
@@ -268,7 +268,7 @@ export async function getPolicyEvaluation(
   result: PolicyEvaluationToolResult;
   evidence: EvidenceItem;
 }> {
-  const evidenceId = `ev_policy_${Date.now()}`;
+  const evidenceId = "ev_policy";
   const now = new Date();
 
   // Load published policy config or use default
@@ -377,7 +377,7 @@ export async function getPayoutStatus(ctx: WatchOfficerContext): Promise<{
   result: PayoutStatusToolResult;
   evidence: EvidenceItem;
 }> {
-  const evidenceId = `ev_payouts_${Date.now()}`;
+  const evidenceId = "ev_payouts";
   const now = new Date();
 
   // Find most recent payout plan
@@ -470,7 +470,7 @@ export async function getReconciliationStatus(ctx: WatchOfficerContext): Promise
   result: ReconciliationStatusToolResult;
   evidence: EvidenceItem;
 }> {
-  const evidenceId = `ev_reconciliation_${Date.now()}`;
+  const evidenceId = "ev_reconciliation";
   const now = new Date();
 
   // Run or retrieve deterministic reconciliation pass
@@ -516,7 +516,7 @@ export async function compareResponseScenariosTool(
   result: ScenarioComparisonToolResult;
   evidence: EvidenceItem;
 }> {
-  const evidenceId = `ev_scenarios_${Date.now()}`;
+  const evidenceId = "ev_scenarios";
   const now = new Date();
 
   const fundHouseholds = await db

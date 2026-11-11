@@ -6,9 +6,11 @@ import { runWatchOfficerAnalysis } from "@/lib/ai/watch-officer/orchestrator";
 import type { WatchOfficerContext, Role } from "@/lib/ai/watch-officer/types";
 import { safeError } from "@/lib/http/safe-error";
 import { limitRequest } from "@/lib/security/rate-limit";
+import { getSession } from "@/lib/auth/guard";
 
 export async function POST(req: NextRequest) {
-  const limited = limitRequest(req, "watch-officer-post", { limit: 6 });
+  const session = await getSession(req);
+  const limited = limitRequest(req, "watch-officer-post", { limit: 6 }, session?.sid);
   if (limited) return limited;
 
   try {
@@ -36,8 +38,9 @@ export async function POST(req: NextRequest) {
     const context: WatchOfficerContext = {
       fundId: targetFundId,
       fundName: fund?.name || "Community Relief Fund",
-      actorId: body.actorId || "coordinator_1",
-      actorRole: (body.actorRole as Role) || "coordinator",
+      // Identity comes from the signed session, never from the request body.
+      actorId: session?.sub ?? "unknown",
+      actorRole: ((session?.role === "finance" ? "finance" : "coordinator") as Role),
       query: body.query,
       alertId: body.alertId,
       scenarioId: body.scenarioId,
@@ -103,6 +106,8 @@ export async function GET(req: NextRequest) {
             mode: latestRun.mode,
             readinessState: latestRun.readinessState,
             createdAt: latestRun.createdAt.toISOString(),
+            model: latestRun.model,
+            latencyMs: latestRun.latencyMs,
             analysis: latestRun.responseJson,
           }
         : null,

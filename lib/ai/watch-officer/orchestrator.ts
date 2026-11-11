@@ -144,7 +144,7 @@ Analyze the verified evidence and synthesize structured operational intelligence
       modelName = sessionResult.modelUsed;
     } catch (err: any) {
       console.warn(
-        `[WATCH_OFFICER] Groq Free Plan inference unavailable (${err?.code || err?.message || "error"}), falling back to deterministic template.`
+        `[WATCH_OFFICER] Groq Free Plan inference unavailable (${err?.code || err?.message || "error"}: ${String(err?.message ?? "").slice(0, 600)}), falling back to deterministic template.`
       );
       rawAnalysis = generateDeterministicTemplateAnalysis(context, evidence, userQuery);
       modelName = `${GROQ_FREE_MODEL} (OFFLINE_FALLBACK)`;
