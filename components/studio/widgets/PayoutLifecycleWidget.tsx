@@ -43,7 +43,7 @@ export function PayoutLifecycleWidget(props: any) {
   const isHold = p.transaction_status === "ONHOLD";
   const isFailed = p.transaction_status === "FAILED";
 
-  const statusColor = isSuccess ? "#2DD4BF" : isUnclaimed ? "#FBBF54" : isHold ? "#FF7A59" : isFailed ? "#FF6378" : "#54A0FF";
+  const statusColor = isSuccess ? "#6FD49A" : isUnclaimed ? "#FFB020" : isHold ? "#FF4FA3" : isFailed ? "#FF3B4E" : "#4C9BFF";
 
   const timelineSteps = [
     {
@@ -93,7 +93,7 @@ export function PayoutLifecycleWidget(props: any) {
       time: "18:25 UTC",
       status: "done",
       badge: p.reconciliation_status,
-      color: "#2DD4BF",
+      color: "#6FD49A",
       evidence: "General ledger account 2100 (Disbursed) balanced against 1010 (PayPal Clearing). Minor unit variance: 0 cents.",
     },
     {
@@ -104,7 +104,7 @@ export function PayoutLifecycleWidget(props: any) {
       time: isSuccess ? "18:30 UTC" : "Pending Claim",
       status: isSuccess ? "done" : "attention",
       badge: isSuccess ? "PROOF_ANCHORED" : "PENDING_CLAIM",
-      color: isSuccess ? "#A78BFA" : "#FBBF54",
+      color: isSuccess ? "#8EE3F5" : "#FFB020",
       evidence: isSuccess
         ? "Proof prf_milton_t1_2024 anchored. Merkle root: 0x8f93e2b1c4a0... Policy 30% reserve preserved."
         : "No individual delivery proof issued while funds remain in PayPal claim window. Caseworker reminder queued.",
@@ -120,7 +120,7 @@ export function PayoutLifecycleWidget(props: any) {
         height: "100%",
         padding: "10px 14px",
         fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
-        color: "#EEF2F8",
+        color: "#F3EFE8",
         overflowY: "auto",
       }}
     >
@@ -136,16 +136,16 @@ export function PayoutLifecycleWidget(props: any) {
         }}
       >
         <div>
-          <div style={{ fontSize: 10, fontFamily: "var(--font-geist-mono)", textTransform: "uppercase", color: "#6E7A91", letterSpacing: "0.08em" }}>
+          <div style={{ fontSize: 10, fontFamily: "var(--font-geist-mono)", textTransform: "uppercase", color: "#8A847B", letterSpacing: "0.08em" }}>
             Lifecycle Chronology · {p.item_id}
           </div>
-          <div style={{ fontSize: 14, fontWeight: 650, color: "#EEF2F8", marginTop: 2 }}>
-            {p.resident_name} · <span style={{ color: "#54A0FF" }}>{p.recipient_wallet}</span>
+          <div style={{ fontSize: 14, fontWeight: 650, color: "#F3EFE8", marginTop: 2 }}>
+            {p.resident_name} · <span style={{ color: "#4C9BFF" }}>{p.recipient_wallet}</span>
           </div>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 11, color: "#6E7A91", fontFamily: "var(--font-geist-mono)" }}>
+          <span style={{ fontSize: 11, color: "#8A847B", fontFamily: "var(--font-geist-mono)" }}>
             Age: {p.age_hours}h
           </span>
           <span
@@ -167,7 +167,7 @@ export function PayoutLifecycleWidget(props: any) {
       {/* Chronological Vertical Stepper */}
       <div style={{ columnCount: 2, columnGap: 18, marginTop: 4 }}>
         {timelineSteps.map((step, idx) => {
-          const stepDotColor = step.color || (step.status === "done" ? "#2DD4BF" : "#6E7A91");
+          const stepDotColor = step.color || (step.status === "done" ? "#6FD49A" : "#8A847B");
           const isInspected = inspectedStep === idx;
           return (
             <div
@@ -193,21 +193,21 @@ export function PayoutLifecycleWidget(props: any) {
                   width: 10,
                   height: 10,
                   borderRadius: "50%",
-                  background: step.status === "done" ? stepDotColor : "#121825",
+                  background: step.status === "done" ? stepDotColor : "#1C1B1F",
                   border: `2px solid ${stepDotColor}`,
                 }}
               />
 
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-                <span style={{ fontSize: 11.5, fontWeight: 600, color: step.status === "pending" ? "#A3AEC2" : "#EEF2F8" }}>
+                <span style={{ fontSize: 11.5, fontWeight: 600, color: step.status === "pending" ? "#B9B3AA" : "#F3EFE8" }}>
                   {step.title}
                 </span>
-                <span style={{ fontSize: 9.5, fontFamily: "var(--font-geist-mono)", color: "#6E7A91" }}>
+                <span style={{ fontSize: 9.5, fontFamily: "var(--font-geist-mono)", color: "#8A847B" }}>
                   {step.time}
                 </span>
               </div>
 
-              <div style={{ fontSize: 10.5, color: "#A3AEC2", marginTop: 1 }}>{step.detail}</div>
+              <div style={{ fontSize: 10.5, color: "#B9B3AA", marginTop: 1 }}>{step.detail}</div>
 
               <div style={{ marginTop: 3, display: "flex", alignItems: "center", gap: 6 }}>
                 <span
@@ -219,12 +219,12 @@ export function PayoutLifecycleWidget(props: any) {
                     borderRadius: 4,
                     background: "rgba(255, 255, 255, 0.05)",
                     border: "1px solid rgba(255, 255, 255, 0.08)",
-                    color: step.color || "#A3AEC2",
+                    color: step.color || "#B9B3AA",
                   }}
                 >
                   {step.badge}
                 </span>
-                <span style={{ fontSize: 9, color: "#54A0FF" }}>
+                <span style={{ fontSize: 9, color: "#4C9BFF" }}>
                   {isInspected ? "▲ hide evidence" : "▼ click to inspect"}
                 </span>
               </div>
@@ -235,8 +235,8 @@ export function PayoutLifecycleWidget(props: any) {
                     marginTop: 6,
                     padding: "6px 8px",
                     borderRadius: 4,
-                    background: "rgba(12, 17, 27, 0.8)",
-                    border: "1px solid rgba(84, 160, 255, 0.25)",
+                    background: "rgba(20,19,22, 0.8)",
+                    border: "1px solid rgba(76,155,255, 0.25)",
                     fontSize: 10,
                     fontFamily: "var(--font-geist-mono)",
                     color: "#8FA3BF",
@@ -258,7 +258,7 @@ export function PayoutLifecycleWidget(props: any) {
           paddingTop: 6,
           borderTop: "1px solid rgba(255, 255, 255, 0.06)",
           fontSize: 10,
-          color: "#6E7A91",
+          color: "#8A847B",
           fontStyle: "italic",
         }}
       >

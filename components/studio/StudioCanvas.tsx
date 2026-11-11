@@ -24,7 +24,7 @@ import {
   RECOVERY_PAGE_TITLE,
 } from "@/lib/ai/watch-officer/studio-adapter";
 import { registerAgLicenses } from "@/lib/ag/license";
-import { landfallStudioParams } from "@/styles/ag-studio-theme";
+import { landfallStudioParams, agCanvasFonts } from "@/styles/ag-studio-theme";
 import {
   studioSources,
   studioRelationships,
@@ -50,10 +50,10 @@ import {
 registerAgLicenses();
 
 /** Official Landfall theme configured via AG Studio's modern Theming API. */
-const LANDFALL_STUDIO_THEME = (studioTheme as any).withParams(landfallStudioParams);
+const LANDFALL_STUDIO_THEME = (studioTheme as any).withParams({ ...landfallStudioParams, chartFontFamily: agCanvasFonts().ui });
 
 /** SVG Icon Helpers for Custom Widgets */
-const makeSvgIcon = (svgPath: string, color: string = "%232DD4BF") => ({
+const makeSvgIcon = (svgPath: string, color: string = "%236FD49A") => ({
   url: `data:image/svg+xml;utf8,${encodeURIComponent(
     `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${color}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>${svgPath}</svg>`
   ).replace(/%25/g, "%")}`,
@@ -66,7 +66,7 @@ const widgetsConfig = (defaults: any) =>
       {
         id: RESERVE_GUARDRAIL_WIDGET_TYPE,
         label: "Reserve Guardrail",
-        icon: makeSvgIcon("<path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/>", "%23FBBF54"),
+        icon: makeSvgIcon("<path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/>", "%23FFB020"),
         dataMapping: {
           reserve: { type: "field", supportedRoles: ["numeric"], requires: { cardinality: "one" }, required: true },
           total: { type: "field", supportedRoles: ["numeric"], requires: { cardinality: "one" }, required: false },
@@ -91,7 +91,7 @@ const widgetsConfig = (defaults: any) =>
       {
         id: PAYOUT_LIFECYCLE_WIDGET_TYPE,
         label: "Payout Lifecycle",
-        icon: makeSvgIcon("<circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/>", "%2354A0FF"),
+        icon: makeSvgIcon("<circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/>", "%234C9BFF"),
         dataMapping: {
           item: { type: "field", supportedRoles: ["category"], requires: { cardinality: "one" }, required: false },
           status: { type: "field", supportedRoles: ["category"], requires: { cardinality: "one" }, required: false },
@@ -116,7 +116,7 @@ const widgetsConfig = (defaults: any) =>
       {
         id: EVIDENCE_CHAIN_WIDGET_TYPE,
         label: "Recovery Evidence Chain",
-        icon: makeSvgIcon("<path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/>", "%23A78BFA"),
+        icon: makeSvgIcon("<path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/>", "%238EE3F5"),
         form: (params: any) => params.createDefaults({}),
         comp: RecoveryEvidenceChainWidget,
         defaultSize: { width: 620, height: 220 },
@@ -696,16 +696,16 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
           justifyContent: "space-between",
           gap: 10,
           padding: "8px 14px",
-          background: "rgba(12, 17, 27, 0.95)",
+          background: "rgba(20,19,22, 0.95)",
           borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
           fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
           fontSize: 12.5,
-          color: "#EEF2F8",
+          color: "#F3EFE8",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#5EEAD4", letterSpacing: "-0.01em" }}>Relief Finance Intelligence</span>
-          <span style={{ fontSize: 10, fontFamily: "var(--font-geist-mono)", background: "rgba(255, 255, 255, 0.06)", color: "#A3AEC2", border: "1px solid rgba(255, 255, 255, 0.12)", borderRadius: 4, padding: "2px 6px" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#8FE4B3", letterSpacing: "-0.01em" }}>Relief Finance Intelligence</span>
+          <span style={{ fontSize: 10, fontFamily: "var(--font-geist-mono)", background: "rgba(255, 255, 255, 0.06)", color: "#B9B3AA", border: "1px solid rgba(255, 255, 255, 0.12)", borderRadius: 4, padding: "2px 6px" }}>
             REPLAY DATA · SYNTHETIC
           </span>
         </div>
@@ -727,7 +727,7 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
                   borderRadius: 6,
                   fontSize: 12,
                   fontWeight: isActive ? 600 : 500,
-                  color: isActive ? "#EEF2F8" : "#A3AEC2",
+                  color: isActive ? "#F3EFE8" : "#B9B3AA",
                   background: isActive ? "rgba(255, 255, 255, 0.12)" : "transparent",
                   border: "none",
                   cursor: "pointer",
@@ -746,7 +746,7 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
             <button
               data-testid="filter-unclaimed-btn"
               onClick={() => applyCrossFilter("UNCLAIMED")}
-              style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(251, 191, 84, 0.12)", border: "1px solid rgba(251, 191, 84, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#FBBF54", cursor: "pointer", fontWeight: 600 }}
+              style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,176,32, 0.12)", border: "1px solid rgba(255,176,32, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#FFB020", cursor: "pointer", fontWeight: 600 }}
               title="Cross-filter the report to UNCLAIMED payouts"
             >
               Filter: UNCLAIMED
@@ -754,11 +754,11 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
           )}
 
           {activeCrossFilter && (
-            <div data-testid="active-crossfilter-chip" style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(84, 160, 255, 0.15)", border: "1px solid rgba(84, 160, 255, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#54A0FF" }}>
+            <div data-testid="active-crossfilter-chip" style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(76,155,255, 0.15)", border: "1px solid rgba(76,155,255, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#4C9BFF" }}>
               <span>
                 Filtered: <strong>{activeCrossFilter.value}</strong>
               </span>
-              <button data-testid="clear-crossfilter-btn" onClick={clearCrossFilter} style={{ background: "none", border: "none", color: "#EEF2F8", cursor: "pointer", padding: "0 2px", fontWeight: "bold", fontSize: 12 }} title="Clear filter">
+              <button data-testid="clear-crossfilter-btn" onClick={clearCrossFilter} style={{ background: "none", border: "none", color: "#F3EFE8", cursor: "pointer", padding: "0 2px", fontWeight: "bold", fontSize: 12 }} title="Clear filter">
                 ✕
               </button>
             </div>
@@ -766,7 +766,7 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
 
           <button
             onClick={resetToTemplate}
-            style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: 6, color: "#A3AEC2", padding: "4px 10px", fontSize: 11, cursor: "pointer" }}
+            style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: 6, color: "#B9B3AA", padding: "4px 10px", fontSize: 11, cursor: "pointer" }}
             title="Reset the report to the Landfall template"
           >
             <I.retry size={12} /> Reset

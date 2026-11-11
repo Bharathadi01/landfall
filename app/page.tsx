@@ -469,8 +469,8 @@ function StudioPreview() {
         <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.06] bg-surface-2/70 p-3">
           <svg width="74" height="74" viewBox="0 0 74 74">
             <circle cx="37" cy="37" r="28" stroke="rgba(255,255,255,0.08)" strokeWidth="8" fill="none" />
-            <circle cx="37" cy="37" r="28" stroke="#2DD4BF" strokeWidth="8" fill="none" strokeLinecap="round" strokeDasharray="176 176" transform="rotate(-90 37 37)" />
-            <text x="37" y="42" textAnchor="middle" fill="#EEF2F8" fontSize="14" fontWeight="600">{coverage}×</text>
+            <circle cx="37" cy="37" r="28" stroke="#6FD49A" strokeWidth="8" fill="none" strokeLinecap="round" strokeDasharray="176 176" transform="rotate(-90 37 37)" />
+            <text x="37" y="42" textAnchor="middle" fill="#F3EFE8" fontSize="14" fontWeight="600">{coverage}×</text>
           </svg>
           <div className="mt-1 text-[10px] text-ink-3">Can we pay everyone?</div>
         </div>

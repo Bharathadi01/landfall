@@ -4,48 +4,50 @@ import type { AgChartThemeOverrides } from "ag-charts-community";
 /**
  * LANDFALL × AG — one theme for AG Studio, AG Grid and AG Charts.
  *
- * The chart palette encodes Landfall's colour meaning, so a Studio chart reads the same
- * as every other screen: teal = relief cash, blue = PayPal, violet = AI, amber = reserve,
- * coral = storm. Built with AG's official Theming APIs (studioTheme.withParams / themeQuartz.withParams).
+ * Colour carries the same meaning as every other screen: flare = the action / live,
+ * gold = relief dollars, green = delivered, blue = PayPal, ice = AI, amber = reserve, magenta = storm.
+ * Built with AG's official Theming APIs (studioTheme.withParams / themeQuartz.withParams).
  */
 
 export const LANDFALL = {
-  canvas: "#05070C",
-  surface: "#0C111B",
-  surface2: "#121825",
-  surface3: "#1A2131",
-  line: "#202838",
-  lineStrong: "#303A4E",
-  ink: "#EEF2F8",
-  ink2: "#A3AEC2",
-  ink3: "#6E7A91",
-  accent: "#2DD4BF",
-  accentStrong: "#5EEAD4",
-  paypal: "#54A0FF",
-  ai: "#A78BFA",
-  amber: "#FBBF54",
-  storm: "#FF7A59",
-  danger: "#FF6378",
-  font: "var(--font-geist-sans), Geist, Inter, system-ui, sans-serif",
-  mono: "var(--font-geist-mono), 'Geist Mono', ui-monospace, monospace",
+  canvas: "#0A0A0C",
+  surface: "#141316",
+  surface2: "#1C1B1F",
+  surface3: "#262429",
+  line: "#2C2A2F",
+  lineStrong: "#423F46",
+  ink: "#F3EFE8",
+  ink2: "#B9B3AA",
+  ink3: "#8A847B",
+  accent: "#FF6B2C",
+  accentStrong: "#FF905C",
+  money: "#F2C14E",
+  delivered: "#6FD49A",
+  paypal: "#4C9BFF",
+  ai: "#8EE3F5",
+  amber: "#FFB020",
+  storm: "#FF4FA3",
+  danger: "#FF3B4E",
+  font: "var(--font-ui), 'Schibsted Grotesk', system-ui, sans-serif",
+  mono: "var(--font-data), 'Martian Mono', ui-monospace, monospace",
 } as const;
 
-/** Ordered by meaning — relief first, then PayPal, reserve, AI, storm. */
+/** Ordered by meaning — relief dollars first, then PayPal, delivered, AI, storm, the action colour. */
 export const LANDFALL_PALETTE = [
-  LANDFALL.accent,
+  LANDFALL.money,
   LANDFALL.paypal,
-  LANDFALL.amber,
+  LANDFALL.delivered,
   LANDFALL.ai,
   LANDFALL.storm,
-  "#38BDF8",
-  "#F472B6",
-  "#A3E635",
+  LANDFALL.accent,
+  LANDFALL.amber,
+  "#C9A7FF",
 ];
 
 /* ── AG Grid (standalone grids) ───────────────────────────── */
 
 export const landfallGridTheme = themeQuartz.withPart(colorSchemeDark).withParams({
-  backgroundColor: "rgba(12,17,27,0.0)",
+  backgroundColor: "rgba(20,19,22,0.0)",
   foregroundColor: LANDFALL.ink,
   textColor: LANDFALL.ink,
   subtleTextColor: LANDFALL.ink3,
@@ -61,13 +63,17 @@ export const landfallGridTheme = themeQuartz.withPart(colorSchemeDark).withParam
   headerRowBorder: { color: "rgba(255,255,255,0.08)" },
   wrapperBorder: false,
   oddRowBackgroundColor: "rgba(255,255,255,0.012)",
-  rowHoverColor: "rgba(45,212,191,0.06)",
-  selectedRowBackgroundColor: "rgba(45,212,191,0.12)",
+  rowHoverColor: "rgba(255,107,44,0.07)",
+  selectedRowBackgroundColor: "rgba(255,107,44,0.13)",
   fontFamily: LANDFALL.font,
   fontSize: 13,
-  rowHeight: 46,
-  headerHeight: 42,
+  rowHeight: 48,
+  headerHeight: 44,
   spacing: 7,
+  borderRadius: 10,
+  wrapperBorderRadius: 0,
+  cellHorizontalPaddingScale: 1.1,
+  iconSize: 15,
   menuBackgroundColor: LANDFALL.surface2,
   inputBackgroundColor: "rgba(0,0,0,0.3)",
   inputBorder: { color: "rgba(255,255,255,0.1)" },
@@ -80,7 +86,7 @@ export const landfallChartTheme = {
   baseTheme: "ag-default-dark",
   palette: { fills: LANDFALL_PALETTE, strokes: LANDFALL_PALETTE },
   params: {
-    fontFamily: "Inter, system-ui, sans-serif",
+    fontFamily: "system-ui, sans-serif",
     backgroundColor: "transparent",
     foregroundColor: LANDFALL.ink,
     textColor: LANDFALL.ink,
@@ -95,6 +101,24 @@ export const landfallChartTheme = {
     },
   } satisfies AgChartThemeOverrides,
 } as const;
+
+/**
+ * AG Charts and Studio charts draw on a <canvas>, which cannot resolve CSS variables. Read the real (next/font) family
+ * names from the page at call time instead. Server-side we fall back to system fonts; charts only render in the browser.
+ */
+export function agCanvasFonts(): { ui: string; mono: string } {
+  const fallback = { ui: "system-ui, sans-serif", mono: "ui-monospace, monospace" };
+  if (typeof window === "undefined") return fallback;
+  const cs = getComputedStyle(document.documentElement);
+  const ui = cs.getPropertyValue("--font-ui").trim();
+  const mono = cs.getPropertyValue("--font-data").trim();
+  return { ui: ui ? `${ui}, system-ui, sans-serif` : fallback.ui, mono: mono ? `${mono}, ui-monospace, monospace` : fallback.mono };
+}
+
+/** Landfall chart theme with the real font family resolved for canvas rendering. */
+export function chartTheme() {
+  return { ...landfallChartTheme, params: { ...landfallChartTheme.params, fontFamily: agCanvasFonts().ui } };
+}
 
 /* ── AG Studio ────────────────────────────────────────────── */
 
@@ -115,7 +139,7 @@ export const landfallStudioParams = {
   fontFamily: LANDFALL.font,
   fontSize: 13,
   iconColor: LANDFALL.ink2,
-  rowHoverColor: "rgba(45,212,191,0.06)",
+  rowHoverColor: "rgba(255,107,44,0.07)",
   menuBackgroundColor: LANDFALL.surface2,
   menuTextColor: LANDFALL.ink,
   menuSeparatorColor: "rgba(255,255,255,0.06)",
@@ -129,7 +153,7 @@ export const landfallStudioParams = {
   // studio chrome
   studioWrapperBackgroundColor: "transparent",
   studioWrapperBorder: false,
-  studioPanelContainerBackgroundColor: "rgba(12,17,27,0.82)",
+  studioPanelContainerBackgroundColor: "rgba(20,19,22,0.82)",
   studioPanelContainerBorder: { color: "rgba(255,255,255,0.07)" },
   studioPanelContainerBorderRadius: 16,
   studioPanelDividerColor: "rgba(255,255,255,0.06)",
@@ -139,7 +163,7 @@ export const landfallStudioParams = {
   studioPanelGroupBackgroundColor: "rgba(255,255,255,0.025)",
   studioPanelSectionBorderColor: "rgba(255,255,255,0.06)",
   studioFormLabelColor: LANDFALL.ink2,
-  studioToggleButtonActiveBackgroundColor: "rgba(45,212,191,0.14)",
+  studioToggleButtonActiveBackgroundColor: "rgba(255,107,44,0.16)",
   studioToggleButtonActiveBorderColor: LANDFALL.accent,
   studioToggleButtonActiveColor: LANDFALL.accentStrong,
   studioIconButtonHoverBackgroundColor: "rgba(255,255,255,0.06)",
@@ -150,9 +174,9 @@ export const landfallStudioParams = {
 
   // AI panel — violet = AI, everywhere in Landfall
   studioAiPanelWidth: 360,
-  studioAiPanelButtonHoverBackgroundColor: "rgba(167,139,250,0.12)",
-  studioAiPanelRichTextAccentBackgroundColor: "rgba(167,139,250,0.14)",
-  studioAiPanelInputMessageBackgroundColor: "rgba(167,139,250,0.10)",
+  studioAiPanelButtonHoverBackgroundColor: "rgba(142,227,245,0.12)",
+  studioAiPanelRichTextAccentBackgroundColor: "rgba(142,227,245,0.14)",
+  studioAiPanelInputMessageBackgroundColor: "rgba(142,227,245,0.10)",
 
   // canvas
   studioCanvasBackgroundColor: "transparent",
@@ -162,7 +186,7 @@ export const landfallStudioParams = {
   studioCanvasPadding: 4,
 
   // widgets = glass cards
-  studioWidgetBackgroundColor: "rgba(18,24,37,0.72)",
+  studioWidgetBackgroundColor: "rgba(28,27,31,0.72)",
   studioWidgetBorder: { color: "rgba(255,255,255,0.08)" },
   studioWidgetBorderRadius: 16,
   studioWidgetPadding: 14,
@@ -178,13 +202,13 @@ export const landfallStudioParams = {
   studioWidgetSubtitleFontFamily: LANDFALL.font,
   studioWidgetSubtitleTextColor: LANDFALL.ink3,
   studioWidgetCaptionTextColor: LANDFALL.ink3,
-  studioWidgetLoadingOverlayBackgroundColor: "rgba(12,17,27,0.6)",
-  studioWidgetNoDataOverlayBackgroundColor: "rgba(12,17,27,0.6)",
+  studioWidgetLoadingOverlayBackgroundColor: "rgba(20,19,22,0.6)",
+  studioWidgetNoDataOverlayBackgroundColor: "rgba(20,19,22,0.6)",
   studioValueWidgetFontSize: 34,
   studioLinearGaugeLabelColor: LANDFALL.ink2,
   studioRangeInputFillColor: LANDFALL.accent,
   studioRangeInputRailColor: LANDFALL.surface3,
-  valueChangeUpColor: LANDFALL.accent,
+  valueChangeUpColor: LANDFALL.delivered,
   valueChangeDownColor: LANDFALL.danger,
 
   // grids inside Studio
@@ -201,7 +225,7 @@ export const landfallStudioParams = {
   gridCellTextColor: LANDFALL.ink,
   gridRowBorder: { color: "rgba(255,255,255,0.05)" },
   gridHeaderRowBorder: { color: "rgba(255,255,255,0.08)" },
-  gridRowHoverColor: "rgba(45,212,191,0.06)",
+  gridRowHoverColor: "rgba(255,107,44,0.07)",
   gridRowHeight: 40,
   gridWrapperBorder: false,
 

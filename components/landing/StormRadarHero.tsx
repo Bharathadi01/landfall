@@ -64,18 +64,18 @@ export function StormRadarHero() {
       <svg viewBox="0 0 600 600" className="absolute inset-0 h-full w-full" aria-hidden>
         <defs>
           <radialGradient id="rh-bg" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#54A0FF" stopOpacity="0.10" />
-            <stop offset="70%" stopColor="#2DD4BF" stopOpacity="0.03" />
-            <stop offset="100%" stopColor="#05070C" stopOpacity="0" />
+            <stop offset="0%" stopColor="#4C9BFF" stopOpacity="0.10" />
+            <stop offset="70%" stopColor="#6FD49A" stopOpacity="0.03" />
+            <stop offset="100%" stopColor="#0A0A0C" stopOpacity="0" />
           </radialGradient>
           <linearGradient id="rh-sweep" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#2DD4BF" stopOpacity="0" />
-            <stop offset="100%" stopColor="#2DD4BF" stopOpacity="0.35" />
+            <stop offset="0%" stopColor="#6FD49A" stopOpacity="0" />
+            <stop offset="100%" stopColor="#6FD49A" stopOpacity="0.35" />
           </linearGradient>
           <radialGradient id="rh-eye" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#FF7A59" stopOpacity="0" />
-            <stop offset="35%" stopColor="#FF7A59" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#FF7A59" stopOpacity="0" />
+            <stop offset="0%" stopColor="#FF4FA3" stopOpacity="0" />
+            <stop offset="35%" stopColor="#FF4FA3" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#FF4FA3" stopOpacity="0" />
           </radialGradient>
           <clipPath id="rh-clip">
             <circle cx="300" cy="300" r="290" />
@@ -93,8 +93,8 @@ export function StormRadarHero() {
           {/* Coastline (stylised Gulf coast) */}
           <path
             d="M120 120 C 200 150, 240 170, 260 220 C 275 260, 240 300, 250 340 C 262 390, 300 420, 290 470 C 284 510, 300 560, 330 600 L 0 600 L 0 120 Z"
-            fill="rgba(45,212,191,0.05)"
-            stroke="rgba(45,212,191,0.35)"
+            fill="rgba(111,212,154,0.05)"
+            stroke="rgba(111,212,154,0.35)"
             strokeWidth="1.2"
             transform="translate(140 0)"
           />
@@ -102,8 +102,8 @@ export function StormRadarHero() {
           <path
             d="M380 180 L 470 200 L 480 330 L 430 390 L 360 380 L 350 260 Z"
             transform="translate(-110 -10)"
-            fill="rgba(255,122,89,0.08)"
-            stroke="rgba(255,122,89,0.65)"
+            fill="rgba(255,79,163,0.08)"
+            stroke="rgba(255,79,163,0.65)"
             strokeDasharray="5 5"
             className="animate-dash"
           />
@@ -128,16 +128,16 @@ export function StormRadarHero() {
                 />
               ))}
             </g>
-            <circle cx="460" cy="200" r="9" fill="#05070C" stroke="rgba(255,200,180,0.9)" strokeWidth="2" />
+            <circle cx="460" cy="200" r="9" fill="#0A0A0C" stroke="rgba(255,200,180,0.9)" strokeWidth="2" />
           </g>
 
           {/* Households */}
           {HOUSES.map((h, i) => (
             <g key={i}>
-              <circle className="rh-house" cx={h.x} cy={h.y} r="6" fill="#A3AEC2" stroke="#05070C" strokeWidth="2" />
+              <circle className="rh-house" cx={h.x} cy={h.y} r="6" fill="#B9B3AA" stroke="#0A0A0C" strokeWidth="2" />
               <g className="rh-paid">
-                <circle cx={h.x} cy={h.y} r="15" fill="rgba(45,212,191,0.18)" />
-                <circle cx={h.x} cy={h.y} r="7" fill="#2DD4BF" stroke="#05070C" strokeWidth="2" />
+                <circle cx={h.x} cy={h.y} r="15" fill="rgba(111,212,154,0.18)" />
+                <circle cx={h.x} cy={h.y} r="7" fill="#6FD49A" stroke="#0A0A0C" strokeWidth="2" />
               </g>
             </g>
           ))}

@@ -45,8 +45,10 @@ export interface StormDeskProps {
   mode?: WeatherSystemState | "HISTORICAL_REPLAY";
   onSelectCluster?: (c: ExposureCluster) => void;
   onSelectAlert?: (a: NormalizedAlert) => void;
-  /** "hero" = no HUD, slow auto-rotation (landing page). */
-  variant?: "desk" | "hero";
+  /** "hero" = no HUD, slow auto-rotation (landing page). "panel" = compact interactive map with no HUD (beside the case grid). */
+  variant?: "desk" | "hero" | "panel";
+  /** Fly the camera here when it changes (panel / desk). */
+  focusPoint?: { lng: number; lat: number; zoom?: number; key?: string } | null;
   className?: string;
 }
 
@@ -130,8 +132,10 @@ export function StormDesk(props: StormDeskProps) {
   return <StormDeskInner {...props} />;
 }
 
-function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE", onSelectCluster, onSelectAlert, variant = "desk", className }: StormDeskProps) {
+function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE", onSelectCluster, onSelectAlert, variant = "desk", focusPoint, className }: StormDeskProps) {
   const hero = variant === "hero";
+  const panel = variant === "panel";
+  const showHud = variant === "desk";
   const host = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const deckRef = useRef<CloudDeckLayer | null>(null);
@@ -153,7 +157,7 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
   const [preset, setPreset] = useState<CameraPreset | null>(hero ? null : "gulf");
   const [selected, setSelected] = useState<{ kicker: string; title: string; meta: string; tone: "storm" | "money" | "danger" } | null>(null);
   const [active, setActive] = useState<Record<DeskLayerKey, boolean>>({
-    clouds: true, radar: true, rain: true, wind: !hero, warnings: true, households: !hero, track: true, night: false,
+    clouds: true, radar: true, rain: true, wind: showHud, warnings: true, households: !hero, track: true, night: false,
   });
 
   const minutes = sliderToMinutes(slider);
@@ -198,7 +202,11 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
       ml.config.WORKER_URL = "/maplibre-gl-worker.mjs";
       if (dead || !host.current) return;
 
-      const start = hero ? { center: [-60, 22] as [number, number], zoom: 1.9, pitch: 0, bearing: 0 } : PRESETS.gulf;
+      const start = hero
+        ? { center: [-60, 22] as [number, number], zoom: 1.9, pitch: 0, bearing: 0 }
+        : panel
+        ? { center: [fund.centerLng, fund.centerLat] as [number, number], zoom: 8.3, pitch: 52, bearing: -14 }
+        : PRESETS.gulf;
       map = new ml.Map({
         container: host.current,
         style: {
@@ -499,6 +507,14 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
     map.getSource("track")?.setData(isReplay ? (getMiltonTrackGeoJSON() as any) : fc([]));
   }, [mapReady, alerts, clusters, fund, nhcStorms, isReplay]);
 
+  /* ── focus point from the outside (e.g. a selected case in the grid) ── */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map || !focusPoint) return;
+    map.flyTo({ center: [focusPoint.lng, focusPoint.lat], zoom: focusPoint.zoom ?? 9.2, pitch: 55, bearing: -16, duration: 1800, essential: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapReady, focusPoint?.lng, focusPoint?.lat, focusPoint?.key]);
+
   /* ── camera presets ───────────────────────────────────── */
   const goPreset = (p: CameraPreset) => {
     setPreset(p);
@@ -565,13 +581,13 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
   const hasModel = grid?.state === "ok";
 
   return (
-    <section className={cn("relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-black", className)} aria-label="Live weather globe">
-      <div className={cn("relative", hero ? "h-full min-h-[480px]" : "h-[80vh] min-h-[620px]")}>
+    <section className={cn("relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-black", panel && "h-full", className)} aria-label="Live weather globe">
+      <div className={cn("relative", hero ? "h-full min-h-[480px]" : panel ? "h-full min-h-[420px]" : "h-[80vh] min-h-[620px]")}>
         <div className="absolute inset-0">
           <div ref={host} style={{ width: "100%", height: "100%" }} />
         </div>
 
-        {!hero && (
+        {showHud && (
           <>
             {/* top-left: on-air storm headline + feed health */}
             <div className="pointer-events-none absolute left-4 top-4 flex max-w-[min(470px,calc(100%-2rem))] flex-col items-start gap-2.5 xl:max-w-[min(520px,45%)]">
@@ -634,7 +650,7 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
         )}
       </div>
 
-      {!hero && (
+      {showHud && (
         <div className="border-t border-white/[0.08] bg-black/40 px-4 py-2.5">
           {crawl.length > 0 ? (
             <NewsCrawl items={crawl} label="Active NWS alerts" />
