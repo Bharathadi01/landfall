@@ -11,7 +11,7 @@
  * Nothing here calls PayPal and nothing here is invented: a fact we don't have is shown as Missing.
  */
 import { LIVE_CASE_PREFIX_CLIENT } from "./live-ref";
-import { asc, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, like } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { payoutBatchRecords, payoutItemRecords, payoutStatusHistory, webhookEvents } from "@/lib/db/schema";
 import { getAccountBalance } from "@/lib/ledger/index";
@@ -61,6 +61,21 @@ export async function getLiveSnapshot(reports: AccessReport[] = [], now = Date.n
   const eventIds = [...new Set(history.map((h) => h.eventId).filter((x): x is string => !!x))];
   const events = eventIds.length ? await db.select({ id: webhookEvents.paypalEventId, type: webhookEvents.type, verified: webhookEvents.verified }).from(webhookEvents).where(inArray(webhookEvents.paypalEventId, eventIds)) : [];
   const eventById = new Map(events.map((e) => [e.id, e]));
+  // Verified item webhooks, found by the item they are about. A webhook that arrives after a refresh already recorded
+  // the same status changes nothing in the status history, but it IS evidence that PayPal told us.
+  const itemEventRows = await db
+    .select({ id: webhookEvents.paypalEventId, type: webhookEvents.type, payload: webhookEvents.payload, receivedAt: webhookEvents.receivedAt })
+    .from(webhookEvents)
+    .where(and(eq(webhookEvents.verified, true), like(webhookEvents.type, "PAYMENT.PAYOUTS-ITEM.%")))
+    .orderBy(desc(webhookEvents.receivedAt))
+    .limit(500);
+  const verifiedItemEvent = new Map<string, { id: string; type: string; at: Date }>();
+  for (const e of itemEventRows) {
+    const r = (e.payload as { resource?: { payout_item_id?: string; payout_item?: { sender_item_id?: string }; sender_item_id?: string } } | null)?.resource;
+    for (const key of [r?.payout_item_id, r?.payout_item?.sender_item_id, r?.sender_item_id]) {
+      if (key && !verifiedItemEvent.has(key)) verifiedItemEvent.set(key, { id: e.id, type: e.type, at: e.receivedAt });
+    }
+  }
   const batchById = new Map(batches.map((b) => [b.paypalBatchId, b]));
 
   const cases = items.map((it) => {
@@ -75,6 +90,8 @@ export async function getLiveSnapshot(reports: AccessReport[] = [], now = Date.n
     const ageHours = Math.max(0, (now - observedAt.getTime()) / 3_600_000);
 
     const webhookRows = hist.filter((h) => h.source === "webhook" && h.eventId);
+    const itemEvent = (it.paypalItemId ? verifiedItemEvent.get(it.paypalItemId) : undefined) ?? verifiedItemEvent.get(it.senderItemId);
+    const hasWebhook = webhookRows.length > 0 || !!itemEvent;
     const ledgerIds = hist.flatMap((h) => h.ledgerTransactionIds ?? []);
     const postingExpected = ["SUCCESS", "UNCLAIMED", "RETURNED", "REFUNDED", "REVERSED"].includes(status);
 
@@ -105,12 +122,14 @@ export async function getLiveSnapshot(reports: AccessReport[] = [], now = Date.n
       {
         key: "webhook",
         title: "Provider webhook",
-        state: webhookRows.length > 0 ? "present" : status === "PENDING" ? "not_expected" : "missing",
+        state: hasWebhook ? "present" : status === "PENDING" ? "not_expected" : "missing",
         provenance: "PROVIDER",
-        ref: webhookRows[0]?.eventId ?? undefined,
+        ref: webhookRows[0]?.eventId ?? itemEvent?.id ?? undefined,
         detail:
           webhookRows.length > 0
             ? `${eventById.get(webhookRows[0].eventId!)?.type ?? "webhook event"} · signature verified by PayPal`
+            : itemEvent
+            ? `${itemEvent.type} · signature verified by PayPal · received ${itemEvent.at.toISOString().slice(0, 16).replace("T", " ")} UTC`
             : status === "PENDING"
             ? "PayPal sends no item webhook for PENDING — poll the item instead"
             : "No verified webhook received for this item; the status came from a read-only refresh of PayPal",

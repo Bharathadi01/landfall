@@ -15,10 +15,22 @@ Everything below was done through the deployed app's own API/UI at https://landf
 | Reconciliation afterwards | `TIMING_DIFFERENCE` of $100.00: PayPal's balance report had not yet shown the return (Reporting API lag); not counted as matched |
 | Proposal | `13ae6928-fb3b-4d67-8311-d9c931f1697a`, status `EXECUTED` |
 
+## Second proof: a new $1 × 2 payout through two approvals, then PayPal's webhooks (2026-11-11)
+| Step | Result |
+|---|---|
+| Viewer tries to propose | 403 |
+| Dana proposes `NEW_PAYOUT` (`hh_live_001`, `hh_live_002`, $1.00 each) | proposal created; the server derived the plan, the caps ($100/item, $50/proposal) and the payout routes (receivers never leave the server) |
+| First attempt | Sam's approval executed but the Treasurer **refused with `PAYLOAD_CHANGED`**: nothing was sent. Cause: the plan id (part of the plan hash) differed between proposal time and execution time. Fixed (`planIdFor`), covered by an end-to-end regression test, and failed proposals can now be retried |
+| Retry: Dana approves, Sam (finance) approves | the Treasurer sent PayPal batch **`A2CEQ8RQXTVNS`** once (`persisted: true`) |
+| Same payout again | **409 `duplicate_blocked`** (the households have payments in flight) |
+| PayPal's webhooks | `PAYMENT.PAYOUTSBATCH.PROCESSING`, two `PAYMENT.PAYOUTS-ITEM.SUCCEEDED`, `PAYMENT.PAYOUTSBATCH.SUCCESS` all arrived at `/api/paypal/webhook` and were **verified through PayPal's `verify-webhook-signature` API** (`webhook_events.verified = true`) |
+| Re-delivered `PAYMENT.PAYOUTS-ITEM.RETURNED` (the earlier cancel, via PayPal's resend API) | verified and recorded |
+| Ledger | cash −$2.04 (= $2.00 + PayPal's 2¢ fee × 2); paid out $102.00 |
+| Reconciliation | `TIMING_DIFFERENCE` of $2.04: PayPal's balance report had not yet reflected the payments (never counted as matched) |
+
 ## Honest gaps
-- No PayPal webhook for the cancel had been delivered to the app when this was written (`webhook_events` was empty).
-  Statuses are recorded from PayPal's own response and read-only refreshes; webhook delivery is therefore **not yet demonstrated**.
-- `PAYPAL_WEBHOOK_ID` must be set on the deployment for webhooks to verify (the receiver returns 4xx/5xx without it).
-- A defect found during this run and fixed: the database lacked the "one approval per person" constraint on the deployed
-  database (the app still required two *different* people); added by hand and in the schema.
-- The new $1×2 payout batch has not been sent (needs `SANDBOX_RECEIVERS` on the deployment).
+- Reconciliation reports a small `TIMING_DIFFERENCE` while PayPal's Reporting balance lags; it is not shown as "in sync" until the remainder is explained.
+- All money is Sandbox; the households are synthetic profiles. No customer validation is claimed.
+- The free Render database expires on 2026-12-11 (before judging ends 2026-12-15): upgrade or re-import before then.
+- Defect found by the first live attempt and fixed: the plan-id mismatch above. A missing database constraint ("one approval per person") on the deployed
+  database was also found earlier and added by hand and in the schema.

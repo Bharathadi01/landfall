@@ -4,6 +4,8 @@ import { applyItemObservation } from "@/lib/payouts/store";
 import { getLiveSnapshot, caseStatusFor, ageBandFor, liveCaseRefFor } from "@/lib/relief/live-cases.server";
 import { liveTreasury } from "@/lib/relief/live-treasury";
 import { getAccountBalance } from "@/lib/ledger/index";
+import { db } from "@/lib/db/client";
+import { webhookEvents } from "@/lib/db/schema";
 import { summarizeCases } from "@/lib/relief/cases";
 import type { GetPayoutBatchResponse } from "@/lib/paypal/payout-reads";
 
@@ -103,6 +105,23 @@ run("live Sandbox cases from stored PayPal records (database)", () => {
     expect(c.openIssue).toBe(false);
     // the provider fact is untouched by the resident's report
     expect(c.evidence.find((e) => e.key === "payout")!.provenance).toBe("PROVIDER");
+  });
+
+  it("a verified webhook that arrives AFTER a refresh already recorded the status still counts as evidence (found by item id)", async () => {
+    const id = `LIV${uid()}`;
+    await importExistingBatch(id, { fetchBatch: async () => ({ data: batch(id) }), getAvailableUsd: async () => 1000 });
+    const itemId = `PI-${id}-2`;
+    await applyItemObservation({ paypalItemId: itemId, senderItemId: `${id}:t1:hh_tbw_002`, paypalBatchId: id, rawStatus: "SUCCESS", amountCents: 10000, currency: "USD", source: "refresh" });
+    // the webhook now repeats a status we already know: no history row, but PayPal did tell us
+    await db.insert(webhookEvents).values({ paypalEventId: `WH-late-${id}`, type: "PAYMENT.PAYOUTS-ITEM.SUCCEEDED", verified: true, payload: { resource: { payout_item_id: itemId } } });
+    // an UNVERIFIED event must never count
+    await db.insert(webhookEvents).values({ paypalEventId: `WH-unverified-${id}`, type: "PAYMENT.PAYOUTS-ITEM.UNCLAIMED", verified: false, payload: { resource: { payout_item_id: `PI-${id}-3` } } });
+    const snap = await getLiveSnapshot([]);
+    const by = (n: number) => snap.cases.find((x) => x.caseRef === liveCaseRefFor(`${id}:t1:hh_tbw_00${n}`))!.evidence.find((e) => e.key === "webhook")!;
+    expect(by(2).state).toBe("present");
+    expect(by(2).ref).toBe(`WH-late-${id}`);
+    expect(by(2).detail).toMatch(/signature verified by PayPal/);
+    expect(by(3).state).toBe("missing");
   });
 
   it("summaries and treasury come from the same records, so figures cannot disagree", async () => {
