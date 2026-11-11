@@ -9,7 +9,7 @@ import type { ReliefCase } from "@/lib/relief/case-types";
 import { recoveryOptionsForCase } from "@/lib/recovery/decision";
 import { householdFromRef } from "@/lib/auth/resident-code";
 import { canonicalJson, hashCancelPayload, sha256Hex } from "./payload";
-import { buildPlanFromPayload } from "./payload";
+import { buildPlanFromPayload, planIdFor } from "./payload";
 import { checkPayoutCaps, FEE_ESTIMATE_PER_ITEM_CENTS } from "./policy";
 import { receiverFor as defaultReceiver } from "./receivers";
 import type { CancelPayload, PayoutPayload, ProposalKind, ProposalPayload } from "./types";
@@ -110,7 +110,7 @@ export async function buildProposal(input: CreateProposalInputT, deps: CreateDep
     parentSenderItemId: parent ? parent.caseRef.slice(LIVE_CASE_PREFIX.length) : undefined,
   };
   // Approved hash = the Treasurer's plan hash (covers receivers), so it can only execute exactly as approved.
-  const { plan, missing } = buildPlanFromPayload(`prop_preview`, payload, receiverFor);
+  const { plan, missing } = buildPlanFromPayload(planIdFor(payload), payload, receiverFor);
   if (missing.length) return fail(422, "no_payout_route", `No payout route is configured for ${missing.join(", ")}.`);
   return { ok: true, kind: input.kind, payload, payloadHash: plan.planHash, idempotencyKey: `${input.kind}:${key}`, parentSenderItemId: payload.parentSenderItemId };
 }

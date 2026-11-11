@@ -65,6 +65,23 @@ export async function createProposal(n: NewProposal): Promise<{ proposal: Propos
     .returning();
   if (inserted) return { proposal: toView(inserted, []), created: true };
   const [existing] = await db.select().from(actionProposals).where(eq(actionProposals.idempotencyKey, n.idempotencyKey)).limit(1);
+  // A proposal that FAILED or was REJECTED must not block asking again (e.g. after fixing the cause). Anything still open or
+  // already executed is returned as-is, which is what makes proposing idempotent and prevents duplicates.
+  if (existing.status === "FAILED" || existing.status === "REJECTED") {
+    const [retry] = await db
+      .insert(actionProposals)
+      .values({
+        kind: n.kind,
+        payloadJson: n.payload,
+        payloadHash: n.payloadHash,
+        targetSenderItemId: n.targetSenderItemId ?? null,
+        parentSenderItemId: n.parentSenderItemId ?? null,
+        proposedBy: n.proposedBy,
+        idempotencyKey: `${n.idempotencyKey}#retry-${Date.now()}`,
+      })
+      .returning();
+    return { proposal: toView(retry, []), created: true };
+  }
   return { proposal: (await getProposal(existing.id))!, created: false };
 }
 

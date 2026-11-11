@@ -21,6 +21,12 @@ export function hashCancelPayload(p: CancelPayload): string {
   return sha256Hex(canonicalJson(p));
 }
 
+/**
+ * The plan id is part of the plan hash, so it must be the SAME when a proposal is created (what people approve) and when
+ * it is executed. Derive it from the payload only — never from the proposal row's id.
+ */
+export const planIdFor = (payload: PayoutPayload) => `plan_${payload.activationId}`;
+
 export type ReceiverResolver = (householdId: string) => string | null;
 
 /**

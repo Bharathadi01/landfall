@@ -143,3 +143,50 @@ run("proposals see the residents' reports (regression: cancel was refused despit
     resetAccessReports();
   });
 });
+
+run("NEW_PAYOUT end to end: what people approve is exactly what the Treasurer executes (regression: PAYLOAD_CHANGED)", () => {
+  it("propose → two approvals → Treasurer sends once; a retry after a failure is allowed; the same payout cannot be sent twice", async () => {
+    const { buildProposal } = await import("@/lib/proposals/create");
+    const tag = uid().toLowerCase();
+    const items = [{ householdId: `hh_e2e_${tag}_1`, amountCents: 100 }, { householdId: `hh_e2e_${tag}_2`, amountCents: 100 }];
+    const receiverFor = (hh: string) => `${hh}@example.com`;
+    const built = await buildProposal({ kind: "NEW_PAYOUT", items }, { loadLiveCases: async () => [], activeHouseholds: async () => new Set<string>(), receiverFor });
+    expect(built.ok).toBe(true);
+    if (!built.ok) return;
+
+    const { proposal } = await createProposal({ kind: built.kind, payload: built.payload, payloadHash: built.payloadHash, proposedBy: "dana-ortiz", idempotencyKey: built.idempotencyKey });
+    await addApproval(proposal.id, dana(proposal.payloadHash));
+    await addApproval(proposal.id, sam(proposal.payloadHash));
+
+    let sends = 0;
+    const payout = {
+      receiverFor,
+      activeHouseholds: async () => new Set<string>(),
+      balances: async () => ({ cash: 100_000, unclaimed: 0, paid: 0, fees: 0 }),
+      payoutSender: async () => (sends++, { data: { batch_header: { payout_batch_id: `PB${tag}`, batch_status: "PENDING" } } }),
+      recordBatch: async () => ({ persisted: true }),
+    };
+    const r = await executeProposal(proposal.id, { payout });
+    expect(r.ran && r.ok).toBe(true);
+    expect(sends).toBe(1);
+    expect((await getProposal(proposal.id))?.status).toBe("EXECUTED");
+
+    // proposing the identical payout again returns the executed proposal, not a new one
+    const again = await createProposal({ kind: built.kind, payload: built.payload, payloadHash: built.payloadHash, proposedBy: "dana-ortiz", idempotencyKey: built.idempotencyKey });
+    expect(again.created).toBe(false);
+    expect(again.proposal.id).toBe(proposal.id);
+  });
+
+  it("a FAILED proposal does not block asking again", async () => {
+    const tag = uid().toLowerCase();
+    const payload = { kind: "NEW_PAYOUT" as const, activationId: `lf${tag}`, tranche: 1 as const, items: [{ householdId: `hh_retry_${tag}`, amountCents: 100, currency: "USD" as const, note: "n" }], totalAmountCents: 100, totalFeesCents: 25 };
+    const key = `NEW_PAYOUT:${tag}`;
+    const first = await createProposal({ kind: "NEW_PAYOUT", payload, payloadHash: "h".repeat(64), proposedBy: "dana-ortiz", idempotencyKey: key });
+    const { markResult } = await import("@/lib/proposals/store");
+    await markResult(first.proposal.id, "FAILED", { error: "x" });
+    const second = await createProposal({ kind: "NEW_PAYOUT", payload, payloadHash: "h".repeat(64), proposedBy: "dana-ortiz", idempotencyKey: key });
+    expect(second.created).toBe(true);
+    expect(second.proposal.id).not.toBe(first.proposal.id);
+    expect(second.proposal.status).toBe("PROPOSED");
+  });
+});

@@ -16,7 +16,7 @@ import { toCents } from "@/lib/payouts/status";
 import { getAccountBalance } from "@/lib/ledger/index";
 import { liveTreasury } from "@/lib/relief/live-treasury";
 import { TreasurerEngine, type ExecutionResult } from "./index";
-import { buildPlanFromPayload, type ReceiverResolver } from "@/lib/proposals/payload";
+import { buildPlanFromPayload, planIdFor, type ReceiverResolver } from "@/lib/proposals/payload";
 import { receiverFor } from "@/lib/proposals/receivers";
 import type { ApprovalRecord, CancelPayload, PayoutPayload } from "@/lib/proposals/types";
 
@@ -115,7 +115,7 @@ export type PayoutOutcome =
 
 export async function executeApprovedPayout(proposalId: string, payload: PayoutPayload, payloadHash: string, approvals: ApprovalRecord[], deps: PayoutDeps = {}): Promise<PayoutOutcome> {
   const resolve = deps.receiverFor ?? ((hh: string) => receiverFor(hh));
-  const { plan, missing } = buildPlanFromPayload(`prop_${proposalId}`, payload, resolve);
+  const { plan, missing } = buildPlanFromPayload(planIdFor(payload), payload, resolve);
   if (missing.length) return { ok: false, error: `NO_PAYOUT_ROUTE: no payout route is configured for ${missing.join(", ")}.` };
   // Whatever was approved must be EXACTLY what is about to be sent.
   if (plan.planHash !== payloadHash) return { ok: false, error: "PAYLOAD_CHANGED: the plan no longer matches what was approved. Create a new proposal." };

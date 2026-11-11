@@ -6,7 +6,7 @@ import { applyItemObservation, recordBatchCreation } from "@/lib/payouts/store";
 import { getAccountBalance } from "@/lib/ledger/index";
 import { TreasurerEngine } from "@/lib/treasurer/index";
 import { cancelUnclaimedItem, executeApprovedPayout, householdsWithActivePayments } from "@/lib/treasurer/recovery";
-import { buildPlanFromPayload } from "@/lib/proposals/payload";
+import { buildPlanFromPayload, planIdFor } from "@/lib/proposals/payload";
 import type { ApprovalRecord, CancelPayload, PayoutPayload } from "@/lib/proposals/types";
 
 // PayPal is never reached: both modules are replaced.
@@ -128,14 +128,14 @@ describe("executeApprovedPayout", () => {
 
   it("blocks duplicates for households that already have a payment active", async () => {
     const p = payloadFor(["hh_a"]);
-    const { plan } = buildPlanFromPayload("prop_p2", p, receivers);
+    const { plan } = buildPlanFromPayload(planIdFor(p), p, receivers);
     const r = await executeApprovedPayout("p2", p, plan.planHash, approvals(plan.planHash), { receiverFor: receivers, activeHouseholds: async () => new Set(["hh_a"]) });
     expect((r as { error: string }).error).toMatch(/DUPLICATE_BLOCKED/);
   });
 
   it("sends once through the Treasurer with the approved plan (fake sender and recorder)", async () => {
     const p = payloadFor(["hh_a", "hh_b"]);
-    const { plan } = buildPlanFromPayload("prop_p3", p, receivers);
+    const { plan } = buildPlanFromPayload(planIdFor(p), p, receivers);
     const sender = vi.fn(okSender);
     const recordBatch = vi.fn(async () => ({ persisted: true }));
     const r = await executeApprovedPayout("p3", p, plan.planHash, approvals(plan.planHash), {
@@ -154,7 +154,7 @@ describe("executeApprovedPayout", () => {
 
   it("reports the Treasurer's refusal (emergency stop) and an engine failure without a message", async () => {
     const p = payloadFor(["hh_a"]);
-    const { plan } = buildPlanFromPayload("prop_p4", p, receivers);
+    const { plan } = buildPlanFromPayload(planIdFor(p), p, receivers);
     const common = { receiverFor: receivers, activeHouseholds: async () => new Set<string>(), balances: async () => ({ cash: 100_000, unclaimed: 0, paid: 0, fees: 0 }) };
     const stopped = await executeApprovedPayout("p4", p, plan.planHash, approvals(plan.planHash), { ...common, emergencyStop: true });
     expect((stopped as { error: string }).error).toMatch(/Emergency stop/);
@@ -165,7 +165,7 @@ describe("executeApprovedPayout", () => {
 
   it("an engine success without persistence flags reports persisted=false, replayed=false", async () => {
     const p = payloadFor(["hh_a"]);
-    const { plan } = buildPlanFromPayload("prop_p5", p, receivers);
+    const { plan } = buildPlanFromPayload(planIdFor(p), p, receivers);
     const engine = { executePlan: async () => ({ success: true, paypalBatchId: "PB9" }) } as unknown as TreasurerEngine;
     const r = await executeApprovedPayout("p5", p, plan.planHash, approvals(plan.planHash), { receiverFor: receivers, activeHouseholds: async () => new Set(), balances: async () => ({ cash: 1, unclaimed: 0, paid: 0, fees: 0 }), engine });
     expect(r).toMatchObject({ ok: true, paypalBatchId: "PB9", persisted: false, replayed: false, senderBatchId: "" });
@@ -178,7 +178,7 @@ run("executeApprovedPayout (database defaults)", () => {
   });
   it("uses the configured receivers, DB balances and DB duplicate check when no deps are given", async () => {
     const p = payloadFor(["hh_default_route"]);
-    const { plan } = buildPlanFromPayload("prop_p6", p, () => "route@example.com");
+    const { plan } = buildPlanFromPayload(planIdFor(p), p, () => "route@example.com");
     const before = await getAccountBalance("paypal_available");
     expect(typeof before).toBe("number");
     // Real default engine: the ledger has little cash in a test DB, so the Treasurer refuses for solvency — and never calls PayPal.
