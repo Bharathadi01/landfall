@@ -8,6 +8,10 @@ import { investigateCase } from "@/lib/ai/case-officer";
 import { listStatusHistory } from "@/lib/payouts/store";
 import { getPayoutItem } from "@/lib/paypal/payout-reads";
 import { LIVE_CASE_PREFIX_CLIENT } from "@/lib/relief/live-ref";
+import { lookupTransaction } from "@/lib/paypal/agent-toolkit";
+import { db } from "@/lib/db/client";
+import { payoutItemRecords } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { logAuditEvent } from "@/lib/db/audit";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +42,12 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ ref: strin
       c,
       {
         history: async () => (senderItemId ? (await listStatusHistory(senderItemId)).map((h) => ({ observedAt: new Date(h.observedAt).toISOString(), status: h.toStatus, source: h.source })) : []),
+        transaction: senderItemId
+          ? async () => {
+              const [row] = await db.select({ tx: payoutItemRecords.transactionId }).from(payoutItemRecords).where(eq(payoutItemRecords.senderItemId, senderItemId)).limit(1);
+              return row?.tx ? lookupTransaction(row.tx) : null;
+            }
+          : undefined,
         liveItem: hasProviderItem
           ? async () => {
               const r = await getPayoutItem(c.itemId, "case_officer");

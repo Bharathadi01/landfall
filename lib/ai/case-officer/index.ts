@@ -19,12 +19,15 @@ export type Language = "en" | "es" | "vi" | "ht";
 export interface EvidenceEntry { id: string; source: "landfall" | "paypal" | "resident" | "rules"; text: string }
 export interface StatusHistoryRow { observedAt: string; status: string; source: string }
 export interface LiveItem { status: string; transactionId?: string | null; fee?: string | null }
+export interface TxRecord { transactionId: string; eventCode: string; status: string; amount: string; currency: string; initiated: string }
 
 export interface Deps {
   chat?: typeof chat;
   history: () => Promise<StatusHistoryRow[]>;
   /** Asks PayPal (read-only GET) for the item's status right now. Absent or failing = reported as unknown. */
   liveItem?: () => Promise<LiveItem>;
+  /** PayPal Agent Toolkit `list_transactions` for this payment's transaction id (read-only; arguments are fixed by the server). */
+  transaction?: () => Promise<TxRecord | null>;
   now?: () => number;
 }
 
@@ -69,7 +72,7 @@ class Store {
 
 const usd = (n: number) => `$${n.toFixed(2)}`;
 
-function runTool(name: string, c: ReliefCase, store: Store, history: StatusHistoryRow[] | null, live: LiveItem | null | "unavailable"): unknown {
+function runTool(name: string, c: ReliefCase, store: Store, history: StatusHistoryRow[] | null, live: LiveItem | null | "unavailable", tx: TxRecord | null | "unavailable" = null): unknown {
   switch (name) {
     case "get_case": {
       const rows = [
@@ -89,6 +92,11 @@ function runTool(name: string, c: ReliefCase, store: Store, history: StatusHisto
       const e = store.add({ id: "paypal:live_status", source: "paypal", text: `PayPal reports this item as ${live.status} right now.` });
       return { facts: [{ evidenceId: e.id, text: e.text }] };
     }
+    case "get_paypal_transaction_record": {
+      if (tx === "unavailable" || tx === null) return { facts: [], note: "PayPal's Transaction Search had no record for this payment, or could not be reached; treat it as UNKNOWN." };
+      const e = store.add({ id: "paypal:transaction", source: "paypal", text: `PayPal Transaction Search (Agent Toolkit) lists transaction ${tx.transactionId}: event ${tx.eventCode}, status ${tx.status}, amount ${tx.amount} ${tx.currency}, initiated ${tx.initiated.slice(0, 10)}.` });
+      return { facts: [{ evidenceId: e.id, text: e.text }] };
+    }
     case "get_recovery_rules": {
       const facts = optionsFor(c).map((o) => store.add({ id: `rules:${o.kind.toLowerCase()}`, source: "rules", text: `${o.kind}: ${o.allowed ? "ALLOWED" : "NOT ALLOWED"}. ${o.reason}` }));
       return { facts: facts.map((r) => ({ evidenceId: r.id, text: r.text })) };
@@ -103,9 +111,10 @@ const TOOLS: ToolDef[] = [
   { type: "function", function: { name: "get_case", description: "The stored case: status, amount, claim window, and each piece of delivery evidence with who reported it (PayPal, Landfall, resident).", parameters: noArgs } },
   { type: "function", function: { name: "get_status_history", description: "Every PayPal status change Landfall stored for this payment, with its source (webhook, refresh, cancel).", parameters: noArgs } },
   { type: "function", function: { name: "get_live_item_from_paypal", description: "Ask PayPal right now for this payment's current status (read-only).", parameters: noArgs } },
+  { type: "function", function: { name: "get_paypal_transaction_record", description: "PayPal's own Transaction Search record for this payment, fetched through the official PayPal Agent Toolkit (read-only). Shows the event code, status and amount PayPal booked.", parameters: noArgs } },
   { type: "function", function: { name: "get_recovery_rules", description: "What the deterministic recovery rules allow for this payment (cancel / replacement) and why.", parameters: noArgs } },
 ];
-export const TOOL_NAMES = ["get_case", "get_status_history", "get_live_item_from_paypal", "get_recovery_rules"];
+export const TOOL_NAMES = ["get_case", "get_status_history", "get_live_item_from_paypal", "get_paypal_transaction_record", "get_recovery_rules"];
 
 /* ───────────── final structured answer ───────────── */
 
@@ -126,7 +135,7 @@ const ANSWER_SCHEMA = {
 const LANG_NAME: Record<Language, string> = { en: "English", es: "Spanish", vi: "Vietnamese", ht: "Haitian Creole" };
 
 const SYSTEM = (lang: Language) => `You are the Landfall Case Officer, helping a relief coordinator understand ONE payment that PayPal reports as sent.
-Work only from what your tools return. Call get_case, get_status_history, get_recovery_rules and (if useful) get_live_item_from_paypal BEFORE answering.
+Work only from what your tools return. Call get_case, get_status_history, get_recovery_rules and (if useful) get_live_item_from_paypal and get_paypal_transaction_record BEFORE answering.
 Rules:
 - A "fact" must cite evidenceIds returned by your tools and may only contain numbers that appear in that evidence. Put anything you are inferring in "hypotheses". Put what you cannot know in "unknowns" (for example anything marked missing).
 - PayPal SUCCESS means the money was credited to the receiver, not that the person received help; only a resident's own report confirms receipt. UNCLAIMED means PayPal sent a claim link and the recipient has not claimed it.
@@ -213,6 +222,17 @@ export async function investigateCase(c: ReliefCase, deps: Deps, lang: Language 
     }
   };
 
+  let txCache: TxRecord | null | "unavailable" | undefined;
+  const txOnce = async (): Promise<TxRecord | null | "unavailable"> => {
+    if (txCache !== undefined) return txCache;
+    if (!deps.transaction) return (txCache = "unavailable");
+    try {
+      return (txCache = await deps.transaction());
+    } catch {
+      return (txCache = "unavailable");
+    }
+  };
+
   const allowed = allowedActions(c);
   const messages: ChatMessage[] = [
     { role: "system", content: SYSTEM(lang) },
@@ -236,7 +256,7 @@ export async function investigateCase(c: ReliefCase, deps: Deps, lang: Language 
         const ok = TOOL_NAMES.includes(t.name);
         toolCalls.push({ name: t.name, ok });
         const result = ok
-          ? runTool(t.name, c, store, t.name === "get_status_history" ? await historyOnce() : null, t.name === "get_live_item_from_paypal" ? await liveOnce() : null)
+          ? runTool(t.name, c, store, t.name === "get_status_history" ? await historyOnce() : null, t.name === "get_live_item_from_paypal" ? await liveOnce() : null, t.name === "get_paypal_transaction_record" ? await txOnce() : null)
           : { error: "unknown tool" };
         messages.push({ role: "tool", tool_call_id: t.id, content: JSON.stringify(result) });
       }

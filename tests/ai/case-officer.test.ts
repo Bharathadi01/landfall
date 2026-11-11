@@ -83,6 +83,27 @@ describe("AI case officer", () => {
     expect(out.fallbackReason).toMatch(/BAD_JSON/);
   });
 
+  it("cites PayPal's Agent Toolkit transaction record when the tool is called, and marks it unknown when unavailable", async () => {
+    let n = 0;
+    const chat = (async (o: { jsonSchema?: unknown }) => {
+      if (o.jsonSchema) return res({ content: JSON.stringify({ facts: [{ text: "PayPal booked event T0001 for -100.00 USD.", evidenceIds: ["paypal:transaction"] }], hypotheses: [], unknowns: [], recommendedAction: "WAIT", actionReason: "ok", residentMessage: { text: "hi", englishGloss: "hi" } }) });
+      n++;
+      return n === 1 ? res({ toolCalls: [toolCall("get_case"), toolCall("get_paypal_transaction_record")] }) : res({ content: "ready" });
+    }) as never;
+    const withTx = await investigateCase(c, { chat, history: async () => [], transaction: async () => ({ transactionId: "75T85158X6122100W", eventCode: "T0001", status: "S", amount: "-100.00", currency: "USD", initiated: "2026-11-09T17:56:38Z" }) });
+    expect(withTx.answeredBy).toBe("ai");
+    expect(withTx.facts).toHaveLength(1);
+    expect(withTx.evidence.find((e) => e.id === "paypal:transaction")?.text).toMatch(/Agent Toolkit/);
+
+    n = 0;
+    const down = await investigateCase(c, { chat, history: async () => [], transaction: async () => { throw new Error("down"); } });
+    expect(down.evidence.find((e) => e.id === "paypal:transaction")).toBeUndefined();
+    expect(down.facts).toHaveLength(0); // the fact cited evidence that was never returned, so it is dropped
+    n = 0;
+    const absent = await investigateCase(c, { chat, history: async () => [], transaction: async () => null });
+    expect(absent.integrity.droppedFacts).toBe(1);
+  });
+
   it("allowed actions follow the deterministic rules", () => {
     expect(allowedActions(c)).not.toContain("REISSUE");
     expect(allowedActions({ ...c, status: "RETURNED", claimDaysLeft: null } as ReliefCase)).toContain("REISSUE");
