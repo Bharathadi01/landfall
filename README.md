@@ -2,11 +2,25 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![TypeScript Strict](https://img.shields.io/badge/typescript-strict-blue.svg)](tsconfig.json)
-[![Tests Passing](https://img.shields.io/badge/tests-350%20passing%20%2B%2054%20DB--gated-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-684%20passing-brightgreen.svg)](tests/)
 [![AI Inference Cost](https://img.shields.io/badge/AI%20Cost-%240.00%20(Groq%20Free)-success.svg)](docs/M6_ZERO_COST_VERIFICATION.md)
 
 > **"Cash before the storm. Accounted for on every payout state."**  
 > Landfall is an open-source, PayPal-native relief payout recovery and assurance platform for community relief organisations. It turns official hazard intelligence into a transparent, policy-constrained, human-authorized cash response — and ensures every relief obligation remains provably accounted for, even when a payout fails, remains unclaimed, or is held.
+
+---
+
+## Try it (no setup)
+
+**Live demo:** https://landfall-web-t5rw.onrender.com — open the **[judge test card](https://landfall-web-t5rw.onrender.com/judges)**.
+The free server sleeps when idle, so the first request can take ~30 s.
+
+1. **Sign in** as a demo persona (Dana = coordinator, Sam = finance, Judge = read-only). The server enforces each role.
+2. **Command Center → Cases**: five *real* PayPal Sandbox payments (batch `VTJG3SR5BY56C`): one credited, the rest unclaimed. Open one and press **Investigate with AI**: a `gpt-oss-120b` agent reads the stored evidence, PayPal's live item status and PayPal's own transaction record (through the official **PayPal Agent Toolkit**), cites every fact, and drafts a resident message in EN/ES/VI/HT. It cannot change anything.
+3. **Be the resident** (codes on the judge card): see the status, report "I can't get to it".
+4. **Recover**: as Dana, propose cancelling the unclaimed payment (the rules allow it only because of that report); approve as Dana, then as Sam (demo PIN on the card). The Treasurer cancels it at PayPal once and the ledger returns the funds. This was done live: see [docs/LIVE_PROOF.md](docs/LIVE_PROOF.md).
+
+What is real vs. simulated is labelled on every screen. Honest limits are in [docs/LIVE_PROOF.md](docs/LIVE_PROOF.md#honest-gaps) and [docs/AI_EVAL_RESULTS.md](docs/AI_EVAL_RESULTS.md).
 
 ---
 
@@ -119,7 +133,7 @@ Everything below runs against the PayPal **Sandbox** (`api-m.sandbox.paypal.com`
 | **PayPal Batch Payouts** | **VERIFIED** | Batch `7Y5GP4ETNLCUQ` ($2.00 total) | Item `FR7DHMX8QE59A` (`SUCCESS`, $1.00); Item `2FN4JTY2SF8A2` (`UNCLAIMED`, $1.00) |
 | **PayPal Orders v2** | **VERIFIED** | Order `35996334K7032164X` | Created in Sandbox (`POST /v2/checkout/orders`); requires buyer authorization before capture; unapproved orders strictly segregated from ledger cash |
 | **PayPal Subscriptions v1**| **VERIFIED** | Product `PROD-4HV976845W620203M`, Plan `P-5A327449X7452233TNLYQY3A` | Monthly sustainer billing for standby liquidity |
-| **PayPal Webhook Verification** | **CODE COMPLETE · live delivery not demonstrated** | `app/api/paypal/webhook/route.ts`, `lib/paypal/webhooks.ts` | The receiver calls `POST /v1/notifications/verify-webhook-signature` and rejects (401) anything unsigned or unverified before it touches the ledger (503 if `PAYPAL_WEBHOOK_ID` is unset). Covered by mocked-signature tests; a webhook delivered by PayPal to a public URL has not been recorded yet. |
+| **PayPal Webhook Verification** | **REGISTERED · delivery not yet demonstrated** | webhook `6HJ21518NN406061A`, `app/api/paypal/webhook/route.ts` | The receiver verifies every event with PayPal's `verify-webhook-signature` API and rejects unsigned/unverified requests before they touch the ledger. The webhook is registered to the deployed URL; no event has been recorded yet (statuses come from PayPal's responses and read-only refreshes). |
 | **PayPal Vault v3 (Pledges)** | **RESTRICTED / CODE COMPLETE** | `lib/pledges/index.ts` | Sandbox `POST /v3/vault/setup-tokens` returns `403 NOT_AUTHORIZED` (requires custom merchant underwriting); badged as *"Production path — Requires PayPal Vault approval"* |
 | **Double-Entry General Ledger** | **VERIFIED** | `lib/ledger/index.ts` | Balanced debits and credits; immutable audit trail; negative balance guards |
 | **Treasury Waterfall Engine** | **VERIFIED** | `components/treasury/TreasuryWaterfall.tsx` | Segregates available, committed, reserved, contingent, and disbursed funds |
@@ -131,7 +145,10 @@ Everything below runs against the PayPal **Sandbox** (`api-m.sandbox.paypal.com`
 | **Watch Officer AI Copilot** | **VERIFIED (live Groq call recorded in `docs/AI_VERIFICATION.md`)** | `lib/ai/watch-officer/`, `lib/ai/groq.ts` | Read-only tools, strict JSON schema, stable evidence ids, server-side number/evidence integrity check. The page shows whether the model or the labelled offline template answered; opening the page never starts a run. |
 | **AI Case Officer** | **VERIFIED (live Groq call)** | `lib/ai/case-officer/`, `/console/cases/[ref]` | `gpt-oss-120b` tool loop (stored case, status history, live PayPal item status, recovery rules) then a strict JSON answer. Facts without cited evidence, or with numbers not in the evidence, are dropped and counted; the recommended action is clamped to what the deterministic rules allow; the drafted resident message (EN/ES/VI/HT) is never sent automatically. Falls back, labelled, to deterministic rules. |
 | **Command Center + AG Studio** | **VERIFIED** | `app/console/war-room/`, `components/studio/`, `ag-studio-react@3.1.0` | Case-level AG Grid Enterprise (row grouping, master/detail evidence, grand total, status bar, side bar, Excel/CSV export, saved grid state); AG Studio with custom widgets and a Studio Agent that calls the model through a server gateway and Studio tools (read-only; refuses money-moving requests). Requires AG licence keys. |
-| **Relief Delivery Assurance** | **VERIFIED (replay data)** | `lib/relief/cases.ts`, `lib/recovery/decision.ts`, `components/relief/` | One case per payment, joined from approval, PayPal item, webhook, ledger, resident report and recovery. A PayPal `SUCCESS` is shown as 'credited', never as 'received'; provenance (PayPal / Landfall / Resident-reported / Operator) is kept per fact and missing evidence is shown as Missing. |
+| **PayPal Agent Toolkit** | **VERIFIED (read-only)** | `lib/paypal/agent-toolkit.ts` | Official `@paypal/agent-toolkit`; only `transactions.list` is enabled (no write action), arguments fixed server-side. Used by the AI Case Officer for PayPal's own transaction record. |
+| **AI input screening** | **MEASURED** | `lib/ai/safety/guard.ts`, `docs/AI_EVAL_RESULTS.md` | Regex → Groq Prompt Guard 2 → `gpt-oss-safeguard-20b` policy check. On 60 author-written prompts: 29/30 attacks blocked, 0/30 benign blocked (regex alone: 8/30). Small sample; defence in depth only. |
+| **Stakeholder feedback** | **BUILT · no responses claimed** | `/validate`, `docs/VALIDATION_KIT.md` | Consent-gated form; the public count is read from the database and is 0 until real people answer. |
+| **Relief Delivery Assurance** | **VERIFIED (live Sandbox + replay)** | `lib/relief/cases.ts`, `lib/recovery/decision.ts`, `components/relief/` | One case per payment, joined from approval, PayPal item, webhook, ledger, resident report and recovery. A PayPal `SUCCESS` is shown as 'credited', never as 'received'; provenance (PayPal / Landfall / Resident-reported / Operator) is kept per fact and missing evidence is shown as Missing. |
 
 ---
 
