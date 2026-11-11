@@ -192,7 +192,7 @@ export default function HomePage() {
           <div className="glass p-7 md:col-span-2" data-reveal>
             <div className="eyebrow text-storm">The problem</div>
             <p className="mt-5 text-title-2 text-ink">
-              Disaster aid usually arrives <span className="text-storm">60–90 days</span> after the storm. Families need it{" "}
+              Disaster aid can arrive <span className="text-storm">weeks or months</span> after the storm. Families need it{" "}
               <span className="font-accent text-money">before</span> — for fuel, medicine and a way out.
             </p>
           </div>
@@ -210,6 +210,38 @@ export default function HomePage() {
             </div>
             <p className="mt-3 text-[13px] text-ink-3">Groq free tier with a deterministic offline fallback. Small funds can afford it.</p>
           </div>
+        </div>
+
+        {/* Evidence for why the "did it actually reach them?" problem is real. Each item links to its source. */}
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3" data-reveal>
+          {[
+            {
+              k: "4.2%",
+              t: "of US households (about 5.6 million) were unbanked in 2023; two-thirds of them rely entirely on cash. A payment “credited” to an account is not the same as help they can use.",
+              src: "FDIC National Survey of Unbanked and Underbanked Households, 2023",
+              href: "https://fdic.gov/household-survey/2023-fdic-national-survey-unbanked-and-underbanked-households-executive-summary",
+            },
+            {
+              k: "Lowest",
+              t: "scoring of the nine Core Humanitarian Standard commitments is Commitment 5: letting people safely report concerns and get them addressed. Funds rarely close the loop on whether aid arrived.",
+              src: "CHS Alliance verification data and Humanitarian Accountability Report",
+              href: "https://www.chsalliance.org/get-support/article/meeting-chs-commitment-5-five-best-practice-tips-when-responding-to-complaints/",
+            },
+            {
+              k: "939",
+              t: "applicants failed ID checks in one AI-triggered cash programme in Nigeria, and others were excluded for lacking a charged phone. AI that decides without an answer loop can leave the most vulnerable behind.",
+              src: "The New Humanitarian, 31 Aug 2026",
+              href: "https://www.thenewhumanitarian.org/investigations/2026/08/31/givedirectlys-ai-experiment-left-vulnerable-flood-victims-behind-nigeria",
+            },
+          ].map((e) => (
+            <figure key={e.k} className="glass p-6">
+              <div className="font-serif text-[38px] leading-none tracking-[-0.03em] text-ink">{e.k}</div>
+              <p className="mt-3 text-[13px] leading-relaxed text-ink-2">{e.t}</p>
+              <figcaption className="mt-3 text-[12px] text-ink-3">
+                Source: <a href={e.href} target="_blank" rel="noreferrer" className="text-accent-strong underline underline-offset-2">{e.src}</a>
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 
