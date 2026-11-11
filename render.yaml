@@ -47,6 +47,16 @@ services:
         value: https://landfall-web.onrender.com
       - key: PAYOUT_REFRESH_ENABLED
         value: "true"
+      # Server-side only: household id -> Sandbox receiver, e.g. {"hh_tbw_001":"sb-...@personal.example.com"}. Never returned by any API.
+      - key: SANDBOX_RECEIVERS
+        sync: false
+      # Labelled demo approval PIN shown on /judges (used when a device has no passkey).
+      - key: DEMO_APPROVAL_PIN
+        value: "246810"
+      - key: LIVE_PAYOUT_MAX_ITEM_CENTS
+        value: "10000"
+      - key: LIVE_PAYOUT_MAX_TOTAL_CENTS
+        value: "5000"
       - key: NEXT_PUBLIC_AG_GRID_LICENSE
         sync: false
       - key: NEXT_PUBLIC_AG_STUDIO_LICENSE

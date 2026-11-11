@@ -1,7 +1,7 @@
-async function main() {
-  const appUrl = process.env.APP_URL || "http://localhost:3000";
-  const cronSecret = process.env.CRON_SECRET || "";
+const appUrl = process.env.APP_URL || "http://localhost:3000";
+const cronSecret = process.env.CRON_SECRET || "";
 
+async function main() {
   console.log(`[cron] Polling alerts from ${appUrl}/api/alerts/poll...`);
   try {
     const res = await fetch(`${appUrl.replace(/\/$/, "")}/api/alerts/poll`, {
@@ -27,4 +27,18 @@ async function main() {
   }
 }
 
-main();
+async function refreshPayouts() {
+  // Backstop for missed PayPal webhooks: read-only status refresh of recent payout batches.
+  try {
+    const res = await fetch(`${appUrl.replace(/\/$/, "")}/api/payouts/refresh-due`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${cronSecret}` },
+      signal: AbortSignal.timeout(55000),
+    });
+    console.log(`[cron] Payout refresh: HTTP ${res.status}`);
+  } catch (err) {
+    console.error("[cron] Payout refresh failed:", err.message || err);
+  }
+}
+
+main().then(refreshPayouts);
