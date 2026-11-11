@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, doublePrecision, integer, jsonb, uuid, numeric } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, doublePrecision, integer, jsonb, uuid, numeric, unique } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 // 1. Host Legal Entity & Governance Configuration
@@ -366,17 +366,22 @@ export const actionProposals = pgTable("action_proposals", {
   executedAt: timestamp("executed_at"),
 });
 
-export const actionApprovals = pgTable("action_approvals", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  proposalId: uuid("proposal_id").references(() => actionProposals.id).notNull(),
-  approverId: text("approver_id").notNull(),
-  approverName: text("approver_name").notNull(),
-  role: text("role", { enum: ["coordinator", "finance"] }).notNull(),
-  method: text("method", { enum: ["WEBAUTHN", "DEMO_KEY"] }).notNull(),
-  credentialId: text("credential_id"),
-  payloadHash: text("payload_hash").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const actionApprovals = pgTable(
+  "action_approvals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    proposalId: uuid("proposal_id").references(() => actionProposals.id).notNull(),
+    approverId: text("approver_id").notNull(),
+    approverName: text("approver_name").notNull(),
+    role: text("role", { enum: ["coordinator", "finance"] }).notNull(),
+    method: text("method", { enum: ["WEBAUTHN", "DEMO_KEY"] }).notNull(),
+    credentialId: text("credential_id"),
+    payloadHash: text("payload_hash").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  // one approval per person per proposal — enforced by the database, not just by the route
+  (t) => ({ onePerPerson: unique("action_approvals_one_per_person").on(t.proposalId, t.approverId) })
+);
 
 /** Single-use WebAuthn challenges, bound to the exact thing being approved. */
 export const webauthnChallenges = pgTable("webauthn_challenges", {

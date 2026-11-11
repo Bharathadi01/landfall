@@ -31,7 +31,7 @@ export const API_RULES: Rule[] = [
   // --- auth + demo entry points ---
   { pattern: /^\/api\/auth\/session$/, access: "public", note: "persona sign-in / sign-out" },
   { pattern: /^\/api\/auth\/paypal\/(start|callback)$/, access: "public", note: "PayPal identity linking (OAuth redirect)" },
-  { pattern: /^\/api\/auth\/passkey\//, access: "operator", note: "WebAuthn registration / approval ceremonies" },
+  { pattern: /^\/api\/auth\/passkey\/(register-options|register-verify)$/, methods: ["POST"], access: "staff", note: "register a passkey for the signed-in persona" },
   { pattern: /^\/api\/judge\//, access: "public", note: "judge test-card helpers (gated by JUDGE_MODE_ENABLED in the route)" },
   { pattern: /^\/api\/resident\/session$/, access: "public", note: "resident code exchange" },
   { pattern: /^\/api\/resident\//, access: "resident", note: "resident-only actions" },
@@ -60,6 +60,7 @@ export const API_RULES: Rule[] = [
   { pattern: /^\/api\/proposals(\/|$)/, methods: ["GET"], access: "operator", note: "proposal lookup" },
   { pattern: /^\/api\/proposals$/, methods: ["POST"], access: "staff", note: "propose a payment or recovery action" },
   { pattern: /^\/api\/proposals\/[^/]+\/approve$/, methods: ["POST"], access: "staff", note: "approve (role rules enforced in the route)" },
+  { pattern: /^\/api\/proposals\/[^/]+\/approve\/options$/, methods: ["POST"], access: "staff", note: "start a passkey approval (challenge bound to the payload hash)" },
   { pattern: /^\/api\/payouts$/, methods: ["GET"], access: "operator", note: "recorded payout batches" },
   { pattern: /^\/api\/payouts\/refresh$/, access: "staff", note: "read-only GET to PayPal + store" },
   { pattern: /^\/api\/treasury\/(reconcile|waterfall)$/, access: "operator", note: "treasury views (rate-limited)" },

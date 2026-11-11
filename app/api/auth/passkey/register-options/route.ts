@@ -1,22 +1,18 @@
-import { NextResponse } from "next/server";
-import { getPasskeyRegistrationOptions } from "@/lib/security/passkeys";
-import { safeError } from "@/lib/http/safe-error";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAccess } from "@/lib/auth/guard";
 import { limitRequest } from "@/lib/security/rate-limit";
+import { safeError } from "@/lib/http/safe-error";
+import { beginRegistration } from "@/lib/security/webauthn";
 
-export async function POST(req: Request) {
-  const limited = limitRequest(req, "auth-passkey-register-options-post", { limit: 20 });
+/** Registers a passkey for the SIGNED-IN persona only. The identity is never taken from the request body. */
+export async function POST(req: NextRequest) {
+  const g = await requireAccess(req, "staff");
+  if (g instanceof NextResponse) return g;
+  const limited = limitRequest(req, "passkey-register-options", { limit: 10 }, g.sid);
   if (limited) return limited;
-
   try {
-    const { userId, userName } = await req.json();
-    if (!userId || !userName) {
-      return NextResponse.json({ error: "userId and userName are required" }, { status: 400 });
-    }
-
-    const options = await getPasskeyRegistrationOptions(userId, userName);
-    return NextResponse.json(options);
-  } catch (err: any) {
-    return safeError(err, "Failed to generate registration options", 500);
+    return NextResponse.json({ options: await beginRegistration(g.sub, g.name) });
+  } catch (err) {
+    return safeError(err, "Could not start passkey registration.", 500);
   }
 }
-

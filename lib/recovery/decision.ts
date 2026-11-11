@@ -119,3 +119,63 @@ export function recoveryDecisionForStatus(
       };
   }
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * RECOVERY OPTIONS — which money-moving actions may even be PROPOSED for a case.
+ *
+ * A proposal is never money movement: it must still be approved by two people (one Finance) and is executed only
+ * by the Treasurer. This gate decides what a coordinator is allowed to ask for. It is deterministic, has no AI
+ * input, and its answers are the only ones the AI case officer may recommend (the model's choice is intersected
+ * with `allowed`).
+ *
+ *   CANCEL_ITEM  ask PayPal to cancel an UNCLAIMED item so the funds return to the fund now
+ *                allowed only when: status is UNCLAIMED, the resident hasn't said they received it, and either
+ *                (a) the resident reported a barrier that makes claiming unrealistic, or
+ *                (b) the PayPal claim window is nearly over (≤ FINAL_DAYS days left)
+ *   REISSUE      prepare a NEW payout to replace one that did not land
+ *                allowed only from RETURNED / FAILED / CANCELED (never while the original is claimable,
+ *                credited, pending or on hold — that would be a duplicate)
+ * ──────────────────────────────────────────────────────────────────────── */
+export type RecoveryActionKind = "CANCEL_ITEM" | "REISSUE";
+
+export const FINAL_CLAIM_DAYS = 5;
+const BARRIERS_THAT_BLOCK_CLAIMING = new Set(["NO_PAYPAL_ACCOUNT", "CANT_SIGN_IN", "NO_PHONE"]);
+
+export interface RecoveryCaseFacts {
+  status: string;
+  claimDaysLeft: number | null;
+  barrier?: string | null;
+  /** The resident said they received it (recipient-reported). */
+  reportedReceived?: boolean;
+}
+
+export interface RecoveryOption {
+  kind: RecoveryActionKind;
+  allowed: boolean;
+  /** Plain-language reason shown to the coordinator, whether allowed or not. */
+  reason: string;
+}
+
+export function recoveryOptionsForCase(c: RecoveryCaseFacts): RecoveryOption[] {
+  const s = c.status.toUpperCase();
+
+  let cancel: RecoveryOption;
+  if (s !== "UNCLAIMED") {
+    cancel = { kind: "CANCEL_ITEM", allowed: false, reason: `Only an UNCLAIMED payment can be cancelled (this one is ${s}).` };
+  } else if (c.reportedReceived) {
+    cancel = { kind: "CANCEL_ITEM", allowed: false, reason: "The resident says they have the money; cancelling could take it back from them." };
+  } else if (c.barrier && BARRIERS_THAT_BLOCK_CLAIMING.has(c.barrier)) {
+    cancel = { kind: "CANCEL_ITEM", allowed: true, reason: "The resident reported they can’t claim it. Returning the funds lets the fund help them another way." };
+  } else if (c.claimDaysLeft !== null && c.claimDaysLeft <= FINAL_CLAIM_DAYS) {
+    cancel = { kind: "CANCEL_ITEM", allowed: true, reason: `Only ${c.claimDaysLeft} day${c.claimDaysLeft === 1 ? "" : "s"} left in PayPal’s claim window; PayPal will return it anyway.` };
+  } else {
+    cancel = { kind: "CANCEL_ITEM", allowed: false, reason: `Still claimable with ${c.claimDaysLeft ?? "several"} days left and no reported barrier. Help the resident claim it; do not cancel or resend.` };
+  }
+
+  const reissueStates = new Set(["RETURNED", "FAILED", "CANCELED"]);
+  const reissue: RecoveryOption = reissueStates.has(s)
+    ? { kind: "REISSUE", allowed: true, reason: s === "FAILED" ? "The payment failed and no money left the fund. A new payment needs two-person approval." : "The funds are back in the fund. A new payment needs two-person approval." }
+    : { kind: "REISSUE", allowed: false, reason: `A replacement payment is only possible after the original is RETURNED, FAILED or CANCELED (this one is ${s}). Sending again now would be a duplicate.` };
+
+  return [cancel, reissue];
+}
