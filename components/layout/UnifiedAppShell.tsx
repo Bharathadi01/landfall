@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
 import { LiveClock } from "@/components/ui/LiveClock";
 import { SessionChip } from "@/components/auth/SessionChip";
+import { DataSourceProvider } from "@/components/data/DataSourceProvider";
+import { SourceSwitch } from "@/components/data/SourceSwitch";
+import { IncidentBug, SidebarIncident } from "@/components/data/IncidentBug";
 
 type Variant = "PUBLIC" | "OPERATIONS" | "RESIDENT";
 
@@ -206,7 +209,15 @@ function ResidentShell({ children, pathname }: { children: React.ReactNode; path
 
 /* ── Operations ───────────────────────────────────────────── */
 
-function OperationsShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
+function OperationsShell(props: { children: React.ReactNode; pathname: string }) {
+  return (
+    <DataSourceProvider>
+      <OperationsShellInner {...props} />
+    </DataSourceProvider>
+  );
+}
+
+function OperationsShellInner({ children, pathname }: { children: React.ReactNode; pathname: string }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => setMobileOpen(false), [pathname]);
@@ -252,11 +263,9 @@ function OperationsShell({ children, pathname }: { children: React.ReactNode; pa
             </div>
           </div>
 
-          {/* the on-air storm bug — always says whether the storm is live or a replay */}
-          <div className="hidden min-w-0 items-center gap-2.5 xl:flex" aria-label="Active incident">
-            <Tag tone="storm" solid>Replay · Oct 2024</Tag>
-            <span className="font-mono text-[12px] tracking-[0.04em] text-ink-2">MILTON · CAT 4 · T−12H</span>
-          </div>
+          {/* the on-air bug — always says whether the data is real PayPal Sandbox records or a synthetic replay */}
+          <IncidentBug />
+          <SourceSwitch />
 
           <div className="flex items-center gap-3">
             <LiveClock className="hidden md:inline-flex" />
@@ -331,13 +340,7 @@ function SidebarContent({
           >
             <div className="absolute -right-7 -top-7 h-24 w-24 rounded-full border border-storm/30" aria-hidden />
             <div className="absolute -right-2 -top-2 h-12 w-12 rounded-full border border-storm/40" aria-hidden />
-            <Tag tone="storm" solid live>Replay</Tag>
-            <div className="mt-2.5 font-serif text-[22px] leading-none tracking-[-0.02em] text-ink">Hurricane Milton</div>
-            <div className="mt-1.5 text-[12px] text-ink-2">Cat 4 · Tampa Bay · landfall in ~12h</div>
-            <div className="mt-2.5 flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-3">
-              Oct 2024 data · open storm desk
-              <I.arrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </div>
+            <SidebarIncident />
           </Link>
         ) : (
           <Link href="/console/sentinel" className="mb-5 flex justify-center" title="Active incident: Hurricane Milton (replay)">

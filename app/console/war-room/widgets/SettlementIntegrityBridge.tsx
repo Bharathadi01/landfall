@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { TREASURY, studioLedgerReconciliation, studioRecoveryProofs } from "@/lib/studio/landfall-studio-data";
+import { studioLedgerReconciliation, studioRecoveryProofs } from "@/lib/studio/landfall-studio-data";
+import { useCases } from "@/components/data/DataSourceProvider";
 import { money } from "@/components/relief/parts";
 
 /**
@@ -11,8 +12,12 @@ import { money } from "@/components/relief/parts";
  * variance must be 0¢) rather than asserted. Data is replay data, labelled as such.
  */
 export function SettlementIntegrityBridge() {
+  const { treasury: TREASURY, source } = useCases();
+  const live = source === "live";
+  // Replay: the replay ledger's own consistency. Live: the figures below ARE the ledger's positions (see live-treasury.ts);
+  // whether they match PayPal is what the reconciliation run says, not this widget.
   const sumBalances = studioLedgerReconciliation.reduce((t, l) => t + l.balance_usd, 0);
-  const reconciled = sumBalances === TREASURY.total && studioLedgerReconciliation.every((l) => l.variance_cents === 0);
+  const reconciled = live ? true : sumBalances === TREASURY.total && studioLedgerReconciliation.every((l) => l.variance_cents === 0);
   const sent = TREASURY.paidOut + TREASURY.inFlight;
   const pct = (n: number) => `${(n / TREASURY.total) * 100}%`;
   const proof = studioRecoveryProofs[0];
@@ -28,7 +33,7 @@ export function SettlementIntegrityBridge() {
           <p className="mt-0.5 text-[12.5px] text-ink-3">Replay ledger vs replay treasury (not compared with PayPal), reserve kept apart</p>
         </div>
         <span className={`field-badge ${reconciled ? "field-badge-success" : "field-badge-critical"}`}>
-          {reconciled ? "Replay ledger is internally consistent" : "Replay ledger mismatch — investigate"}
+          {live ? "Ledger positions · see reconciliation for the PayPal comparison" : reconciled ? "Replay ledger is internally consistent" : "Replay ledger mismatch — investigate"}
         </span>
       </div>
 
@@ -36,7 +41,7 @@ export function SettlementIntegrityBridge() {
         <div className="space-y-1 rounded-xl border border-white/[0.07] bg-black/20 p-3">
           <div className="text-[10px] uppercase text-ink-3">Funds received</div>
           <div className="text-base font-semibold tabular text-ink">{money(TREASURY.total)}</div>
-          <div className="text-[10px] text-ink-3">Replay data</div>
+          <div className="text-[10px] text-ink-3">{live ? "Live ledger" : "Replay data"}</div>
         </div>
         <div className="space-y-1 rounded-xl border border-white/[0.07] bg-black/20 p-3">
           <div className="text-[10px] uppercase text-ink-3">Protected reserve</div>

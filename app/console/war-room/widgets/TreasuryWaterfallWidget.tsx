@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { TREASURY } from "@/lib/studio/landfall-studio-data";
+import { useCases } from "@/components/data/DataSourceProvider";
 
 export interface TreasuryWaterfallProps {
   totalCashCents?: number;
@@ -11,15 +11,16 @@ export interface TreasuryWaterfallProps {
   committedCents?: number;
 }
 
-const SENT_USD = TREASURY.paidOut + TREASURY.inFlight;
-
-export function TreasuryWaterfallWidget({
-  totalCashCents = TREASURY.total * 100, // funds received
-  reserveProtectedCents = TREASURY.reserve * 100, // protected reserve
-  feesReservedCents = 0, // PayPal bills $0.25 per item; not reserved separately in this demo
-  allocatableCents = (TREASURY.allocatable + SENT_USD) * 100, // tranche budget = still-allocatable + already sent
-  committedCents = SENT_USD * 100, // credited, unclaimed, held or pending at PayPal
-}: TreasuryWaterfallProps) {
+export function TreasuryWaterfallWidget(props: TreasuryWaterfallProps) {
+  const { treasury: TREASURY } = useCases();
+  const SENT_USD = TREASURY.paidOut + TREASURY.inFlight;
+  const {
+    totalCashCents = Math.round(TREASURY.total * 100), // funds received
+    reserveProtectedCents = Math.round(TREASURY.reserve * 100), // protected reserve
+    feesReservedCents = 0, // PayPal fees are booked as they are charged (see the ledger), not reserved separately
+    allocatableCents = Math.round((TREASURY.allocatable + SENT_USD) * 100), // tranche budget = still-allocatable + already sent
+    committedCents = Math.round(SENT_USD * 100), // credited, unclaimed, held or pending at PayPal
+  } = props;
   const formatUsd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
   return (

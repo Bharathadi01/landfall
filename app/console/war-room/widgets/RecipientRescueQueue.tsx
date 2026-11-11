@@ -6,7 +6,8 @@ import { type ColDef, ModuleRegistry, AllCommunityModule } from "ag-grid-communi
 import { runOfflineInvestigation, type InvestigationResult } from "@/lib/ai/investigator/agent";
 import type { ReliefObligation, PayoutItemRecord } from "@/lib/recovery/types";
 import { landfallDarkTheme } from "@/styles/ag-grid-theme";
-import { RELIEF_CASES } from "@/lib/relief/cases";
+import type { ReliefCase } from "@/lib/relief/cases";
+import { useCases } from "@/components/data/DataSourceProvider";
 import { studioApprovalEvents } from "@/lib/studio/landfall-studio-data";
 import { PayPalStatusBadge } from "@/components/relief/parts";
 
@@ -34,15 +35,15 @@ interface RescueQueueItem {
 const REPLAY_NOW = Date.parse("2024-10-09T18:30:00Z");
 
 /** The investigator works on the SAME cases as the Command Center grid: every payout that is not SUCCESS. */
-function toQueueItems(): RescueQueueItem[] {
+function toQueueItems(cases: ReliefCase[]): RescueQueueItem[] {
   const planHash = studioApprovalEvents[0].plan_hash;
-  return RELIEF_CASES.filter((c) => c.status !== "SUCCESS").map((c) => ({
+  return cases.filter((c) => c.status !== "SUCCESS").map((c) => ({
     caseId: c.caseRef,
     householdId: c.householdRef,
     recipientName: c.resident,
     zone: c.zone,
     priorityTier: c.tier,
-    amountFormatted: `$${c.amountUsd}.00`,
+    amountFormatted: `$${c.amountUsd.toFixed(2)}`,
     payoutBatchId: c.batchId,
     payoutItemId: c.itemId,
     status: c.status,
@@ -53,7 +54,7 @@ function toQueueItems(): RescueQueueItem[] {
         obligationId: c.obligationId,
         householdId: c.householdRef,
         recipientName: c.resident,
-        targetAmountCents: c.amountUsd * 100,
+        targetAmountCents: Math.round(c.amountUsd * 100),
         currency: "USD",
         stormId: "milton-2024",
         policyTranche: 1,
@@ -66,7 +67,7 @@ function toQueueItems(): RescueQueueItem[] {
         payoutBatchId: c.batchId,
         payoutItemId: c.itemId,
         status: c.status,
-        amountCents: c.amountUsd * 100,
+        amountCents: Math.round(c.amountUsd * 100),
         feeCents: 25,
         currency: "USD",
         recipientIdentifier: `${c.householdRef}@masked`,
@@ -81,7 +82,8 @@ function toQueueItems(): RescueQueueItem[] {
 export function RecipientRescueQueue() {
   const [selectedCase, setSelectedCase] = useState<RescueQueueItem | null>(null);
   const [investigation, setInvestigation] = useState<InvestigationResult | null>(null);
-  const queueData = useMemo(() => toQueueItems(), []);
+  const { cases } = useCases();
+  const queueData = useMemo(() => toQueueItems(cases), [cases]);
 
   const handleInspectRow = (row: RescueQueueItem) => {
     setSelectedCase(row);

@@ -17,7 +17,12 @@ import { isTransactionRecorded, recordLedgerTransaction } from "@/lib/ledger/ind
 import { logAuditEvent } from "@/lib/db/audit";
 import { INTERNAL_SUBMITTED, normalizeItemStatus, plannedPostings } from "./status";
 
-export type ObservationSource = "creation" | "refresh" | "webhook";
+/**
+ * Where an observation came from. "import" = a payment that already existed at PayPal before Landfall's ledger began;
+ * its money positions are carried by the opening journal, so an import NEVER posts a transition (no double deduction).
+ * "cancel" = our own Treasurer cancelled an unclaimed item and PayPal confirmed it.
+ */
+export type ObservationSource = "creation" | "refresh" | "webhook" | "import" | "cancel";
 
 export interface ItemObservation {
   senderItemId?: string;
@@ -158,7 +163,7 @@ async function finish(
   const currencyMismatch = obs.currency != null && obs.currency !== row.currency;
   if (amountMismatch || currencyMismatch) flags.push("AMOUNT_MISMATCH");
   if (row.currency !== "USD") flags.push("CURRENCY_NOT_USD");
-  const mayPost = !amountMismatch && !currencyMismatch && row.currency === "USD";
+  const mayPost = !amountMismatch && !currencyMismatch && row.currency === "USD" && obs.source !== "import";
 
   const feeCents = obs.feeCents ?? row.feeCents ?? null;
   const patch: Record<string, unknown> = {

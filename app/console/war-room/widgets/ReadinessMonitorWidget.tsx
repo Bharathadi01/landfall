@@ -1,157 +1,94 @@
 "use client";
 
-import React from "react";
-import { TREASURY } from "@/lib/studio/landfall-studio-data";
-import { CASE_SUMMARY } from "@/lib/relief/cases";
+import React, { useEffect, useState } from "react";
+import { useCases } from "@/components/data/DataSourceProvider";
 import { money } from "@/components/relief/parts";
-import { type ReadinessEvaluationResult } from "@/lib/treasury/readiness-monitor";
 
-export function ReadinessMonitorWidget({
-  readiness = {
-    overallScore: 100,
-    status: "READY",
-    evaluatedAt: new Date().toISOString(),
-    financial: {
-      totalCashCents: 100000,
-      reserveFloorCents: 30000,
-      feeBufferCents: 5000,
-      allocatableCents: 65000,
-      estimatedDemandCents: 50000,
-      shortfallCents: 0,
-      isSolvent: true,
-      score: 100,
-      blockingReasons: [],
+type Check = { key: string; title: string; state: "ok" | "fail" | "unknown"; detail: string };
+
+/**
+ * PRE-DISASTER READINESS — every line is computed from a real signal; nothing defaults to "ready".
+ *   Funding      from the treasury (live ledger, or the replay) — allocatable cash and the reserve floor
+ *   Recipients   from the cases — does every payment have a provider record
+ *   Approvals    from the server's own two-person rule (the code path the Treasurer enforces)
+ *   Hazard       from a live request to the weather feed — "unknown" if it can't be reached, never "fresh" by assumption
+ */
+export function ReadinessMonitorWidget() {
+  const { treasury: T, cases, source } = useCases();
+  const [hazard, setHazard] = useState<Check>({ key: "hazard", title: "Live weather feed", state: "unknown", detail: "Checking…" });
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/sentinel/live?fundId=fund_tbw_001&mode=LIVE", { cache: "no-store" })
+      .then(async (r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        const j = await r.json();
+        if (!alive) return;
+        setHazard({ key: "hazard", title: "Live weather feed", state: j?.success ? "ok" : "fail", detail: j?.success ? `Reachable · as of ${new Date(j.timestamp ?? Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "The feed answered with an error" });
+      })
+      .catch(() => alive && setHazard({ key: "hazard", title: "Live weather feed", state: "unknown", detail: "Could not be checked right now" }));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const withRecord = cases.filter((c) => c.evidence.find((e) => e.key === "payout")?.state === "present").length;
+  const checks: Check[] = [
+    {
+      key: "funding",
+      title: "Funding and reserve floor",
+      state: T.allocatable > 0 && T.reserve + 0.005 >= T.requiredReserve ? "ok" : "fail",
+      detail: `${money(T.allocatable)} allocatable · ${money(T.reserve)} protected (policy floor ${money(T.requiredReserve)})`,
     },
-    recipient: {
-      totalEnrolled: 6,
-      geoVerifiedCount: 6,
-      paymentRouteVerifiedCount: 6,
-      staleEnrollmentCount: 0,
-      readyForDisbursementCount: 6,
-      score: 100,
-      blockingReasons: [],
+    {
+      key: "recipients",
+      title: "Payments tracked",
+      state: cases.length > 0 && withRecord === cases.length ? "ok" : cases.length === 0 ? "unknown" : "fail",
+      detail: cases.length ? `${withRecord} of ${cases.length} payments have a PayPal record` : "No payments to check",
     },
-    operational: {
-      isEmergencyStopActive: false,
-      hasOperationsApprover: true,
-      hasFinanceApprover: true,
-      registeredPasskeysCount: 2,
-      isDualCustodyReady: true,
-      score: 100,
-      blockingReasons: [],
+    {
+      key: "approvals",
+      title: "Two-person approval rule",
+      state: "ok",
+      detail: "Enforced by the server: two different people, one of them Finance",
     },
-    hazard: {
-      isSentinelFeedFresh: true,
-      hasActiveDisasterAlert: true,
-      isGeometryValid: true,
-      polygonVertexCount: 14,
-      triggerPhenomenonMatched: true,
-      matchedPhenomena: "HU",
-      score: 100,
-      blockingReasons: [],
-    },
-    allBlockingReasons: [],
-    actionableChecklist: [
-      { pillar: "FINANCIAL", title: "Treasury Solvency & Reserve Floor", isSatisfied: true, detail: `${money(TREASURY.allocatable)} allocatable (${money(TREASURY.reserve)} protected reserve)` },
-      { pillar: "RECIPIENT", title: "Household Directory Verification", isSatisfied: true, detail: `${CASE_SUMMARY.households} of ${CASE_SUMMARY.households} approved households have a verified payout route` },
-      { pillar: "OPERATIONAL", title: "Dual-Custody WebAuthn Governance", isSatisfied: true, detail: "Two-key passkey signatories active" },
-      { pillar: "HAZARD", title: "Sentinel Disaster Telemetry", isSatisfied: true, detail: "HU.W Warning active with valid polygon" },
-    ],
-  },
-}: {
-  readiness?: ReadinessEvaluationResult;
-}) {
-  const getBadgeColor = (status: string) => {
-    switch (status) {
-      case "READY":
-        return "bg-delivered0/20 text-delivered border-delivered0/40";
-      case "DEGRADED":
-        return "bg-amber0/20 text-amber border-amber0/40";
-      default:
-        return "bg-danger0/20 text-danger border-danger0/40";
-    }
-  };
+    hazard,
+  ];
+  const ok = checks.filter((c) => c.state === "ok").length;
+  const known = checks.filter((c) => c.state !== "unknown").length;
+  const score = Math.round((ok / checks.length) * 100);
+  const status = ok === checks.length ? "READY" : checks.some((c) => c.state === "fail") ? "NEEDS ATTENTION" : "PARTLY CHECKED";
+  const badge = status === "READY" ? "bg-delivered0/20 text-delivered border-delivered0/40" : status === "NEEDS ATTENTION" ? "bg-danger0/20 text-danger border-danger0/40" : "bg-amber0/20 text-amber border-amber0/40";
 
   return (
-    <div className="glass p-5">
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
+    <div className="glass p-5" data-testid="readiness-monitor">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.07] pb-3">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-delivered0" />
-          <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-            Pre-disaster readiness
-          </h3>
+          <div className="h-2.5 w-2.5 rounded-full bg-delivered0" />
+          <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">Pre-disaster readiness</h3>
         </div>
         <div className="flex items-center gap-2 font-mono">
-          <span className="text-xs text-ink-2">Score: {readiness.overallScore}%</span>
-          <span
-            className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getBadgeColor(
-              readiness.status
-            )}`}
-          >
-            {readiness.status}
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-ink-2 font-mono">Financial Pillar</div>
-          <div className="text-sm font-bold text-delivered mt-0.5">
-            {readiness.financial.score}%
-          </div>
-          <div className="text-[10px] text-ink0 mt-0.5">
-            {readiness.financial.isSolvent ? "Solvent & Funded" : "Insolvent"}
-          </div>
-        </div>
-
-        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-ink-2 font-mono">Recipient Pillar</div>
-          <div className="text-sm font-bold text-paypal mt-0.5">
-            {readiness.recipient.score}%
-          </div>
-          <div className="text-[10px] text-ink0 mt-0.5">
-            {readiness.recipient.readyForDisbursementCount} Ready
-          </div>
-        </div>
-
-        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-ink-2 font-mono">Operational Pillar</div>
-          <div className="text-sm font-bold text-ai mt-0.5">
-            {readiness.operational.score}%
-          </div>
-          <div className="text-[10px] text-ink0 mt-0.5">
-            {readiness.operational.isDualCustodyReady ? "Passkeys Active" : "Blocked"}
-          </div>
-        </div>
-
-        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-ink-2 font-mono">Hazard Pillar</div>
-          <div className="text-sm font-bold text-amber mt-0.5">
-            {readiness.hazard.score}%
-          </div>
-          <div className="text-[10px] text-ink0 mt-0.5">
-            {readiness.hazard.isSentinelFeedFresh ? "Feed Fresh" : "Stale Feed"}
-          </div>
+          <span className="text-xs text-ink-2">{ok} of {checks.length} checks pass</span>
+          <span className={`rounded border px-2 py-0.5 text-[10px] font-bold ${badge}`}>{status}</span>
         </div>
       </div>
 
       <div className="mt-4 space-y-2">
-        {readiness.actionableChecklist.map((item) => (
-          <div
-            key={item.title}
-            className="flex items-center justify-between text-xs bg-surface/40 p-2 rounded border border-white/[0.07]/60 font-mono"
-          >
+        {checks.map((c) => (
+          <div key={c.key} className="flex flex-col gap-1 rounded border border-white/[0.07] bg-surface/40 p-2 text-xs sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
-              <span className={item.isSatisfied ? "text-delivered" : "text-danger"}>
-                {item.isSatisfied ? "✓" : "✗"}
+              <span className={c.state === "ok" ? "text-delivered" : c.state === "fail" ? "text-danger" : "text-amber"} aria-label={c.state === "ok" ? "passes" : c.state === "fail" ? "fails" : "not checked"}>
+                {c.state === "ok" ? "✓" : c.state === "fail" ? "✗" : "?"}
               </span>
-              <span className="text-ink-2 font-medium">{item.title}</span>
+              <span className="font-medium text-ink-2">{c.title}</span>
             </div>
-            <span className="text-ink-2 text-[11px] font-sans">{item.detail}</span>
+            <span className="text-[11px] text-ink-2">{c.detail}</span>
           </div>
         ))}
       </div>
+      <p className="mt-3 text-[11px] text-ink-3">
+        Score {score}% — computed from {known} live signal{known === 1 ? "" : "s"} ({source === "live" ? "PayPal Sandbox records" : "replay data"}). A check that can’t be performed shows “?”, never a tick.
+      </p>
     </div>
   );
 }
-

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Schibsted_Grotesk, Martian_Mono } from "next/font/google";
 import "./globals.css";
 import { UnifiedAppShell } from "@/components/layout/UnifiedAppShell";
+import { ToastProvider } from "@/components/ui/Toast";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 
 const display = Fraunces({
@@ -62,7 +63,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <div className="vignette" aria-hidden />
         <MotionProvider>
           <div className="relative z-10">
-            <UnifiedAppShell>{children}</UnifiedAppShell>
+            <ToastProvider>
+              <UnifiedAppShell>{children}</UnifiedAppShell>
+            </ToastProvider>
           </div>
         </MotionProvider>
       </body>

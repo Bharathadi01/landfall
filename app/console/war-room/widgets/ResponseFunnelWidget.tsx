@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CASE_SUMMARY } from "@/lib/relief/cases";
+import { useCases } from "@/components/data/DataSourceProvider";
 
 export interface FunnelStage {
   label: string;
@@ -10,16 +10,17 @@ export interface FunnelStage {
   description: string;
 }
 
-export function ResponseFunnelWidget({
-  stages = CASE_SUMMARY.stageCounts.map((st, i) => ({
-    label: `${i + 1}. ${st.label}`,
-    count: st.count,
-    percentage: Math.round((st.count / CASE_SUMMARY.households) * 100),
-    description: st.help,
-  })),
-}: {
-  stages?: FunnelStage[];
-}) {
+export function ResponseFunnelWidget({ stages: stagesProp }: { stages?: FunnelStage[] }) {
+  const { summary } = useCases();
+  const stages: FunnelStage[] =
+    stagesProp ??
+    summary.stageCounts.map((st, i) => ({
+      label: `${i + 1}. ${st.label}`,
+      count: st.count,
+      percentage: summary.households ? Math.round((st.count / summary.households) * 100) : 0,
+      description: st.help,
+    }));
+  const confirmed = summary.confirmedCount;
   return (
     <div className="glass p-5">
       <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
@@ -30,7 +31,7 @@ export function ResponseFunnelWidget({
           </h3>
         </div>
         <span className="text-xs text-delivered font-mono font-semibold">
-          Conversion: 83% (1 Excluded Safely)
+          {confirmed} of {summary.households} confirmed by the household
         </span>
       </div>
 

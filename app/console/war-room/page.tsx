@@ -15,16 +15,11 @@ import { CaseGrid } from "@/components/grid/CaseGrid";
 import { LandfallStudio } from "@/components/studio/LandfallStudio";
 import { PageHeader, StatCard, SectionHeader, Chip, IconTile, type Tone } from "@/components/ui/primitives";
 import { ProvenanceTag, PayPalStatusBadge, StageDots, EvidenceState, money, money2 } from "@/components/relief/parts";
-import {
-  buildReliefCases,
-  summarizeCases,
-  attentionQueue,
-  STAGES,
-  ACCESS_REASON_LABEL,
-  type AccessReport,
-  type ReliefCase,
-} from "@/lib/relief/cases";
-import { TREASURY, studioApprovalEvents, studioWebhookObservations } from "@/lib/studio/landfall-studio-data";
+import { STAGES, ACCESS_REASON_LABEL, type ReliefCase } from "@/lib/relief/cases";
+import { studioApprovalEvents, studioWebhookObservations } from "@/lib/studio/landfall-studio-data";
+import { useCases } from "@/components/data/DataSourceProvider";
+import { relativeTime } from "@/components/data/SourceSwitch";
+import { useToast } from "@/components/ui/Toast";
 import {
   HazardIntelligenceWidget,
   ExposureDistributionWidget,
@@ -58,23 +53,32 @@ export default function CommandCenterPage() {
   const pendingOpen = useRef<string | null>(null);
   const [tab, setTab] = useState<Tab>("OVERVIEW");
   const [passkeyOpen, setPasskeyOpen] = useState(false);
-  const [reports, setReports] = useState<AccessReport[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const toast = useToast();
+  // One source for every number on this page: live PayPal Sandbox records, or the synthetic replay.
+  const { cases, summary: sum, queue, treasury: TREASURY, source, status, lastSyncedAt, batches, error: sourceError, refreshFromPayPal } = useCases();
+  const live = source === "live";
 
-  // Resident-reported access reports (from the resident portal) join the cases.
-  useEffect(() => {
-    let alive = true;
-    fetch("/api/recipients/access-report")
-      .then((r) => (r.ok ? r.json() : { reports: [] }))
-      .then((j) => alive && setReports(j.reports ?? []))
-      .catch(() => undefined);
-    return () => {
-      alive = false;
-    };
-  }, []);
+  // Resident reports, derived from the cases themselves (the barrier / "reported they received it" evidence).
+  type ReportLite = { kind: "RECEIVED" | "CANT_ACCESS"; reason?: ReliefCase["barrier"] };
+  const reports = useMemo<ReportLite[]>(
+    () =>
+      cases.flatMap<ReportLite>((c) =>
+        c.barrier
+          ? [{ kind: "CANT_ACCESS" as const, reason: c.barrier }]
+          : c.evidence.some((e) => e.key === "recipient" && /reported they received it/.test(e.detail))
+          ? [{ kind: "RECEIVED" as const, reason: undefined }]
+          : []
+      ),
+    [cases]
+  );
 
-  const cases = useMemo(() => buildReliefCases(reports), [reports]);
-  const sum = useMemo(() => summarizeCases(cases), [cases]);
-  const queue = useMemo(() => attentionQueue(cases, 3), [cases]);
+  const doRefresh = async () => {
+    setRefreshing(true);
+    const r = await refreshFromPayPal();
+    setRefreshing(false);
+    toast({ title: r.ok ? "Refreshed from PayPal" : "Could not refresh", body: r.message, tone: r.ok ? (r.changed ? "success" : "info") : "warn" });
+  };
 
   const activity = useMemo(() => {
     const ev = [
@@ -126,7 +130,8 @@ export default function CommandCenterPage() {
         legend: { position: "bottom", item: { label: { color: "#B9B3AA", fontSize: 12 }, marker: { shape: "circle" } } },
         padding: { top: 4, bottom: 4 },
       }) as any,
-    []
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [TREASURY.allocatable, TREASURY.reserve, TREASURY.paidOut, TREASURY.inFlight, TREASURY.total]
   );
 
   const TABS: { id: Tab; label: string; icon: any }[] = [
@@ -142,22 +147,37 @@ export default function CommandCenterPage() {
   return (
     <div className="space-y-8 pb-12">
       <PageHeader
-        eyebrow="Command Center · Hurricane Milton"
+        eyebrow={live ? "Command Center · PayPal Sandbox" : "Command Center · Hurricane Milton"}
         icon={I.dashboard}
         tone="accent"
-        title="12 hours to landfall."
-        accent="Here’s what needs you."
-        description={`${sum.households} households approved · ${money(sum.approvedUsd)} sent to PayPal · ${sum.creditedCount} credited by PayPal, ${sum.confirmedCount} confirmed by residents · ${sum.needPersonCount} need a person.`}
+        title={live ? "Every payment," : "12 hours to landfall."}
+        accent={live ? "answered or not yet." : "Here’s what needs you."}
+        description={`${sum.households} ${live ? "real PayPal Sandbox payments" : "households approved"} · ${money(sum.approvedUsd)} sent to PayPal · ${sum.creditedCount} credited by PayPal, ${sum.confirmedCount} confirmed by residents · ${sum.needPersonCount} need a person.`}
         meta={
-          <>
-            <Chip tone="storm" live>
-              Replay · Oct 2024
-            </Chip>
-            <Chip tone="neutral">Synthetic scenario</Chip>
-          </>
+          live ? (
+            <>
+              <Chip tone="paypal" live>
+                Live Sandbox
+              </Chip>
+              <Chip tone="neutral">Real PayPal responses · synthetic people</Chip>
+              <Chip tone="neutral">PayPal asked {relativeTime(lastSyncedAt)}</Chip>
+            </>
+          ) : (
+            <>
+              <Chip tone="storm" live>
+                Replay · Oct 2024
+              </Chip>
+              <Chip tone="neutral">Synthetic scenario</Chip>
+            </>
+          )
         }
         actions={
           <>
+            {live && (
+              <button onClick={doRefresh} disabled={refreshing} className="field-btn field-btn-secondary" data-testid="refresh-paypal">
+                <I.refresh className={`h-4 w-4 text-paypal ${refreshing ? "animate-spin" : ""}`} /> {refreshing ? "Asking PayPal…" : "Refresh from PayPal"}
+              </button>
+            )}
             <Link href="/console/studio" className="field-btn field-btn-secondary">
               <I.chart className="h-4 w-4 text-paypal" /> Analytics Studio
             </Link>
@@ -202,7 +222,7 @@ export default function CommandCenterPage() {
 
       {/* KPIs */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Cash in PayPal account" value={TREASURY.available} prefix="$" tone="paypal" icon={I.wallet} hint="Replay data · includes the protected reserve" />
+        <StatCard label="Cash in PayPal account" value={TREASURY.available} prefix="$" tone="paypal" icon={I.wallet} hint={`${live ? "From the ledger, posted from PayPal’s statuses" : "Replay data"} · includes the protected reserve`} />
         <StatCard label="Protected reserve" value={TREASURY.reserve} prefix="$" tone="amber" icon={I.reserve} hint={`Policy floor ${money(TREASURY.requiredReserve)} (${TREASURY.policyFloorPct}%) · can’t be spent`} />
         <StatCard label="Ready to allocate" value={TREASURY.allocatable} prefix="$" tone="accent" icon={I.payout} hint="Cash in account minus the reserve" />
         <StatCard label="Need a person" value={sum.needPersonCount} tone="danger" icon={I.needPerson} hint={`${money(sum.needPersonUsd)} across cases needing follow-up`} />

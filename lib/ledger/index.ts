@@ -14,6 +14,7 @@ export type AccountName =
   | "returned"
   | "payout_unclaimed"
   | "payout_fees"
+  | "opening_balance"
   | "pledges_contingent"
   | "pledges_captured";
 

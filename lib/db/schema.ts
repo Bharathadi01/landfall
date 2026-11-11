@@ -330,6 +330,105 @@ export const payoutStatusHistory = pgTable("payout_status_history", {
   observedAt: timestamp("observed_at").defaultNow().notNull(),
 });
 
+/**
+ * RESIDENT REPORTS (persisted). Recipient-reported evidence only: it never changes PayPal's status.
+ * `channel` is web (buttons) or voice (transcribed + classified); both keep the resident's own words.
+ */
+export const accessReports = pgTable("access_reports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  caseRef: text("case_ref").notNull(),
+  kind: text("kind", { enum: ["RECEIVED", "CANT_ACCESS"] }).notNull(),
+  reason: text("reason"),
+  channel: text("channel", { enum: ["web", "voice"] }).default("web").notNull(),
+  language: text("language"),
+  transcript: text("transcript"),
+  translation: text("translation"),
+  classifier: jsonb("classifier"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+/**
+ * ACTION PROPOSALS: the only way money moves after the initial plan. A proposal is created by a coordinator,
+ * approved by two different people (one Finance), and executed by the Treasurer — never by a request body or an AI.
+ */
+export const actionProposals = pgTable("action_proposals", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  kind: text("kind", { enum: ["CANCEL_ITEM", "NEW_PAYOUT", "REISSUE"] }).notNull(),
+  targetSenderItemId: text("target_sender_item_id"),
+  parentSenderItemId: text("parent_sender_item_id"),
+  payloadJson: jsonb("payload_json").notNull(),
+  payloadHash: text("payload_hash").notNull(),
+  status: text("status", { enum: ["PROPOSED", "APPROVED", "EXECUTING", "EXECUTED", "FAILED", "REJECTED"] }).default("PROPOSED").notNull(),
+  proposedBy: text("proposed_by").notNull(),
+  idempotencyKey: text("idempotency_key").unique().notNull(),
+  resultJson: jsonb("result_json"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  executedAt: timestamp("executed_at"),
+});
+
+export const actionApprovals = pgTable("action_approvals", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  proposalId: uuid("proposal_id").references(() => actionProposals.id).notNull(),
+  approverId: text("approver_id").notNull(),
+  approverName: text("approver_name").notNull(),
+  role: text("role", { enum: ["coordinator", "finance"] }).notNull(),
+  method: text("method", { enum: ["WEBAUTHN", "DEMO_KEY"] }).notNull(),
+  credentialId: text("credential_id"),
+  payloadHash: text("payload_hash").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+/** Single-use WebAuthn challenges, bound to the exact thing being approved. */
+export const webauthnChallenges = pgTable("webauthn_challenges", {
+  challenge: text("challenge").primaryKey(),
+  subject: text("subject").notNull(),
+  purpose: text("purpose", { enum: ["register", "approve"] }).notNull(),
+  bindHash: text("bind_hash"),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+});
+
+/** Every ledger-vs-PayPal comparison, kept: who ran it, what was compared, and the explained remainder. */
+export const reconciliationRuns = pgTable("reconciliation_runs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  status: text("status").notNull(), // IN_SYNC | EXPLAINED_DIFFERENCE | TIMING_DIFFERENCE | MISMATCH_ALERT | UNVERIFIED
+  ledgerCents: integer("ledger_cents"),
+  paypalCents: integer("paypal_cents"),
+  unexplainedCents: integer("unexplained_cents"),
+  report: jsonb("report").notNull(),
+  actor: text("actor").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+/** Every AI run: which model (or labelled fallback) answered, what it called, how long it took. */
+export const aiRuns = pgTable("ai_runs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  kind: text("kind").notNull(), // case_investigation | watch_officer | studio | grid_ask | voice | guard
+  subject: text("subject"),
+  model: text("model"),
+  answeredBy: text("answered_by", { enum: ["model", "deterministic"] }).notNull(),
+  latencyMs: integer("latency_ms"),
+  promptTokens: integer("prompt_tokens"),
+  completionTokens: integer("completion_tokens"),
+  toolCalls: jsonb("tool_calls"),
+  result: jsonb("result"),
+  evidenceHash: text("evidence_hash"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+/** Stakeholder feedback. Only real, consented responses are ever shown anywhere. */
+export const validationResponses = pgTable("validation_responses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  role: text("role").notNull(),
+  orgType: text("org_type").notNull(),
+  problemToday: text("problem_today").notNull(),
+  wouldUse: integer("would_use"), // 1-5
+  comments: text("comments"),
+  contact: text("contact"), // only if they opted in
+  consent: boolean("consent").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const pledgeConsents = pgTable("pledge_consents", {
   id: uuid("id").primaryKey().defaultRandom(),
   donorEmail: text("donor_email").notNull(),

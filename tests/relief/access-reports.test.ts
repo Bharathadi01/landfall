@@ -8,11 +8,12 @@ import { signSession, SESSION_COOKIE, type Role } from "@/lib/auth/session";
 import { _resetRateLimitsForTests } from "@/lib/security/rate-limit";
 
 /** Cookie for a session: a resident bound to one household, or an operator role. */
-const cookieFor = async (role: Role, hh?: string) => `${SESSION_COOKIE}=${await signSession({ sub: "t", name: "T", role, ...(hh ? { hh } : {}) })}`;
+// These tests exercise the REPLAY data, so they pin the source (otherwise a populated database auto-selects LIVE).
+const cookieFor = async (role: Role, hh?: string) => `${SESSION_COOKIE}=${await signSession({ sub: "t", name: "T", role, ...(hh ? { hh } : {}) })}; lf_source=replay`;
 const post = (body: unknown, cookie?: string) =>
-  new NextRequest("http://localhost/api/recipients/access-report", { method: "POST", headers: { ...(cookie ? { cookie } : {}), "x-forwarded-for": "7.7.7.7" }, body: JSON.stringify(body) });
+  new NextRequest("http://localhost/api/recipients/access-report", { method: "POST", headers: { cookie: cookie ?? "lf_source=replay", "x-forwarded-for": "7.7.7.7" }, body: JSON.stringify(body) });
 const getCaseReq = (ref: string, cookie?: string) =>
-  new NextRequest(`http://localhost/api/recipients/case?ref=${encodeURIComponent(ref)}`, { headers: cookie ? { cookie } : {} });
+  new NextRequest(`http://localhost/api/recipients/case?ref=${encodeURIComponent(ref)}`, { headers: { cookie: cookie ?? "lf_source=replay" } });
 
 const unclaimed = () => RELIEF_CASES.find((c) => c.status === "UNCLAIMED")!;
 const creditedUnconfirmed = () => RELIEF_CASES.find((c) => c.status === "SUCCESS" && !c.stagesReached.CONFIRMED)!;
@@ -53,7 +54,7 @@ describe("Resident loop: case lookup and access reports", () => {
     const list = await (await listReports()).json();
     expect(list.reports).toHaveLength(1);
     expect(list.reports[0]).toEqual(expect.objectContaining({ caseRef: c.caseRef, kind: "CANT_ACCESS", reason: "CANT_SIGN_IN" }));
-    expect(Object.keys(list.reports[0]).sort()).toEqual(["caseRef", "createdAt", "kind", "reason"]); // no personal details
+    expect(Object.keys(list.reports[0]).sort()).toEqual(["caseRef", "channel", "createdAt", "kind", "reason"]); // no personal details (no transcript, no contact)
   });
 
   it("'I received it' closes the credited case and is labelled resident-reported", async () => {

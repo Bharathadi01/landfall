@@ -21,6 +21,8 @@ export const MAX_PAGES = 200;
 export const REFRESH_COOLDOWN_MS = 15_000;
 
 export interface RefreshDeps {
+  /** Defaults to "refresh". Use "import" only for payments that pre-date the ledger (see lib/payouts/import.ts). */
+  source?: "refresh" | "import";
   fetchBatch?: (batchId: string, actor: string, opts: { page: number; pageSize: number; totalRequired: boolean }) => Promise<{ data: GetPayoutBatchResponse }>;
   now?: () => number;
   cooldownMs?: number;
@@ -90,7 +92,7 @@ export async function refreshPayoutBatch(paypalBatchId: string, deps: RefreshDep
           currency: it.payout_item?.amount.currency ?? null,
           feeCents: toCents(it.payout_item_fee?.value),
           providerTime: it.time_processed ? new Date(it.time_processed) : null,
-          source: "refresh",
+          source: deps.source ?? "refresh",
         });
         if (res.outcome !== "unchanged") summary.changes.push({ senderItemId: res.senderItemId, from: res.from, to: res.to, outcome: res.outcome });
         for (const f of res.flags) if (!summary.flags.includes(f)) summary.flags.push(f);

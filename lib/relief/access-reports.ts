@@ -39,14 +39,24 @@ export function resolveCaseRef(input: string): string | null {
 export function addAccessReport(input: z.infer<typeof AccessReportInput>): { ok: true; report: AccessReport } | { ok: false; error: string } {
   const ref = resolveCaseRef(input.caseRef);
   if (!ref) return { ok: false, error: "Unknown case reference" };
+  return { ok: true, report: recordAccessReport(ref, input) };
+}
+
+/** Append a report for a case reference the CALLER has already resolved and authorised (replay or live). */
+export function recordAccessReport(
+  caseRef: string,
+  input: Pick<z.infer<typeof AccessReportInput>, "kind" | "reason">,
+  extra: Partial<Pick<AccessReport, "channel" | "language" | "transcript" | "translation">> = {}
+): AccessReport {
   const report: AccessReport = {
-    caseRef: ref,
+    caseRef,
     kind: input.kind,
     reason: input.kind === "CANT_ACCESS" ? input.reason : undefined,
     createdAt: new Date().toISOString(),
+    ...extra,
   };
   store.push(report);
-  return { ok: true, report };
+  return report;
 }
 
 export function casesWithReports(): ReliefCase[] {
@@ -57,7 +67,12 @@ export function casesWithReports(): ReliefCase[] {
 export function residentView(caseRef: string) {
   const c = casesWithReports().find((x) => x.caseRef === caseRef);
   if (!c) return null;
-  const money = `$${c.amountUsd}`;
+  return residentViewOf(c);
+}
+
+/** The same plain-language view for ANY case (replay or live Sandbox). */
+export function residentViewOf(c: ReliefCase) {
+  const money = Number.isInteger(c.amountUsd) ? `$${c.amountUsd}` : `$${c.amountUsd.toFixed(2)}`;
   let plain: string;
   let tone: "good" | "info" | "warn" | "bad" = "info";
   if (c.barrier) {
@@ -103,4 +118,20 @@ export function residentView(caseRef: string) {
     canReport: c.status === "SUCCESS" || c.status === "UNCLAIMED" || !!c.barrier,
     dataOrigin: c.origin,
   };
+}
+
+/**
+ * Merge reports loaded from the database into the in-memory view (de-duplicated). The memory store is the
+ * read model every case build uses; the database is the durable copy (see access-reports.server.ts).
+ */
+export function ingestAccessReports(rows: AccessReport[]): void {
+  const seen = new Set(store.map((r) => `${r.caseRef}|${r.kind}|${r.createdAt}`));
+  for (const r of rows) {
+    const k = `${r.caseRef}|${r.kind}|${r.createdAt}`;
+    if (!seen.has(k)) {
+      store.push(r);
+      seen.add(k);
+    }
+  }
+  store.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
