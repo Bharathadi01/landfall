@@ -65,10 +65,18 @@ describe("AI case officer", () => {
     expect(out.unknowns.join(" ")).toMatch(/no record exists/);
   });
 
-  it("refuses to answer from no evidence (model skipped its tools)", async () => {
-    const lazy = (async () => res({ content: "I think it is fine" })) as never;
+  it("a model that skips every tool still gets the server-gathered evidence (marked as server-run)", async () => {
+    let n = 0;
+    const lazy = (async (o: { jsonSchema?: unknown }) => {
+      n++;
+      if (o.jsonSchema) return res({ content: JSON.stringify({ facts: [{ text: "PayPal status is UNCLAIMED.", evidenceIds: ["case:status"] }], hypotheses: [], unknowns: [], recommendedAction: "WAIT", actionReason: "ok", residentMessage: { text: "hi", englishGloss: "hi" } }) });
+      return res({ content: "I think it is fine" });
+    }) as never;
     const out = await investigateCase(c, deps(lazy));
-    expect(out.answeredBy).toBe("deterministic");
+    expect(out.answeredBy).toBe("ai");
+    expect(out.toolCalls.every((t) => t.server)).toBe(true);
+    expect(out.facts).toHaveLength(1);
+    expect(n).toBe(2);
   });
 
   it("an unknown tool name is rejected and invalid JSON falls back", async () => {
@@ -95,6 +103,8 @@ describe("AI case officer", () => {
     expect(withTx.facts).toHaveLength(1);
     expect(withTx.evidence.find((e) => e.id === "paypal:transaction")?.text).toMatch(/Agent Toolkit/);
 
+    // the model only called get_case, yet the server ran the transaction tool for it (evidence is not optional)
+    expect(withTx.toolCalls.find((t) => t.name === "get_paypal_transaction_record")).toBeDefined();
     n = 0;
     const down = await investigateCase(c, { chat, history: async () => [], transaction: async () => { throw new Error("down"); } });
     expect(down.evidence.find((e) => e.id === "paypal:transaction")).toBeUndefined();

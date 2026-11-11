@@ -64,7 +64,7 @@ export function CaseOfficerPanel({ caseRef }: { caseRef: string }) {
         <div className="space-y-4" aria-live="polite">
           <div className="flex flex-wrap items-center gap-2 text-[12px]">
             {r.answeredBy === "ai" ? <Tag tone="paypal">AI · {r.model} · {(r.latencyMs / 1000).toFixed(1)} s</Tag> : <Tag tone="amber" title={r.fallbackReason}>Offline rules (AI unavailable) · {(r.latencyMs / 1000).toFixed(1)} s</Tag>}
-            {r.toolCalls.map((t, i) => <Tag key={i} tone={t.ok ? "neutral" : "danger"}>tool: {t.name}</Tag>)}
+            {r.toolCalls.map((t, i) => <Tag key={i} tone={t.ok ? "neutral" : "danger"} title={t.server ? "The server ran this read-only tool because the model skipped it" : "The model called this read-only tool"}>{t.server ? "server" : "tool"}: {t.name}</Tag>)}
           </div>
 
           <div>

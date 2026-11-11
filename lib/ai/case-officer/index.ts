@@ -37,7 +37,7 @@ export interface Investigation {
   model?: string;
   latencyMs: number;
   fallbackReason?: string;
-  toolCalls: Array<{ name: string; ok: boolean }>;
+  toolCalls: Array<{ name: string; ok: boolean; /** true when the server ran it because the model skipped it */ server?: boolean }>;
   facts: Array<{ text: string; evidenceIds: string[] }>;
   hypotheses: Array<{ text: string; evidenceIds: string[] }>;
   unknowns: string[];
@@ -260,6 +260,17 @@ export async function investigateCase(c: ReliefCase, deps: Deps, lang: Language 
           : { error: "unknown tool" };
         messages.push({ role: "tool", tool_call_id: t.id, content: JSON.stringify(result) });
       }
+    }
+    // Evidence is never optional: any read-only tool the model skipped is run by the server and shown to it as tool output.
+    const called = new Set(toolCalls.map((t) => t.name));
+    const skipped = TOOL_NAMES.filter((n) => !called.has(n));
+    if (skipped.length && last) {
+      const gathered: Record<string, unknown> = {};
+      for (const name of skipped) {
+        toolCalls.push({ name, ok: true, server: true });
+        gathered[name] = runTool(name, c, store, name === "get_status_history" ? await historyOnce() : null, name === "get_live_item_from_paypal" ? await liveOnce() : null, name === "get_paypal_transaction_record" ? await txOnce() : null);
+      }
+      messages.push({ role: "user", content: `The server also ran these read-only tools for you (same format as tool output):\n${JSON.stringify(gathered)}` });
     }
     if (store.items.size === 0) throw new GroqUnavailable("EMPTY", "The model did not call any tool, so there is no evidence to cite.");
 
