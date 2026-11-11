@@ -8,6 +8,8 @@ import { I } from "@/components/icons";
 import { StormDesk } from "@/components/sentinel/desk/StormDesk";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { PayPalCheckout } from "@/components/donate/PayPalCheckout";
+import { PayPalSubscribe } from "@/components/donate/PayPalSubscribe";
 import { CASE_SUMMARY } from "@/lib/relief/cases";
 import { TREASURY } from "@/lib/studio/landfall-studio-data";
 import { COMMUNITY_FUNDS_GEO } from "@/lib/sentinel/weather-client";
@@ -309,99 +311,167 @@ export default function HomePage() {
 
 /* ── Donation (PayPal Orders v2, sandbox) ──────────────── */
 
+const TEST_CARDS = [
+  { label: "Visa", number: "4012888888881881" },
+  { label: "Mastercard", number: "5555555555554444" },
+];
+
+function SandboxHelp() {
+  const [copied, setCopied] = useState<string | null>(null);
+  const copy = (n: string) =>
+    navigator.clipboard?.writeText(n).then(() => {
+      setCopied(n);
+      window.setTimeout(() => setCopied(null), 1800);
+    });
+  return (
+    <details className="mt-5 border-t border-line pt-4 text-[13px] text-ink-2">
+      <summary className="cursor-pointer text-ink-2 hover:text-ink">Testing in the PayPal Sandbox</summary>
+      <div className="mt-3 space-y-3">
+        <p>
+          This is PayPal’s Sandbox, so no real money moves. Sign in with a Sandbox buyer account, or choose <b className="text-ink">Debit or Credit Card</b> and use a PayPal test card:
+        </p>
+        <ul className="space-y-1.5">
+          {TEST_CARDS.map((c) => (
+            <li key={c.number} className="flex items-center justify-between gap-3 border border-line px-3 py-2">
+              <span>
+                <span className="text-ink">{c.label}</span> <span className="font-mono text-[12.5px] tabular">{c.number.replace(/(.{4})/g, "$1 ").trim()}</span>
+              </span>
+              <button type="button" onClick={() => copy(c.number)} className="text-[12.5px] text-accent-strong underline-offset-2 hover:underline">
+                {copied === c.number ? "Copied" : "Copy"}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <p className="text-ink-3">Expiry any future date (for example 12/2030), security code 123, any United States billing address. Some Sandbox accounts decline test cards; if so, use a Sandbox buyer login from the PayPal developer dashboard.</p>
+      </div>
+    </details>
+  );
+}
+
 function DonationCard() {
+  const [mode, setMode] = useState<"once" | "monthly">("once");
   const [amount, setAmount] = useState("50.00");
   const [custom, setCustom] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState<any | null>(null);
+  const [done, setDone] = useState<{ title: string; text: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const presets = ["25.00", "50.00", "100.00", "250.00"];
-  const value = custom ? parseFloat(custom || "0").toFixed(2) : amount;
+  const value = custom ? (Number.isFinite(parseFloat(custom)) ? parseFloat(custom).toFixed(2) : "0.00") : amount;
 
-  const donate = async () => {
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-    try {
-      const res = await fetch("/api/donations/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amountUsd: value, fundId: "fund_tbw_001" }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.amountUsd?._errors?.[0] || data.error || "Failed to create order");
-      setSuccess({ orderId: data.orderId, status: data.status, amount: value });
-    } catch (e: any) {
-      setError(e.message || "Failed to process sandbox donation");
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (done) {
+    return (
+      <div className="glass-strong relative p-6 sm:p-7" data-reveal="scale" data-testid="donation-done">
+        <div className="note" data-tone="delivered">
+          <span className="note-label">{done.title}</span>
+          {done.text}
+        </div>
+        <p className="mt-4 text-[13px] text-ink-3">This is a PayPal Sandbox payment (play money). It reaches the ledger when PayPal’s signed webhook arrives.</p>
+        <button
+          type="button"
+          className="field-btn mt-5"
+          onClick={() => {
+            setDone(null);
+            setError(null);
+          }}
+        >
+          Give again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="glass-strong relative p-6 sm:p-7" data-reveal="scale">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <IconTile icon={I.donation} tone="money" />
-          <div>
-            <div className="text-[15px] font-semibold text-ink">Fund the next storm</div>
-            <div className="text-[12.5px] text-ink-3">Tampa Bay Relief Fund</div>
+      <div>
+        <div className="font-serif text-[22px] leading-tight text-ink">Fund the next storm</div>
+        <div className="mt-0.5 text-[13px] text-ink-3">Tampa Bay Relief Fund · PayPal Sandbox</div>
+      </div>
+
+      <div className="mt-5 flex border-b border-line" role="tablist" aria-label="Gift type">
+        {(
+          [
+            ["once", "One time"],
+            ["monthly", "Monthly sustainer"],
+          ] as const
+        ).map(([k, l]) => (
+          <button
+            key={k}
+            type="button"
+            role="tab"
+            aria-selected={mode === k}
+            onClick={() => {
+              setMode(k);
+              setError(null);
+            }}
+            className={`-mb-px border-b-2 px-4 py-2.5 text-[14px] font-medium transition-colors ${mode === k ? "border-accent text-ink" : "border-transparent text-ink-3 hover:text-ink"}`}
+          >
+            {l}
+          </button>
+        ))}
+      </div>
+
+      {mode === "once" ? (
+        <>
+          <div className="mt-5 grid grid-cols-4 gap-2">
+            {presets.map((p) => {
+              const on = amount === p && !custom;
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => {
+                    setAmount(p);
+                    setCustom("");
+                  }}
+                  aria-pressed={on}
+                  className={`border py-3 text-[14px] font-semibold tabular transition-colors ${on ? "border-ink bg-white/[0.08] text-ink" : "border-line-strong text-ink-2 hover:text-ink"}`}
+                >
+                  ${parseFloat(p).toFixed(0)}
+                </button>
+              );
+            })}
           </div>
-        </div>
-        <Chip tone="paypal">Sandbox</Chip>
+          <input type="number" step="0.01" min="1.00" placeholder="Other amount (USD)" value={custom} onChange={(e) => setCustom(e.target.value)} className="field-input mt-3 w-full py-2" aria-label="Custom donation amount in USD" />
+          <p className="mt-5 flex justify-between text-[13px] text-ink-2">
+            <span>Your gift</span>
+            <span className="tabular text-ink">${value}</span>
+          </p>
+        </>
+      ) : (
+        <p className="mt-5 text-[13.5px] leading-relaxed text-ink-2">A steady $25 a month keeps the fund ready before the next warning. You approve it in PayPal’s own window and can cancel any time from your PayPal account.</p>
+      )}
+      <p className="mt-1 text-[12.5px] text-ink-3">A protected reserve is kept back, and money is paid out only after a warning and two approvals.</p>
+
+      <div className="mt-5">
+        {mode === "once" ? (
+          <PayPalCheckout
+            amount={value}
+            fundId="fund_tbw_001"
+            onApproved={(r) => {
+              setError(null);
+              setDone({ title: "Thank you", text: `PayPal approved your $${r.amount} gift and the fund’s server captured it. PayPal capture ${r.captureId ?? r.orderId}.` });
+            }}
+            onError={(m) => setError(m)}
+            onCancel={() => setError("Checkout cancelled. Nothing was charged.")}
+          />
+        ) : (
+          <PayPalSubscribe
+            onApproved={(id) => {
+              setError(null);
+              setDone({ title: "Thank you", text: `PayPal approved your monthly $25 gift and the fund’s server confirmed the subscription with PayPal (${id}).` });
+            }}
+            onError={(m) => setError(m)}
+            onCancel={() => setError("Subscription cancelled. Nothing was charged.")}
+          />
+        )}
       </div>
 
-      <div className="mt-6 grid grid-cols-4 gap-2">
-        {presets.map((p) => {
-          const on = amount === p && !custom;
-          return (
-            <button
-              key={p}
-              type="button"
-              onClick={() => { setAmount(p); setCustom(""); }}
-              className={`rounded-xl border py-3 text-[14px] font-semibold tabular transition-all ${
-                on ? "border-money/60 bg-money/15 text-money shadow-[0_0_0_4px_rgb(var(--c-money)/0.08)]" : "border-white/10 bg-white/[0.03] text-ink hover:bg-white/[0.06]"
-              }`}
-            >
-              ${parseFloat(p).toFixed(0)}
-            </button>
-          );
-        })}
-      </div>
-      <input
-        type="number"
-        step="0.01"
-        min="1.00"
-        placeholder="Other amount"
-        value={custom}
-        onChange={(e) => setCustom(e.target.value)}
-        className="field-input mt-2"
-        aria-label="Custom donation amount in USD"
-      />
-
-      <div className="mt-5 rounded-xl border border-white/[0.06] bg-black/20 p-3.5 text-[12.5px] text-ink-2">
-        <div className="flex justify-between"><span>Your gift</span><span className="tabular text-ink">${value}</span></div>
-        <div className="mt-1.5 flex justify-between"><span>Protected reserve floor enforced</span><I.reserve className="h-4 w-4 text-amber" /></div>
-        <div className="mt-1.5 flex justify-between"><span>Paid out only after a warning + two approvals</span><I.done className="h-4 w-4 text-accent-strong" /></div>
-      </div>
-
-      <button onClick={donate} disabled={loading} className="field-btn field-btn-paypal mt-5 w-full py-4 text-[15px]">
-        {loading ? "Creating PayPal order…" : `Donate $${value} with PayPal`}
-      </button>
-
-      {success && (
-        <div className="mt-4 rounded-xl border border-delivered/30 bg-delivered/10 p-3.5 text-[12.5px] animate-field-fade">
-          <div className="flex items-center gap-2 font-semibold text-delivered">
-            <I.done className="h-4 w-4" /> Order created · {success.orderId}
-          </div>
-          <div className="mt-1 font-mono text-[11.5px] text-ink-3">${success.amount} USD · {success.status}</div>
+      {error && (
+        <div className="note mt-4" data-tone="amber" role="status">
+          <span className="note-label">Heads up</span>
+          {error}
         </div>
       )}
-      {error && <div className="mt-4 rounded-xl border border-danger/30 bg-danger/10 p-3.5 text-[12.5px] text-danger animate-field-fade">{error}</div>}
-
-      <div className="mt-4 flex items-center justify-center gap-2 text-[11.5px] text-ink-3">
-        <I.api className="h-3.5 w-3.5" /> PayPal Orders v2 · POST /v2/checkout/orders
-      </div>
+      <SandboxHelp />
     </div>
   );
 }

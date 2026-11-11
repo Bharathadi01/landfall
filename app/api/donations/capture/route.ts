@@ -27,6 +27,10 @@ export async function POST(req: NextRequest) {
 
     // Extract captured amount and donor email
     const captureUnit = data.purchase_units?.[0]?.payments?.captures?.[0];
+    if (data.status !== "COMPLETED" || !captureUnit) {
+      // PayPal did not complete the capture (e.g. payer action required): say so, record nothing as received.
+      return NextResponse.json({ error: "capture_incomplete", message: "PayPal did not complete this payment, so nothing was recorded." }, { status: 409 });
+    }
     const amountVal = captureUnit?.amount?.value || "5.00";
     const donorEmail = data.payer?.email_address || "";
     const emailHash = donorEmail
@@ -51,6 +55,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       orderId: data.id,
       status: data.status,
+      captureId: captureUnit.id,
       amount: amountVal,
       debugId,
     });

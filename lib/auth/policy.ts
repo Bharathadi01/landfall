@@ -37,7 +37,7 @@ export const API_RULES: Rule[] = [
   { pattern: /^\/api\/resident\//, access: "resident", note: "resident-only actions" },
   // --- donors (public by design; PayPal-hosted approval; rate-limited) ---
   { pattern: /^\/api\/donations\/(orders|capture)$/, access: "public", note: "donation checkout" },
-  { pattern: /^\/api\/subscriptions\/(create|cancel)$/, access: "public", note: "sustainer subscriptions" },
+  { pattern: /^\/api\/subscriptions\/(create|cancel|activate)$/, access: "public", note: "sustainer subscriptions (activate: server re-checks the subscription with PayPal)" },
   { pattern: /^\/api\/pledges\/(create|revoke|setup-token)$/, access: "public", note: "storm pledges" },
   // --- PayPal + cron ---
   { pattern: /^\/api\/paypal\/webhook$/, access: "webhook", note: "signature verified by PayPal's verify API" },
