@@ -71,7 +71,7 @@ export const API_RULES: Rule[] = [
   { pattern: /^\/api\/workflow\/(golden|manifest)$/, access: "operator", note: "guided rehearsal (simulated PayPal)" },
   { pattern: /^\/api\/alerts\/(replay|exposure)$/, access: "staff", note: "writes / reads household exposure" },
   { pattern: /^\/api\/export\//, access: "staff", note: "accountability exports" },
-  { pattern: /^\/api\/validate$/, methods: ["POST"], access: "public", note: "stakeholder feedback intake (consent-gated)" },
+  { pattern: /^\/api\/validate$/, methods: ["POST", "GET"], access: "public", note: "stakeholder feedback intake (consent-gated) and an aggregate count" },
 ];
 
 export function resolveApiRule(pathname: string, method: string): Rule | null {
