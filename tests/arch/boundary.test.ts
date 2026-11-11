@@ -94,7 +94,9 @@ describe("Architectural Boundary Rules (§9)", () => {
       const matches = content.match(/NEXT_PUBLIC_[A-Z0-9_]+/g) || [];
       const allowList = new Set([
         "NEXT_PUBLIC_PAYPAL_CLIENT_ID",
+        // AG product licences are browser-embedded by design (they ship in the client bundle), so they are not secrets.
         "NEXT_PUBLIC_AG_STUDIO_LICENSE",
+        "NEXT_PUBLIC_AG_GRID_LICENSE",
       ]);
 
       for (const m of matches) {
