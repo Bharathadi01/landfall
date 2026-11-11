@@ -291,6 +291,25 @@ describe("Hardened Treasurer Engine (§4.6)", () => {
       expect(mockSender).not.toHaveBeenCalled();
     });
 
+    it("Drill 5b: a SUBMITTING entry whose PayPal batch id is known resolves to that batch without sending again", async () => {
+      const treasurer = new TreasurerEngine();
+      const { plan, approvals } = createValidPlan();
+      (treasurer as any).outbox.set(plan.id, {
+        id: `outbox_${plan.id}`,
+        planId: plan.id,
+        senderBatchId: `batch_${plan.activationId}_t1`,
+        paypalRequestId: `req_${plan.id}`,
+        status: "SUBMITTING",
+        paypalBatchId: "KNOWNBATCH1",
+        createdAt: "2026-11-09T00:00:00Z",
+        updatedAt: "2026-11-09T00:00:00Z",
+      });
+      const mockSender = vi.fn();
+      const result = await treasurer.executePlan({ plan, approvals, context: createValidContext(), payoutSender: mockSender });
+      expect(result).toMatchObject({ success: true, replayed: true, paypalBatchId: "KNOWNBATCH1", state: "submitted" });
+      expect(mockSender).not.toHaveBeenCalled();
+    });
+
     it("handles non-standard error throwing during payout execution", async () => {
       const treasurer = new TreasurerEngine();
       const { plan, approvals } = createValidPlan();

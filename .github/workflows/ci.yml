@@ -25,6 +25,8 @@ jobs:
 
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/landfall
+      # Enables the database-backed suites (payout store, proposals, recovery). This is a disposable service container.
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/landfall
       NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID || 'test_client_id' }}
       PAYPAL_CLIENT_ID: ${{ secrets.PAYPAL_CLIENT_ID || 'test_client_id' }}
       PAYPAL_CLIENT_SECRET: ${{ secrets.PAYPAL_CLIENT_SECRET || 'test_secret' }}

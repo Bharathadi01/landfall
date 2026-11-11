@@ -195,7 +195,8 @@ function toBatchRecord(paypalBatchId: string, senderBatchId: string, plan: Payou
     planId: plan.id,
     // A recovered (duplicate) batch has no header in PayPal's error body: record UNKNOWN until a refresh says otherwise.
     status: String(header?.batch_status ?? "UNKNOWN").toUpperCase(),
-    currency: digitalItems[0]?.currency ?? "USD",
+    // toBatchRecord is only called when at least one digital item was sent to PayPal.
+    currency: digitalItems[0].currency,
     items: digitalItems.map((i) => ({
       senderItemId: `${plan.activationId}:t${plan.tranche}:${i.householdId}`,
       amountCents: i.amountCents,
@@ -397,9 +398,8 @@ export class TreasurerEngine {
         outboxRecord.updatedAt = new Date().toISOString();
         this.activeSubmissions.delete(plan.id);
 
-        const persistence = digitalItems.length > 0
-          ? await recordBatch(toBatchRecord(recoveredBatchId, senderBatchId, plan, digitalItems, rawDetails))
-          : { persisted: false as boolean, error: undefined as string | undefined };
+        // Only reachable after a PayPal send attempt, so there is always a digital item to record.
+        const persistence = await recordBatch(toBatchRecord(recoveredBatchId, senderBatchId, plan, digitalItems, rawDetails));
 
         return {
           success: true,
