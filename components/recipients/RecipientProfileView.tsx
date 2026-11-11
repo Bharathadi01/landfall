@@ -53,11 +53,11 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold tracking-tight text-white">{household.name}</h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-delivered-soft text-delivered border border-delivered-line">
+            <span className="px-2.5 py-0.5 rounded-sm text-xs font-semibold bg-delivered-soft text-delivered border border-delivered-line">
               v{household.recipientVersion}
             </span>
             {household.isDisplaced && (
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-soft text-amber border border-amber-line">
+              <span className="px-2.5 py-0.5 rounded-sm text-xs font-semibold bg-amber-soft text-amber border border-amber-line">
                 Displaced Resident
               </span>
             )}

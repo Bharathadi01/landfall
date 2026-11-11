@@ -27,34 +27,29 @@ export function IncidentBug() {
   );
 }
 
-/** Sidebar card: the active data set, with where it comes from. */
+/** Sidebar: which data set is active and where it comes from — two quiet lines, no card. */
 export function SidebarIncident() {
   const { source, cases, lastSyncedAt, status } = useCases();
   if (status === "loading") {
     return (
       <>
-        <Tag tone="neutral">Loading…</Tag>
-        <div className="mt-2.5 font-serif text-[22px] leading-none tracking-[-0.02em] text-ink">Checking records</div>
-        <div className="mt-1.5 text-[12px] text-ink-2">Looking for stored PayPal payments</div>
+        <div className="text-[13px] font-medium text-ink-2">Checking records…</div>
+        <div className="mt-0.5 text-[12px] text-ink-3">Looking for stored PayPal payments</div>
       </>
     );
   }
   if (source === "live") {
     return (
       <>
-        <Tag tone="paypal" solid live>Live Sandbox</Tag>
-        <div className="mt-2.5 font-serif text-[22px] leading-none tracking-[-0.02em] text-ink">Real payments</div>
-        <div className="mt-1.5 text-[12px] text-ink-2">{cases.length} PayPal Sandbox payments · PayPal asked {relativeTime(lastSyncedAt)}</div>
-        <div className="mt-2.5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-3">Open command center</div>
+        <div className="flex items-center gap-2 text-[13px] font-medium text-ink"><span className="h-1.5 w-1.5 bg-delivered" aria-hidden /> Live PayPal Sandbox</div>
+        <div className="mt-0.5 text-[12px] text-ink-3">{cases.length} payments · asked {relativeTime(lastSyncedAt)}</div>
       </>
     );
   }
   return (
     <>
-      <Tag tone="storm" solid live>Replay</Tag>
-      <div className="mt-2.5 font-serif text-[22px] leading-none tracking-[-0.02em] text-ink">Hurricane Milton</div>
-      <div className="mt-1.5 text-[12px] text-ink-2">Cat 4 · Tampa Bay · synthetic scenario</div>
-      <div className="mt-2.5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-ink-3">Oct 2024 data · open storm desk</div>
+      <div className="flex items-center gap-2 text-[13px] font-medium text-ink"><span className="h-1.5 w-1.5 bg-amber" aria-hidden /> Replay · Hurricane Milton</div>
+      <div className="mt-0.5 text-[12px] text-ink-3">Synthetic scenario, Oct 2024</div>
     </>
   );
 }

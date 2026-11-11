@@ -47,9 +47,18 @@ const config: Config = {
         accent: ["var(--font-serif)", "Georgia", "serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
+      // Landfall is square-cornered on purpose: panels, buttons and labels read like a survey chart / logbook,
+      // not the rounded glass pills most dashboards use. `full` is kept only for dots and meters.
       borderRadius: {
-        "4xl": "2rem",
-        "5xl": "2.5rem",
+        sm: "2px",
+        DEFAULT: "2px",
+        md: "3px",
+        lg: "3px",
+        xl: "4px",
+        "2xl": "4px",
+        "3xl": "6px",
+        "4xl": "6px",
+        "5xl": "8px",
       },
       keyframes: {
         "sweep": {

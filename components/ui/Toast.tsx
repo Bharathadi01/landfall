@@ -14,12 +14,6 @@ type ToastFn = (t: { title: string; body?: string; tone?: ToastTone; ms?: number
 const Ctx = createContext<ToastFn>(() => {});
 export const useToast = () => useContext(Ctx);
 
-const TONE: Record<ToastTone, string> = {
-  success: "border-accent/35 bg-[rgb(var(--c-surface-2)/0.92)]",
-  info: "border-paypal/35 bg-[rgb(var(--c-surface-2)/0.92)]",
-  warn: "border-amber/40 bg-[rgb(var(--c-surface-2)/0.92)]",
-  error: "border-danger/40 bg-[rgb(var(--c-surface-2)/0.92)]",
-};
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([]);
@@ -39,7 +33,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={t.id}
             role={t.tone === "error" ? "alert" : "status"}
-            className={cn("pointer-events-auto rounded-2xl border px-4 py-3 text-[13px] shadow-[0_12px_40px_-12px_rgb(0_0_0/0.8)] backdrop-blur-xl", TONE[t.tone])}
+            data-tone={t.tone}
+            className="toast pointer-events-auto text-[13px]"
           >
             <div className="font-semibold text-ink">{t.title}</div>
             {t.body && <div className="mt-0.5 text-ink-2">{t.body}</div>}

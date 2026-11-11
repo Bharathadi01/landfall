@@ -152,12 +152,7 @@ export default function StormIntelligenceConsolePage() {
       </div>
 
       {error && (
-        <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
-          <I.warning className="w-5 h-5 flex-shrink-0" />
-          <div>
-            <strong className="font-semibold">We couldn’t load the weather feed:</strong> {error}
-          </div>
-        </div>
+        <div className="note" data-tone="danger" role="alert"><span className="note-label">We couldn’t load the weather feed</span>{error}</div>
       )}
 
       {/* The live weather globe */}

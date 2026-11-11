@@ -115,7 +115,7 @@ import {
 export type { IconType };
 
 function ph(name: string, C: React.ComponentType<any>): IconType {
-  const Icon: IconType = ({ className, size }) => <C weight="duotone" className={className} size={size} aria-hidden />;
+  const Icon: IconType = ({ className, size }) => <C weight="light" className={className} size={size} aria-hidden />;
   Icon.displayName = `Ph(${name})`;
   return Icon;
 }

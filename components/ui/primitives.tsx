@@ -31,24 +31,23 @@ const toneGlow: Record<Tone, string> = {
   neutral: "rgb(255 244 232 / 0.07)",
 };
 
+/**
+ * Used to be a rounded, coloured icon tile (the most common dashboard cliché). Now a small square marker:
+ * quiet, consistent, and the meaning lives in the label next to it. Kept so existing call sites keep working.
+ */
 export function IconTile({
-  icon: Icon,
   tone = "neutral",
   size = "md",
   className = "",
 }: {
-  icon: IconType;
+  icon?: IconType;
   tone?: Tone;
   size?: "sm" | "md" | "lg";
   className?: string;
 }) {
-  const sz = size === "sm" ? "icon-tile-sm" : size === "lg" ? "icon-tile-lg" : "";
-  const t = tone === "neutral" ? "" : `tone-${tone}`;
-  return (
-    <span className={`icon-tile ${sz} ${t} ${className}`}>
-      <Icon strokeWidth={1.75} />
-    </span>
-  );
+  const px = size === "lg" ? 10 : size === "sm" ? 6 : 8;
+  const color = tone === "danger" ? "bg-danger" : tone === "amber" ? "bg-amber" : tone === "delivered" ? "bg-delivered" : tone === "accent" ? "bg-accent" : "bg-ink-3";
+  return <span aria-hidden className={`inline-block shrink-0 ${color} ${className}`} style={{ width: px, height: px }} />;
 }
 
 /** Thin wrapper kept for existing call sites — renders a broadcast Tag. */
@@ -83,7 +82,7 @@ function TitleBlock({
       {accent && (
         <>
           {" "}
-          <span className="font-accent text-gradient-relief">{accent}</span>
+          <span className="text-ink-2">{accent}</span>
         </>
       )}
     </h1>
@@ -142,11 +141,10 @@ export function PageHeader({
   meta?: React.ReactNode;
 }) {
   return (
-    <header className="relative flex flex-col gap-6 pb-8 lg:flex-row lg:items-end lg:justify-between" data-reveal>
+    <header className="relative flex flex-col gap-6 border-b border-line pb-8 lg:flex-row lg:items-end lg:justify-between" data-reveal>
       <div className="max-w-3xl space-y-4">
         <div className="flex flex-wrap items-center gap-2.5">
-          {icon && <IconTile icon={icon} tone={tone} size="sm" />}
-          <span className={cn("eyebrow", toneText[tone])}>{eyebrow}</span>
+          <span className="eyebrow">{eyebrow}</span>
           {meta}
         </div>
         <TitleBlock title={title} accent={accent} />
@@ -181,26 +179,13 @@ export function StatCard({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="glass card-hover overflow-hidden p-5" data-reveal>
-      <div
-        className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full blur-3xl"
-        style={{ background: toneGlow[tone] }}
-        aria-hidden
-      />
-      <div className="relative flex items-start justify-between gap-3">
-        <span className="eyebrow">{label}</span>
-        {icon && <IconTile icon={icon} tone={tone} size="sm" />}
-      </div>
-      <div
-        className={cn(
-          "relative mt-4 font-serif text-[36px] font-normal leading-none tracking-[-0.03em] tabular",
-          tone === "neutral" ? "text-ink" : toneText[tone]
-        )}
-      >
+    <div className="glass p-5" data-reveal>
+      <span className="eyebrow">{label}</span>
+      <div className="mt-3 font-serif text-[40px] font-normal leading-none tracking-[-0.03em] tabular text-ink">
         {display ?? (value !== undefined ? <Ticker value={value} prefix={prefix} suffix={suffix} decimals={decimals} /> : null)}
       </div>
-      {hint && <p className="relative mt-2.5 text-[12.5px] leading-snug text-ink-3">{hint}</p>}
-      {footer && <div className="relative mt-4">{footer}</div>}
+      {hint && <p className="mt-3 text-[13px] leading-snug text-ink-3">{hint}</p>}
+      {footer && <div className="mt-4">{footer}</div>}
     </div>
   );
 }
@@ -219,15 +204,10 @@ export function SectionHeader({
   right?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-3">
-        {icon && <IconTile icon={icon} tone={tone} />}
-        <div>
-          <h2 className="text-heading font-sans text-ink" style={{ fontFamily: "var(--font-sans)", letterSpacing: "-0.015em" }}>
-            {title}
-          </h2>
-          {description && <p className="text-[13px] text-ink-3">{description}</p>}
-        </div>
+    <div className="flex flex-col gap-3 border-b border-line pb-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 className="font-serif text-[20px] font-normal leading-tight tracking-[-0.01em] text-ink">{title}</h2>
+        {description && <p className="mt-1 text-[13px] text-ink-3">{description}</p>}
       </div>
       {right}
     </div>

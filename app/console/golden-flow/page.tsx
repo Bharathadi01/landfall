@@ -203,12 +203,7 @@ export default function GoldenWorkflowPage() {
       </div>
 
       {error && (
-        <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
-          <I.warning className="w-5 h-5 flex-shrink-0" />
-          <div>
-            <strong className="font-semibold">Pipeline Exception:</strong> {error}
-          </div>
-        </div>
+        <div className="note" data-tone="danger" role="alert"><span className="note-label">Pipeline Exception</span>{error}</div>
       )}
 
       {/* 8-step pipeline */}

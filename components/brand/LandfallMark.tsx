@@ -45,7 +45,7 @@ export function LandfallWordmark({ size = 28, sub }: { size?: number; sub?: stri
         >
           Landfall
         </span>
-        {sub && <span className="mt-1.5 font-mono text-[9.5px] uppercase tracking-[0.16em] text-ink-3">{sub}</span>}
+        {sub && <span className="mt-1 text-[12px] text-ink-3">{sub}</span>}
       </span>
     </span>
   );

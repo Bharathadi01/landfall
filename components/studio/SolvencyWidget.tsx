@@ -60,7 +60,7 @@ export function SolvencyWidget(props: any) {
         <defs>
           <linearGradient id="lf-solv" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor={covered ? "#8FE4B3" : color} />
-            <stop offset="100%" stopColor={covered ? "#4C9BFF" : color} />
+            <stop offset="100%" stopColor={covered ? "#CFC9BF" : color} />
           </linearGradient>
         </defs>
         <circle cx="56" cy="56" r={R} stroke="rgba(255,255,255,0.07)" strokeWidth="10" fill="none" />

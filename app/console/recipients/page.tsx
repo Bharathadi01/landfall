@@ -132,7 +132,7 @@ export default function CoordinatorRecipientsPage() {
           >
             <span>Appeals Queue</span>
             {appeals.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber text-white font-mono">
+              <span className="px-1.5 py-0.2 rounded-sm text-[10px] bg-amber text-white font-mono">
                 {appeals.length}
               </span>
             )}
@@ -219,12 +219,7 @@ export default function CoordinatorRecipientsPage() {
           </div>
 
           {error && (
-            <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
-              <I.warning className="w-5 h-5 flex-shrink-0" />
-              <div>
-                <strong className="font-semibold">Directory Error:</strong> {error}
-              </div>
-            </div>
+            <div className="note" data-tone="danger" role="alert"><span className="note-label">Directory Error</span>{error}</div>
           )}
 
           {loading ? (

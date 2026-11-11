@@ -123,12 +123,12 @@ export function StormDesk(props: StormDeskProps) {
   if (webgl === false) {
     // No WebGL2: fall back to the flat 2D engine so the page still works.
     return (
-      <div className={cn("rounded-[28px] overflow-hidden", props.className)}>
+      <div className={cn("rounded-sm overflow-hidden", props.className)}>
         <WeatherMap {...props} forceFallback />
       </div>
     );
   }
-  if (webgl === null) return <div className={cn("glass min-h-[560px] rounded-[28px]", props.className)} aria-busy />;
+  if (webgl === null) return <div className={cn("glass min-h-[560px] rounded-sm", props.className)} aria-busy />;
   return <StormDeskInner {...props} />;
 }
 
@@ -274,16 +274,16 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
         // overlays (GeoJSON)
         const empty = { type: "FeatureCollection", features: [] };
         map.addSource("fund-area", { type: "geojson", data: empty });
-        map.addLayer({ id: "fund-area-line", type: "line", source: "fund-area", paint: { "line-color": "#F2C14E", "line-width": 1.4, "line-dasharray": [3, 3], "line-opacity": 0.8 } });
+        map.addLayer({ id: "fund-area-line", type: "line", source: "fund-area", paint: { "line-color": "#E7E1D7", "line-width": 1.4, "line-dasharray": [3, 3], "line-opacity": 0.8 } });
         map.addSource("cone", { type: "geojson", data: empty });
-        map.addLayer({ id: "cone-fill", type: "fill", source: "cone", paint: { "fill-color": "#FF4FA3", "fill-opacity": 0.14 } });
+        map.addLayer({ id: "cone-fill", type: "fill", source: "cone", paint: { "fill-color": "#FF6B2C", "fill-opacity": 0.14 } });
         map.addLayer({ id: "cone-line", type: "line", source: "cone", paint: { "line-color": "#FF9CCB", "line-width": 1.4, "line-dasharray": [4, 3] } });
         map.addSource("track", { type: "geojson", data: empty });
-        map.addLayer({ id: "track-line", type: "line", source: "track", filter: ["==", ["get", "type"], "TRACK_LINE"], paint: { "line-color": "#FF4FA3", "line-width": 2.6 } });
+        map.addLayer({ id: "track-line", type: "line", source: "track", filter: ["==", ["get", "type"], "TRACK_LINE"], paint: { "line-color": "#FF6B2C", "line-width": 2.6 } });
         map.addLayer({ id: "track-points", type: "circle", source: "track", filter: ["==", ["get", "type"], "TRACK_POINT"], paint: { "circle-color": ["get", "color"], "circle-radius": 6, "circle-stroke-width": 2, "circle-stroke-color": "#fff" } });
         map.addSource("storms", { type: "geojson", data: empty });
-        map.addLayer({ id: "storms-halo", type: "circle", source: "storms", paint: { "circle-color": "#FF4FA3", "circle-opacity": 0.22, "circle-radius": 22, "circle-blur": 0.6 } });
-        map.addLayer({ id: "storms-dot", type: "circle", source: "storms", paint: { "circle-color": "#FF4FA3", "circle-radius": 6, "circle-stroke-width": 2, "circle-stroke-color": "#fff" } });
+        map.addLayer({ id: "storms-halo", type: "circle", source: "storms", paint: { "circle-color": "#FF6B2C", "circle-opacity": 0.22, "circle-radius": 22, "circle-blur": 0.6 } });
+        map.addLayer({ id: "storms-dot", type: "circle", source: "storms", paint: { "circle-color": "#FF6B2C", "circle-radius": 6, "circle-stroke-width": 2, "circle-stroke-color": "#fff" } });
         map.addSource("warnings", { type: "geojson", data: empty });
         map.addLayer({ id: "warnings-fill", type: "fill", source: "warnings", paint: { "fill-color": ["get", "color"], "fill-opacity": 0.16 } });
         map.addLayer({ id: "warnings-line", type: "line", source: "warnings", paint: { "line-color": ["get", "color"], "line-width": 1.8 } });
@@ -583,15 +583,14 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
     : mode === "ERROR" ? <Tag tone="danger" solid>Feed error</Tag>
     : <Tag tone="accent" solid live>Live</Tag>;
 
-  const feed = (label: string, ok: boolean, detail?: string) => (
-    <Tag tone={ok ? "delivered" : "danger"} title={detail}>{label}{ok ? "" : " · unavailable"}</Tag>
-  );
+  // Healthy feeds are one quiet line; only a feed that is DOWN gets a label of its own.
+  const feed = (label: string, ok: boolean, detail?: string) => (ok ? null : <Tag tone="danger" title={detail}>{label} · unavailable</Tag>);
 
   const hasRadar = !!imagery?.radar;
   const hasModel = grid?.state === "ok";
 
   return (
-    <section className={cn("relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-black", panel && "h-full", className)} aria-label="Live weather globe">
+    <section className={cn("relative overflow-hidden rounded-sm border border-white/[0.08] bg-black", panel && "h-full", className)} aria-label="Live weather globe">
       <div className={cn("relative", hero ? "h-full min-h-[480px]" : panel ? "h-full min-h-[420px]" : "h-[80vh] min-h-[620px]")}>
         <div className="absolute inset-0">
           <div ref={host} style={{ width: "100%", height: "100%" }} />
@@ -610,11 +609,12 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
                   <LowerThird kicker="All clear" title="No active Atlantic storm" meta="Live satellite, radar and model winds · NHC, NWS, NASA, Open-Meteo" tone="delivered" icon={<I.broadcast className="h-4 w-4" />} />
                 )}
               </div>
-              <div className="pointer-events-auto glass-hud flex flex-wrap items-center gap-1.5 rounded-full px-2.5 py-1.5">
+              <div className="pointer-events-auto glass-hud flex flex-wrap items-center gap-1.5 rounded-sm px-2.5 py-1.5">
                 {stateTag}
                 {feed(`Satellite ${satLabel}`, !!latestIR, imagery?.errors.join("; "))}
                 {feed("Radar", hasRadar)}
                 {feed("Model", hasModel, grid?.error)}
+                {latestIR && hasRadar && hasModel && <span className="px-1 text-[12px] text-ink-3">Satellite {satLabel} · radar · model winds</span>}
               </div>
             </div>
 

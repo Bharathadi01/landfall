@@ -4,21 +4,16 @@ import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { I } from "@/components/icons";
 import { StormDesk } from "@/components/sentinel/desk/StormDesk";
-import { Ticker } from "@/components/ui/Ticker";
 import { Button } from "@/components/ui/Button";
-import { Tag } from "@/components/ui/Tag";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { LowerThird } from "@/components/ui/LowerThird";
-import { NewsCrawl } from "@/components/ui/NewsCrawl";
 import { CASE_SUMMARY } from "@/lib/relief/cases";
 import { TREASURY } from "@/lib/studio/landfall-studio-data";
 import { COMMUNITY_FUNDS_GEO } from "@/lib/sentinel/weather-client";
 import { IconTile, Chip, type Tone } from "@/components/ui/primitives";
 
-gsap.registerPlugin(useGSAP, ScrollTrigger);
+gsap.registerPlugin(useGSAP);
 
 const STEPS: { icon: any; tone: Tone; who: string; title: string; body: string }[] = [
   { icon: I.stormEye, tone: "storm", who: "NOAA · NWS", title: "Warn", body: "An official hurricane warning maps every enrolled home inside the storm’s path." },
@@ -36,62 +31,8 @@ const PAYPAL_APIS = [
   { icon: I.repeat, name: "Subscriptions", role: "Monthly sustainers" },
 ];
 
-const TRUST_CRAWL = [
-  { id: "t1", label: "PayPal", tone: "paypal" as const, text: "Real Sandbox payout batches with idempotency keys" },
-  { id: "t2", label: "Approval", tone: "amber" as const, text: "Two people sign every plan with a passkey (demo passkeys in this build)" },
-  { id: "t3", label: "AI", tone: "ai" as const, text: "The AI can read and advise — it has no way to move money" },
-  { id: "t4", label: "Honest", tone: "storm" as const, text: "Replay data, sandbox mode and simulated steps are labelled on every screen" },
-];
 
 /** One "artifact" per story step — what you would actually see on screen at that moment. */
-function StepArtifact({ i }: { i: number }) {
-  const row = "flex items-center justify-between gap-4 border-t border-white/[0.07] py-2.5 text-[13px]";
-  if (i === 0)
-    return (
-      <div className="space-y-3">
-        <Tag tone="storm" solid>NWS · Hurricane warning</Tag>
-        <div className="font-serif text-[30px] leading-[1.05] tracking-[-0.02em] text-ink">Tampa Bay, Pinellas &amp; Hillsborough</div>
-        <div className="text-[13px] text-ink-2">{CASE_SUMMARY.households} enrolled households fall inside the warning polygon.</div>
-        <div className={row}><span className="text-ink-3">Source</span><span className="font-mono text-ink">api.weather.gov</span></div>
-      </div>
-    );
-  if (i === 1)
-    return (
-      <div className="space-y-3">
-        <Tag tone="money" solid>Policy engine</Tag>
-        <div className="font-serif text-[30px] leading-[1.05] tracking-[-0.02em] text-ink">Tier 1 first. Then Tier 2.</div>
-        <div className={row}><span className="text-ink-3">Ready to allocate</span><span className="tabular text-money">${TREASURY.allocatable.toLocaleString("en-US")}</span></div>
-        <div className={row}><span className="text-ink-3">Protected reserve</span><span className="tabular text-amber">${TREASURY.reserve.toLocaleString("en-US")}</span></div>
-      </div>
-    );
-  if (i === 2)
-    return (
-      <div className="space-y-3">
-        <Tag tone="ai" solid>AI · read-only</Tag>
-        <div className="font-serif text-[30px] leading-[1.05] tracking-[-0.02em] text-ink">No duplicates. Fund covers the plan.</div>
-        <div className={row}><span className="text-ink-3">Tools the AI has</span><span className="text-ink">Read only</span></div>
-        <div className={row}><span className="text-ink-3">Can it pay anyone?</span><span className="text-ai">No</span></div>
-      </div>
-    );
-  if (i === 3)
-    return (
-      <div className="space-y-3">
-        <Tag tone="amber" solid>Two keys, one plan</Tag>
-        <div className="font-serif text-[30px] leading-[1.05] tracking-[-0.02em] text-ink">Coordinator signs. Finance officer signs.</div>
-        <div className={row}><span className="text-ink-3">Plan hash</span><span className="font-mono text-[12px] text-ink">sha256 · 46d87f739…</span></div>
-        <div className={row}><span className="text-ink-3">Change one number</span><span className="text-amber">Both sign again</span></div>
-      </div>
-    );
-  return (
-    <div className="space-y-3">
-      <Tag tone="paypal" solid>PayPal Payouts</Tag>
-      <div className="font-serif text-[30px] leading-[1.05] tracking-[-0.02em] text-ink">Sent. Then proven.</div>
-      <div className={row}><span className="text-ink-3">Credited by PayPal</span><span className="tabular text-paypal">{CASE_SUMMARY.creditedCount} of {CASE_SUMMARY.households}</span></div>
-      <div className={row}><span className="text-ink-3">Confirmed by the household</span><span className="tabular text-delivered">{CASE_SUMMARY.confirmedCount} of {CASE_SUMMARY.households}</span></div>
-    </div>
-  );
-}
-
 export default function HomePage() {
   const root = useRef<HTMLDivElement>(null);
   const fund = COMMUNITY_FUNDS_GEO[0];
@@ -106,29 +47,7 @@ export default function HomePage() {
       tl.from(".hero-chip", { y: 12, autoAlpha: 0, duration: 0.8 })
         .from(".hero-line", { yPercent: 115, duration: 1.2, stagger: 0.1 }, "-=0.5")
         .from(".hero-sub", { y: 16, autoAlpha: 0, filter: "blur(6px)", duration: 0.9 }, "-=0.8")
-        .from(".hero-cta > *", { y: 14, autoAlpha: 0, duration: 0.7, stagger: 0.08 }, "-=0.6")
-        .from(".hero-lt", { autoAlpha: 0, y: 20, duration: 1 }, "-=0.5");
-
-      // pinned five-step story (desktop only; stacked list otherwise)
-      const mm = gsap.matchMedia();
-      mm.add("(min-width: 1024px)", () => {
-        const panels = gsap.utils.toArray<HTMLElement>(".story-panel");
-        const copies = gsap.utils.toArray<HTMLElement>(".story-copy");
-        gsap.set(panels.slice(1), { autoAlpha: 0, y: 40 });
-        gsap.set(copies.slice(1), { autoAlpha: 0, y: 30 });
-        const st = gsap.timeline({
-          defaults: { ease: "power2.inOut" },
-          scrollTrigger: { trigger: ".story-pin", start: "top top", end: "+=" + STEPS.length * 650, pin: true, scrub: 0.7, anticipatePin: 1 },
-        });
-        st.to(".story-rail-fill", { scaleY: 1, ease: "none", duration: STEPS.length - 1 }, 0);
-        STEPS.forEach((_, i) => {
-          if (i === 0) return;
-          st.to([panels[i - 1], copies[i - 1]], { autoAlpha: 0, y: -40, duration: 0.5 }, i - 0.5)
-            .to([panels[i], copies[i]], { autoAlpha: 1, y: 0, duration: 0.5 }, i - 0.35)
-            .to(`.story-dot-${i}`, { scale: 1, backgroundColor: "rgb(255 107 44)", duration: 0.3 }, i - 0.3);
-        });
-        return () => { st.scrollTrigger?.kill(); st.kill(); };
-      });
+        .from(".hero-cta > *", { y: 14, autoAlpha: 0, duration: 0.7, stagger: 0.08 }, "-=0.6");
     },
     { scope: root }
   );
@@ -146,17 +65,16 @@ export default function HomePage() {
           <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-canvas to-transparent" />
         </div>
 
-        <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-6 pb-40 pt-32">
+        <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-6 pb-28 pt-32">
           <div className="max-w-3xl space-y-8">
             <div className="hero-chip flex flex-wrap items-center gap-x-2.5 gap-y-2">
-              <Tag tone="paypal" solid>PayPal AI Hackathon</Tag>
-              <span className="font-mono text-[11.5px] uppercase tracking-[0.1em] text-ink-2">Anticipatory cash relief · open source</span>
+              <span className="text-[13px] text-ink-2">PayPal AI Hackathon · anticipatory cash relief · open source</span>
             </div>
 
             <h1 className="text-hero text-ink">
               <span className="block overflow-hidden pb-1"><span className="hero-line block">Relief that lands</span></span>
               <span className="block overflow-hidden pb-4">
-                <span className="hero-line block font-accent text-gradient-relief">before the storm.</span>
+                <span className="hero-line block text-ink-2">before the storm.</span>
               </span>
             </h1>
 
@@ -167,48 +85,28 @@ export default function HomePage() {
             </p>
 
             <div className="hero-cta flex flex-wrap items-center gap-3">
-              <Button href="/console/golden-flow" variant="signal" size="lg" magnetic refract leading={<I.playCircle className="h-5 w-5" />}>
+              <Button href="/console/golden-flow" variant="signal" size="lg">
                 Watch a live response
               </Button>
-              <Button href="/console/sentinel" variant="glass" size="lg" refract trailing={<I.arrowRight className="h-4 w-4" />}>
+              <Button href="/console/sentinel" variant="glass" size="lg">
                 Open the storm desk
               </Button>
             </div>
           </div>
 
-          <div className="hero-lt absolute bottom-24 right-6 hidden max-w-[460px] lg:block">
-            <LowerThird kicker="Live" title="The real weather, right now" meta="NASA satellites · RainViewer radar · Open-Meteo winds" tone="delivered" icon={<I.satellite className="h-4 w-4" />} />
-          </div>
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 z-10 border-t border-white/[0.08] bg-canvas/70 py-3 backdrop-blur-xl">
-          <NewsCrawl items={TRUST_CRAWL} label="What you can rely on" />
-        </div>
       </section>
 
       {/* ── THE GAP ──────────────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-6 py-24">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div className="glass p-7 md:col-span-2" data-reveal>
-            <div className="eyebrow text-storm">The problem</div>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="p-2 md:max-w-4xl" data-reveal>
+            <div className="eyebrow">The problem</div>
             <p className="mt-5 text-title-2 text-ink">
               Disaster aid can arrive <span className="text-storm">weeks or months</span> after the storm. Families need it{" "}
-              <span className="font-accent text-money">before</span> — for fuel, medicine and a way out.
+              <span className="text-ink">before</span> — for fuel, medicine and a way out.
             </p>
-          </div>
-          <div className="glass p-7" data-reveal>
-            <div className="eyebrow">Reaches families</div>
-            <div className="mt-5 font-serif text-[56px] leading-none tracking-[-0.04em] text-money">
-              <Ticker value={99.75} decimals={2} suffix="%" />
-            </div>
-            <p className="mt-3 text-[13px] text-ink-3">of every $100 grant. PayPal’s flat $0.25 domestic payout fee is the only cost.</p>
-          </div>
-          <div className="glass p-7" data-reveal>
-            <div className="eyebrow">AI inference cost</div>
-            <div className="mt-5 font-serif text-[56px] leading-none tracking-[-0.04em] text-ai">
-              $<Ticker value={0} decimals={2} />
-            </div>
-            <p className="mt-3 text-[13px] text-ink-3">Groq free tier with a deterministic offline fallback. Small funds can afford it.</p>
           </div>
         </div>
 
@@ -251,49 +149,17 @@ export default function HomePage() {
           <SectionHeading eyebrow="How it works" title="From warning to wallet in" accent="five steps." description="Every step is visible, every decision is explainable, and no single person — or model — can move money alone." />
         </div>
 
-        {/* desktop: pinned scroll story */}
-        <div className="story-pin relative hidden min-h-[100svh] items-center lg:flex">
-          <div className="mx-auto grid w-full max-w-7xl grid-cols-[88px_1fr_1fr] items-center gap-8 px-6">
-            <div className="relative flex h-[420px] flex-col items-center justify-between" aria-hidden>
-              <div className="absolute inset-y-3 left-1/2 w-px -translate-x-1/2 bg-white/10" />
-              <div className="story-rail-fill absolute inset-y-3 left-1/2 w-px origin-top -translate-x-1/2 scale-y-0 bg-accent" />
-              {STEPS.map((s, i) => (
-                <span key={s.title} className={`story-dot-${i} relative h-3 w-3 rounded-full border border-white/30 ${i === 0 ? "scale-100 bg-accent" : "scale-75 bg-canvas"}`} />
-              ))}
-            </div>
-            <div className="relative h-[360px]">
-              {STEPS.map((s, i) => (
-                <div key={s.title} className="story-copy absolute inset-0 flex flex-col justify-center">
-                  <div className="eyebrow">0{i + 1} · {s.who}</div>
-                  <h3 className="mt-3 font-serif text-[84px] leading-[0.95] tracking-[-0.04em] text-ink">{s.title}</h3>
-                  <p className="mt-5 max-w-md text-body-large text-ink-2">{s.body}</p>
-                </div>
-              ))}
-            </div>
-            <div className="relative h-[360px]">
-              {STEPS.map((s, i) => (
-                <div key={s.title} className="story-panel absolute inset-0 flex items-center">
-                  <div className="glass-strong w-full p-8">
-                    <div className="mb-5 flex items-center gap-3"><IconTile icon={s.icon} tone={s.tone} size="lg" /></div>
-                    <StepArtifact i={i} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* mobile / tablet: stacked */}
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-4 px-6 pb-16 sm:grid-cols-2 lg:hidden">
-          {STEPS.map((s, i) => (
-            <div key={s.title} className="glass p-6" data-reveal>
-              <div className="flex items-center justify-between"><IconTile icon={s.icon} tone={s.tone} size="lg" /><span className="font-mono text-[11px] text-ink-3">0{i + 1}</span></div>
-              <div className="eyebrow mt-5">{s.who}</div>
-              <h3 className="mt-1 font-serif text-[30px] tracking-[-0.03em] text-ink">{s.title}</h3>
-              <p className="mt-2 text-[14px] leading-relaxed text-ink-2">{s.body}</p>
-            </div>
+        <ol className="mx-auto max-w-5xl divide-y divide-line border-y border-line px-6">
+          {STEPS.map((st, i) => (
+            <li key={st.title} className="grid grid-cols-[2.5rem_1fr] gap-x-4 gap-y-1 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline" data-reveal>
+              <span className="font-mono text-[12px] text-ink-3 tabular">{String(i + 1).padStart(2, "0")}</span>
+              <h3 className="font-serif text-[28px] leading-none tracking-[-0.02em] text-ink">{st.title}</h3>
+              <p className="col-span-2 text-[15px] leading-relaxed text-ink-2 sm:col-span-1">
+                <span className="text-ink-3">{st.who}.</span> {st.body}
+              </p>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
       {/* ── DELIVERY ASSURANCE ───────────────────────────── */}
@@ -304,7 +170,7 @@ export default function HomePage() {
             <div className="eyebrow text-delivered">Beyond “paid”</div>
             <h2 className="mt-4 text-title-1 text-ink">
               PayPal says <span className="font-mono text-[0.8em] text-paypal">SUCCESS</span>.{" "}
-              <span className="font-accent text-gradient-relief">Did the family get it?</span>
+              <span className="text-ink-2">Did the family get it?</span>
             </h2>
             <p className="mt-4 text-body-base text-ink-2">
               A PayPal payout marked SUCCESS means the money was credited to an account — not that a household can reach it, use it, or
@@ -372,7 +238,7 @@ export default function HomePage() {
                 <span className="eyebrow text-paypal">Analytics Studio · powered by AG Studio</span>
               </div>
               <h2 className="text-title-1 text-ink">
-                Ask the relief data <span className="font-accent text-gradient-relief">anything.</span>
+                Ask the relief data <span className="text-ink-2">anything.</span>
               </h2>
               <p className="text-body-base text-ink-2">
                 Coordinators answer “can we pay everyone?” in one glance. Filter by priority, and every chart follows. Ask the Studio
@@ -426,13 +292,13 @@ export default function HomePage() {
         <div className="glass-strong relative overflow-hidden px-8 py-16 text-center md:px-16" data-reveal="scale">
           <div className="pointer-events-none absolute inset-x-0 -top-40 mx-auto h-80 w-[36rem] rounded-full bg-accent/20 blur-[110px]" aria-hidden />
           <h2 className="relative text-title-1 text-ink">
-            See a full response, <span className="font-accent text-gradient-relief">start to finish.</span>
+            See a full response, <span className="text-ink-2">start to finish.</span>
           </h2>
           <p className="relative mx-auto mt-4 max-w-xl text-body-base text-ink-2">
             Replay Hurricane Milton: warning, decision, AI check, two approvals and a real PayPal Sandbox payout — in under a minute.
           </p>
           <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button href="/console/golden-flow" variant="signal" size="lg" magnetic refract leading={<I.playCircle className="h-5 w-5" />}>Run the guided response</Button>
+            <Button href="/console/golden-flow" variant="signal" size="lg">Run the guided response</Button>
             <Button href="/r/enroll" variant="glass" size="lg" leading={<I.household className="h-4 w-4" />}>I’m a resident</Button>
           </div>
         </div>

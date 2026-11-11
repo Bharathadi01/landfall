@@ -15,7 +15,7 @@ import { RELIEF_CASES, type EvidenceRow, type Provenance } from "@/lib/relief/ca
  */
 
 const PROV_STYLE: Record<Provenance, { label: string; color: string }> = {
-  PROVIDER: { label: "PayPal", color: "#4C9BFF" },
+  PROVIDER: { label: "PayPal", color: "#CFC9BF" },
   INTERNAL: { label: "Landfall", color: "#B9B3AA" },
   RECIPIENT_REPORTED: { label: "Resident", color: "#8FE4B3" },
   OPERATOR_ATTESTED: { label: "Operator", color: "#FFB020" },
@@ -107,7 +107,7 @@ export function RecoveryEvidenceChainWidget(props: any) {
         <div>
           <div style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "#8A847B", fontFamily: "var(--font-geist-mono)" }}>Evidence behind this payment</div>
           <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.015em" }}>
-            {current.resident} · <span style={{ color: "#4C9BFF" }}>{current.status}</span> · ${current.amountUsd}
+            {current.resident} · <span style={{ color: "#CFC9BF" }}>{current.status}</span> · ${current.amountUsd}
           </div>
         </div>
         <div
@@ -166,7 +166,7 @@ export function RecoveryEvidenceChainWidget(props: any) {
               </span>
               <span style={{ fontSize: 11, fontWeight: 600, color: st.color }}>{e.state === "present" ? "✓ " : e.state === "missing" ? "● " : "– "}{st.label}</span>
               <span style={{ fontSize: 10.5, color: "#B9B3AA", lineHeight: 1.35, display: isOpen ? "block" : "-webkit-box", WebkitLineClamp: isOpen ? undefined : 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.detail}</span>
-              {isOpen && e.ref && <span style={{ fontSize: 10, fontFamily: "var(--font-geist-mono)", color: "#4C9BFF", wordBreak: "break-all" }}>{e.ref}</span>}
+              {isOpen && e.ref && <span style={{ fontSize: 10, fontFamily: "var(--font-geist-mono)", color: "#CFC9BF", wordBreak: "break-all" }}>{e.ref}</span>}
             </button>
           );
         })}

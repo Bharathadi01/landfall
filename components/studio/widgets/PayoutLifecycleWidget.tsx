@@ -43,7 +43,7 @@ export function PayoutLifecycleWidget(props: any) {
   const isHold = p.transaction_status === "ONHOLD";
   const isFailed = p.transaction_status === "FAILED";
 
-  const statusColor = isSuccess ? "#6FD49A" : isUnclaimed ? "#FFB020" : isHold ? "#FF4FA3" : isFailed ? "#FF3B4E" : "#4C9BFF";
+  const statusColor = isSuccess ? "#6FD49A" : isUnclaimed ? "#FFB020" : isHold ? "#FF6B2C" : isFailed ? "#FF3B4E" : "#CFC9BF";
 
   const timelineSteps = [
     {
@@ -104,7 +104,7 @@ export function PayoutLifecycleWidget(props: any) {
       time: isSuccess ? "18:30 UTC" : "Pending Claim",
       status: isSuccess ? "done" : "attention",
       badge: isSuccess ? "PROOF_ANCHORED" : "PENDING_CLAIM",
-      color: isSuccess ? "#8EE3F5" : "#FFB020",
+      color: isSuccess ? "#CFC9BF" : "#FFB020",
       evidence: isSuccess
         ? "Proof prf_milton_t1_2024 anchored. Merkle root: 0x8f93e2b1c4a0... Policy 30% reserve preserved."
         : "No individual delivery proof issued while funds remain in PayPal claim window. Caseworker reminder queued.",
@@ -140,7 +140,7 @@ export function PayoutLifecycleWidget(props: any) {
             Lifecycle Chronology · {p.item_id}
           </div>
           <div style={{ fontSize: 14, fontWeight: 650, color: "#F3EFE8", marginTop: 2 }}>
-            {p.resident_name} · <span style={{ color: "#4C9BFF" }}>{p.recipient_wallet}</span>
+            {p.resident_name} · <span style={{ color: "#CFC9BF" }}>{p.recipient_wallet}</span>
           </div>
         </div>
 
@@ -224,7 +224,7 @@ export function PayoutLifecycleWidget(props: any) {
                 >
                   {step.badge}
                 </span>
-                <span style={{ fontSize: 9, color: "#4C9BFF" }}>
+                <span style={{ fontSize: 9, color: "#CFC9BF" }}>
                   {isInspected ? "▲ hide evidence" : "▼ click to inspect"}
                 </span>
               </div>

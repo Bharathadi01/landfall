@@ -52,7 +52,7 @@ export default function StormRehearsalLabPage() {
   return (
     <div className="space-y-6">
       {/* Rehearsal notice */}
-      <div className="inline-flex items-center gap-2 rounded-full border border-amber/25 bg-amber/[0.08] px-3.5 py-1.5 text-[12px] text-amber">
+      <div className="inline-flex items-center gap-2 rounded-sm border border-amber/25 bg-amber/[0.08] px-3.5 py-1.5 text-[12px] text-amber">
         <span className="live-dot" /> Drill mode · simulated results · no real funds move
       </div>
 

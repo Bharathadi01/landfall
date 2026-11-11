@@ -576,7 +576,7 @@ export default function ComplaintsAppealsPage() {
                       </span>
                     </div>
                     <span
-                      className={`text-xs px-2.5 py-0.5 rounded-full font-mono font-bold ${
+                      className={`text-xs px-2.5 py-0.5 rounded-sm font-mono font-bold ${
                         appeal.status === "RESOLVED"
                           ? "bg-accent-soft text-accent"
                           : appeal.status === "REJECTED"

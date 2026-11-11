@@ -4,14 +4,8 @@ import React, { useState } from "react";
 import { I } from "@/components/icons";
 import { LandfallStudio } from "@/components/studio/LandfallStudio";
 import { StudioDataNotice } from "@/components/studio/StudioDataNotice";
-import { PageHeader, Chip, IconTile } from "@/components/ui/primitives";
+import { PageHeader, Chip } from "@/components/ui/primitives";
 
-const FEATURES = [
-  { icon: I.palette, tone: "accent" as const, title: "Landfall theme", body: "AG Theming API — canvas, widgets, grid & charts" },
-  { icon: I.widget, tone: "paypal" as const, title: "Custom widgets", body: "Solvency, reserve guardrail, payout lifecycle" },
-  { icon: I.click, tone: "amber" as const, title: "Cross-filtering", body: "Click a status — the whole page follows" },
-  { icon: I.aiAdvisor, tone: "ai" as const, title: "Studio Agent", body: "Real tool calls · read-only for money" },
-];
 
 export default function AnalyticsStudioPage() {
   const [mode, setMode] = useState<"view" | "edit">("view");
@@ -52,17 +46,6 @@ export default function AnalyticsStudioPage() {
 
       <StudioDataNotice />
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {FEATURES.map((f) => (
-          <div key={f.title} className="glass flex items-center gap-3 px-4 py-3.5" data-reveal>
-            <IconTile icon={f.icon} tone={f.tone} />
-            <div className="min-w-0">
-              <div className="text-[13.5px] font-semibold text-ink">{f.title}</div>
-              <div className="truncate text-[12px] text-ink-3">{f.body}</div>
-            </div>
-          </div>
-        ))}
-      </div>
 
       <div className="glass-strong relative overflow-hidden p-2 sm:p-3" data-reveal="scale">
         <div className="flex items-center justify-between gap-3 px-2 pb-3 pt-1">
@@ -82,7 +65,7 @@ export default function AnalyticsStudioPage() {
             <Chip tone="neutral">Synthetic data</Chip>
           </div>
         </div>
-        <div className="h-[900px] w-full overflow-hidden rounded-[18px] border border-white/[0.06] bg-canvas/60">
+        <div className="h-[900px] w-full overflow-hidden rounded-sm border border-white/[0.06] bg-canvas/60">
           <LandfallStudio mode={mode} />
         </div>
       </div>

@@ -1,15 +1,13 @@
 /**
  * LANDFALL · "BROADCAST WEATHER DESK" DESIGN TOKENS
  *
- * Warm graphite canvas, frosted glass panes, on-air colour. Colour carries meaning, everywhere:
- *   accent    (flare orange) → the action / the live moment / "now"
- *   money     (gold)         → relief dollars
- *   delivered (green)        → confirmed delivery, done, safe
- *   paypal    (blue)         → PayPal rails & sandbox evidence only
- *   ai        (ice)          → AI advises (read-only)
- *   amber                    → protected reserve, caution, pending
- *   storm     (magenta)      → hazard, storm, exposure
- *   danger    (red)          → failure / blocked
+ * Warm graphite canvas, flat quiet panes. A CALM palette: neutrals do the work; colour is rare and always means something.
+ *   accent    (flare orange) → the ONE action / "you are here" colour
+ *   delivered (green)        → status only: delivered, done, safe
+ *   amber                    → status only: caution, pending, waiting
+ *   danger    (red)          → status only: failure / blocked
+ * money / paypal / ai / storm are deliberately NEUTRAL (same as body ink): they used to be gold, blue, ice and magenta, which
+ * made every screen a rainbow. Hierarchy now comes from size, weight and whitespace, not hue.
  *
  * Channels are space-separated RGB so Tailwind can apply alpha: rgb(var(--c-ink) / 0.6)
  */
@@ -37,29 +35,29 @@
   --c-accent-soft: 46 20 10;
   --c-accent-line: 120 52 22;
 
-  --c-money: 242 193 78;       /* #F2C14E gold */
-  --c-money-soft: 40 31 10;
-  --c-money-line: 102 78 20;
+  --c-money: 231 225 215;       /* #F2C14E gold */
+  --c-money-soft: 28 27 31;
+  --c-money-line: 66 63 70;
 
   --c-delivered: 111 212 154;  /* #6FD49A */
   --c-delivered-soft: 12 38 26;
   --c-delivered-line: 30 96 64;
 
-  --c-paypal: 76 155 255;      /* #4C9BFF */
-  --c-paypal-soft: 12 28 52;
-  --c-paypal-line: 30 68 128;
+  --c-paypal: 231 225 215;      /* #4C9BFF */
+  --c-paypal-soft: 28 27 31;
+  --c-paypal-line: 66 63 70;
 
-  --c-ai: 142 227 245;         /* #8EE3F5 ice */
-  --c-ai-soft: 10 36 42;
-  --c-ai-line: 30 88 100;
+  --c-ai: 231 225 215;         /* #8EE3F5 ice */
+  --c-ai-soft: 28 27 31;
+  --c-ai-line: 66 63 70;
 
   --c-amber: 255 176 32;       /* #FFB020 */
   --c-amber-soft: 44 30 8;
   --c-amber-line: 108 72 12;
 
-  --c-storm: 255 79 163;       /* #FF4FA3 */
-  --c-storm-soft: 48 14 34;
-  --c-storm-line: 120 30 80;
+  --c-storm: 231 225 215;       /* #FF4FA3 */
+  --c-storm-soft: 28 27 31;
+  --c-storm-line: 66 63 70;
 
   --c-danger: 255 59 78;       /* #FF3B4E */
   --c-danger-soft: 50 14 20;
@@ -125,11 +123,11 @@
   --space-20: 80px;
   --space-24: 96px;
 
-  /* ── Radii (softer, pill-forward) ─────────────────────── */
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
-  --radius-xl: 30px;
+  /* ── Radii (square-cornered: survey chart, not glass pill) ─ */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
   --radius-full: 9999px;
 
   /* ── Elevation (warm black) ───────────────────────────── */

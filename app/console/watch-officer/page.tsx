@@ -79,23 +79,9 @@ export default function WatchOfficerConsolePage() {
     <div className="space-y-6">
       {/* Historical Replay Mode Disclaimer Banner */}
       {isReplay && (
-        <div className="field-paper p-4 border-amber bg-amber-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="p-2 rounded-lg bg-amber/20 text-amber font-bold text-lg">
-              ⚠️
-            </span>
-            <div>
-              <p className="font-bold text-xs font-mono uppercase tracking-wider text-amber">
-                Historical Replay Mode · Hurricane Milton (Oct 2024 Archive)
-              </p>
-              <p className="text-xs text-ink-2 mt-0.5">
-                Operating over real Hurricane Milton Oct 2024 archive from IEM. Demonstrates workflow under major storm conditions; zero real payments move.
-              </p>
-            </div>
-          </div>
-          <span className="field-badge-warning font-mono text-xs self-start sm:self-auto">
-            IEM ARCHIVE
-          </span>
+        <div className="note" data-tone="amber">
+          <span className="note-label">Replay</span>
+          This briefing runs over the archived Hurricane Milton data (Oct 2024, from IEM). It shows the workflow under major-storm conditions; no real payment moves.
         </div>
       )}
 
@@ -123,12 +109,7 @@ export default function WatchOfficerConsolePage() {
       </div>
 
       {errorMessage && (
-        <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
-          <I.warning className="w-5 h-5 flex-shrink-0" />
-          <div>
-            <strong className="font-semibold">Analysis Notice:</strong> {errorMessage}
-          </div>
-        </div>
+        <div className="note" data-tone="danger" role="alert"><span className="note-label">Analysis Notice</span>{errorMessage}</div>
       )}
 
       {!loading && !analysisData && (
@@ -147,7 +128,7 @@ export default function WatchOfficerConsolePage() {
 
       {loading ? (
         <div className="field-paper py-24 text-center text-ink-3 flex flex-col items-center justify-center gap-3">
-          <I.refresh className="w-8 h-8 animate-spin text-accent" />
+          <I.refresh className="w-8 h-8 animate-spin text-ink" />
           <p className="font-mono text-xs">Connecting to Sentinel, Treasury & Policy telemetry...</p>
         </div>
       ) : (
@@ -199,7 +180,7 @@ export default function WatchOfficerConsolePage() {
               <div className="text-[11px] text-ink-3 font-mono uppercase tracking-wider">
                 Allocatable Liquidity
               </div>
-              <div className="mt-2 text-2xl font-serif font-bold text-accent tabular-nums">
+              <div className="mt-2 text-2xl font-serif font-bold text-ink tabular-nums">
                 {constraints?.allocatableFormatted || "—"}
               </div>
               <div className="mt-1 text-xs text-ink-2">
@@ -224,7 +205,7 @@ export default function WatchOfficerConsolePage() {
           {/* Executive Summary Callout */}
           <div className="field-paper p-6 bg-surface border border-line shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-line">
-              <div className="flex items-center gap-2 text-accent text-xs font-mono font-bold uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-ink text-xs font-mono font-bold uppercase tracking-wider">
                 <I.document className="w-4 h-4" />
                 Executive Operational Brief
               </div>
@@ -251,10 +232,10 @@ export default function WatchOfficerConsolePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Quadrant 1: Verified Facts */}
-              <div className="field-paper p-5 space-y-3 border-t-4 border-t-accent">
+              <div className="field-paper p-5 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
-                    <I.done className="w-4 h-4 text-accent" />
+                    <I.done className="w-4 h-4 text-ink" />
                     <h3 className="text-sm font-serif font-bold text-ink">
                       1. Verified Facts (Ground Truth)
                     </h3>
@@ -274,7 +255,7 @@ export default function WatchOfficerConsolePage() {
                       className="p-3 rounded-lg bg-canvas border border-line flex items-start justify-between gap-3 text-xs"
                     >
                       <span className="text-ink leading-relaxed font-medium">{kf.finding}</span>
-                      <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-accent-soft text-accent font-semibold shrink-0">
+                      <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-accent-soft text-ink font-semibold shrink-0">
                         {kf.evidenceId}
                       </span>
                     </div>
@@ -283,7 +264,7 @@ export default function WatchOfficerConsolePage() {
               </div>
 
               {/* Quadrant 2: Working Hypotheses */}
-              <div className="field-paper p-5 space-y-3 border-t-4 border-t-paypal">
+              <div className="field-paper p-5 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
                     <I.layers className="w-4 h-4 text-paypal" />
@@ -317,7 +298,7 @@ export default function WatchOfficerConsolePage() {
               </div>
 
               {/* Quadrant 3: Key Unknowns */}
-              <div className="field-paper p-5 space-y-3 border-t-4 border-t-amber">
+              <div className="field-paper p-5 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
                     <I.help className="w-4 h-4 text-amber" />
@@ -357,7 +338,7 @@ export default function WatchOfficerConsolePage() {
               </div>
 
               {/* Quadrant 4: Human Action Required */}
-              <div className="field-paper p-5 space-y-3 border-t-4 border-t-storm">
+              <div className="field-paper p-5 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
                     <I.people className="w-4 h-4 text-storm" />
@@ -398,7 +379,7 @@ export default function WatchOfficerConsolePage() {
             {/* Ask the Watch Officer */}
             <div className="lg:col-span-7 field-paper p-6 space-y-4">
               <div className="text-xs font-mono font-bold uppercase text-ink-2 tracking-wider flex items-center gap-2">
-                <I.aiAdvisor className="w-4 h-4 text-accent" />
+                <I.aiAdvisor className="w-4 h-4 text-ink" />
                 Ask the Watch Officer Copilot
               </div>
               <p className="text-xs text-ink-2 leading-relaxed">
@@ -435,7 +416,7 @@ export default function WatchOfficerConsolePage() {
                       className="w-full text-left p-2.5 rounded-lg hover:bg-surface-2 text-xs text-ink-2 hover:text-ink transition flex items-center justify-between group border border-line/60 bg-surface"
                     >
                       <span className="line-clamp-1">{q}</span>
-                      <I.chevronRight className="w-3.5 h-3.5 text-ink-3 group-hover:text-accent shrink-0" />
+                      <I.chevronRight className="w-3.5 h-3.5 text-ink-3 group-hover:text-ink shrink-0" />
                     </button>
                   ))}
                 </div>
@@ -445,7 +426,7 @@ export default function WatchOfficerConsolePage() {
             {/* Evidence Provenance Registry */}
             <div className="lg:col-span-5 field-paper p-6 space-y-4">
               <div className="text-xs font-mono font-bold uppercase text-ink-2 tracking-wider flex items-center gap-2">
-                <I.info className="w-4 h-4 text-accent" />
+                <I.info className="w-4 h-4 text-ink" />
                 Evidence Provenance Registry ({analysisData?.evidenceReferences?.length || 0})
               </div>
               <p className="text-xs text-ink-2">
@@ -459,7 +440,7 @@ export default function WatchOfficerConsolePage() {
                     className="p-3 rounded-lg bg-canvas border border-line text-xs space-y-1"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-accent font-bold">{ev.evidenceId}</span>
+                      <span className="font-mono text-ink font-bold">{ev.evidenceId}</span>
                       <span className="px-2 py-0.2 rounded text-[10px] bg-surface-2 text-ink-2 font-mono">
                         {ev.source}
                       </span>

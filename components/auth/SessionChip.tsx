@@ -27,13 +27,13 @@ export function SessionChip() {
   }
   const label = me.role === "viewer" ? "Judge · read-only" : me.role === "finance" ? "Finance" : me.role === "coordinator" ? "Coordinator" : "Resident";
   return (
-    <div className="hidden items-center gap-2 lg:flex" data-testid="session-chip">
-      <Tag tone="neutral" title="Demo persona: a fictional person. The server enforces this role on every request.">
-        <I.person className="h-3.5 w-3.5" /> {me.name.split(" ")[0]} · {label}
-      </Tag>
+    <div className="hidden items-center gap-3 lg:flex" data-testid="session-chip">
+      <span className="text-[13px] text-ink-2" title="Demo persona: a fictional person. The server enforces this role on every request.">
+        {me.name.split(" ")[0]} <span className="text-ink-3">· {label}</span>
+      </span>
       <button
         type="button"
-        className="text-[12px] text-ink-3 underline-offset-2 hover:text-ink hover:underline"
+        className="text-[12.5px] text-ink-3 underline-offset-2 hover:text-ink hover:underline"
         onClick={async () => {
           await fetch("/api/auth/session", { method: "DELETE" });
           window.location.assign("/signin");

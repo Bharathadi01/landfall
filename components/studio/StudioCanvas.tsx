@@ -754,7 +754,7 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
           )}
 
           {activeCrossFilter && (
-            <div data-testid="active-crossfilter-chip" style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(76,155,255, 0.15)", border: "1px solid rgba(76,155,255, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#4C9BFF" }}>
+            <div data-testid="active-crossfilter-chip" style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(76,155,255, 0.15)", border: "1px solid rgba(76,155,255, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#CFC9BF" }}>
               <span>
                 Filtered: <strong>{activeCrossFilter.value}</strong>
               </span>

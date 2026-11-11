@@ -42,7 +42,7 @@ export function SectionHeading({
         {accent && (
           <>
             {" "}
-            <span className="font-accent text-gradient-relief">{accent}</span>
+            <span className="text-ink-2">{accent}</span>
           </>
         )}
       </h2>

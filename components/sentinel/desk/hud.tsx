@@ -58,7 +58,7 @@ export function LayerChips({
 }) {
   return (
     <div className="glass-hud flex max-w-full flex-wrap items-center gap-1 p-1.5" role="group" aria-label="Map layers">
-      {LAYER_DEFS.map((l) => {
+      {LAYER_DEFS.filter((l) => l.key !== "track" && l.key !== "night").map((l) => {
         const on = active[l.key];
         const ok = available[l.key] !== false;
         return (
@@ -70,7 +70,7 @@ export function LayerChips({
             title={ok ? l.label : `${l.label}: no data`}
             onClick={() => onToggle(l.key)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-semibold transition-colors",
+              "inline-flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-[12.5px] font-semibold transition-colors",
               on ? "bg-white/[0.12] text-ink shadow-[inset_0_1px_0_rgb(255_244_232/0.22)]" : "text-ink-3 hover:bg-white/[0.06] hover:text-ink-2",
               !ok && "cursor-not-allowed opacity-40"
             )}

@@ -186,7 +186,7 @@ export function ReserveGuardrailWidget(props: any) {
         </div>
         <div>
           <div style={{ fontSize: 9.5, color: "#8A847B", textTransform: "uppercase" }}>Last Calculation</div>
-          <div style={{ fontSize: 11, fontFamily: "var(--font-geist-mono)", color: "#4C9BFF" }}>18:30:00 UTC (Replay)</div>
+          <div style={{ fontSize: 11, fontFamily: "var(--font-geist-mono)", color: "#CFC9BF" }}>18:30:00 UTC (Replay)</div>
         </div>
       </div>
     </div>

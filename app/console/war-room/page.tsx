@@ -131,7 +131,7 @@ export default function CommandCenterPage() {
             angleKey: "amount",
             legendItemKey: "bucket",
             innerRadiusRatio: 0.72,
-            fills: ["#6FD49A", "#FFB020", "#4C9BFF"],
+            fills: ["#6FD49A", "#FFB020", "#8A847B"],
             strokes: ["#141316", "#141316", "#141316"],
             strokeWidth: 3,
             cornerRadius: 6,
@@ -151,9 +151,9 @@ export default function CommandCenterPage() {
 
   const TABS: { id: Tab; label: string; icon: any }[] = [
     { id: "OVERVIEW", label: "Overview", icon: I.dashboard },
-    { id: "GRID", label: "Cases · AG Grid", icon: I.people },
-    { id: "STUDIO", label: "Relief Studio · AG Studio", icon: I.chart },
-    { id: "WIDGETS", label: "All widgets", icon: I.boxes },
+    { id: "GRID", label: "Cases", icon: I.people },
+    { id: "STUDIO", label: "Studio", icon: I.chart },
+    { id: "WIDGETS", label: "Widgets", icon: I.boxes },
     { id: "SETTLEMENT", label: "Settlement proof", icon: I.evidence },
   ];
 
@@ -162,42 +162,19 @@ export default function CommandCenterPage() {
   return (
     <div className="space-y-8 pb-12">
       <PageHeader
-        eyebrow={live ? "Command Center · PayPal Sandbox" : "Command Center · Hurricane Milton"}
-        icon={I.dashboard}
-        tone="accent"
+        eyebrow={live ? `Live PayPal Sandbox · PayPal asked ${relativeTime(lastSyncedAt)}` : "Hurricane Milton replay · synthetic scenario"}
         title={live ? "Every payment," : "12 hours to landfall."}
         accent={live ? "answered or not yet." : "Here’s what needs you."}
-        description={`${sum.households} ${live ? "real PayPal Sandbox payments" : "households approved"} · ${money(sum.approvedUsd)} sent to PayPal · ${sum.creditedCount} credited by PayPal, ${sum.confirmedCount} confirmed by residents · ${sum.needPersonCount} need a person.`}
-        meta={
-          live ? (
-            <>
-              <Chip tone="paypal" live>
-                Live Sandbox
-              </Chip>
-              <Chip tone="neutral">Real PayPal responses · synthetic people</Chip>
-              <Chip tone="neutral">PayPal asked {relativeTime(lastSyncedAt)}</Chip>
-            </>
-          ) : (
-            <>
-              <Chip tone="storm" live>
-                Replay · Oct 2024
-              </Chip>
-              <Chip tone="neutral">Synthetic scenario</Chip>
-            </>
-          )
-        }
+        description={`${sum.households} ${live ? "real PayPal Sandbox payments" : "households approved"} · ${money(sum.approvedUsd)} sent · ${sum.creditedCount} credited by PayPal, ${sum.confirmedCount} confirmed by residents.`}
         actions={
           <>
             {live && (
               <button onClick={doRefresh} disabled={refreshing} className="field-btn field-btn-secondary" data-testid="refresh-paypal">
-                <I.refresh className={`h-4 w-4 text-paypal ${refreshing ? "animate-spin" : ""}`} /> {refreshing ? "Asking PayPal…" : "Refresh from PayPal"}
+                <I.refresh className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} /> {refreshing ? "Asking PayPal…" : "Refresh from PayPal"}
               </button>
             )}
-            <Link href="/console/studio" className="field-btn field-btn-secondary">
-              <I.chart className="h-4 w-4 text-paypal" /> Analytics Studio
-            </Link>
             <Link href="/console/proposals" className="field-btn field-btn-primary">
-              <I.twoKeyApproval className="h-4 w-4" /> Review approvals
+              Review approvals
             </Link>
           </>
         }
@@ -211,7 +188,6 @@ export default function CommandCenterPage() {
             const gap = s.key === "CONFIRMED" && sum.creditedUnconfirmedCount > 0;
             return (
               <li key={s.key} className={`relative flex items-center gap-3 rounded-xl px-3.5 py-3 ${gap ? "bg-amber/[0.07]" : ""}`}>
-                <IconTile icon={Icon} tone={gap ? "amber" : STAGE_TONE[s.key]} size="sm" />
                 <div className="min-w-0">
                   <div className="flex items-baseline gap-1.5 text-[13.5px] font-semibold text-ink">
                     {s.label}
@@ -223,7 +199,6 @@ export default function CommandCenterPage() {
                     {gap ? `${sum.creditedUnconfirmedCount} credited, not confirmed` : s.help}
                   </div>
                 </div>
-                {i < sum.stageCounts.length - 1 && <I.arrowRight className="absolute -right-2 top-1/2 hidden h-3.5 w-3.5 -translate-y-1/2 text-ink-3/50 sm:block" />}
               </li>
             );
           })}
@@ -235,27 +210,25 @@ export default function CommandCenterPage() {
         )}
       </section>
 
-      {/* KPIs */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Cash in PayPal account" value={TREASURY.available} prefix="$" tone="paypal" icon={I.wallet} hint={`${live ? "From the ledger, posted from PayPal’s statuses" : "Replay data"} · includes the protected reserve`} />
-        <StatCard label="Protected reserve" value={TREASURY.reserve} prefix="$" tone="amber" icon={I.reserve} hint={`Policy floor ${money(TREASURY.requiredReserve)} (${TREASURY.policyFloorPct}%) · can’t be spent`} />
-        <StatCard label="Ready to allocate" value={TREASURY.allocatable} prefix="$" tone="accent" icon={I.payout} hint="Cash in account minus the reserve" />
-        <StatCard label="Need a person" value={sum.needPersonCount} tone="danger" icon={I.needPerson} hint={`${money(sum.needPersonUsd)} across cases needing follow-up`} />
+      {/* KPIs: the three numbers that decide what to do next */}
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard label="Cash in PayPal account" value={TREASURY.available} prefix="$" tone="neutral" hint={live ? "From the ledger, posted from PayPal’s statuses" : "Replay data"} />
+        <StatCard label="Ready to allocate" value={TREASURY.allocatable} prefix="$" tone="neutral" hint={`After a protected reserve of ${money(TREASURY.reserve)} that can’t be spent`} />
+        <StatCard label="Need a person" value={sum.needPersonCount} tone="neutral" hint={`${money(sum.needPersonUsd)} across cases needing follow-up`} />
       </section>
 
       {/* Tabs */}
-      <div className="flex flex-wrap items-center gap-1 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-1 backdrop-blur" role="tablist">
+      <div className="flex flex-wrap items-center gap-1 border-b border-line" role="tablist">
         {TABS.map((t) => (
           <button
             key={t.id}
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-medium transition-all ${
-              tab === t.id ? "bg-white/10 text-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.08)]" : "text-ink-3 hover:text-ink"
+            className={`-mb-px border-b-2 px-4 py-3 text-[14px] font-medium transition-colors ${
+              tab === t.id ? "border-accent text-ink" : "border-transparent text-ink-3 hover:text-ink"
             }`}
           >
-            <t.icon className="h-4 w-4" strokeWidth={1.75} />
             {t.label}
           </button>
         ))}
@@ -271,7 +244,7 @@ export default function CommandCenterPage() {
               description="Ranked by explainable rules — every point has a stated reason"
               right={
                 <Link href="/console/watch-officer" className="field-btn field-btn-secondary px-3.5 py-2 text-[13px]">
-                  <I.aiAdvisor className="h-4 w-4 text-ai" /> Ask the AI why
+                  Ask the AI why
                 </Link>
               }
             />
@@ -292,53 +265,29 @@ export default function CommandCenterPage() {
                 </div>
               </div>
             )}
-            <ul className="mt-5 space-y-3">
+            <ul className="mt-5 divide-y divide-line">
               {queue.map((c) => (
-                <li key={c.caseRef} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4 transition-colors hover:border-white/15 hover:bg-white/[0.035]">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <li key={c.caseRef} className="py-4 first:pt-0">
+                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                     <span className="text-[15px] font-semibold text-ink">{c.resident}</span>
-                    <span className="text-[12.5px] text-ink-3">{c.zone}</span>
-                    <Chip tone={statusTone(c.status)}>{c.barrier ? "Resident reported a problem" : c.status === "SUCCESS" ? "Credited · unconfirmed" : c.status}</Chip>
+                    <span className="text-[13px] text-ink-3">{c.barrier ? "Resident reported a problem" : c.status === "SUCCESS" ? "Credited, not yet confirmed" : c.status.toLowerCase()}</span>
                     <span className="ml-auto text-[15px] font-semibold tabular text-ink">{money2(c.amountUsd)}</span>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {c.priority.reasons.slice(0, 3).map((r) => (
-                      <span key={r.label} className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11.5px] text-ink-2">
-                        {r.label} <span className="font-mono text-ink-3">+{r.points}</span>
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="flex items-start gap-2 text-[13px] text-accent-strong">
-                      <I.enter className="mt-0.5 h-3.5 w-3.5 shrink-0 rotate-180" /> {c.nextAction.plain}
-                    </p>
-                    <button onClick={() => openCase(c)} className="field-btn field-btn-secondary shrink-0 px-3 py-2 text-[12.5px]">
-                      Open case evidence <I.arrowUpRight className="h-3.5 w-3.5" />
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-[13.5px] text-ink-2">{c.nextAction.plain}</p>
+                    <button onClick={() => openCase(c)} className="shrink-0 text-[13px] font-medium text-accent-strong underline-offset-2 hover:underline">
+                      See the evidence
                     </button>
                   </div>
-                  <div className="mt-2 font-mono text-[10.5px] text-ink-3">{c.caseRef}</div>
                 </li>
               ))}
-              {queue.length === 0 && <li className="rounded-2xl border border-accent/25 bg-accent/[0.06] p-4 text-[13.5px] text-accent-strong">Nothing needs a person right now.</li>}
+              {queue.length === 0 && <li className="py-2 text-[13.5px] text-ink-2">Nothing needs a person right now.</li>}
             </ul>
-
-            <div className="relative mt-5 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.04] to-transparent p-4">
-              <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.12em] text-ink-3">
-                <I.summary className="h-3.5 w-3.5" /> Plain-English summary · computed from the case data
-              </div>
-              <p className="mt-2 text-[14px] leading-relaxed text-ink">
-                {sum.needPersonCount} of {sum.households} cases need a person, and none of them should trigger a second payout.{" "}
-                <span className="tabular text-accent-strong">{money(TREASURY.allocatable)}</span> is allocatable and the{" "}
-                <span className="tabular text-amber">{money(TREASURY.reserve)}</span> reserve is untouched. PayPal has credited{" "}
-                <span className="tabular text-paypal">{money(sum.creditedUsd)}</span>; {sum.confirmedCount} of {sum.creditedCount} credited payments are confirmed by the household.
-              </p>
-              <p className="mt-2 text-[12px] text-ink-3">The AI Watch Officer page runs the live read-only model against this same data.</p>
-            </div>
           </section>
 
           <div className="space-y-6 xl:col-span-5">
             <section className="glass p-6" data-reveal>
-              <SectionHeader icon={I.wallet} tone="paypal" title="Where the money sits" right={<Chip tone="amber">Replay ledger · not vs PayPal</Chip>} />
+              <SectionHeader icon={I.wallet} tone="paypal" title="Where the money sits" right={live ? undefined : <Chip tone="amber">Replay ledger</Chip>} />
               <div className="mt-2 h-[300px]">
                 <AgCharts options={chartOptions} />
               </div>
@@ -401,7 +350,7 @@ export default function CommandCenterPage() {
       {studioSeen && tab === "STUDIO" && <StudioDataNotice />}
       {studioSeen && (
         <div
-          className="h-[920px] w-full overflow-hidden rounded-[18px] border border-white/[0.06] bg-canvas/60"
+          className="h-[920px] w-full overflow-hidden rounded-sm border border-white/[0.06] bg-canvas/60"
           style={{ display: tab === "STUDIO" ? "block" : "none" }}
         >
           <LandfallStudio mode="view" />

@@ -494,7 +494,7 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
           </form>
           <div className="flex flex-wrap gap-1.5">
             {GRID_PROMPTS.slice(0, 3).map((p) => (
-              <button key={p} onClick={() => runCommand(p)} className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[12px] text-ink-2 transition-colors hover:border-ai/40 hover:text-ink">{p}</button>
+              <button key={p} onClick={() => runCommand(p)} className="rounded-sm border border-white/10 bg-white/[0.03] px-3 py-1 text-[12px] text-ink-2 transition-colors hover:border-ai/40 hover:text-ink">{p}</button>
             ))}
           </div>
           <div className="flex items-center gap-2 xl:border-l xl:border-white/[0.08] xl:pl-4">
@@ -509,7 +509,7 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
           {feed.state !== "idle" && <Tag tone="storm">Replay feed · synthetic events</Tag>}
           {feed.last && <span className="font-mono text-[11px] text-ink-3">{feed.last}</span>}
           {zoneFilter && (
-            <button onClick={() => filterToZone(null)} className="inline-flex items-center gap-1.5 rounded-full border border-money/30 bg-money/10 px-2.5 py-1 text-[11.5px] text-money">
+            <button onClick={() => filterToZone(null)} className="inline-flex items-center gap-1.5 rounded-sm border border-money/30 bg-money/10 px-2.5 py-1 text-[11.5px] text-money">
               Filtered to {zoneFilter} <I.close className="h-3 w-3" />
             </button>
           )}
@@ -563,7 +563,7 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
               onSelectCluster={(c: ExposureCluster) => filterToZone(zoneKey(c.zone))}
             />
             <div className="pointer-events-none absolute inset-x-3 top-3 flex items-start justify-between gap-2">
-              <div className="glass-hud pointer-events-auto flex items-center gap-2 rounded-full px-3 py-1.5">
+              <div className="glass-hud pointer-events-auto flex items-center gap-2 rounded-sm px-3 py-1.5">
                 {cases.some((c) => c.origin === "SANDBOX_LIVE") ? <Tag tone="amber" solid>Synthetic locations</Tag> : <Tag tone="storm" solid>Replay</Tag>}
                 <span className="text-[12px] font-semibold text-ink">Where they live</span>
               </div>

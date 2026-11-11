@@ -53,7 +53,7 @@ export default async function JudgesPage() {
         <Tag tone="neutral">Synthetic people</Tag>
       </div>
       <h1 className="mt-4 text-title-1 text-ink">
-        Try Landfall in five minutes. <span className="font-accent italic font-normal text-ink-2">No setup.</span>
+        Try Landfall in five minutes. <span className="text-ink-2">No setup.</span>
       </h1>
       <p className="mt-3 max-w-3xl text-body-base text-ink-2">
         Landfall tracks a relief payment <em>past</em> PayPal’s “SUCCESS” — to the household’s own answer. Everything below is free to use. All people are fictional and all money is PayPal Sandbox play money.

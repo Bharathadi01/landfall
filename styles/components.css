@@ -659,3 +659,339 @@ dialog.dlg::backdrop { background: rgb(6 5 7 / 0.62); -webkit-backdrop-filter: b
   box-shadow: 0 0 0 4px rgb(var(--c-accent) / 0.25), 0 4px 14px rgb(0 0 0 / 0.5);
 }
 .desk-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgb(var(--c-canvas)), 0 0 0 5px rgb(var(--c-accent)); }
+
+/* ═══════════════════════════════════════════════════════════
+ * CALM LAYER — fewer effects, one accent, quieter chrome.
+ * Rationale (see docs/DESIGN_SYSTEM.md): progressive disclosure, a neutral base with a single accent,
+ * status colours kept separate from the brand colour, hierarchy from type and whitespace — not glows, blur and gradients.
+ * ═══════════════════════════════════════════════════════════ */
+
+/* Panes: flat, bordered, no blur (also much cheaper to paint) */
+.glass,
+.field-paper,
+.glass-strong,
+.field-floating-glass {
+  background: rgb(var(--c-surface) / 0.78);
+  border: 1px solid rgb(var(--c-line));
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.glass-strong,
+.field-floating-glass { background: rgb(var(--c-surface-2) / 0.92); border-color: rgb(var(--c-line-strong)); }
+/* the header and map overlays sit over busy content: solid, slightly darker, still no blur */
+.glass-hud {
+  background: rgb(14 13 16 / 0.9);
+  border: 1px solid rgb(var(--c-line));
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.glass::before,
+.glass-strong::before,
+.glass-hud::before,
+.field-paper::before,
+.field-floating-glass::before { display: none; }
+.card-hover:hover { transform: none; box-shadow: none; border-color: rgb(var(--c-line-strong)); }
+
+/* Buttons: flat. Primary is the single orange; everything else is a quiet outline. */
+.btn,
+.field-btn {
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  will-change: auto;
+}
+.btn::before,
+.field-btn::before,
+.btn::after,
+.field-btn::after { display: none; }
+.btn:hover,
+.field-btn:hover { filter: none; --btn-border: rgb(255 244 232 / 0.32); border-color: rgb(255 244 232 / 0.32); }
+.btn[data-variant="signal"],
+.field-btn-primary {
+  --btn-fill: rgb(var(--c-accent));
+  --btn-border: transparent;
+  --btn-glow: 0 0 0 0 transparent;
+}
+.btn[data-variant="signal"]:hover,
+.field-btn-primary:hover { --btn-fill: rgb(var(--c-accent-strong)); background: rgb(var(--c-accent-strong)); border-color: transparent; }
+.btn[data-variant="paypal"],
+.field-btn-paypal {
+  --btn-fill: rgb(255 244 232 / 0.07);
+  --btn-border: rgb(255 244 232 / 0.16);
+  --btn-ink: rgb(var(--c-ink));
+}
+
+/* Tags: quiet outline + small dot. Only status tones (delivered / amber / danger) and the accent carry colour. */
+.tag {
+  font-family: var(--font-sans);
+  font-stretch: normal;
+  font-size: 12px;
+  font-weight: 520;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.tag[data-size="lg"] { font-size: 13px; }
+.tag[data-solid] { color: rgb(var(--t)); background: rgb(var(--t) / 0.1); border-color: rgb(var(--t) / 0.3); }
+.tag[data-tone="neutral"][data-solid],
+.tag[data-tone="paypal"][data-solid],
+.tag[data-tone="ai"][data-solid],
+.tag[data-tone="storm"][data-solid],
+.tag[data-tone="money"][data-solid] { color: rgb(var(--c-ink-2)); background: rgb(255 244 232 / 0.05); border-color: rgb(var(--c-line-strong)); }
+[class*="field-badge-"] { font-family: var(--font-sans); font-size: 12px; letter-spacing: 0; text-transform: none; }
+
+/* Motion: nothing pulses or glows by default */
+.live-dot { box-shadow: none; }
+.live-dot::after { animation: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .live-dot::after { animation: ping-soft 3.2s cubic-bezier(0, 0, 0.2, 1) infinite; opacity: 0.5; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+ * IDENTITY LAYER — "logbook / survey chart"
+ * Square corners, hairline rules, a faint survey grid, stamp-style status labels with a SQUARE marker, serif for headings and
+ * figures, plain rectangular buttons. Deliberately unlike glass pills, glowing badges and icon tiles.
+ * ═══════════════════════════════════════════════════════════ */
+
+/* the ground: a faint latitude/longitude graticule */
+body {
+  background-image:
+    linear-gradient(rgb(255 244 232 / 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 244 232 / 0.025) 1px, transparent 1px);
+  background-size: 56px 56px;
+  background-position: -1px -1px;
+}
+
+/* panels: hairline box with a heavier top rule, like a table in a printed report */
+.glass,
+.field-paper {
+  border-radius: 2px;
+  border-top: 2px solid rgb(var(--c-ink-3) / 0.55);
+}
+.glass-strong,
+.field-floating-glass,
+.glass-hud { border-radius: 3px; }
+
+/* buttons: rectangles. Primary = the one orange block; secondary = a plain outline; no icons required. */
+.btn,
+.field-btn {
+  border-radius: 2px;
+  min-height: 40px;
+  padding: 0 16px;
+  font-weight: 560;
+  letter-spacing: 0;
+}
+.btn[data-size="sm"] { min-height: 32px; padding: 0 12px; }
+.btn[data-size="lg"] { min-height: 48px; padding: 0 22px; font-size: 15px; }
+.btn[data-variant="glass"],
+.field-btn-secondary,
+.field-btn:not(.field-btn-primary):not(.field-btn-subtle) {
+  --btn-fill: transparent;
+  --btn-border: rgb(var(--c-ink-3));
+}
+.btn[data-variant="glass"]:hover,
+.field-btn-secondary:hover,
+.field-btn:not(.field-btn-primary):not(.field-btn-subtle):hover { background: rgb(255 244 232 / 0.06); --btn-border: rgb(var(--c-ink)); border-color: rgb(var(--c-ink)); }
+.btn:focus-visible,
+.field-btn:focus-visible { box-shadow: none; outline: 2px solid rgb(var(--c-accent)); outline-offset: 2px; }
+
+/* status labels: a hairline rectangle with a square marker (never a glowing capsule) */
+.tag {
+  border-radius: 2px;
+  background: transparent;
+  border: 1px solid rgb(var(--c-line-strong));
+  color: rgb(var(--c-ink-2));
+  padding: 3px 8px 3px 7px;
+  gap: 7px;
+}
+.tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  background: rgb(var(--t));
+}
+.tag > .live-dot { display: none; }
+.tag[data-solid],
+.tag[data-tone="neutral"][data-solid],
+.tag[data-tone="paypal"][data-solid],
+.tag[data-tone="ai"][data-solid],
+.tag[data-tone="storm"][data-solid],
+.tag[data-tone="money"][data-solid] { background: transparent; border-color: rgb(var(--c-line-strong)); color: rgb(var(--c-ink-2)); }
+.tag[data-tone="delivered"],
+.tag[data-tone="amber"],
+.tag[data-tone="danger"] { border-color: rgb(var(--t) / 0.5); color: rgb(var(--c-ink)); }
+[class*="field-badge-"] { border-radius: 2px; background: transparent; border: 1px solid rgb(var(--c-line-strong)); }
+
+/* inputs, selects: same square language */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea { border-radius: 2px; }
+
+/* a note: how warnings and cautions look instead of a coloured banner with a triangle icon */
+.note {
+  border-left: 3px solid rgb(var(--n, var(--c-ink-3)));
+  background: rgb(255 244 232 / 0.03);
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: rgb(var(--c-ink-2));
+}
+.note[data-tone="amber"] { --n: var(--c-amber); }
+.note[data-tone="danger"] { --n: var(--c-danger); }
+.note[data-tone="delivered"] { --n: var(--c-delivered); }
+.note[data-tone="accent"] { --n: var(--c-accent); }
+.note > .note-label { display: block; margin-bottom: 2px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: rgb(var(--c-ink-3)); }
+
+/* figures: tabular, serif, never decorative gradients */
+.tabular { font-variant-numeric: tabular-nums lining-nums; }
+
+/* thin scrollbars that match */
+* { scrollbar-width: thin; scrollbar-color: rgb(var(--c-line-strong)) transparent; }
+
+/* segmented control: a ruled rectangle with an underline marker (no glass capsule) */
+.seg {
+  border-radius: 2px;
+  padding: 0;
+  gap: 0;
+  background: transparent;
+  border: 1px solid rgb(var(--c-line-strong));
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.seg-ind {
+  top: 0;
+  bottom: 0;
+  border-radius: 0;
+  background: rgb(255 244 232 / 0.09);
+  border: 0;
+  border-bottom: 2px solid rgb(var(--c-accent));
+  box-shadow: none;
+}
+.seg-btn { border-radius: 0; font-weight: 560; letter-spacing: 0; }
+.seg-btn[aria-current="page"] { background: rgb(255 244 232 / 0.09); box-shadow: none; }
+.seg-btn:focus-visible { box-shadow: none; outline: 2px solid rgb(var(--c-accent)); outline-offset: -2px; }
+
+/* no shouting: all-caps + wide tracking are gone everywhere (they were on nearly every label) */
+.uppercase { text-transform: none !important; }
+.tracking-wider,
+.tracking-widest,
+[class*="tracking-[0."] { letter-spacing: 0 !important; }
+.font-mono.uppercase { font-size: 0.92em; }
+
+/* ═══════════════════════════════════════════════════════════
+ * SIGNATURE ELEMENT: the ruled annotation.
+ * Every banner, warning, error, confirmation and "heads-up" in Landfall is the same thing — a hairline rule in the status
+ * colour with a small square marker sitting on it, a small-caps label, then plain text. No box, no fill, no icon, no left bar.
+ * (Old tinted boxes anywhere in the app are converted by the attribute selectors below, so nothing is left in the old style.)
+ * ═══════════════════════════════════════════════════════════ */
+.note,
+:is(div, section, p, aside, li)[class*="border-danger/"][class*="bg-danger"],
+:is(div, section, p, aside, li)[class*="border-amber/"][class*="bg-amber"],
+:is(div, section, p, aside, li)[class*="border-accent/"][class*="bg-accent"],
+:is(div, section, p, aside, li)[class*="border-delivered/"][class*="bg-delivered"],
+:is(div, section, p, aside, li)[class*="border-storm/"][class*="bg-storm"] {
+  position: relative;
+  background: transparent !important;
+  border: 0 !important;
+  border-top: 1px solid rgb(var(--n, var(--c-ink-3)) / 0.6) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 11px 0 2px !important;
+  color: rgb(var(--c-ink-2));
+}
+.note::before,
+:is(div, section, p, aside, li)[class*="border-danger/"][class*="bg-danger"]::before,
+:is(div, section, p, aside, li)[class*="border-amber/"][class*="bg-amber"]::before,
+:is(div, section, p, aside, li)[class*="border-accent/"][class*="bg-accent"]::before,
+:is(div, section, p, aside, li)[class*="border-delivered/"][class*="bg-delivered"]::before,
+:is(div, section, p, aside, li)[class*="border-storm/"][class*="bg-storm"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -4px;
+  width: 7px;
+  height: 7px;
+  background: rgb(var(--n, var(--c-ink-3)));
+}
+:is(div, section, p, aside, li)[class*="border-danger/"][class*="bg-danger"] { --n: var(--c-danger); }
+:is(div, section, p, aside, li)[class*="border-amber/"][class*="bg-amber"] { --n: var(--c-amber); }
+:is(div, section, p, aside, li)[class*="border-accent/"][class*="bg-accent"] { --n: var(--c-accent); }
+:is(div, section, p, aside, li)[class*="border-delivered/"][class*="bg-delivered"] { --n: var(--c-delivered); }
+:is(div, section, p, aside, li)[class*="border-storm/"][class*="bg-storm"] { --n: var(--c-ink-3); }
+.note[data-tone="amber"] { --n: var(--c-amber); }
+.note[data-tone="danger"] { --n: var(--c-danger); }
+.note[data-tone="delivered"] { --n: var(--c-delivered); }
+.note[data-tone="accent"] { --n: var(--c-accent); }
+.note > .note-label {
+  display: block;
+  margin: 0 0 3px;
+  padding-left: 15px;
+  font-variant-caps: all-small-caps;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  color: rgb(var(--n, var(--c-ink-3)));
+}
+
+/* toasts: the same annotation on a small card */
+.toast {
+  position: relative;
+  background: rgb(var(--c-surface-2));
+  border: 1px solid rgb(var(--c-line-strong));
+  border-top: 2px solid rgb(var(--n, var(--c-ink-3)));
+  border-radius: 0;
+  padding: 12px 16px 12px 16px;
+  box-shadow: none;
+}
+.toast[data-tone="success"] { --n: var(--c-delivered); }
+.toast[data-tone="warn"] { --n: var(--c-amber); }
+.toast[data-tone="error"] { --n: var(--c-danger); }
+.toast[data-tone="info"] { --n: var(--c-ink-3); }
+
+/* inputs: ruled lines, not rounded boxes */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([class*="ag-"]),
+select:not([class*="ag-"]),
+textarea:not([class*="ag-"]) {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgb(var(--c-ink-3)) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([class*="ag-"]):focus,
+select:not([class*="ag-"]):focus,
+textarea:not([class*="ag-"]):focus { outline: none; border-bottom: 2px solid rgb(var(--c-accent)) !important; }
+input[type="checkbox"],
+input[type="radio"] { accent-color: rgb(var(--c-accent)); }
+
+/* progress: a thin square-ended rule, no glow */
+.meter { height: 3px; border-radius: 0; background: rgb(var(--c-line-strong)); }
+.meter > span { border-radius: 0; background: rgb(var(--c-ink)); box-shadow: none; }
+
+/* dots are squares everywhere */
+.rounded-full.h-1.w-1,
+.rounded-full.h-1\.5.w-1\.5,
+.rounded-full.h-2.w-2,
+.rounded-full.h-2\.5.w-2\.5 { border-radius: 0; }
+
+/* the primary action: one orange block with a cut corner (like an instrument-panel key) */
+.btn[data-variant="signal"],
+.field-btn-primary { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%); padding-right: 20px; }
+.btn[data-variant="signal"]:focus-visible,
+.field-btn-primary:focus-visible { clip-path: none; }
+
+/* dialogs */
+dialog.dlg { border-radius: 0; border: 1px solid rgb(var(--c-line-strong)); border-top: 2px solid rgb(var(--c-ink-3)); background: rgb(var(--c-surface)); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+dialog.dlg::backdrop { background: rgb(0 0 0 / 0.66); -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* label-style mono caps (there were hundreds) become quiet sans labels */
+.font-mono.uppercase,
+.eyebrow.font-mono { font-family: var(--font-sans); font-size: 12.5px; letter-spacing: 0; }
+
+/* text buttons are text: no decorative icons inside them (icon-only buttons and spinners are untouched) */
+.btn:not([data-icon-only]) > svg:not(.btn-spinner),
+.field-btn:not([data-icon-only]) > svg:not(.animate-spin) { display: none; }
