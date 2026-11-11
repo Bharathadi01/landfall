@@ -25,16 +25,32 @@ services:
         sync: false
       - key: PAYPAL_LIPP_REDIRECT
         sync: false
-      - key: GOOGLE_GENERATIVE_AI_API_KEY
-        sync: false
       - key: GROQ_API_KEY
         sync: false
-      - key: MODEL_FAST
-        value: gemini-1.5-flash
-      - key: MODEL_SMART
-        value: gemini-1.5-flash
-      - key: MODEL_AUDITOR
-        value: llama-3.3-70b-versatile
+      # Groq models actually available on the free key (llama-3.x is NOT available).
+      - key: GROQ_MODEL_REASONING
+        value: openai/gpt-oss-120b
+      - key: GROQ_MODEL_FAST
+        value: openai/gpt-oss-20b
+      - key: GROQ_MODEL_GUARD
+        value: meta-llama/llama-prompt-guard-2-86m
+      - key: GROQ_MODEL_SAFEGUARD
+        value: openai/gpt-oss-safeguard-20b
+      - key: GROQ_MODEL_STT
+        value: whisper-large-v3-turbo
+      # Signs session cookies. Render generates a strong value once.
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: WEBAUTHN_RP_ID
+        value: landfall-web.onrender.com
+      - key: WEBAUTHN_ORIGIN
+        value: https://landfall-web.onrender.com
+      - key: PAYOUT_REFRESH_ENABLED
+        value: "true"
+      - key: NEXT_PUBLIC_AG_GRID_LICENSE
+        sync: false
+      - key: NEXT_PUBLIC_AG_STUDIO_LICENSE
+        sync: false
       - key: CRON_SECRET
         generateValue: true
       - key: JUDGE_MODE_ENABLED

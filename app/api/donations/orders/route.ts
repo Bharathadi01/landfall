@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createOrder } from "@/lib/paypal/orders";
 import { z } from "zod";
+import { safeError } from "@/lib/http/safe-error";
 
 const RequestSchema = z.object({
   amountUsd: z.string().regex(/^\d+\.\d{2}$/, "Amount must be 2-decimal USD (e.g. 5.00)"),
@@ -24,8 +25,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ orderId: data.id, status: data.status, debugId });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return safeError(err, "Request failed", 500);
   }
 }
 

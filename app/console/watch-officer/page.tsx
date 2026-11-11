@@ -148,7 +148,7 @@ export default function WatchOfficerConsolePage() {
                 <span className="truncate">{event?.eventName || "No Active Alert"}</span>
               </div>
               <div className="mt-1 text-xs text-ink-2 font-mono">
-                {event?.eventKey || "TBW:HU.W:0009"} · {event?.severity || "Extreme"}
+                {event?.eventKey ? `${event.eventKey} · ${event.severity ?? "severity unknown"}` : "No alert key in the data"}
               </div>
             </div>
 
@@ -187,7 +187,7 @@ export default function WatchOfficerConsolePage() {
                 {constraints?.allocatableFormatted || "$0.00"}
               </div>
               <div className="mt-1 text-xs text-ink-2">
-                30% Reserve: {constraints?.reserveProtectedFormatted || "$0.00"} (Protected)
+                Reserve: {constraints?.reserveProtectedFormatted ?? "unknown"} (protected)
               </div>
             </div>
 
@@ -218,7 +218,7 @@ export default function WatchOfficerConsolePage() {
               </span>
             </div>
             <p className="mt-4 text-ink text-sm md:text-base leading-relaxed">
-              {analysisData?.summary || "Watch Officer synthesizing operational telemetry across Pinellas County..."}
+              {analysisData?.summary || "No briefing yet. Press “Refresh Intelligence” to run one."}
             </p>
           </div>
 
@@ -244,7 +244,11 @@ export default function WatchOfficerConsolePage() {
                     </h3>
                   </div>
                   <span className="field-badge-evergreen font-mono text-[10px]">
-                    100% CITED
+                    {(() => {
+                      const kfs: any[] = analysisData?.keyFindings ?? [];
+                      const cited = kfs.filter((k) => Array.isArray(k.evidenceIds) ? k.evidenceIds.length > 0 : Boolean(k.evidenceId)).length;
+                      return kfs.length ? `${cited} of ${kfs.length} CITED` : "NO FINDINGS YET";
+                    })()}
                   </span>
                 </div>
                 <div className="space-y-2.5">
@@ -306,28 +310,33 @@ export default function WatchOfficerConsolePage() {
                     </h3>
                   </div>
                   <span className="field-badge-warning font-mono text-[10px]">
-                    MONITORED PARAMETERS
+                    FROM EVIDENCE STATUS
                   </span>
                 </div>
                 <div className="space-y-2.5 text-xs">
-                  <div className="p-3 rounded-lg bg-canvas border border-line">
-                    <div className="font-semibold text-ink">Inland Storm Surge Extent</div>
-                    <p className="text-ink-2 mt-1 text-[11px] leading-relaxed">
-                      Actual water level rise dependent on tidal timing at Tampa Bay entrance during Category 4 eyewall passage.
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-canvas border border-line">
-                    <div className="font-semibold text-ink">Late-Enrollee Intake Volume</div>
-                    <p className="text-ink-2 mt-1 text-[11px] leading-relaxed">
-                      Estimated 15-25 additional vulnerable households may submit evidence prior to grid power disruption.
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-canvas border border-line">
-                    <div className="font-semibold text-ink">Standby Pledge Conversion Rate</div>
-                    <p className="text-ink-2 mt-1 text-[11px] leading-relaxed">
-                      $15,000 contingent donor pledges awaiting manual credit card settlement confirmation from institutional funders.
-                    </p>
-                  </div>
+                  {(() => {
+                    const unresolved: any[] = (analysisData?.evidenceReferences ?? []).filter((e: any) => e.status && e.status !== "VERIFIED");
+                    const blockers: string[] = analysisData?.operationalBlockers ?? [];
+                    if (!unresolved.length && !blockers.length) {
+                      return <p className="text-ink-3">No unresolved inputs were reported for this run.</p>;
+                    }
+                    return (
+                      <>
+                        {unresolved.map((e: any, i: number) => (
+                          <div key={`u${i}`} className="p-3 rounded-lg bg-canvas border border-line">
+                            <div className="font-semibold text-ink">{e.source} · {e.status}</div>
+                            <p className="text-ink-2 mt-1 text-[11px] leading-relaxed">{e.summary}</p>
+                          </div>
+                        ))}
+                        {blockers.map((b, i) => (
+                          <div key={`b${i}`} className="p-3 rounded-lg bg-canvas border border-line">
+                            <div className="font-semibold text-ink">Blocker</div>
+                            <p className="text-ink-2 mt-1 text-[11px] leading-relaxed">{b}</p>
+                          </div>
+                        ))}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -424,7 +433,7 @@ export default function WatchOfficerConsolePage() {
                 Evidence Provenance Registry ({analysisData?.evidenceReferences?.length || 0})
               </div>
               <p className="text-xs text-ink-2">
-                Inspect exact source systems and cryptographic verification references.
+                Each reference below names the source system, its verification status, and when it was read.
               </p>
 
               <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">

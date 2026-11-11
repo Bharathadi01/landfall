@@ -72,7 +72,7 @@ export function PayPalMoneyPathExplorer() {
       sublabel: "Read-Only Analysis",
       referenceId: "Case: rcv_2fn4jty2sf8a2",
       status: "IN_PROGRESS",
-      details: "Identified unregistered PayPal email. Verified 30-day escrow window. Blocked duplicate payout. Prepared SMS guidance.",
+      details: "Identified unregistered PayPal email. Checked the 30-day claim window. Blocked duplicate payout. Prepared SMS guidance.",
       timestamp: "2024-10-09 18:15:45 UTC",
     },
     {

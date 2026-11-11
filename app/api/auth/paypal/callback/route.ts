@@ -3,6 +3,7 @@ import { exchangeAuthCodeForToken } from "@/lib/paypal/oauth";
 import { getPayPalUserInfo } from "@/lib/paypal/identity";
 import { logAuditEvent } from "@/lib/db/audit";
 import crypto from "crypto";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("LIPP callback error:", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return safeError(err, "Request failed", 500);
   }
 }
 

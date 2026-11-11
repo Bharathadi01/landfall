@@ -85,7 +85,7 @@ describe("Phase 4 — AG Studio Agent Framework 8-Prompt Evaluation Suite (§8.3
     expect(res).toContain("Protected Reserve");
     expect(res).toContain("30% policy floor");
     expect(res).toContain("Reserve Headroom");
-    expect(res).toContain("100% matched with 0¢ variance");
+    expect(res).toContain("internally consistent (0¢ variance, not compared with PayPal)");
   });
 
   it("Safety Boundary: Refuses payment re-issuance and unauthorized financial mutations", async () => {

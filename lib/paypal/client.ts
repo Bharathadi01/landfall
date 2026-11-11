@@ -26,9 +26,24 @@ interface CachedToken {
 }
 
 let cachedToken: CachedToken | null = null;
+/** Single-flight: concurrent callers share ONE in-flight token request instead of each making their own. */
+let inflightToken: Promise<string> | null = null;
+
+/** Every PayPal HTTP call is bounded. */
+export const PAYPAL_TIMEOUT_MS = 15_000;
+const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
+const MAX_RETRIES = 2;
 
 export function clearTokenCache() {
   cachedToken = null;
+  inflightToken = null;
+}
+
+const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+function backoffMs(attempt: number, retryAfter: string | null): number {
+  const ra = retryAfter ? Number(retryAfter) : NaN;
+  if (Number.isFinite(ra) && ra >= 0) return Math.min(ra * 1000, 8000);
+  return Math.min(300 * 2 ** attempt, 3000) + Math.floor(Math.random() * 150);
 }
 
 export function getCachedTokenState() {
@@ -44,7 +59,14 @@ export async function getClientCredentialsToken(): Promise<string> {
   if (cachedToken && cachedToken.expiresAt > now) {
     return cachedToken.accessToken;
   }
+  if (inflightToken) return inflightToken;
+  inflightToken = fetchClientCredentialsToken(now).finally(() => {
+    inflightToken = null;
+  });
+  return inflightToken;
+}
 
+async function fetchClientCredentialsToken(now: number): Promise<string> {
   const clientId = process.env.PAYPAL_CLIENT_ID;
   const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
 
@@ -65,6 +87,7 @@ export async function getClientCredentialsToken(): Promise<string> {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: "grant_type=client_credentials",
+    signal: AbortSignal.timeout(PAYPAL_TIMEOUT_MS),
   });
 
   const debugId = res.headers.get("paypal-debug-id") || undefined;
@@ -114,6 +137,10 @@ export async function getClientCredentialsToken(): Promise<string> {
 }
 
 export interface PayPalFetchOptions<T> {
+  /** Override retry count (default 2). Retries only ever happen for GETs and for POSTs that carry a requestId (idempotent). */
+  retries?: number;
+  /** Injectable for tests. */
+  sleep?: (ms: number) => Promise<void>;
   schema?: z.ZodType<T>;
   requestId?: string;
   token?: string; // override token (e.g. for user tokens)
@@ -149,11 +176,34 @@ export async function paypalFetch<T = unknown>(
   const url = path.startsWith("http") ? path : `${PAYPAL_BASE_URL}${path}`;
   const startTime = Date.now();
 
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  // Retrying a payment-creating POST without an idempotency key could send money twice, so only
+  // GETs and POSTs that carry PayPal-Request-Id are ever retried.
+  const retrySafe = method === "GET" || Boolean(opts.requestId);
+  const maxRetries = retrySafe ? (opts.retries ?? MAX_RETRIES) : 0;
+  const sleep = opts.sleep ?? defaultSleep;
+
+  let res!: Response;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      res = await fetch(url, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+        signal: AbortSignal.timeout(PAYPAL_TIMEOUT_MS),
+      });
+    } catch (netErr) {
+      if (attempt < maxRetries) {
+        await sleep(backoffMs(attempt, null));
+        continue;
+      }
+      throw new PayPalError(`PayPal request failed or timed out (${(netErr as Error)?.name ?? "network"})`, 504, undefined, undefined);
+    }
+    if (RETRYABLE_STATUS.has(res.status) && attempt < maxRetries) {
+      await sleep(backoffMs(attempt, res.headers.get("retry-after")));
+      continue;
+    }
+    break;
+  }
 
   const debugId = res.headers.get("paypal-debug-id") || undefined;
 

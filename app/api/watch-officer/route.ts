@@ -4,6 +4,7 @@ import { funds, watchOfficerRuns } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { runWatchOfficerAnalysis } from "@/lib/ai/watch-officer/orchestrator";
 import type { WatchOfficerContext, Role } from "@/lib/ai/watch-officer/types";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: NextRequest) {
   try {
@@ -60,10 +61,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("[WATCH_OFFICER_API] Analysis error:", err);
-    return NextResponse.json(
-      { error: err.message || "Failed to execute Watch Officer analysis" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to execute Watch Officer analysis", 500);
   }
 }
 
@@ -111,10 +109,7 @@ export async function GET(req: NextRequest) {
       ],
     });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to fetch Watch Officer status" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to fetch Watch Officer status", 500);
   }
 }
 

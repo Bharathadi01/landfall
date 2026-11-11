@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runTreasuryReconciliation } from "@/lib/treasury/reconciler";
 import { z } from "zod";
+import { safeError } from "@/lib/http/safe-error";
 
 const ReconcileRequestSchema = z.object({
   startDate: z.string().optional(),
@@ -23,8 +24,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(report);
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: msg }, { status: 400 });
+    return safeError(err, "Request failed", 400);
   }
 }
 
@@ -33,8 +33,7 @@ export async function GET() {
     const report = await runTreasuryReconciliation({ actor: "war_room_viewer" });
     return NextResponse.json(report);
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return safeError(err, "Request failed", 500);
   }
 }
 

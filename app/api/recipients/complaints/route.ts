@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerComplaint, type ComplaintCategory } from "@/lib/recipients/complaints";
 import { z } from "zod";
+import { safeError } from "@/lib/http/safe-error";
 
 const SubmitComplaintSchema = z.object({
   householdId: z.string().min(1),
@@ -35,8 +36,7 @@ export async function POST(req: NextRequest) {
       complaint,
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return safeError(err, "Request failed", 500);
   }
 }
 

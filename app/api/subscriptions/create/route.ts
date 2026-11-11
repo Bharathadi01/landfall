@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createSubscription } from "@/lib/paypal/subscriptions";
 import { db } from "@/lib/db/client";
 import { subscriptions } from "@/lib/db/schema";
+import { safeError } from "@/lib/http/safe-error";
 
 const CreateSustainerSchema = z.object({
   planId: z.string(),
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("Create subscription error:", msg);
-    return NextResponse.json({ error: msg }, { status: 400 });
+    return safeError(err, "Request failed", 400);
   }
 }
 

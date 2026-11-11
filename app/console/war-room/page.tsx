@@ -303,7 +303,7 @@ export default function CommandCenterPage() {
 
           <div className="space-y-6 xl:col-span-5">
             <section className="glass p-6" data-reveal>
-              <SectionHeader icon={I.wallet} tone="paypal" title="Where the money sits" right={<Chip tone="accent">Ledger balanced</Chip>} />
+              <SectionHeader icon={I.wallet} tone="paypal" title="Where the money sits" right={<Chip tone="amber">Replay ledger · not checked against PayPal</Chip>} />
               <div className="mt-2 h-[300px]">
                 <AgCharts options={chartOptions} />
               </div>

@@ -4,6 +4,7 @@ import { db } from "@/lib/db/client";
 import { donations } from "@/lib/db/schema";
 import crypto from "crypto";
 import { z } from "zod";
+import { safeError } from "@/lib/http/safe-error";
 
 const RequestSchema = z.object({
   orderId: z.string().min(1),
@@ -50,8 +51,7 @@ export async function POST(req: NextRequest) {
       debugId,
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return safeError(err, "Request failed", 500);
   }
 }
 

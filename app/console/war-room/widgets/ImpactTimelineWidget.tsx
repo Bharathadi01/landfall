@@ -45,7 +45,7 @@ export function ImpactTimelineWidget({
       stageName: "Disbursed to Beneficiary Wallets",
       leadTimeHoursRemaining: "49.2 hrs lead time",
       status: "COMPLETED",
-      description: "Funds credited to verified PayPal recipient accounts for pre-storm fuel, medical batteries, and evacuation supplies.",
+      description: "Funds credited to PayPal recipient accounts for pre-storm fuel, medical batteries, and evacuation supplies.",
     },
     {
       timeOffset: "T - 0 Hours",

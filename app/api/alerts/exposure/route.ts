@@ -4,6 +4,7 @@ import { alerts, households } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { normalizeNWSAlert } from "@/lib/sentinel/normalize";
 import { evaluateHouseholdExposure } from "@/lib/sentinel/exposure";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,9 +68,6 @@ export async function POST(req: NextRequest) {
       evaluation,
     });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to evaluate exposure" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to evaluate exposure", 500);
   }
 }

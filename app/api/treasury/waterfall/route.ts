@@ -5,6 +5,7 @@ import { getAccountBalances } from "@/lib/paypal/reporting";
 import { db } from "@/lib/db/client";
 import { households, stormPledges, subscriptions } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function GET() {
   try {
@@ -77,10 +78,6 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json(
-      { error: msg || "Failed to load treasury waterfall" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to load treasury waterfall", 500);
   }
 }

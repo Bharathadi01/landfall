@@ -3,6 +3,7 @@ import { db } from "@/lib/db/client";
 import { emailVerifications, households } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { verifyEmailToken } from "@/lib/recipients/index";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: Request) {
   try {
@@ -79,9 +80,6 @@ export async function POST(req: Request) {
       email: record.email,
     });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to verify email" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to verify email", 500);
   }
 }

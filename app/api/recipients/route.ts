@@ -5,6 +5,7 @@ import { computeFourChecks, type FourChecks } from "@/lib/recipients/index";
 import { decryptPII } from "@/lib/security/encryption";
 import { logPIIAccess, type Role } from "@/lib/security/rbac";
 import { desc, eq, and } from "drizzle-orm";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function GET(req: Request) {
   try {
@@ -103,9 +104,6 @@ export async function GET(req: Request) {
       recipients: results,
     });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to fetch recipients" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to fetch recipients", 500);
   }
 }

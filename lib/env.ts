@@ -12,7 +12,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_AG_STUDIO_LICENSE: z.string().optional(),
   NEXT_PUBLIC_AG_GRID_LICENSE: z.string().optional(),
   NWS_USER_AGENT: z.string().default("Landfall hackathon app (contact: contact@landfall.local)"),
-  CRON_SECRET: z.string().default("dev-cron-secret"),
+  CRON_SECRET: z.string().optional(), // no default: cron routes fail closed when unset
   JUDGE_MODE_ENABLED: z.string().transform((v) => v === "true").default("true"),
   APP_URL: z.string().url().default("http://127.0.0.1:3000"),
   SANDBOX_RESIDENT_EMAIL: z.string().optional(),

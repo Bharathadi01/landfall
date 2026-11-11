@@ -270,7 +270,7 @@ export async function tryRecordBatchCreation(rec: BatchCreationRecord): Promise<
     return { persisted: true };
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
-    console.error("[payout-store] FAILED to persist batch", rec.paypalBatchId, error);
+    if (!process.env.VITEST) console.error("[payout-store] FAILED to persist batch", rec.paypalBatchId, error);
     return { persisted: false, error };
   }
 }

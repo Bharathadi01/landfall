@@ -4,6 +4,7 @@ import { alerts, activations } from "@/lib/db/schema";
 import { desc, eq, and } from "drizzle-orm";
 import { checkNWSHealth } from "@/lib/sentinel/nws";
 import { isWeatherFeedStale } from "@/lib/sentinel/normalize";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function GET(req: NextRequest) {
   try {
@@ -50,9 +51,6 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to fetch alerts" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to fetch alerts", 500);
   }
 }

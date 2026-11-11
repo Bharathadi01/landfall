@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPasskeyAuthOptionsForPlan } from "@/lib/security/passkeys";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: Request) {
   try {
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
     const options = await getPasskeyAuthOptionsForPlan(planHash);
     return NextResponse.json(options);
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to generate auth options" }, { status: 500 });
+    return safeError(err, "Failed to generate auth options", 500);
   }
 }
 

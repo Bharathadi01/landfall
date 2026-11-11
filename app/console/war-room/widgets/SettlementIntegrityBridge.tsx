@@ -25,10 +25,10 @@ export function SettlementIntegrityBridge() {
             <span className={`h-2 w-2 rounded-full ${reconciled ? "bg-accent" : "bg-danger"}`} />
             Settlement &amp; financial integrity
           </span>
-          <p className="mt-0.5 text-[12.5px] text-ink-3">Ledger vs treasury, with the reserve kept apart</p>
+          <p className="mt-0.5 text-[12.5px] text-ink-3">Replay ledger vs replay treasury (not compared with PayPal), reserve kept apart</p>
         </div>
         <span className={`field-badge ${reconciled ? "field-badge-success" : "field-badge-critical"}`}>
-          {reconciled ? "Ledger balances · 0¢ variance" : "Ledger mismatch — investigate"}
+          {reconciled ? "Replay ledger is internally consistent" : "Replay ledger mismatch — investigate"}
         </span>
       </div>
 

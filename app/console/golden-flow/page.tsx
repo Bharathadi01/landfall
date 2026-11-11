@@ -11,7 +11,6 @@ const STAGE_METADATA: Record<
   number,
   {
     name: string;
-    duration: string;
     inputs: string;
     outputs: string;
     nextAction: string;
@@ -20,7 +19,6 @@ const STAGE_METADATA: Record<
 > = {
   1: {
     name: "Donations in",
-    duration: "4.2s",
     inputs: "Simulated donation (walkthrough); the donate button on the public site creates a real sandbox order",
     outputs: "Treasury Inflow Ledger Entry (Account 1010-PAYPAL-CASH)",
     nextAction: "Evaluate Solvency & Capital Reserve Guardrails",
@@ -28,7 +26,6 @@ const STAGE_METADATA: Record<
   },
   2: {
     name: "Reserve check",
-    duration: "1.1s",
     inputs: "Real-time Treasury Balances, Board-mandated 30% Solvency Reserve",
     outputs: "Tranche 1 allocatable liquidity cap (see the stage detail below)",
     nextAction: "Poll Storm Atlas Real-time NWS Hazard Warnings",
@@ -36,7 +33,6 @@ const STAGE_METADATA: Record<
   },
   3: {
     name: "Storm warning",
-    duration: "2.8s",
     inputs: "NOAA nowCOAST WMS Feed, NWS VTEC Flash Flood / Storm Surge Polygons",
     outputs: "Validated Geospatial Impact Geometry (EPSG:4326 GeoJSON)",
     nextAction: "Execute Point-in-Polygon Household Exposure Evaluation",
@@ -44,7 +40,6 @@ const STAGE_METADATA: Record<
   },
   4: {
     name: "Who is exposed",
-    duration: "3.5s",
     inputs: "Synthetic Recipient Registry (Pinellas County), Impact Polygons",
     outputs: "Confirmed Impacted Roster (5 Households Inside Warning Area)",
     nextAction: "Execute Deterministic Lexicographic Allocation",
@@ -52,7 +47,6 @@ const STAGE_METADATA: Record<
   },
   5: {
     name: "Who gets paid",
-    duration: "1.9s",
     inputs: "Impacted Roster, Vulnerability Matrix (Children <5, Medical, Age)",
     outputs: "Ranked payout plan ($100 base grant per household) + waitlist entries",
     nextAction: "Await Dual-Custody Passkey Cryptographic Sign-off",
@@ -60,7 +54,6 @@ const STAGE_METADATA: Record<
   },
   6: {
     name: "Two-key approval",
-    duration: "5.0s",
     inputs: "SHA-256 Canonical Plan Hash, Fiduciary & Operations Passkeys",
     outputs: "Signed Multi-signature Authorisation Ticket (SecP256R1)",
     nextAction: "Dispatch Idempotent PayPal Payouts Batch",
@@ -68,7 +61,6 @@ const STAGE_METADATA: Record<
   },
   7: {
     name: "PayPal payout",
-    duration: "3.2s",
     inputs: "Approved Plan Manifest, Client Credentials Bearer Token",
     outputs: "PayPal Payouts Batch ID & Idempotency Key",
     nextAction: "Receive Webhook & Trigger Double-Entry Settlement",
@@ -76,7 +68,6 @@ const STAGE_METADATA: Record<
   },
   8: {
     name: "Proof & reconcile",
-    duration: "0.8s",
     inputs: "Simulated webhook event + the rehearsal batch ledger journal",
     outputs: "Balanced rehearsal ledger (0¢ discrepancy)",
     nextAction: "Archive Immutable Evidence Bundle for Public Accountability",
@@ -98,7 +89,7 @@ const STAGE_VISUAL: Record<number, { icon: React.ComponentType<any>; tone: strin
 export default function GoldenWorkflowPage() {
   const [workflow, setWorkflow] = useState<GoldenWorkflowState | null>(null);
   const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState<number>(8);
+  const [currentStep, setCurrentStep] = useState<number>(0);
   const [selectedStage, setSelectedStage] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
 
@@ -126,9 +117,7 @@ export default function GoldenWorkflowPage() {
     }
   }, []);
 
-  useEffect(() => {
-    runWorkflow(8);
-  }, [runWorkflow]);
+  // Deliberately NO auto-run on mount: nothing happens until the user presses a button.
 
   // Arrow key navigation between stages
   useEffect(() => {
@@ -158,7 +147,7 @@ export default function GoldenWorkflowPage() {
           tone="accent"
           title="From donation to doorstep,"
           accent="one step at a time."
-          description="Walk the whole Milton response: money in, storm warning, who gets paid, AI check, two approvals, PayPal payout and proof. Press “Run all” to watch it play."
+          description="Rehearse the whole Milton response: money in, storm warning, who gets paid, AI check, two approvals, PayPal payout and proof. This is a safe rehearsal — no PayPal request is made. Real payouts are sent from a case, after two real approvals."
         />
 
         {/* Action Controls & Presentation Jump Menu */}
@@ -188,7 +177,7 @@ export default function GoldenWorkflowPage() {
           </button>
 
           <button
-            onClick={() => runWorkflow(currentStep < 8 ? currentStep + 1 : 1)}
+            onClick={() => runWorkflow(currentStep >= 1 && currentStep < 8 ? currentStep + 1 : 1)}
             disabled={loading}
             className="field-btn field-btn-secondary text-xs flex items-center gap-1.5 font-medium"
           >
@@ -208,7 +197,7 @@ export default function GoldenWorkflowPage() {
             className="field-btn field-btn-primary text-xs flex items-center gap-1.5"
           >
             <I.bolt className="w-3.5 h-3.5" />
-            {loading ? "Running…" : "Run all 8 steps"}
+            {loading ? "Running…" : "Rehearse all 8 steps"}
           </button>
         </div>
       </div>
@@ -235,6 +224,7 @@ export default function GoldenWorkflowPage() {
             const isSelected = stageNum === selectedStage;
             const stageData = workflow?.stages.find((s) => s.stageNumber === stageNum);
             const isPassed = stageData?.status === "COMPLETED";
+            const isFailed = stageData?.status === "FAILED";
             const metaInfo = STAGE_METADATA[stageNum];
             const vis = STAGE_VISUAL[stageNum];
             const Icon = vis.icon;
@@ -258,13 +248,17 @@ export default function GoldenWorkflowPage() {
                   </span>
                   {isPassed ? (
                     <I.done className="h-4 w-4 text-accent-strong" />
+                  ) : isFailed ? (
+                    <I.warning className="h-4 w-4 text-danger" />
                   ) : (
                     <span className="font-mono text-[10px] text-ink-3">0{stageNum}</span>
                   )}
                 </div>
                 <div>
                   <div className="text-[13px] font-semibold leading-tight text-ink">{metaInfo?.name || `Stage ${stageNum}`}</div>
-                  <div className={`mt-1 text-[11px] ${isPassed ? "text-ink-3" : "text-amber"}`}>{isPassed ? `Done · ${metaInfo?.duration}` : "Waiting"}</div>
+                  <div className={`mt-1 text-[11px] ${isPassed ? "text-ink-3" : isFailed ? "text-danger" : "text-amber"}`}>
+                    {isPassed ? (stageData?.durationMs != null ? `Done · ${(stageData.durationMs / 1000).toFixed(1)}s` : "Done") : isFailed ? "Failed" : workflow ? "Not reached" : "Ready"}
+                  </div>
                 </div>
               </button>
             );
@@ -292,7 +286,7 @@ export default function GoldenWorkflowPage() {
                   Step {activeStageData.stageNumber} of 8
                 </span>
                 <span className="field-badge-neutral font-mono text-[11px]">
-                  Duration: {meta.duration}
+                  Rehearsal
                 </span>
               </div>
               <h2 className="text-title-2 text-ink">

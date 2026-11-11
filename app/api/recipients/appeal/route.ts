@@ -3,6 +3,7 @@ import { createAppealRecord, type AppealInput } from "@/lib/recipients/index";
 import { db } from "@/lib/db/client";
 import { appeals, households } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: Request) {
   try {
@@ -51,10 +52,7 @@ export async function POST(req: Request) {
       message: "Appeal submitted. A human coordinator will review within 24 hours.",
     });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to submit appeal" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to submit appeal", 500);
   }
 }
 
@@ -74,9 +72,6 @@ export async function GET(req: Request) {
     const allAppeals = await db.select().from(appeals);
     return NextResponse.json({ appeals: allAppeals });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to list appeals" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to list appeals", 500);
   }
 }

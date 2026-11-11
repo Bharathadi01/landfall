@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loadMiltonHistoricalReplay } from "@/lib/sentinel/replay";
 import { ingestAlertRecord, evaluateAndActivateFundResponse } from "@/lib/sentinel/activations";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,10 +47,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("[SENTINEL_REPLAY] Error executing historical replay:", err);
-    return NextResponse.json(
-      { error: err.message || "Failed to execute historical replay" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to execute historical replay", 500);
   }
 }
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { safeError } from "@/lib/http/safe-error";
 import {
   runStormRehearsal,
   REHEARSAL_STORMS,
@@ -26,10 +27,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("[REHEARSAL_API] Error running storm rehearsal:", err);
-    return NextResponse.json(
-      { error: err.message || "Failed to run storm rehearsal" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to run storm rehearsal", 500);
   }
 }
 

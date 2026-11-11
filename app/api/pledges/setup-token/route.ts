@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createVaultSetupToken } from "@/lib/paypal/vault";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: Request) {
   try {
@@ -42,9 +43,6 @@ export async function POST(req: Request) {
       throw err;
     }
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to create vault setup token" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to create vault setup token", 500);
   }
 }

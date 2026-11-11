@@ -8,8 +8,9 @@ const RequestSchema = z.object({
 });
 
 /**
- * Running the workflow can submit a real PayPal Sandbox payout batch (stage 7), so it is
- * POST-only (never a crawlable GET), switchable off, and rate limited per client.
+ * This endpoint only ever REHEARSES the workflow: stage 7 uses a simulated PayPal sender, so no request is
+ * made to PayPal and nothing is persisted. Real payouts go through two server-verified approvals.
+ * Still POST-only (never a crawlable GET), switchable off, and rate limited per client.
  */
 const WINDOW_MS = 60_000;
 const MAX_RUNS_PER_WINDOW = 8;
@@ -36,11 +37,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Too many workflow runs; try again in a minute" }, { status: 429 });
   }
   try {
-    let body = {};
-    try {
-      body = await req.json();
-    } catch {
-      // Body may be empty for default full run
+    // Empty body = default rehearsal. A body that is present but not valid JSON is an error, not "run everything".
+    let body: unknown = {};
+    const text = await req.text();
+    if (text.trim() !== "") {
+      try {
+        body = JSON.parse(text);
+      } catch {
+        return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 });
+      }
     }
 
     const parsed = RequestSchema.safeParse(body);

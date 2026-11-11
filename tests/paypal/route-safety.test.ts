@@ -33,3 +33,17 @@ describe("golden workflow route safety (D2)", () => {
     delete process.env.JUDGE_MODE_ENABLED;
   });
 });
+
+describe("golden workflow is a rehearsal (audit C1)", () => {
+  it("rejects a malformed JSON body instead of treating it as 'run everything'", async () => {
+    run.mockClear();
+    const bad = new NextRequest("http://localhost/api/workflow/golden", {
+      method: "POST",
+      headers: { "x-forwarded-for": "7.7.7.7" },
+      body: '{"targetStage": oops',
+    });
+    const res = await POST(bad);
+    expect(res.status).toBe(400);
+    expect(run).not.toHaveBeenCalled();
+  });
+});

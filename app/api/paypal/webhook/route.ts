@@ -7,6 +7,7 @@ import { refreshPayoutBatch } from "@/lib/payouts/refresh";
 import { toCents } from "@/lib/payouts/status";
 import { recordLedgerTransaction, isTransactionRecorded } from "@/lib/ledger/index";
 import { eq } from "drizzle-orm";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: NextRequest) {
   try {
@@ -297,6 +298,6 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("Webhook processing error:", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return safeError(err, "Request failed", 500);
   }
 }

@@ -233,8 +233,8 @@ export function PasskeyApprovalModal({
             <div className="flex items-center gap-3 rounded-2xl border border-accent/40 bg-accent/10 p-4 animate-field-scale" style={{ boxShadow: "var(--glow-accent)" }}>
               <span className="icon-tile tone-accent"><I.send /></span>
               <div>
-                <div className="text-[14px] font-semibold text-ink">Plan released to PayPal Payouts</div>
-                <div className="text-[12px] text-ink-3">Both signatures verified against the plan hash.</div>
+                <div className="text-[14px] font-semibold text-ink">Both approvals recorded in this session</div>
+                <div className="text-[12px] text-ink-3">Demo approvals: nothing was sent to PayPal, and the server did not verify these signatures.</div>
               </div>
             </div>
           ) : (

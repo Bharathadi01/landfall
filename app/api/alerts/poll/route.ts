@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { env } from "@/lib/env";
+import { verifyCronSecret } from "@/lib/auth/cron";
 import { fetchLiveNWSAlerts, checkNWSHealth } from "@/lib/sentinel/nws";
 import { ingestAlertRecord, evaluateAndActivateFundResponse } from "@/lib/sentinel/activations";
 
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  const cronSecretHeader = req.headers.get("x-cron-secret");
-  const token = authHeader?.replace("Bearer ", "") || cronSecretHeader;
-
-  if (env.CRON_SECRET && token !== env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = verifyCronSecret(req);
+  if (denied) return denied;
 
   const startTime = Date.now();
   try {

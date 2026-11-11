@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { stormPledges } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: Request) {
   try {
@@ -27,10 +28,7 @@ export async function POST(req: Request) {
       pledge: revoked,
     });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to revoke storm pledge" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to revoke storm pledge", 500);
   }
 }
 

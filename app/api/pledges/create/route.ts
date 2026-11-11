@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { exchangeSetupTokenForPaymentToken } from "@/lib/paypal/vault";
 import { db } from "@/lib/db/client";
 import { stormPledges, pledgeConsents } from "@/lib/db/schema";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: Request) {
   try {
@@ -70,9 +71,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, pledge: created, consent });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to create storm pledge" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to create storm pledge", 500);
   }
 }

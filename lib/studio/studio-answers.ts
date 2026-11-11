@@ -288,7 +288,7 @@ function answerCore(query: string): string | null {
       `• Reserve Headroom: ${s.headroom_usd >= 0 ? "+" : "−"}${usd(Math.abs(s.headroom_usd))} versus the floor\n` +
       `• Allocatable Cash: ${usd(s.allocatable_usd)}\n` +
       `• Needed to re-issue failed/returned payouts: ${usd(s.required_usd)} (${s.coverage_ratio}× coverage)\n` +
-      `• Ledger: 100% matched with 0¢ variance across ${studioLedgerReconciliation.length} accounts.`
+      `• Replay ledger: internally consistent (0¢ variance, not compared with PayPal) across ${studioLedgerReconciliation.length} accounts.`
     );
   }
 

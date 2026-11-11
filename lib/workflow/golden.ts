@@ -47,11 +47,14 @@ export interface GoldenWorkflowStage {
   summary: string;
   details: Record<string, any>;
   error?: string;
+  /** Measured wall-clock time between the previous stage finishing and this one finishing. */
+  durationMs?: number;
 }
 
 export interface GoldenWorkflowState {
   workflowId: string;
-  mode: "SANDBOX_REHEARSAL" | "PRODUCTION";
+  /** The guided flow is always a rehearsal: no PayPal call, no persistence. Live payouts go through a two-person proposal. */
+  mode: "SANDBOX_REHEARSAL";
   startedAt: string;
   completedAt?: string;
   currentStage: number;
@@ -66,7 +69,17 @@ import { SYNTHETIC_HOUSEHOLDS, DEFAULT_POLICY_CONFIG } from "@/lib/fixtures/hous
 export { SYNTHETIC_HOUSEHOLDS, DEFAULT_POLICY_CONFIG };
 
 /**
- * Runs the end-to-end 8-stage Golden Workflow synchronously or step-by-step.
+ * Rehearsal payout sender: returns a clearly simulated PayPal response and never touches the network.
+ * Real payouts are only ever sent by the Treasurer after two server-verified approvals (see lib/proposals).
+ */
+export async function rehearsalPayoutSender(params: { sender_batch_header?: { sender_batch_id?: string } }) {
+  const tag = crypto.createHash("sha256").update(String(params?.sender_batch_header?.sender_batch_id ?? "")).digest("hex").slice(0, 10).toUpperCase();
+  return { data: { batch_header: { payout_batch_id: `REHEARSAL-${tag}`, batch_status: "SIMULATED" } } };
+}
+
+/**
+ * Runs the end-to-end 8-stage Golden Workflow synchronously or step-by-step — as a REHEARSAL.
+ * Stage 6 uses labelled rehearsal approvals and stage 7 a simulated PayPal sender; nothing is persisted.
  */
 export async function executeGoldenWorkflow({
   targetStage = 8,
@@ -333,19 +346,11 @@ export async function executeGoldenWorkflow({
       planHash: planHashValue,
     };
 
+    // REHEARSAL approvals: labelled stand-ins so the deterministic two-key rules can be exercised.
+    // They are never accepted for a live payout (live approvals are loaded from the database by the proposal flow).
     approvals = [
-      {
-        approverId: "ops_coordinator_01",
-        approverRole: "coordinator",
-        planHash: planHashValue,
-        passkeySignature: `sig_ops_${crypto.randomBytes(16).toString("hex")}`,
-      },
-      {
-        approverId: "fiduciary_lead_01",
-        approverRole: "finance",
-        planHash: planHashValue,
-        passkeySignature: `sig_fin_${crypto.randomBytes(16).toString("hex")}`,
-      },
+      { approverId: "rehearsal_coordinator", approverRole: "coordinator", planHash: planHashValue, passkeySignature: "REHEARSAL_NOT_A_SIGNATURE" },
+      { approverId: "rehearsal_finance", approverRole: "finance", planHash: planHashValue, passkeySignature: "REHEARSAL_NOT_A_SIGNATURE" },
     ];
 
     stages[5].status = "COMPLETED";
@@ -355,10 +360,11 @@ export async function executeGoldenWorkflow({
       planHash: planHashValue,
       itemCount: payoutPlan.items.length,
       totalAmountFormatted: `$${(payoutPlan.totalAmountCents / 100).toFixed(2)}`,
-      key1: `Dr. Sarah Lin [DEMO PERSONA] (ID: ${approvals[0].approverId}, Role: ${approvals[0].approverRole})`,
-      key2: `Marcus Vance [DEMO PERSONA] (ID: ${approvals[1].approverId}, Role: ${approvals[1].approverRole})`,
+      key1: "Rehearsal stand-in · Relief coordinator role",
+      key2: "Rehearsal stand-in · Finance role",
+      approvalMode: "REHEARSAL — not real approvals",
     };
-    stages[5].summary = `Dual-custody verified: Plan hash ${planHashValue.substring(0, 16)}... locked and signed by Operations and Finance leads.`;
+    stages[5].summary = `Plan hash ${planHashValue.substring(0, 16)}… locked. In this rehearsal the two approvals are labelled stand-ins; a live payout needs two real, server-verified approvals.`;
   }
 
   // --- STAGE 7: Hardened Treasurer PayPal Payout Submission ---
@@ -379,10 +385,10 @@ export async function executeGoldenWorkflow({
       plan: payoutPlan,
       approvals,
       context: treasurerContext,
+      // Rehearsal: never call PayPal, never persist. (Tests may inject their own sender.)
+      payoutSender: mockPayPalPayoutSender ?? rehearsalPayoutSender,
+      recordBatch: async () => ({ persisted: false, error: "rehearsal — not recorded" }),
     };
-    if (mockPayPalPayoutSender) {
-      execParams.payoutSender = mockPayPalPayoutSender;
-    }
 
     executionResult = await treasurerInstance.executePlan(execParams);
 
@@ -398,7 +404,8 @@ export async function executeGoldenWorkflow({
         idempotencyKey: `req_${payoutPlan.id}`,
         recordedDurably: executionResult.persisted === true,
       };
-      stages[6].summary = `Hardened Treasurer submitted batch ${executionResult.paypalBatchId} (${payoutPlan.items.length} items, ${stages[6].details.disbursedAmount}) to PayPal.`;
+      stages[6].details.paypalCall = mockPayPalPayoutSender ? "test sender" : "SIMULATED — no PayPal request was made";
+      stages[6].summary = `Rehearsal: the Treasurer built an idempotent ${payoutPlan.items.length}-item batch (${stages[6].details.disbursedAmount}) and passed every pre-condition. No PayPal request was made; a live payout is sent only after two real approvals.`;
     } else {
       stages[6].status = "FAILED";
       stages[6].error = executionResult.error;
@@ -449,6 +456,16 @@ export async function executeGoldenWorkflow({
       doubleEntryEquation: `Dr paid_out $${(check.totalDebits / 100).toFixed(2)} = Cr paypal_available $${(check.totalCredits / 100).toFixed(2)} (rehearsal journal, not posted)`,
     };
     stages[7].summary = `Rehearsal journal for ${payoutPlan?.items.length ?? 0} items balances (debits ${check.totalDebits}¢ = credits ${check.totalCredits}¢). Nothing was posted and no PayPal status has been observed yet: the webhook here is simulated, and real item statuses arrive via the verified webhook receiver or a status refresh.`;
+  }
+
+  // Measured durations (replaces the hardcoded labels the page used to show)
+  let prev = Date.parse(startedAt);
+  for (const st of stages) {
+    if (st.timestamp) {
+      const t = Date.parse(st.timestamp);
+      st.durationMs = Math.max(0, t - prev);
+      prev = t;
+    }
   }
 
   return {

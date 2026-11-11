@@ -3,6 +3,7 @@ import { db } from "@/lib/db/client";
 import { households, locationHistory } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { encryptPII } from "@/lib/security/encryption";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: Request) {
   try {
@@ -73,9 +74,6 @@ export async function POST(req: Request) {
       message: "Household eligibility reconfirmed for upcoming storm season.",
     });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to reconfirm household" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to reconfirm household", 500);
   }
 }

@@ -16,6 +16,7 @@ import {
   emailVerifications,
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { safeError } from "@/lib/http/safe-error";
 
 export async function POST(req: Request) {
   try {
@@ -151,9 +152,6 @@ export async function POST(req: Request) {
       ...(process.env.NODE_ENV !== "production" && emailVerificationToken ? { devEmailToken: emailVerificationToken } : {}),
     });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Failed to enroll household" },
-      { status: 500 }
-    );
+    return safeError(err, "Failed to enroll household", 500);
   }
 }
