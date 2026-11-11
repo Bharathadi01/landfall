@@ -13,6 +13,8 @@ html {
 }
 
 body {
+  /* A stray few pixels (a badge, a wide table cell) must never make a phone page scroll sideways; `clip` keeps sticky headers working. */
+  overflow-x: clip;
   color: rgb(var(--c-ink));
   background-color: rgb(var(--c-canvas));
   font-family: var(--font-sans);

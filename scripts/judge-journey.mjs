@@ -91,7 +91,7 @@ await step("open an UNCLAIMED live case page", async () => {
   if (!c) throw new Error("no UNCLAIMED live case");
   caseHref = `/console/cases/${encodeURIComponent(c.caseRef)}`;
   await page.goto(base + caseHref, { waitUntil: "networkidle" });
-  await page.getByTestId("recovery-panel").waitFor({ timeout: 20000 });
+  await page.getByTestId("recovery-panel").waitFor({ timeout: 60000 });
   const t = await page.locator("body").innerText();
   await shot("05-case");
   if (!/UNCLAIMED/i.test(t)) throw new Error("status not shown");

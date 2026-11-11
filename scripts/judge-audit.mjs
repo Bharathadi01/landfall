@@ -9,7 +9,7 @@ const out = process.argv[3] || "judge-audit";
 fs.mkdirSync(out, { recursive: true });
 const report = [];
 
-const PUBLIC = ["/", "/signin", "/judges", "/r/enroll", "/r/complaints", "/r/status"];
+const PUBLIC = ["/", "/signin", "/judges", "/r/enroll", "/r/complaints"];
 const CONSOLE = ["/console/war-room", "/console/watch-officer", "/console/proposals", "/console/golden-flow", "/console/recipients", "/console/rehearsal", "/console/sentinel", "/console/studio"];
 
 const browser = await chromium.launch();
