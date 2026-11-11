@@ -232,7 +232,7 @@ export default function StormIntelligenceConsolePage() {
               No active warnings detected for {selectedFund.name}. Click &quot;Replay Milton 2024&quot; above to simulate historical hurricane alerts.
             </div>
           ) : (
-            <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
+            <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1" tabIndex={0} role="region" aria-label="Scrollable list">
               {displayedAlerts.map((alert) => {
                 const isSelected = selectedAlert?.id === alert.id;
                 const isWarning = alert.significance === "W";

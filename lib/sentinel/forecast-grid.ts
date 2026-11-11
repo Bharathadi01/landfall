@@ -11,6 +11,8 @@ export interface ForecastGrid {
   source: "Open-Meteo";
   fetchedAt: string;
   error?: string;
+  /** True when this is the last good grid served because Open-Meteo is currently refusing requests. */
+  stale?: boolean;
   /** [west, south, east, north] */
   bbox: [number, number, number, number];
   nx: number;
@@ -35,6 +37,9 @@ export const GRID_HOURS = GRID_PAST_HOURS + 1 + GRID_AHEAD_HOURS;
 
 const TTL_MS = 30 * 60_000;
 let cache: { at: number; value: ForecastGrid } | null = null;
+/** Last good grid, kept with no expiry: an old forecast, labelled stale, beats an empty map when the upstream rate-limits a shared host. */
+let lastGood: ForecastGrid | null = null;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function gridAxes(bbox = GRID_BBOX, step = GRID_STEP_DEG) {
   const [w, s, e, n] = bbox;
@@ -109,10 +114,16 @@ export async function getForecastGrid(): Promise<ForecastGrid> {
   });
 
   try {
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?${q.toString()}`, {
-      signal: AbortSignal.timeout(20_000),
-      headers: { "User-Agent": "Landfall/1.0 (relief-fund weather desk)" },
-    });
+    const call = () =>
+      fetch(`https://api.open-meteo.com/v1/forecast?${q.toString()}`, {
+        signal: AbortSignal.timeout(20_000),
+        headers: { "User-Agent": "Landfall/1.0 (relief-fund weather desk)" },
+      });
+    let res = await call();
+    if (res.status === 429) {
+      await sleep(2500); // one polite retry
+      res = await call();
+    }
     if (!res.ok) throw new Error(`Open-Meteo responded ${res.status}`);
     const json = (await res.json()) as OpenMeteoPoint | OpenMeteoPoint[];
     const points = Array.isArray(json) ? json : [json];
@@ -120,9 +131,16 @@ export async function getForecastGrid(): Promise<ForecastGrid> {
     const start = Math.max(0, Math.floor((Date.now() - firstMs) / 3_600_000) - GRID_PAST_HOURS);
     const value = assembleGrid(points, lngs, lats, GRID_BBOX, GRID_HOURS, start);
     cache = { at: Date.now(), value };
+    lastGood = value;
     return value;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Open-Meteo unavailable";
+    if (lastGood) {
+      // Back off for a few minutes instead of hammering a rate-limited upstream, and say the data is old.
+      const stale = { ...lastGood, stale: true, error: message };
+      cache = { at: Date.now() - TTL_MS + 5 * 60_000, value: stale };
+      return stale;
+    }
     return {
       state: "error",
       source: "Open-Meteo",
@@ -139,4 +157,5 @@ export async function getForecastGrid(): Promise<ForecastGrid> {
 
 export function __resetForecastGridCache() {
   cache = null;
+  lastGood = null;
 }

@@ -15,13 +15,18 @@ import { AgStudioLicenseManager } from "ag-studio";
 
 let registered = false;
 
+/** A key pasted into a hosting dashboard often arrives wrapped in quotes or with stray whitespace/newlines. */
+export const cleanKey = (v: string | undefined) => (v ?? "").trim().replace(/^["']+|["']+$/g, "").replace(/[\r\n]+/g, " ").trim();
+
 export function registerAgLicenses(): { grid: boolean; studio: boolean } {
-  const studioKey = process.env.NEXT_PUBLIC_AG_STUDIO_LICENSE || process.env.NEXT_PUBLIC_AG_STUDIO_LICENSE_KEY || "";
-  const gridKey = process.env.NEXT_PUBLIC_AG_GRID_LICENSE || "";
+  const studioKey = cleanKey(process.env.NEXT_PUBLIC_AG_STUDIO_LICENSE || process.env.NEXT_PUBLIC_AG_STUDIO_LICENSE_KEY);
+  const gridKey = cleanKey(process.env.NEXT_PUBLIC_AG_GRID_LICENSE);
+  // Render forms need *some* value, so a placeholder like "x" is treated as "no key".
+  const gridValid = gridKey.length > 20;
   if (!registered) {
     registered = true;
-    if (gridKey) LicenseManager.setLicenseKey(gridKey);
+    if (gridValid) LicenseManager.setLicenseKey(gridKey);
     if (studioKey) AgStudioLicenseManager.setLicenseKey(studioKey);
   }
-  return { grid: !!gridKey, studio: !!studioKey };
+  return { grid: gridValid, studio: !!studioKey };
 }

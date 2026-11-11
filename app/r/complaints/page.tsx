@@ -483,6 +483,7 @@ export default function ComplaintsAppealsPage() {
               <div>
                 <label className="field-label block">{t.category} *</label>
                 <select
+                  aria-label={t.category}
                   value={category}
                   onChange={(e) => setCategory(e.target.value as ComplaintCategory)}
                   className="field-input w-full mt-1 text-xs bg-surface"

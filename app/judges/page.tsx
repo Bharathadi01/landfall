@@ -56,20 +56,20 @@ export default async function JudgesPage() {
           { n: "2", t: "Open a case", d: "Command Center → Cases. Open the unclaimed payment and press “Investigate with AI”.", href: "/console/war-room", cta: "Open Command Center" },
           { n: "3", t: "Be the resident", d: "Use a reference and code below on the resident page. Your answer appears to the coordinator.", href: "/r/enroll", cta: "Open resident page" },
         ].map((s) => (
-          <GlassPane key={s.n} level={2}>
+          <li key={s.n} className="list-none"><GlassPane level={2}>
             <div className="font-mono text-[11px] text-ink-3">STEP {s.n}</div>
             <div className="mt-1 text-[16px] font-semibold tracking-[-0.02em] text-ink">{s.t}</div>
             <p className="mt-1 text-[13px] text-ink-2">{s.d}</p>
             <div className="mt-4">
               <Button href={s.href} variant="glass" size="sm" trailing={<I.arrowRight />}>{s.cta}</Button>
             </div>
-          </GlassPane>
+          </GlassPane></li>
         ))}
       </ol>
 
       <h2 className="mt-12 text-title-3 text-ink">Resident test households</h2>
       <p className="mt-1 text-[13px] text-ink-3">Reference + 6-digit code. The code proves you are that household; the server returns only that household’s record.</p>
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]">
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]" tabIndex={0} role="region" aria-label="Scrollable table">
         <table className="w-full min-w-[640px] text-left text-[13px]">
           <thead className="bg-white/[0.03] text-ink-3">
             <tr><th className="p-3 font-medium">Household</th><th className="p-3 font-medium">Reference</th><th className="p-3 font-medium">Code</th><th className="p-3 font-medium">What to try</th></tr>
@@ -110,7 +110,7 @@ export default async function JudgesPage() {
       )}
 
       <h2 className="mt-12 text-title-3 text-ink">What is real, and what is not</h2>
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]">
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]" tabIndex={0} role="region" aria-label="Scrollable table">
         <table className="w-full min-w-[640px] text-left text-[13px]">
           <tbody className="divide-y divide-white/[0.06] text-ink-2">
             {[
@@ -127,7 +127,7 @@ export default async function JudgesPage() {
         </table>
       </div>
       <p className="mt-6 text-[12px] text-ink-3">
-        Tip: the server may take ~30 s to wake on the first visit. <Link className="text-accent-strong hover:underline" href="/">Back to the site</Link>.
+        Tip: the server may take ~30 s to wake on the first visit. <Link className="text-accent-strong underline underline-offset-2" href="/">Back to the site</Link>.
       </p>
     </div>
   );

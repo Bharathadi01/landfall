@@ -10,8 +10,9 @@ export async function GET(req: NextRequest) {
   if (limited) return limited;
 
   const grid = await getForecastGrid();
+  // An upstream outage is part of the payload (state: "error" / stale: true), not an HTTP failure: the page shows
+  // "forecast unavailable" instead of a red console error, and the CDN doesn't cache the failure for long.
   return NextResponse.json(grid, {
-    status: grid.state === "error" ? 502 : 200,
-    headers: { "Cache-Control": "public, max-age=300, s-maxage=300" },
+    headers: { "Cache-Control": grid.state === "error" ? "public, max-age=30" : "public, max-age=300, s-maxage=300" },
   });
 }

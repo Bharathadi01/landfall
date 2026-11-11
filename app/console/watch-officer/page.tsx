@@ -252,7 +252,7 @@ export default function WatchOfficerConsolePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Quadrant 1: Verified Facts */}
               <div className="field-paper p-5 space-y-3 border-t-4 border-t-accent">
-                <div className="flex items-center justify-between border-b border-line pb-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
                     <I.done className="w-4 h-4 text-accent" />
                     <h3 className="text-sm font-serif font-bold text-ink">
@@ -284,7 +284,7 @@ export default function WatchOfficerConsolePage() {
 
               {/* Quadrant 2: Working Hypotheses */}
               <div className="field-paper p-5 space-y-3 border-t-4 border-t-paypal">
-                <div className="flex items-center justify-between border-b border-line pb-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
                     <I.layers className="w-4 h-4 text-paypal" />
                     <h3 className="text-sm font-serif font-bold text-ink">
@@ -318,7 +318,7 @@ export default function WatchOfficerConsolePage() {
 
               {/* Quadrant 3: Key Unknowns */}
               <div className="field-paper p-5 space-y-3 border-t-4 border-t-amber">
-                <div className="flex items-center justify-between border-b border-line pb-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
                     <I.help className="w-4 h-4 text-amber" />
                     <h3 className="text-sm font-serif font-bold text-ink">
@@ -358,7 +358,7 @@ export default function WatchOfficerConsolePage() {
 
               {/* Quadrant 4: Human Action Required */}
               <div className="field-paper p-5 space-y-3 border-t-4 border-t-storm">
-                <div className="flex items-center justify-between border-b border-line pb-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2.5">
                   <div className="flex items-center gap-2">
                     <I.people className="w-4 h-4 text-storm" />
                     <h3 className="text-sm font-serif font-bold text-ink">
@@ -452,7 +452,7 @@ export default function WatchOfficerConsolePage() {
                 Each reference below names the source system, its verification status, and when it was read.
               </p>
 
-              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1" tabIndex={0} role="region" aria-label="Scrollable list">
                 {analysisData?.evidenceReferences?.map((ev: any, i: number) => (
                   <div
                     key={i}
