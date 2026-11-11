@@ -1,5 +1,6 @@
 import { db } from "./client";
 import { auditEvents } from "./schema";
+import { redactAuditPayload } from "./audit-redact";
 
 export async function logAuditEvent({
   actor,
@@ -18,8 +19,9 @@ export async function logAuditEvent({
     await db.insert(auditEvents).values({
       actor,
       action,
-      requestRedacted: requestRedacted ? (requestRedacted as Record<string, unknown>) : null,
-      responseRedacted: responseRedacted ? (responseRedacted as Record<string, unknown>) : null,
+      // Recipient addresses and email-like values never reach the log (see audit-redact.ts).
+      requestRedacted: requestRedacted ? (redactAuditPayload(requestRedacted) as Record<string, unknown>) : null,
+      responseRedacted: responseRedacted ? (redactAuditPayload(responseRedacted) as Record<string, unknown>) : null,
       debugId,
     });
   } catch (err) {

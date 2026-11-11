@@ -43,7 +43,6 @@ const NAV: { group: string; items: NavItem[] }[] = [
     items: [
       { label: "AI Watch Officer", href: "/console/watch-officer", icon: I.aiAdvisor, tone: "ai", hint: "Read-only briefing & investigation" },
       { label: "Households", href: "/console/recipients", icon: I.household, tone: "money", hint: "Enrolled residents & priority" },
-      { label: "Money Trail", href: "/spike", icon: I.ledger, tone: "paypal", hint: "Every PayPal dollar, reconciled" },
     ],
   },
 ];
@@ -78,7 +77,7 @@ const useIso = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 function useVariant(pathname: string): Variant {
   return useMemo(() => {
-    if (pathname.startsWith("/console") || pathname === "/spike") return "OPERATIONS";
+    if (pathname.startsWith("/console")) return "OPERATIONS";
     if (pathname.startsWith("/r/")) return "RESIDENT";
     return "PUBLIC";
   }, [pathname]);
