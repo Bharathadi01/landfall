@@ -4,6 +4,7 @@ import { Button, GlassPane, Tag } from "@/components/ui";
 import { PERSONAS } from "@/lib/auth/personas";
 import { residentCode } from "@/lib/auth/resident-code";
 import { RELIEF_CASES } from "@/lib/relief/cases";
+import { getLiveSnapshot } from "@/lib/relief/live-cases.server";
 import { demoKeyEnabled, demoPin } from "@/lib/security/demo-key";
 
 export const metadata = { title: "Judge test card · Landfall" };
@@ -17,7 +18,7 @@ export const dynamic = "force-dynamic";
 const FEATURED = [
   { hh: "hh_tbw_002", why: "UNCLAIMED — PayPal says sent, the resident hasn't claimed it. Try “I can’t get to it”." },
   { hh: "hh_tbw_001", why: "SUCCESS — PayPal credited the money. Try “I received it”: the coordinator sees it as resident-reported." },
-  { hh: "hh_tbw_005", why: "ONHOLD — PayPal is reviewing the payment." },
+  { hh: "hh_tbw_005", why: "Another payment: try “I can’t get to it” or report that you can’t use PayPal." },
 ];
 
 export default async function JudgesPage() {
@@ -29,15 +30,23 @@ export default async function JudgesPage() {
       </div>
     );
   }
+  // Statuses come from the real stored PayPal records when they exist (Live Sandbox); otherwise the replay data, labelled.
+  let live: Awaited<ReturnType<typeof getLiveSnapshot>> | null = null;
+  try {
+    const snap = await getLiveSnapshot();
+    live = snap.hasData ? snap : null;
+  } catch {
+    live = null;
+  }
   const featured = await Promise.all(
     FEATURED.map(async (f) => {
-      const c = RELIEF_CASES.find((x) => x.householdRef === f.hh);
-      return { ...f, caseRef: c?.caseRef ?? f.hh, name: c?.resident ?? f.hh, status: c?.status ?? "", code: await residentCode(f.hh) };
+      const c = (live?.cases ?? RELIEF_CASES).find((x) => x.householdRef === f.hh);
+      return { ...f, caseRef: c?.caseRef ?? f.hh, name: c?.resident ?? f.hh, status: c ? `${c.status} · ${live ? "live PayPal Sandbox" : "replay data"}` : "", code: await residentCode(f.hh) };
     })
   );
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
+    <div className="mx-auto max-w-5xl px-4 pb-14 pt-24 sm:pt-28">
       <div className="flex flex-wrap items-center gap-2">
         <Tag tone="amber" solid>JUDGE TEST CARD</Tag>
         <Tag tone="paypal">PayPal Sandbox</Tag>

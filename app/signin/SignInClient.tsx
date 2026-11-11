@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { I } from "@/components/icons";
 import { Button, GlassPane, Tag } from "@/components/ui";
 import { PERSONAS } from "@/lib/auth/personas";
@@ -15,7 +15,6 @@ function safeNext(next: string | null): string {
 const ROLE_ICON = { coordinator: I.person, finance: I.treasury, viewer: I.view } as const;
 
 export function SignInClient() {
-  const router = useRouter();
   const params = useSearchParams();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -30,8 +29,9 @@ export function SignInClient() {
         setError(j.message ?? "Could not sign in. Try again.");
         return;
       }
-      router.push(safeNext(params.get("next")));
-      router.refresh();
+      // Full navigation, not router.push: the client router may hold a cached "redirect to /signin" for this
+      // console page from before sign-in, which left people stuck on this screen after a successful sign-in.
+      window.location.assign(safeNext(params.get("next")));
     } catch {
       setError("Could not reach the server. Check your connection and try again.");
     } finally {
@@ -40,7 +40,7 @@ export function SignInClient() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:py-16">
+    <div className="mx-auto max-w-4xl px-4 pb-14 pt-24 sm:pt-28">
       <div className="flex flex-wrap items-center gap-2">
         <Tag tone="amber" solid>DEMO PERSONAS</Tag>
         <Tag tone="paypal">PayPal Sandbox</Tag>

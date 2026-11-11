@@ -183,14 +183,14 @@ export default function WatchOfficerConsolePage() {
                       : "critical"
                   } uppercase font-mono text-xs`}
                 >
-                  {readiness?.state || "UNKNOWN"}
+                  {readiness?.state || "NOT RUN"}
                 </span>
                 <span className="text-sm font-bold text-ink font-serif tabular-nums">
-                  {readiness?.coveragePercentage ?? 0}% Coverage
+                  {readiness ? `${readiness.coveragePercentage ?? 0}% Coverage` : "No briefing yet"}
                 </span>
               </div>
               <div className="mt-1 text-xs text-ink-2 line-clamp-1" title={readiness?.reason}>
-                {readiness?.reason || "Telemetry loaded"}
+                {readiness?.reason || "Run the Watch Officer to check readiness"}
               </div>
             </div>
 
@@ -200,10 +200,10 @@ export default function WatchOfficerConsolePage() {
                 Allocatable Liquidity
               </div>
               <div className="mt-2 text-2xl font-serif font-bold text-accent tabular-nums">
-                {constraints?.allocatableFormatted || "$0.00"}
+                {constraints?.allocatableFormatted || "—"}
               </div>
               <div className="mt-1 text-xs text-ink-2">
-                Reserve: {constraints?.reserveProtectedFormatted ?? "unknown"} (protected)
+                {constraints ? `Reserve: ${constraints.reserveProtectedFormatted} (protected)` : "Not run yet"}
               </div>
             </div>
 
@@ -213,10 +213,10 @@ export default function WatchOfficerConsolePage() {
                 Funding Requirement
               </div>
               <div className="mt-2 text-2xl font-serif font-bold text-ink tabular-nums">
-                {constraints?.requiredFundingFormatted || "$0.00"}
+                {constraints?.requiredFundingFormatted || "—"}
               </div>
               <div className="mt-1 text-xs text-ink-2">
-                Gap: <span className="text-amber font-semibold">{constraints?.fundingGapFormatted || "$0.00"}</span>
+                {constraints ? <>Gap: <span className="text-amber font-semibold">{constraints.fundingGapFormatted}</span></> : "Not run yet"}
               </div>
             </div>
           </div>

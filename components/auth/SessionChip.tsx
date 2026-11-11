@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { I } from "@/components/icons";
 import { Tag } from "@/components/ui/Tag";
 
@@ -9,7 +8,6 @@ interface Me { name: string; role: string }
 
 /** Shows who is signed in (a DEMO persona) and lets them sign out. Role names match what the server enforces. */
 export function SessionChip() {
-  const router = useRouter();
   const [me, setMe] = useState<Me | null | undefined>(undefined);
 
   useEffect(() => {
@@ -38,8 +36,7 @@ export function SessionChip() {
         className="text-[12px] text-ink-3 underline-offset-2 hover:text-ink hover:underline"
         onClick={async () => {
           await fetch("/api/auth/session", { method: "DELETE" });
-          router.push("/signin");
-          router.refresh();
+          window.location.assign("/signin");
         }}
       >
         Sign out

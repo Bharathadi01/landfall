@@ -253,13 +253,13 @@ function OperationsShellInner({ children, pathname }: { children: React.ReactNod
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-3 z-20 mx-3 mt-3 flex h-14 items-center justify-between gap-4 rounded-[20px] glass-hud px-3 sm:px-4 lg:mx-4">
           <div className="flex min-w-0 items-center gap-3">
-            <Button variant="ghost" size="sm" iconOnly aria-label="Open navigation" className="lg:hidden" onClick={() => setMobileOpen(true)}>
+            <Button variant="ghost" size="sm" iconOnly aria-label="Open navigation" className="shrink-0 min-w-9 lg:hidden" onClick={() => setMobileOpen(true)}>
               <I.menu className="h-4 w-4" />
             </Button>
             <div className="flex min-w-0 items-center gap-2 text-[13px]">
-              <span className="hidden text-ink-3 sm:inline">Tampa Bay Relief Fund</span>
-              <span className="hidden text-ink-3/50 sm:inline">/</span>
-              <span className="truncate font-semibold text-ink">{current?.label ?? "Console"}</span>
+              <span className="hidden whitespace-nowrap text-ink-3 2xl:inline">Tampa Bay Relief Fund</span>
+              <span className="hidden text-ink-3/50 2xl:inline">/</span>
+              <span className="truncate whitespace-nowrap font-semibold text-ink">{current?.label ?? "Console"}</span>
             </div>
           </div>
 
@@ -267,7 +267,7 @@ function OperationsShellInner({ children, pathname }: { children: React.ReactNod
           <IncidentBug />
           <SourceSwitch />
 
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-3">
             <LiveClock className="hidden md:inline-flex" />
             <Tag tone="paypal" solid className="hidden sm:inline-flex">Sandbox</Tag>
             <SessionChip />

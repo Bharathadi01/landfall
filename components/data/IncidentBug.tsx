@@ -11,9 +11,9 @@ export function IncidentBug() {
   if (status === "loading") return <div className="hidden min-w-0 items-center gap-2.5 xl:flex" aria-label="Data source loading"><Tag tone="neutral">Loading…</Tag></div>;
   if (source === "live") {
     return (
-      <div className="hidden min-w-0 items-center gap-2.5 xl:flex" aria-label="Data source: live PayPal Sandbox">
+      <div className="hidden shrink-0 items-center gap-2.5 xl:flex" aria-label="Data source: live PayPal Sandbox">
         <Tag tone="paypal" solid live>Live Sandbox</Tag>
-        <span className="font-mono text-[12px] tracking-[0.04em] text-ink-2">
+        <span className="hidden whitespace-nowrap font-mono text-[12px] tracking-[0.04em] text-ink-2 2xl:inline">
           {cases.length} real payment{cases.length === 1 ? "" : "s"} · PayPal asked {relativeTime(lastSyncedAt)}
         </span>
       </div>
@@ -22,7 +22,7 @@ export function IncidentBug() {
   return (
     <div className="hidden min-w-0 items-center gap-2.5 xl:flex" aria-label="Data source: synthetic replay">
       <Tag tone="storm" solid>Replay · Oct 2024</Tag>
-      <span className="font-mono text-[12px] tracking-[0.04em] text-ink-2">MILTON · CAT 4 · SYNTHETIC</span>
+      <span className="hidden whitespace-nowrap font-mono text-[12px] tracking-[0.04em] text-ink-2 2xl:inline">MILTON · CAT 4 · SYNTHETIC</span>
     </div>
   );
 }
