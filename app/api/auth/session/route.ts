@@ -13,7 +13,7 @@ import { safeError } from "@/lib/http/safe-error";
 export async function GET(req: NextRequest) {
   const s = await verifySession(req.cookies.get(SESSION_COOKIE)?.value);
   if (!s) return NextResponse.json({ authenticated: false });
-  return NextResponse.json({ authenticated: true, session: { name: s.name, role: s.role, household: s.hh ?? null, expiresAt: new Date(s.exp * 1000).toISOString(), demo: true } });
+  return NextResponse.json({ authenticated: true, session: { id: s.sub, name: s.name, role: s.role, household: s.hh ?? null, expiresAt: new Date(s.exp * 1000).toISOString(), demo: true } });
 }
 
 const Body = z.object({ persona: z.string().min(1).max(40) });

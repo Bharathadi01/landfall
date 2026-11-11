@@ -12,7 +12,6 @@ import {
   type RehearsalStep,
   type RehearsalExecutionResult,
 } from "@/lib/rehearsal/lab";
-import { PasskeyApprovalModal } from "@/components/security/PasskeyApprovalModal";
 
 export default function StormRehearsalLabPage() {
   const [selectedStormId, setSelectedStormId] = useState<string>("milton-2024");
@@ -20,8 +19,7 @@ export default function StormRehearsalLabPage() {
   const [activeStep, setActiveStep] = useState<RehearsalStep>("RECONCILIATION");
   const [result, setResult] = useState<RehearsalExecutionResult | null>(null);
   const [passkeysApproved, setPasskeysApproved] = useState(false);
-  const [isPasskeyModalOpen, setIsPasskeyModalOpen] = useState(false);
-  const [rehearsalExecuted, setRehearsalExecuted] = useState(false);
+    const [rehearsalExecuted, setRehearsalExecuted] = useState(false);
 
   useEffect(() => {
     const res = runStormRehearsal({
@@ -283,34 +281,34 @@ export default function StormRehearsalLabPage() {
           {/* Two-Person Passkey Approval Simulation */}
           <div className="field-paper p-6 space-y-4">
             <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-              Two-Person Passkey Authorization Rehearsal
+              Two-Person Approval Rehearsal (simulated)
             </h3>
 
             <div className="space-y-2.5">
               <div className="p-3 bg-canvas rounded-xl border border-line flex items-center justify-between text-xs">
                 <div>
-                  <span className="font-bold text-ink block">Dr. Sarah Lin</span>
-                  <span className="text-[11px] text-ink-2">Emergency Operations Lead (Key 1)</span>
+                  <span className="font-bold text-ink block">Rehearsal approver A</span>
+                  <span className="text-[11px] text-ink-2">Fictional coordinator · no real key</span>
                 </div>
                 <span className={`px-2.5 py-0.5 rounded font-mono text-[10px] font-semibold ${
                   passkeysApproved
                     ? "field-badge-evergreen"
                     : "field-badge-neutral"
                 }`}>
-                  {passkeysApproved ? "✓ WEBAUTHN SIGNED" : "AWAITING WEBAUTHN"}
+                  {passkeysApproved ? "✓ SIMULATED" : "NOT YET SIMULATED"}
                 </span>
               </div>
               <div className="p-3 bg-canvas rounded-xl border border-line flex items-center justify-between text-xs">
                 <div>
-                  <span className="font-bold text-ink block">Marcus Vance</span>
-                  <span className="text-[11px] text-ink-2">Fiduciary Trustee (Key 2)</span>
+                  <span className="font-bold text-ink block">Rehearsal approver B</span>
+                  <span className="text-[11px] text-ink-2">Fictional finance director · no real key</span>
                 </div>
                 <span className={`px-2.5 py-0.5 rounded font-mono text-[10px] font-semibold ${
                   passkeysApproved
                     ? "field-badge-evergreen"
                     : "field-badge-neutral"
                 }`}>
-                  {passkeysApproved ? "✓ WEBAUTHN SIGNED" : "AWAITING WEBAUTHN"}
+                  {passkeysApproved ? "✓ SIMULATED" : "NOT YET SIMULATED"}
                 </span>
               </div>
             </div>
@@ -319,16 +317,13 @@ export default function StormRehearsalLabPage() {
             <div className="pt-2 space-y-2">
               <button
                 type="button"
-                onClick={() => setIsPasskeyModalOpen(true)}
+                onClick={() => setPasskeysApproved(true)}
                 className="w-full py-2.5 rounded-xl text-xs font-medium border border-paypal/30 bg-paypal/10 hover:bg-paypal/20 text-paypal transition flex items-center justify-center gap-2"
               >
                 <I.locked className="w-3.5 h-3.5" />
-                <span>
-                  {passkeysApproved
-                    ? "Passkeys Verified (Click to Re-authenticate)"
-                    : "Authenticate Dual WebAuthn Passkeys (Hardware / Biometric)"}
-                </span>
+                <span>{passkeysApproved ? "Approvals simulated" : "Simulate both approvals (rehearsal only; no keys involved)"}</span>
               </button>
+              <p className="text-[11px] text-ink-3">Real money movement uses real, server-verified approvals on the Approvals page. This rehearsal never signs or sends anything.</p>
 
               <button
                 onClick={() => setRehearsalExecuted(true)}
@@ -344,27 +339,14 @@ export default function StormRehearsalLabPage() {
                 <I.bolt className="w-3.5 h-3.5" />
                 <span>
                   {rehearsalExecuted
-                    ? "Rehearsal Sandbox Payout Completed"
+                    ? "Rehearsal completed (simulated)"
                     : !passkeysApproved
-                    ? "Dual Passkeys Required to Rehearse Payout"
-                    : "Execute Rehearsal Payout (PayPal Sandbox Labelled)"}
+                    ? "Simulate the approvals first"
+                    : "Run the rehearsal (simulated; nothing is sent)"}
                 </span>
               </button>
             </div>
 
-            {/* Passkey Approval Modal */}
-            <PasskeyApprovalModal
-              isOpen={isPasskeyModalOpen}
-              onClose={() => setIsPasskeyModalOpen(false)}
-              planId={`rehearsal_${currentStorm.stormId}_${currentScenario.id}`}
-              planHash={result.reconciliationSummary.immutableAuditHash}
-              recipientCount={result.fundedCount}
-              totalAmountCents={result.fundedCount * 10025}
-              onBothApproved={() => {
-                setPasskeysApproved(true);
-                setIsPasskeyModalOpen(false);
-              }}
-            />
           </div>
 
           {/* Simulated / Sandbox Reconciliation Receipt */}

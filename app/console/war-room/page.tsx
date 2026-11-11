@@ -8,7 +8,6 @@ import {
   ModuleRegistry as AgChartsModuleRegistry,
   AllCommunityModule as AgChartsAllCommunityModule,
 } from "ag-charts-community";
-import { PasskeyApprovalModal } from "@/components/security/PasskeyApprovalModal";
 import { chartTheme } from "@/styles/ag-studio-theme";
 import { registerAg } from "@/lib/ag/register";
 import { CaseGrid } from "@/components/grid/CaseGrid";
@@ -52,7 +51,6 @@ const STAGE_TONE: Record<string, Tone> = { APPROVED: "neutral", SENT: "neutral",
 export default function CommandCenterPage() {
   const pendingOpen = useRef<string | null>(null);
   const [tab, setTab] = useState<Tab>("OVERVIEW");
-  const [passkeyOpen, setPasskeyOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const toast = useToast();
   // One source for every number on this page: live PayPal Sandbox records, or the synthetic replay.
@@ -81,18 +79,26 @@ export default function CommandCenterPage() {
   };
 
   const activity = useMemo(() => {
+    if (live) {
+      // Real stored PayPal observations only; nothing from the replay fixtures.
+      const now = Date.now();
+      return cases
+        .map((c) => ({ t: new Date(now - c.ageHours * 3_600_000).toISOString(), icon: I.send, tone: "paypal" as Tone, text: `PayPal reports ${c.status} · item ${c.itemId}` }))
+        .sort((a, b) => b.t.localeCompare(a.t))
+        .slice(0, 5);
+    }
     const ev = [
-      { t: "2024-10-09T18:05:00Z", icon: I.stormEye, tone: "storm" as Tone, text: "NWS Hurricane Warning TBW:HU.W:0009 issued" },
-      ...studioApprovalEvents.map((a) => ({ t: a.approved_at, icon: I.twoKeyApproval, tone: "amber" as Tone, text: `${a.approver_role} signed the plan (demo passkey)` })),
+      { t: "2024-10-09T18:05:00Z", icon: I.stormEye, tone: "storm" as Tone, text: "NWS Hurricane Warning TBW:HU.W:0009 issued (replay)" },
+      ...studioApprovalEvents.map((a) => ({ t: a.approved_at, icon: I.twoKeyApproval, tone: "amber" as Tone, text: `${a.approver_role} signed the plan (replay data)` })),
       ...studioWebhookObservations.map((w) => ({
         t: w.received_time,
         icon: I.send,
         tone: "paypal" as Tone,
-        text: `PayPal ${w.event_type.replace("PAYMENT.PAYOUTS-ITEM.", "")} · ${w.item_id}`,
+        text: `PayPal ${w.event_type.replace("PAYMENT.PAYOUTS-ITEM.", "")} · ${w.item_id} (replay)`,
       })),
     ];
     return ev.sort((a, b) => b.t.localeCompare(a.t)).slice(0, 5);
-  }, []);
+  }, [live, cases]);
 
   const openCase = (c: ReliefCase) => {
     pendingOpen.current = c.caseRef;
@@ -181,9 +187,9 @@ export default function CommandCenterPage() {
             <Link href="/console/studio" className="field-btn field-btn-secondary">
               <I.chart className="h-4 w-4 text-paypal" /> Analytics Studio
             </Link>
-            <button onClick={() => setPasskeyOpen(true)} className="field-btn field-btn-primary">
-              <I.twoKeyApproval className="h-4 w-4" /> Approve payout plan
-            </button>
+            <Link href="/console/proposals" className="field-btn field-btn-primary">
+              <I.twoKeyApproval className="h-4 w-4" /> Review approvals
+            </Link>
           </>
         }
       />
@@ -415,20 +421,6 @@ export default function CommandCenterPage() {
         </div>
       )}
 
-      {passkeyOpen && (
-        <PasskeyApprovalModal
-          isOpen={passkeyOpen}
-          planHash={studioApprovalEvents[0].plan_hash}
-          onClose={() => setPasskeyOpen(false)}
-          onApproved={() => setPasskeyOpen(false)}
-          planSummary={{
-            title: "Tranche 1 · Hurricane Milton relief grants",
-            totalAmountFormatted: `${money2(sum.approvedUsd)} USD`,
-            householdsCount: sum.households,
-            tranche: 1,
-          }}
-        />
-      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Button, GlassPane, Tag } from "@/components/ui";
 import { PERSONAS } from "@/lib/auth/personas";
 import { residentCode } from "@/lib/auth/resident-code";
 import { RELIEF_CASES } from "@/lib/relief/cases";
+import { demoKeyEnabled, demoPin } from "@/lib/security/demo-key";
 
 export const metadata = { title: "Judge test card · Landfall" };
 export const dynamic = "force-dynamic";
@@ -96,6 +97,17 @@ export default async function JudgesPage() {
           </GlassPane>
         ))}
       </div>
+
+      {demoKeyEnabled() && (
+        <section className="mt-12" aria-label="Approval PIN">
+          <h2 className="text-title-3 text-ink">Approving a payment (two people)</h2>
+          <p className="mt-2 text-[14px] text-ink-2">
+            Sign in as <b>Dana Ortiz</b> (coordinator), propose an action from a live case, approve it, then sign in as <b>Sam Patel</b> (finance) and approve it too.
+            Each approval is a passkey if your device has one, otherwise the labelled <b>demo approval PIN</b>:{" "}
+            <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[13px]" data-testid="demo-pin-value">{demoPin()}</code>. The server records which one was used.
+          </p>
+        </section>
+      )}
 
       <h2 className="mt-12 text-title-3 text-ink">What is real, and what is not</h2>
       <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]">

@@ -10,6 +10,7 @@
  *
  * Nothing here calls PayPal and nothing here is invented: a fact we don't have is shown as Missing.
  */
+import { LIVE_CASE_PREFIX_CLIENT } from "./live-ref";
 import { asc, inArray } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { payoutBatchRecords, payoutItemRecords, payoutStatusHistory, webhookEvents } from "@/lib/db/schema";
@@ -20,7 +21,7 @@ import { liveTreasury, type LiveTreasury } from "./live-treasury";
 import { householdFromRef } from "@/lib/auth/resident-code";
 import { profileFor } from "./sandbox-profiles";
 
-export const LIVE_CASE_PREFIX = "sandbox:";
+export const LIVE_CASE_PREFIX = LIVE_CASE_PREFIX_CLIENT;
 export const liveCaseRefFor = (senderItemId: string) => `${LIVE_CASE_PREFIX}${senderItemId}`;
 
 const KNOWN: PayPalItemStatus[] = ["SUCCESS", "PENDING", "UNCLAIMED", "FAILED", "RETURNED", "ONHOLD", "BLOCKED", "REFUNDED", "REVERSED"];
