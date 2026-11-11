@@ -4,7 +4,8 @@ services:
     name: landfall-web
     runtime: node
     plan: free
-    buildCommand: pnpm install && pnpm build
+    # db:push creates/updates tables from lib/db/schema.ts. --force only answers drizzle's prompts; the database is ours and starts empty.
+    buildCommand: pnpm install && pnpm db:push --force && pnpm build
     startCommand: pnpm start
     envVars:
       - key: NODE_VERSION
