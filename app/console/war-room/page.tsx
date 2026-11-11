@@ -9,8 +9,7 @@ import {
   AllCommunityModule as AgChartsAllCommunityModule,
 } from "ag-charts-community";
 import { chartTheme } from "@/styles/ag-studio-theme";
-import { registerAg } from "@/lib/ag/register";
-import { CaseGrid } from "@/components/grid/CaseGrid";
+import dynamic from "next/dynamic";
 import { LandfallStudio } from "@/components/studio/LandfallStudio";
 import { PageHeader, StatCard, SectionHeader, Chip, IconTile, type Tone } from "@/components/ui/primitives";
 import { ProvenanceTag, PayPalStatusBadge, StageDots, EvidenceState, money, money2 } from "@/components/relief/parts";
@@ -35,7 +34,12 @@ import {
 import { I } from "@/components/icons";
 
 AgChartsModuleRegistry.registerModules([AgChartsAllCommunityModule]);
-registerAg();
+
+// The grid (and its Enterprise modules) is ~1 MB: load it only when the Cases tab is opened.
+const CaseGrid = dynamic(() => import("@/components/grid/CaseGrid").then((m) => m.CaseGrid), {
+  ssr: false,
+  loading: () => <div className="glass p-6 text-[13px] text-ink-3" role="status">Loading the case grid…</div>,
+});
 
 type Tab = "OVERVIEW" | "GRID" | "STUDIO" | "WIDGETS" | "SETTLEMENT";
 
@@ -52,6 +56,10 @@ export default function CommandCenterPage() {
   const pendingOpen = useRef<string | null>(null);
   const [tab, setTab] = useState<Tab>("OVERVIEW");
   const [refreshing, setRefreshing] = useState(false);
+  const [studioSeen, setStudioSeen] = useState(false);
+  useEffect(() => {
+    if (tab === "STUDIO") setStudioSeen(true);
+  }, [tab]);
   const toast = useToast();
   // One source for every number on this page: live PayPal Sandbox records, or the synthetic replay.
   const { cases, summary: sum, queue, treasury: TREASURY, source, status, lastSyncedAt, batches, error: sourceError, refreshFromPayPal } = useCases();
@@ -388,12 +396,15 @@ export default function CommandCenterPage() {
 
       {tab === "GRID" && <CaseGrid cases={cases} queue={queue} openRef={pendingOpen} />}
 
-      <div
-        className="h-[920px] w-full overflow-hidden rounded-[18px] border border-white/[0.06] bg-canvas/60"
-        style={{ display: tab === "STUDIO" ? "block" : "none" }}
-      >
-        <LandfallStudio mode="view" />
-      </div>
+      {/* Studio is ~2.6 MB: mount it the first time its tab opens, then keep it mounted (hidden) so its state survives tab switches. */}
+      {studioSeen && (
+        <div
+          className="h-[920px] w-full overflow-hidden rounded-[18px] border border-white/[0.06] bg-canvas/60"
+          style={{ display: tab === "STUDIO" ? "block" : "none" }}
+        >
+          <LandfallStudio mode="view" />
+        </div>
+      )}
 
       {tab === "WIDGETS" && (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 animate-field-fade">

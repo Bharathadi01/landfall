@@ -63,6 +63,24 @@ await step("war room shows LIVE SANDBOX data (5 real payments)", async () => {
   return (text.match(/\d+ real PayPal Sandbox payments/) || [""])[0];
 });
 
+await step("Cases tab loads the AG Grid with the five live payments (lazy-loaded)", async () => {
+  await page.goto(base + "/console/war-room", { waitUntil: "domcontentloaded", timeout: 90000 });
+  await page.getByRole("tab", { name: /Cases/i }).first().click();
+  await page.waitForSelector(".ag-row", { timeout: 60000 });
+  const rows = await page.locator(".ag-center-cols-container .ag-row").count();
+  await shot("04b-cases-grid");
+  if (rows < 1) throw new Error("no grid rows");
+  return `${rows} rows rendered`;
+});
+
+await step("Studio tab opens the AG Studio workspace (lazy-loaded)", async () => {
+  await page.getByRole("tab", { name: /Studio/i }).first().click();
+  await page.waitForTimeout(6000);
+  await shot("04c-studio");
+  const errs = await page.evaluate(() => document.body.innerText.slice(0, 4000));
+  if (/Invalid License|Application error|Something went wrong/i.test(errs)) throw new Error("studio error text on page");
+});
+
 let caseHref = null;
 await step("open an UNCLAIMED live case page", async () => {
   const res = await ctx.request.get(base + "/api/cases");
