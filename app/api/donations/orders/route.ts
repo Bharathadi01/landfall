@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createOrder } from "@/lib/paypal/orders";
 import { z } from "zod";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 const RequestSchema = z.object({
   amountUsd: z.string().regex(/^\d+\.\d{2}$/, "Amount must be 2-decimal USD (e.g. 5.00)"),
@@ -9,6 +10,9 @@ const RequestSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "donations-orders-post", { limit: 10 });
+  if (limited) return limited;
+
   try {
     const body = await req.json();
     const parsed = RequestSchema.safeParse(body);

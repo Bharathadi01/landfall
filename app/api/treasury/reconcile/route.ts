@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { runTreasuryReconciliation } from "@/lib/treasury/reconciler";
 import { z } from "zod";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 const ReconcileRequestSchema = z.object({
   startDate: z.string().optional(),
@@ -11,6 +12,9 @@ const ReconcileRequestSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "treasury-reconcile-post", { limit: 6 });
+  if (limited) return limited;
+
   try {
     let body = {};
     try {
@@ -28,7 +32,10 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = limitRequest(req, "treasury-reconcile-get", { limit: 6 });
+  if (limited) return limited;
+
   try {
     const report = await runTreasuryReconciliation({ actor: "war_room_viewer" });
     return NextResponse.json(report);

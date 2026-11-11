@@ -4,8 +4,12 @@ import { emailVerifications, households } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { verifyEmailToken } from "@/lib/recipients/index";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function POST(req: Request) {
+  const limited = limitRequest(req, "recipients-verify-email-post", { limit: 10 });
+  if (limited) return limited;
+
   try {
     const { token, householdId } = await req.json();
 

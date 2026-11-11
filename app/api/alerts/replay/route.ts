@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { loadMiltonHistoricalReplay } from "@/lib/sentinel/replay";
 import { ingestAlertRecord, evaluateAndActivateFundResponse } from "@/lib/sentinel/activations";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "alerts-replay-post", { limit: 10 });
+  if (limited) return limited;
+
   try {
     const body = await req.json().catch(() => ({}));
     const autoActivate = body.autoActivate !== false;
@@ -51,7 +55,10 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = limitRequest(req, "alerts-replay-get", { limit: 10 });
+  if (limited) return limited;
+
   const replayPackage = loadMiltonHistoricalReplay();
   return NextResponse.json({
     availableStorms: [

@@ -4,8 +4,12 @@ import { getPayPalUserInfo } from "@/lib/paypal/identity";
 import { logAuditEvent } from "@/lib/db/audit";
 import crypto from "crypto";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function GET(req: NextRequest) {
+  const limited = limitRequest(req, "auth-paypal-callback-get", { limit: 20 });
+  if (limited) return limited;
+
   const code = req.nextUrl.searchParams.get("code");
   const state = req.nextUrl.searchParams.get("state");
   const error = req.nextUrl.searchParams.get("error");

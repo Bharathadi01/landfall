@@ -5,8 +5,12 @@ import { desc, eq, and } from "drizzle-orm";
 import { checkNWSHealth } from "@/lib/sentinel/nws";
 import { isWeatherFeedStale } from "@/lib/sentinel/normalize";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function GET(req: NextRequest) {
+  const limited = limitRequest(req, "alerts-get", { limit: 60 });
+  if (limited) return limited;
+
   try {
     const url = new URL(req.url);
     const mode = url.searchParams.get("mode") as "LIVE" | "HISTORICAL_REPLAY" | "SYNTHETIC" | null;

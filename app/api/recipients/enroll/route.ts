@@ -17,8 +17,12 @@ import {
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function POST(req: Request) {
+  const limited = limitRequest(req, "recipients-enroll-post", { limit: 6 });
+  if (limited) return limited;
+
   try {
     const body: EnrollmentInput = await req.json();
 

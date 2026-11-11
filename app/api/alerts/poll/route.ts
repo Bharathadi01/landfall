@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyCronSecret } from "@/lib/auth/cron";
+import { getSession } from "@/lib/auth/guard";
 import { fetchLiveNWSAlerts, checkNWSHealth } from "@/lib/sentinel/nws";
 import { ingestAlertRecord, evaluateAndActivateFundResponse } from "@/lib/sentinel/activations";
 
 export async function POST(req: NextRequest) {
-  const denied = verifyCronSecret(req);
-  if (denied) return denied;
+  // The scheduler authenticates with CRON_SECRET; a signed-in coordinator/finance user (Storm Desk button) may also trigger it.
+  const session = await getSession(req);
+  if (!(session && (session.role === "coordinator" || session.role === "finance"))) {
+    const denied = verifyCronSecret(req);
+    if (denied) return denied;
+  }
 
   const startTime = Date.now();
   try {

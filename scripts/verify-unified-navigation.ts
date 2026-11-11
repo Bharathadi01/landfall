@@ -53,7 +53,6 @@ async function verifyUnifiedApplicationExperience() {
     { href: "/r/complaints", label: "Grievances", breadcrumbTitle: "Community Grievances" },
     { href: "/console/recipients", label: "Recipient Directory", breadcrumbTitle: "Recipient Directory" },
     { href: "/console/watch-officer", label: "Watch Officer AI", breadcrumbTitle: "Watch Officer AI" },
-    { href: "/spike", label: "PayPal Audit Ledger", breadcrumbTitle: "PayPal Audit Ledger" },
   ];
 
   console.log("\n📋 Phase 1: Testing Direct URL Access and Active Navigation State for all routes...");

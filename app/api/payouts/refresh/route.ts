@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { limitRequest } from "@/lib/security/rate-limit";
 import { refreshPayoutBatch } from "@/lib/payouts/refresh";
 import { listBatchRecords } from "@/lib/payouts/store";
 
@@ -11,17 +12,6 @@ import { listBatchRecords } from "@/lib/payouts/store";
  */
 const BodySchema = z.object({ paypalBatchId: z.string().regex(/^[A-Za-z0-9_-]{6,64}$/).optional() });
 
-const WINDOW_MS = 60_000;
-const MAX_PER_WINDOW = 6;
-const hits = new Map<string, number[]>();
-function rateLimited(key: string): boolean {
-  const now = Date.now();
-  const recent = (hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
-  recent.push(now);
-  hits.set(key, recent);
-  return recent.length > MAX_PER_WINDOW;
-}
-
 export async function GET() {
   return NextResponse.json({ error: "Use POST to refresh" }, { status: 405, headers: { Allow: "POST" } });
 }
@@ -30,10 +20,8 @@ export async function POST(req: NextRequest) {
   if (process.env.PAYOUT_REFRESH_ENABLED === "false") {
     return NextResponse.json({ error: "Payout refresh is disabled on this deployment" }, { status: 403 });
   }
-  const client = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  if (rateLimited(client)) {
-    return NextResponse.json({ error: "Too many refreshes; try again in a minute" }, { status: 429 });
-  }
+  const limited = limitRequest(req, "payouts-refresh", { limit: 6 });
+  if (limited) return limited;
 
   // An empty body means "refresh the most recent batches". A body that is present but is not valid JSON is an
   // error: silently treating it as empty would turn a typo into a refresh of everything.

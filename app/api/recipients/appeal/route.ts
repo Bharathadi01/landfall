@@ -1,11 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getSession, mayAccessHousehold } from "@/lib/auth/guard";
+import { limitRequest } from "@/lib/security/rate-limit";
 import { createAppealRecord, type AppealInput } from "@/lib/recipients/index";
 import { db } from "@/lib/db/client";
 import { appeals, households } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { safeError } from "@/lib/http/safe-error";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "resident-write", { limit: 10 });
+  if (limited) return limited;
   try {
     const body: AppealInput = await req.json();
 
@@ -14,6 +18,11 @@ export async function POST(req: Request) {
         { error: "householdId and reason are required" },
         { status: 400 }
       );
+    }
+
+    // A resident may only act for their own household; operators may act for any. Same 404 either way.
+    if (!mayAccessHousehold(await getSession(req), body.householdId)) {
+      return NextResponse.json({ error: "Household not found" }, { status: 404 });
     }
 
     // Verify household exists
@@ -57,6 +66,9 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  const limited = limitRequest(req, "recipients-appeal-get", { limit: 30 });
+  if (limited) return limited;
+
   try {
     const url = new URL(req.url);
     const householdId = url.searchParams.get("householdId");

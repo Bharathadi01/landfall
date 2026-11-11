@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { limitRequest } from "@/lib/security/rate-limit";
 import { runStudioChat, StudioLlmUnavailable } from "@/lib/ai/studio-llm";
 import { isMoneyMovementRequest } from "@/lib/studio/studio-answers";
 import { lastUserText, isToolFollowUp } from "@/lib/ai/studio-llm-mapping";
@@ -10,20 +11,9 @@ import { lastUserText, isToolFollowUp } from "@/lib/ai/studio-llm-mapping";
  * - 503/429 tell the browser to use the labelled offline analyst instead.
  */
 const MAX_BODY_CHARS = 120_000;
-const WINDOW_MS = 60_000;
-const MAX_PER_WINDOW = 30;
-const hits = new Map<string, number[]>();
-function limited(key: string) {
-  const now = Date.now();
-  const recent = (hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
-  recent.push(now);
-  hits.set(key, recent);
-  return recent.length > MAX_PER_WINDOW;
-}
-
 export async function POST(req: NextRequest) {
-  const client = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  if (limited(client)) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  const limited = limitRequest(req, "studio-llm", { limit: 30 });
+  if (limited) return limited;
 
   const raw = await req.text();
   if (raw.length > MAX_BODY_CHARS) return NextResponse.json({ error: "payload_too_large" }, { status: 413 });

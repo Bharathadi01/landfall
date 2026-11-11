@@ -6,8 +6,13 @@ import { decryptPII } from "@/lib/security/encryption";
 import { logPIIAccess, type Role } from "@/lib/security/rbac";
 import { desc, eq, and } from "drizzle-orm";
 import { safeError } from "@/lib/http/safe-error";
+import { maskReceiver, roundCoord } from "@/lib/security/mask";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function GET(req: Request) {
+  const limited = limitRequest(req, "recipients-get", { limit: 30 });
+  if (limited) return limited;
+
   try {
     const url = new URL(req.url);
     const statusFilter = url.searchParams.get("status");
@@ -82,13 +87,15 @@ export async function GET(req: Request) {
           paymentChannel: h.paymentChannel,
           recipientPath: h.recipientPath,
           recipientVersion: h.recipientVersion,
-          receiver: h.receiver,
+          // masked: a coordinator needs to know a payment route exists, not the address itself
+          receiver: shouldDecrypt ? h.receiver : maskReceiver(h.receiver),
           isDisplaced: h.isDisplaced,
           language: h.language,
-          lat: h.lat,
-          lng: h.lng,
-          currentLat: h.currentLat,
-          currentLng: h.currentLng,
+          // rounded to ~1 km unless the server operator has enabled reveal
+          lat: shouldDecrypt ? h.lat : roundCoord(h.lat),
+          lng: shouldDecrypt ? h.lng : roundCoord(h.lng),
+          currentLat: shouldDecrypt ? h.currentLat : roundCoord(h.currentLat),
+          currentLng: shouldDecrypt ? h.currentLng : roundCoord(h.currentLng),
           reconfirmedAt: h.reconfirmedAt,
           createdAt: h.createdAt,
           name: displayName,

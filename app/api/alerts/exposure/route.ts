@@ -5,8 +5,12 @@ import { eq } from "drizzle-orm";
 import { normalizeNWSAlert } from "@/lib/sentinel/normalize";
 import { evaluateHouseholdExposure } from "@/lib/sentinel/exposure";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "alerts-exposure-post", { limit: 20 });
+  if (limited) return limited;
+
   try {
     const body = await req.json();
     const { householdId, alertId, lat, lng, isDisplaced } = body;

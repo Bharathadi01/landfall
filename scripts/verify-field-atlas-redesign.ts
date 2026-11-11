@@ -226,24 +226,6 @@ async function run() {
   });
   await p7.close();
 
-  // --- 8. PAYPAL AUDIT LEDGER ---
-  console.log("👉 8. Auditing Screen 8: PayPal Audit Ledger (/spike)");
-  const p8 = await desktopContext.newPage();
-  setupMonitoring(p8, "/spike");
-  t0 = Date.now();
-  await p8.goto(`${BASE_URL}/spike`, { waitUntil: "networkidle" });
-  await p8.waitForTimeout(1000);
-  await captureScreen(p8, "paypal_audit_ledger.png");
-  metrics.push({
-    name: "Screen 8: PayPal Audit Ledger",
-    route: "/spike",
-    status: "PASS",
-    durationMs: Date.now() - t0,
-    notes: "Double-entry accounting, tabular numerals, PayPal Sandbox REST API batch receipts.",
-  });
-  await p8.close();
-
-  // --- 9. RESIDENT ENROLMENT ---
   console.log("👉 9. Auditing Screen 9: Resident Enrolment (/r/enroll)");
   const p9 = await desktopContext.newPage();
   setupMonitoring(p9, "/r/enroll");

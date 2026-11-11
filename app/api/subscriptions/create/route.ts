@@ -4,6 +4,7 @@ import { createSubscription } from "@/lib/paypal/subscriptions";
 import { db } from "@/lib/db/client";
 import { subscriptions } from "@/lib/db/schema";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 const CreateSustainerSchema = z.object({
   planId: z.string(),
@@ -14,6 +15,9 @@ const CreateSustainerSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "subscriptions-create-post", { limit: 6 });
+  if (limited) return limited;
+
   try {
     const body = await req.json();
     const input = CreateSustainerSchema.parse(body);

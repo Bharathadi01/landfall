@@ -5,12 +5,16 @@ import { donations } from "@/lib/db/schema";
 import crypto from "crypto";
 import { z } from "zod";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 const RequestSchema = z.object({
   orderId: z.string().min(1),
 });
 
 export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "donations-capture-post", { limit: 10 });
+  if (limited) return limited;
+
   try {
     const body = await req.json();
     const parsed = RequestSchema.safeParse(body);

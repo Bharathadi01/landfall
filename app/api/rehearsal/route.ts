@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 import {
   runStormRehearsal,
   REHEARSAL_STORMS,
@@ -9,6 +10,9 @@ import {
 } from "@/lib/rehearsal/lab";
 
 export async function GET(req: NextRequest) {
+  const limited = limitRequest(req, "rehearsal-get", { limit: 20 });
+  if (limited) return limited;
+
   try {
     const url = new URL(req.url);
     const stormId = url.searchParams.get("stormId") || "milton-2024";
@@ -32,6 +36,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "rehearsal-post", { limit: 20 });
+  if (limited) return limited;
+
   return GET(req);
 }
 

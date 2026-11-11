@@ -1,16 +1,24 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getSession, mayAccessHousehold } from "@/lib/auth/guard";
+import { limitRequest } from "@/lib/security/rate-limit";
 import { db } from "@/lib/db/client";
 import { households, locationHistory } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { encryptPII } from "@/lib/security/encryption";
 import { safeError } from "@/lib/http/safe-error";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "resident-write", { limit: 10 });
+  if (limited) return limited;
   try {
     const { householdId, newAddress, newLat, newLng, isDisplaced } = await req.json();
 
     if (!householdId) {
       return NextResponse.json({ error: "householdId is required" }, { status: 400 });
+    }
+
+    if (!mayAccessHousehold(await getSession(req), householdId)) {
+      return NextResponse.json({ error: "Household not found" }, { status: 404 });
     }
 
     const [existing] = await db

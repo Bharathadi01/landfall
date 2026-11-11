@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { createVaultSetupToken } from "@/lib/paypal/vault";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function POST(req: Request) {
+  const limited = limitRequest(req, "pledges-setup-token-post", { limit: 6 });
+  if (limited) return limited;
+
   try {
     const { returnUrl, cancelUrl } = await req.json();
     const appUrl = process.env.APP_URL || "http://localhost:3000";

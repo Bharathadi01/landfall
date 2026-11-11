@@ -11,6 +11,7 @@ vi.mock("@/lib/payouts/store", () => ({
 }));
 
 import { POST, GET } from "@/app/api/payouts/refresh/route";
+import { _resetRateLimitsForTests } from "@/lib/security/rate-limit";
 import { GET as LIST } from "@/app/api/payouts/route";
 
 const req = (body?: unknown, ip = "9.9.9.9") =>
@@ -24,6 +25,7 @@ describe("POST /api/payouts/refresh", () => {
   beforeEach(() => {
     refresh.mockReset();
     listBatches.mockReset();
+    _resetRateLimitsForTests();
     delete process.env.PAYOUT_REFRESH_ENABLED;
   });
 
@@ -93,7 +95,7 @@ describe("POST /api/payouts/refresh", () => {
 describe("GET /api/payouts", () => {
   it("returns recorded batches without any recipient field", async () => {
     listBatches.mockResolvedValue([{ paypalBatchId: "VTJG3SR5BY56C", senderBatchId: "batch_x_t1", status: "SUCCESS", amountCents: 50000, feeCents: 300, currency: "USD", lastSyncedAt: null, lastSyncSource: "refresh", lastSyncError: null }]);
-    const res = await LIST();
+    const res = await LIST(new NextRequest("http://localhost/api/payouts"));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.batches[0].paypalBatchId).toBe("VTJG3SR5BY56C");
@@ -102,7 +104,7 @@ describe("GET /api/payouts", () => {
 
   it("fails closed with 503 and no internals when the store is unavailable", async () => {
     listBatches.mockRejectedValue(new Error("connect ECONNREFUSED 10.0.0.5:5432"));
-    const res = await LIST();
+    const res = await LIST(new NextRequest("http://localhost/api/payouts"));
     expect(res.status).toBe(503);
     expect(JSON.stringify(await res.json())).not.toContain("10.0.0.5");
   });

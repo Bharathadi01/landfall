@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { executeGoldenWorkflow } from "@/lib/workflow/golden";
 import { z } from "zod";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 const RequestSchema = z.object({
   targetStage: z.number().int().min(1).max(8).optional().default(8),
@@ -12,18 +13,6 @@ const RequestSchema = z.object({
  * made to PayPal and nothing is persisted. Real payouts go through two server-verified approvals.
  * Still POST-only (never a crawlable GET), switchable off, and rate limited per client.
  */
-const WINDOW_MS = 60_000;
-const MAX_RUNS_PER_WINDOW = 8;
-const hits = new Map<string, number[]>();
-
-function rateLimited(key: string): boolean {
-  const now = Date.now();
-  const recent = (hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
-  recent.push(now);
-  hits.set(key, recent);
-  return recent.length > MAX_RUNS_PER_WINDOW;
-}
-
 export async function GET() {
   return NextResponse.json({ error: "Use POST to run the workflow" }, { status: 405, headers: { Allow: "POST" } });
 }
@@ -32,10 +21,8 @@ export async function POST(req: NextRequest) {
   if (process.env.JUDGE_MODE_ENABLED === "false") {
     return NextResponse.json({ error: "Workflow runs are disabled on this deployment" }, { status: 403 });
   }
-  const client = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  if (rateLimited(client)) {
-    return NextResponse.json({ error: "Too many workflow runs; try again in a minute" }, { status: 429 });
-  }
+  const limited = limitRequest(req, "golden-run", { limit: 8 });
+  if (limited) return limited;
   try {
     // Empty body = default rehearsal. A body that is present but not valid JSON is an error, not "run everything".
     let body: unknown = {};

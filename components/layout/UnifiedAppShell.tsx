@@ -10,6 +10,7 @@ import { MEANING, MeaningDot, type Tone } from "@/components/ui/primitives";
 import { Button } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
 import { LiveClock } from "@/components/ui/LiveClock";
+import { SessionChip } from "@/components/auth/SessionChip";
 
 type Variant = "PUBLIC" | "OPERATIONS" | "RESIDENT";
 
@@ -86,9 +87,17 @@ function useVariant(pathname: string): Variant {
 export function UnifiedAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const variant = useVariant(pathname);
-  if (variant === "PUBLIC") return <PublicShell>{children}</PublicShell>;
-  if (variant === "RESIDENT") return <ResidentShell pathname={pathname}>{children}</ResidentShell>;
-  return <OperationsShell pathname={pathname}>{children}</OperationsShell>;
+  return (
+    <>
+      <a
+        href="#main"
+        className="sr-only z-[100] rounded-md bg-surface px-3 py-2 text-[13px] font-semibold text-ink focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:outline focus:outline-2 focus:outline-accent"
+      >
+        Skip to content
+      </a>
+      {variant === "PUBLIC" ? <PublicShell>{children}</PublicShell> : variant === "RESIDENT" ? <ResidentShell pathname={pathname}>{children}</ResidentShell> : <OperationsShell pathname={pathname}>{children}</OperationsShell>}
+    </>
+  );
 }
 
 /* ── Public ───────────────────────────────────────────────── */
@@ -136,7 +145,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
         </header>
       </div>
 
-      <main className="flex-1">{children}</main>
+      <main id="main" tabIndex={-1} className="flex-1 outline-none">{children}</main>
 
       <footer className="relative border-t border-white/[0.06] py-14">
         <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 md:flex-row md:items-end md:justify-between">
@@ -186,7 +195,7 @@ function ResidentShell({ children, pathname }: { children: React.ReactNode; path
         </div>
       </header>
 
-      <main className="flex-1 px-4 py-10">{children}</main>
+      <main id="main" tabIndex={-1} className="flex-1 px-4 py-10 outline-none">{children}</main>
 
       <footer className="border-t border-white/[0.06] px-4 py-8 text-center text-[12.5px] text-ink-3">
         Your details are encrypted. Need a person? Use “Report a problem” — a coordinator replies within 24 hours.
@@ -252,6 +261,7 @@ function OperationsShell({ children, pathname }: { children: React.ReactNode; pa
           <div className="flex items-center gap-3">
             <LiveClock className="hidden md:inline-flex" />
             <Tag tone="paypal" solid className="hidden sm:inline-flex">Sandbox</Tag>
+            <SessionChip />
             {pathname !== "/console/golden-flow" && (
               <Button href="/console/golden-flow" variant="signal" size="sm" leading={<I.playCircle className="h-4 w-4" />}>
                 <span className="hidden sm:inline">Run guided response</span>
@@ -261,7 +271,7 @@ function OperationsShell({ children, pathname }: { children: React.ReactNode; pa
           </div>
         </header>
 
-        <main className="relative flex-1 px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+        <main id="main" tabIndex={-1} className="relative flex-1 px-4 py-8 outline-none sm:px-6 lg:px-10 lg:py-10">
           <div className="mx-auto w-full max-w-[1480px]">{children}</div>
         </main>
       </div>

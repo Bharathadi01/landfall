@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { computeTreasuryWaterfall } from "@/lib/treasury/waterfall";
 import { getTreasuryWaterfall } from "@/lib/ledger/index";
 import { getAccountBalances } from "@/lib/paypal/reporting";
@@ -6,8 +6,12 @@ import { db } from "@/lib/db/client";
 import { households, stormPledges, subscriptions } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = limitRequest(req, "treasury-waterfall-get", { limit: 30 });
+  if (limited) return limited;
+
   try {
     // 1. Query internal ledger waterfall
     const ledgerWaterfall = await getTreasuryWaterfall();

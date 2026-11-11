@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { registerComplaint, type ComplaintCategory } from "@/lib/recipients/complaints";
 import { z } from "zod";
 import { safeError } from "@/lib/http/safe-error";
+import { getSession, mayAccessHousehold } from "@/lib/auth/guard";
+import { maskEmail } from "@/lib/security/mask";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 const SubmitComplaintSchema = z.object({
   householdId: z.string().min(1),
@@ -20,6 +23,8 @@ const SubmitComplaintSchema = z.object({
 const complaintsCache: any[] = [];
 
 export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "complaint-submit", { limit: 6 });
+  if (limited) return limited;
   try {
     const body = await req.json();
     const parsed = SubmitComplaintSchema.safeParse(body);
@@ -40,15 +45,21 @@ export async function POST(req: NextRequest) {
   }
 }
 
+/**
+ * Complaints. With a household id: that household's own complaints (resident session for that household, or any operator).
+ * Without one: the full list, operators only. Contact emails are masked for operators and never returned to residents.
+ */
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const householdId = searchParams.get("householdId");
+  const session = await getSession(req);
+  const householdId = new URL(req.url).searchParams.get("householdId");
 
   if (householdId) {
-    const filtered = complaintsCache.filter((c) => c.householdId === householdId);
-    return NextResponse.json({ complaints: filtered });
+    if (!mayAccessHousehold(session, householdId)) return NextResponse.json({ complaints: [] });
+    const mine = complaintsCache.filter((c) => c.householdId === householdId).map(({ contactEmail, ...rest }) => rest);
+    return NextResponse.json({ complaints: mine });
   }
-
-  return NextResponse.json({ complaints: complaintsCache });
+  if (!session || session.role === "resident") {
+    return NextResponse.json({ error: "forbidden", message: "Your role doesn't allow this action." }, { status: 403 });
+  }
+  return NextResponse.json({ complaints: complaintsCache.map((c) => ({ ...c, contactEmail: maskEmail(c.contactEmail) })) });
 }
-

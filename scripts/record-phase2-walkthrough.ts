@@ -215,13 +215,6 @@ async function recordWalkthrough() {
 
   await page.screenshot({ path: path.join(SCREENSHOTS_DIR, "01_grievance_portal.png") });
 
-  // 11. PAYPAL SPIKE (/spike)
-  console.log("--> Navigating to PayPal Spike (/spike)");
-  await page.goto("http://localhost:3000/spike", { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
-  log("/spike", "Direct Route Load", "Sandbox Diagnostics", "Live Sandbox API diagnostic verification", "Spike diagnostics rendered", "PASS");
-
-  await page.screenshot({ path: path.join(SCREENSHOTS_DIR, "01_paypal_spike.png") });
 
   // Final wrap up
   const videoObj = page.video();

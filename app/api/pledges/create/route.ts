@@ -3,8 +3,12 @@ import { exchangeSetupTokenForPaymentToken } from "@/lib/paypal/vault";
 import { db } from "@/lib/db/client";
 import { stormPledges, pledgeConsents } from "@/lib/db/schema";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function POST(req: Request) {
+  const limited = limitRequest(req, "pledges-create-post", { limit: 6 });
+  if (limited) return limited;
+
   try {
     const {
       setupTokenId,

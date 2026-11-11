@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { listBatchRecords, listItemRecords } from "@/lib/payouts/store";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +9,10 @@ export const dynamic = "force-dynamic";
  * Read-only. Contains ids, statuses, amounts and sync times; never recipient addresses
  * (they are not stored in these tables).
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = limitRequest(req, "payouts-get", { limit: 30 });
+  if (limited) return limited;
+
   try {
     const batches = await listBatchRecords(10);
     const out = [];

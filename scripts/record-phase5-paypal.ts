@@ -104,13 +104,6 @@ async function recordPaypal() {
     }
   }
 
-  // 3. PAYPAL SPIKE DIAGNOSTICS (/spike)
-  console.log("--> Navigating to PayPal Spike (/spike)");
-  await page.goto("http://localhost:3000/spike", { waitUntil: "networkidle" });
-  await page.waitForTimeout(2000);
-
-  await page.screenshot({ path: path.join(SCREENSHOTS_DIR, "04_paypal_spike_sandbox.png") });
-  log("/spike", "Sandbox Verification", "Diagnostics Panel", "Shows active PayPal Sandbox environment, client ID, API latency", "Sandbox diagnostics active", "PASS");
 
   // 4. SETTLEMENT & RECONCILIATION IN WAR ROOM
   console.log("--> Checking double-entry ledger reconciliation in War Room");

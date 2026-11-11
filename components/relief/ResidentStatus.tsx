@@ -27,12 +27,17 @@ type Copy = {
   daysLeft: (n: number) => string;
   claim: string;
   moreHelp: string;
+  codePlaceholder: string;
+  codeHelp: string;
+  wrongCode: string;
+  locked: string;
+  signOut: string;
 };
 
 const COPY: Record<string, Copy> = {
   en: {
     title: "Check my payment",
-    placeholder: "Your reference (e.g. hh_tbw_002)",
+    placeholder: "Your reference",
     search: "Check",
     demo: "Try a demo reference",
     notFound: "We couldn’t find that reference. Check it and try again.",
@@ -47,6 +52,11 @@ const COPY: Record<string, Copy> = {
     daysLeft: (n) => `${n} days left to claim`,
     claim: "Claim on PayPal",
     moreHelp: "Need more help? Report a problem",
+    codePlaceholder: "6-digit code",
+    codeHelp: "Your coordinator gave you a reference and a 6-digit code.",
+    wrongCode: "That reference and code don’t match. Check them and try again.",
+    locked: "Too many wrong codes. Please wait 15 minutes or ask your coordinator.",
+    signOut: "Sign out",
   },
   es: {
     title: "Consultar mi pago",
@@ -65,6 +75,11 @@ const COPY: Record<string, Copy> = {
     daysLeft: (n) => `Quedan ${n} días para reclamarlo`,
     claim: "Reclamar en PayPal",
     moreHelp: "¿Necesita más ayuda? Informe un problema",
+    codePlaceholder: "Código de 6 dígitos",
+    codeHelp: "Su coordinador le dio una referencia y un código de 6 dígitos.",
+    wrongCode: "Esa referencia y ese código no coinciden. Revíselos e inténtelo de nuevo.",
+    locked: "Demasiados códigos incorrectos. Espere 15 minutos o consulte a su coordinador.",
+    signOut: "Cerrar sesión",
   },
   ht: {
     title: "Tcheke peman mwen",
@@ -83,6 +98,11 @@ const COPY: Record<string, Copy> = {
     daysLeft: (n) => `Rete ${n} jou pou reklame l`,
     claim: "Reklame sou PayPal",
     moreHelp: "Ou bezwen plis èd? Rapòte yon pwoblèm",
+    codePlaceholder: "Kòd 6 chif",
+    codeHelp: "Kowòdonatè ou a ba ou yon referans ak yon kòd 6 chif.",
+    wrongCode: "Referans ak kòd sa yo pa matche. Verifye yo epi eseye ankò.",
+    locked: "Twòp move kòd. Tann 15 minit oswa mande kowòdonatè ou.",
+    signOut: "Dekonekte",
   },
   vi: {
     title: "Kiểm tra khoản thanh toán của tôi",
@@ -101,6 +121,11 @@ const COPY: Record<string, Copy> = {
     daysLeft: (n) => `Còn ${n} ngày để nhận`,
     claim: "Nhận trên PayPal",
     moreHelp: "Cần thêm trợ giúp? Báo cáo sự cố",
+    codePlaceholder: "Mã 6 chữ số",
+    codeHelp: "Điều phối viên đã đưa cho bạn một mã tham chiếu và mã 6 chữ số.",
+    wrongCode: "Mã tham chiếu và mã này không khớp. Hãy kiểm tra và thử lại.",
+    locked: "Quá nhiều mã sai. Vui lòng đợi 15 phút hoặc hỏi điều phối viên.",
+    signOut: "Đăng xuất",
   },
   zh: {
     title: "查询我的款项",
@@ -119,6 +144,11 @@ const COPY: Record<string, Copy> = {
     daysLeft: (n) => `还剩 ${n} 天可领取`,
     claim: "在 PayPal 领取",
     moreHelp: "需要更多帮助？报告问题",
+    codePlaceholder: "6 位验证码",
+    codeHelp: "您的协调员已给您一个参考编号和一个 6 位验证码。",
+    wrongCode: "参考编号与验证码不匹配，请检查后重试。",
+    locked: "错误次数过多，请等待 15 分钟或联系您的协调员。",
+    signOut: "退出登录",
   },
 };
 
@@ -146,6 +176,7 @@ const TONE_CLASS: Record<View["tone"], string> = {
 export function ResidentStatus({ lang }: { lang: string }) {
   const c = COPY[lang] ?? COPY.en;
   const [ref, setRef] = useState("");
+  const [code, setCode] = useState("");
   const [view, setView] = useState<View | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -153,22 +184,38 @@ export function ResidentStatus({ lang }: { lang: string }) {
   const [reason, setReason] = useState<keyof Copy["reasons"]>("NO_PAYPAL_ACCOUNT");
   const [sent, setSent] = useState(false);
 
-  const lookup = async (value: string) => {
+  const lookup = async (value: string, codeValue: string) => {
     setRef(value);
     setLoading(true);
     setError(null);
     setSent(false);
     setAskProblem(false);
     try {
+      // 1) prove who you are: reference + the 6-digit code your coordinator gave you
+      const auth = await fetch("/api/resident/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ref: value.trim(), code: codeValue.trim() }) });
+      if (!auth.ok) {
+        setView(null);
+        setError(auth.status === 429 ? c.locked : c.wrongCode);
+        return;
+      }
+      // 2) the server returns ONLY your household
       const res = await fetch(`/api/recipients/case?ref=${encodeURIComponent(value.trim())}`);
       if (!res.ok) throw new Error("nf");
       setView(await res.json());
+      setCode("");
     } catch {
       setView(null);
       setError(c.notFound);
     } finally {
       setLoading(false);
     }
+  };
+
+  const signOut = async () => {
+    await fetch("/api/auth/session", { method: "DELETE" });
+    setView(null);
+    setRef("");
+    setCode("");
   };
 
   const report = async (kind: "RECEIVED" | "CANT_ACCESS") => {
@@ -200,27 +247,30 @@ export function ResidentStatus({ lang }: { lang: string }) {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (ref.trim()) lookup(ref);
+          if (ref.trim() && code.trim()) lookup(ref, code);
         }}
-        className="flex gap-2"
+        className="space-y-3"
       >
-        <div className="relative flex-1">
-          <I.search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
-          <input value={ref} onChange={(e) => setRef(e.target.value)} placeholder={c.placeholder} className="field-input pl-10" aria-label={c.title} />
-        </div>
-        <button type="submit" className="field-btn field-btn-primary" disabled={loading || !ref.trim()}>
-          {c.search}
-        </button>
-      </form>
-
-      <div className="flex flex-wrap items-center gap-2 text-[12.5px] text-ink-3">
-        <span>{c.demo}:</span>
-        {["hh_tbw_002", "hh_tbw_004", "hh_clw_005"].map((d) => (
-          <button key={d} type="button" onClick={() => lookup(d)} className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-mono text-[11.5px] text-ink-2 transition-colors hover:border-accent/40 hover:text-ink">
-            {d}
+        <div className="grid gap-2 sm:grid-cols-[1fr_11rem_auto]">
+          <div className="relative">
+            <I.search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
+            <input value={ref} onChange={(e) => setRef(e.target.value)} placeholder={c.placeholder} className="field-input pl-10" aria-label={c.placeholder} autoComplete="off" />
+          </div>
+          <input
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
+            placeholder={c.codePlaceholder}
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            className="field-input font-mono tracking-[0.2em]"
+            aria-label={c.codePlaceholder}
+          />
+          <button type="submit" className="field-btn field-btn-primary" disabled={loading || !ref.trim() || code.length < 6}>
+            {c.search}
           </button>
-        ))}
-      </div>
+        </div>
+        <p className="text-[12.5px] text-ink-3">{c.codeHelp}</p>
+      </form>
 
       {error && (
         <div className="flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 p-3.5 text-[13px] text-danger" role="alert">
@@ -300,6 +350,7 @@ export function ResidentStatus({ lang }: { lang: string }) {
             )
           )}
 
+          <button type="button" onClick={signOut} className="mr-4 text-[13px] text-ink-3 underline-offset-4 hover:underline">{c.signOut}</button>
           <Link href={`/r/complaints?case=${encodeURIComponent(view.caseRef)}`} className="inline-flex text-[13px] text-accent-strong underline-offset-4 hover:underline">
             {c.moreHelp}
           </Link>

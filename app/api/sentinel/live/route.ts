@@ -3,8 +3,12 @@ import { getUnifiedWeatherIntelligence } from "@/lib/sentinel/weather-client";
 import { buildPrivacyPreservingClusters } from "@/lib/sentinel/clusters";
 import { SYNTHETIC_HOUSEHOLDS } from "@/lib/fixtures/households";
 import { loadMiltonHistoricalReplay } from "@/lib/sentinel/replay";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function GET(req: NextRequest) {
+  const limited = limitRequest(req, "sentinel-live-get", { limit: 60 });
+  if (limited) return limited;
+
   try {
     const url = new URL(req.url);
     const fundId = url.searchParams.get("fundId") || undefined;

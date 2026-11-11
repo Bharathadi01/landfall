@@ -5,8 +5,12 @@ import { desc, eq } from "drizzle-orm";
 import { runWatchOfficerAnalysis } from "@/lib/ai/watch-officer/orchestrator";
 import type { WatchOfficerContext, Role } from "@/lib/ai/watch-officer/types";
 import { safeError } from "@/lib/http/safe-error";
+import { limitRequest } from "@/lib/security/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const limited = limitRequest(req, "watch-officer-post", { limit: 6 });
+  if (limited) return limited;
+
   try {
     const body = await req.json().catch(() => ({}));
     let targetFundId = body.fundId;
@@ -66,6 +70,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const limited = limitRequest(req, "watch-officer-get", { limit: 30 });
+  if (limited) return limited;
+
   try {
     const url = new URL(req.url);
     const fundId = url.searchParams.get("fundId");
