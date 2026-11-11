@@ -1,11 +1,12 @@
 /**
  * PayPal JS SDK loader. One-time payments (intent=capture) and subscriptions (intent=subscription, vault=true) need
- * different SDK parameters, so each gets its own namespace and both can be on one page.
+ * different SDK parameters, so each gets its own namespace and both can be on one page. (Never use window.paypal: the landing
+ * page has an element with id="paypal", and browsers expose elements by id on window.)
  */
 export type SdkKind = "orders" | "subscriptions";
 
 const CONFIG: Record<SdkKind, { namespace: string; query: string }> = {
-  orders: { namespace: "paypal", query: "currency=USD&intent=capture&components=buttons&enable-funding=card" },
+  orders: { namespace: "paypalOrders", query: "currency=USD&intent=capture&components=buttons&enable-funding=card" },
   subscriptions: { namespace: "paypalSubs", query: "vault=true&intent=subscription&components=buttons" },
 };
 
@@ -29,7 +30,8 @@ export function loadPayPalSdk(kind: SdkKind, clientId: string): Promise<any> {
     s.id = id;
     s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&${query}`;
     s.async = true;
-    if (namespace !== "paypal") s.setAttribute("data-namespace", namespace);
+    // own namespace for each SDK: a page element with id="paypal" would otherwise shadow window.paypal
+    s.setAttribute("data-namespace", namespace);
     s.onload = done;
     s.onerror = () => reject(new Error("PayPal could not be loaded"));
     document.head.appendChild(s);
