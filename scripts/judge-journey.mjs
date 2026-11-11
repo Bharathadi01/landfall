@@ -65,6 +65,7 @@ await step("war room shows LIVE SANDBOX data (5 real payments)", async () => {
 
 await step("Cases tab loads the AG Grid with the five live payments (lazy-loaded)", async () => {
   await page.goto(base + "/console/war-room", { waitUntil: "domcontentloaded", timeout: 90000 });
+  await page.getByText(/Every payment/).first().waitFor({ timeout: 60000 }); // live data has arrived (no replay flash)
   await page.getByRole("tab", { name: /Cases/i }).first().click();
   await page.waitForSelector(".ag-row", { timeout: 60000 });
   const rows = await page.locator(".ag-center-cols-container .ag-row").count();

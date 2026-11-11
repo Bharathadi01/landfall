@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
 import { LiveClock } from "@/components/ui/LiveClock";
 import { SessionChip } from "@/components/auth/SessionChip";
-import { DataSourceProvider } from "@/components/data/DataSourceProvider";
+import { DataSourceProvider, useCases } from "@/components/data/DataSourceProvider";
 import { SourceSwitch } from "@/components/data/SourceSwitch";
 import { IncidentBug, SidebarIncident } from "@/components/data/IncidentBug";
 
@@ -283,11 +283,33 @@ function OperationsShellInner({ children, pathname }: { children: React.ReactNod
         </header>
 
         <main id="main" tabIndex={-1} className="relative flex-1 px-4 py-8 outline-none sm:px-6 lg:px-10 lg:py-10">
-          <div className="mx-auto w-full max-w-[1480px]">{children}</div>
+          <div className="mx-auto w-full max-w-[1480px]"><ConsoleContent>{children}</ConsoleContent></div>
         </main>
       </div>
     </div>
   );
+}
+
+/**
+ * Until the case source (live or replay) is known, show a skeleton instead of the page: otherwise the first paint
+ * briefly shows the synthetic replay numbers as if they were the app's data before the live records arrive.
+ */
+function ConsoleContent({ children }: { children: React.ReactNode }) {
+  const { status } = useCases();
+  const pathname = usePathname();
+  if (status === "loading" && pathname !== "/console/cases/[ref]") {
+    return (
+      <div role="status" aria-busy="true" aria-label="Loading the latest records" className="space-y-6" data-testid="console-skeleton">
+        <div className="h-8 w-40 animate-pulse rounded-lg bg-white/[0.06]" />
+        <div className="h-24 w-full max-w-2xl animate-pulse rounded-2xl bg-white/[0.05]" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-white/[0.04]" />)}
+        </div>
+        <span className="sr-only">Loading the latest records…</span>
+      </div>
+    );
+  }
+  return <>{children}</>;
 }
 
 function SidebarContent({

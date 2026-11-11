@@ -30,7 +30,16 @@ export function IncidentBug() {
 /** Sidebar card: the active data set, with where it comes from. */
 export function SidebarIncident() {
   const { source, cases, lastSyncedAt, status } = useCases();
-  if (status !== "loading" && source === "live") {
+  if (status === "loading") {
+    return (
+      <>
+        <Tag tone="neutral">Loading…</Tag>
+        <div className="mt-2.5 font-serif text-[22px] leading-none tracking-[-0.02em] text-ink">Checking records</div>
+        <div className="mt-1.5 text-[12px] text-ink-2">Looking for stored PayPal payments</div>
+      </>
+    );
+  }
+  if (source === "live") {
     return (
       <>
         <Tag tone="paypal" solid live>Live Sandbox</Tag>
