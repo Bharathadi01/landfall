@@ -16,7 +16,7 @@
 The free server sleeps when idle, so the first request can take ~30 s.
 
 1. **Sign in** as a demo persona (Dana = coordinator, Sam = finance, Judge = read-only). The server enforces each role.
-2. **Command Center → Cases**: five *real* PayPal Sandbox payments (batch `VTJG3SR5BY56C`): one credited, the rest unclaimed. Open one and press **Investigate with AI**: a `gpt-oss-120b` agent reads the stored evidence, PayPal's live item status and PayPal's own transaction record (through the official **PayPal Agent Toolkit**), cites every fact, and drafts a resident message in EN/ES/VI/HT. It cannot change anything.
+2. **Command Center → Cases**: five *real* PayPal Sandbox payments (batch `VTJG3SR5BY56C`): one credited, three unclaimed and one returned (PayPal's current statuses). The live Cases view also includes two $1 Sandbox payouts from a separate batch. Open one and press **Investigate with AI**: a `gpt-oss-120b` agent reads the stored evidence, PayPal's live item status and PayPal's own transaction record (through the official **PayPal Agent Toolkit**), cites every fact, and drafts a resident message in EN/ES/VI/HT. It cannot change anything.
 3. **Be the resident** (codes on the judge card): see the status, report "I can't get to it".
 4. **Recover**: as Dana, propose cancelling the unclaimed payment (the rules allow it only because of that report); approve as Dana, then as Sam (demo PIN on the card). The Treasurer cancels it at PayPal once and the ledger returns the funds. This was done live: see [docs/LIVE_PROOF.md](docs/LIVE_PROOF.md).
 
@@ -129,7 +129,7 @@ Everything below runs against the PayPal **Sandbox** (`api-m.sandbox.paypal.com`
 | Capability / API | Status | Evidence / Sandbox ID | Technical Notes |
 |---|---|---|---|
 | **PayPal OAuth 2.0** | **VERIFIED** | `lib/paypal/client.ts` | In-memory token cache with expiration buffer; concurrency safe |
-| **PayPal Payouts v1** | **VERIFIED** | Batch `VTJG3SR5BY56C` ($500.00, 5 × $100), `7Y5GP4ETNLCUQ`, `CYX4HC52K54WN`, `WWN9FJ4KDJCHS`, `YK4N42RDMN8AY` | Real Sandbox batches. PayPal reports `VTJG3SR5BY56C` as batch `SUCCESS`, but **1 of its 5 items is `SUCCESS` (credited) and 4 are `UNCLAIMED`** ($400 returns to the sender after 30 days), read back from PayPal with `GET /v1/payments/payouts/{id}` on 2026-11-11. The $1 batches also show `SUCCESS` and `UNCLAIMED` items. Batch `SUCCESS` is not 'every household credited'. |
+| **PayPal Payouts v1** | **VERIFIED** | Batch `VTJG3SR5BY56C` ($500.00, 5 × $100), `7Y5GP4ETNLCUQ`, `CYX4HC52K54WN`, `WWN9FJ4KDJCHS`, `YK4N42RDMN8AY` | Real Sandbox batches. PayPal reports `VTJG3SR5BY56C` as batch `SUCCESS`, but **1 of its 5 items is `SUCCESS` (credited), 3 are `UNCLAIMED` ($300 returns to the sender after 30 days) and 1 is `RETURNED` ($100, after a cancellation we ran live)**, read back from PayPal with `GET /v1/payments/payouts/{id}` on 2026-11-12. Batch fees are $3.00 (the credited item $2.00, four items at $0.25). The $1 batches also show `SUCCESS` and `UNCLAIMED` items. Batch `SUCCESS` is not 'every household credited'. |
 | **PayPal Batch Payouts** | **VERIFIED** | Batch `7Y5GP4ETNLCUQ` ($2.00 total) | Item `FR7DHMX8QE59A` (`SUCCESS`, $1.00); Item `2FN4JTY2SF8A2` (`UNCLAIMED`, $1.00) |
 | **PayPal Orders v2** | **VERIFIED** | Order `35996334K7032164X` | Created in Sandbox (`POST /v2/checkout/orders`); requires buyer authorization before capture; unapproved orders strictly segregated from ledger cash |
 | **PayPal Subscriptions v1**| **VERIFIED** | Product `PROD-4HV976845W620203M`, Plan `P-5A327449X7452233TNLYQY3A` | Monthly sustainer billing for standby liquidity |
@@ -164,9 +164,8 @@ Every piece of data in Landfall is visibly badged in the UI according to its ori
 
 ### Financial Math & Fee Truth
 - Standard relief grant: **$100.00**
-- PayPal Domestic Payout fee: **$0.25 flat fee**
-- Net relief capital delivered: **$99.75 (99.75% direct relief efficiency)**
-- Fee overhead: **0.25%**
+- PayPal payout fees observed on the real Sandbox batch `VTJG3SR5BY56C` ($500, five $100 items): **$3.00 in total**, which is $2.00 on the item that was credited and $0.25 on each of the other four. Sandbox fees are not a guide to live fees.
+- So the fee overhead on that batch is **0.6%**, and it varies by item status. We do not claim a flat per-item fee.
 
 ---
 
@@ -218,8 +217,8 @@ $ pnpm exec tsc --noEmit
 
 # 3. Vitest Test Suite (Unit, Integration, Architectural)
 $ pnpm test
- Test Files  45 passed | 8 skipped (53)
-      Tests  405 passed | 84 skipped (489)   # DB suites need TEST_DATABASE_URL; all 489 pass when it is set
+ Test Files  63 passed | 11 skipped (74)
+      Tests  586 passed | 114 skipped (700)   # DB suites need TEST_DATABASE_URL; all 700 pass when it is set (re-run 2026-11-12, disposable Postgres)
 
 # 4. Next.js Production Build
 $ pnpm build

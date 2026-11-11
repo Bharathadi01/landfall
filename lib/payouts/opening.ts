@@ -15,6 +15,8 @@ import type { LedgerEntryItem } from "@/lib/ledger/index";
  *
  * After this, every later change flows through the normal idempotent postings, and the ledger cash equals PayPal's.
  */
+const FEE_BEARING = new Set(["UNCLAIMED", "SUCCESS", "RETURNED", "REFUNDED", "REVERSED"]);
+
 export interface OpeningInput {
   /** PayPal available balance in cents at the moment of import. */
   paypalAvailableCents: number;
@@ -33,8 +35,10 @@ export function openingJournal(input: OpeningInput): OpeningJournal {
   for (const it of input.items) {
     if (it.status === "UNCLAIMED") unclaimed += it.amountCents;
     if (it.status === "SUCCESS") paidOut += it.amountCents;
-    // PayPal charges the fee when an item is credited or held; items that are still PENDING/FAILED carry none we should book.
-    if (it.status === "UNCLAIMED" || it.status === "SUCCESS") fees += it.feeCents ?? 0;
+    // PayPal charges the fee when an item is credited or held, and the batch header still counts it after a return (batch
+    // VTJG3SR5BY56C: fees $3.00 = 2.00 + 4 x 0.25, one of those four items RETURNED). So returned/refunded items keep their
+    // fee here; items still PENDING/FAILED carry none we should book. ACCOUNTING ASSUMPTION: PayPal does not refund the fee on a return.
+    if (FEE_BEARING.has(it.status)) fees += it.feeCents ?? 0;
   }
   const cash = Math.max(0, input.paypalAvailableCents);
   const total = cash + unclaimed + paidOut + fees;

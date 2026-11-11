@@ -36,7 +36,7 @@ function NewPayout({ me, onCreated }: { me: { role: string } | null; onCreated: 
   };
   return (
     <section className="glass space-y-3 p-4" aria-label="New Sandbox payout">
-      <h3 className="text-[15px] font-semibold text-ink">New PayPal Sandbox payout</h3>
+      <h2 className="text-[15px] font-semibold text-ink">New PayPal Sandbox payout</h2>
       <p className="text-[12.5px] text-ink-3">Households with a payout route configured on the server. Each payment is capped at ${(routes.maxItemCents / 100).toFixed(0)} and a proposal at ${(routes.maxTotalCents / 100).toFixed(0)}. Sandbox money only.</p>
       <div className="flex flex-wrap gap-3">
         {routes.households.map((h) => (

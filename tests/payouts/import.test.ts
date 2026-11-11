@@ -46,6 +46,23 @@ describe("opening journal (pure)", () => {
   });
 });
 
+describe("opening journal fees (pure)", () => {
+  it("keeps the fee of a RETURNED item, because PayPal's batch header still counts it (VTJG3SR5BY56C: 2.00 + 4 x 0.25 = 3.00)", () => {
+    const j = openingJournal({
+      paypalAvailableCents: 458_690,
+      items: [
+        { status: "SUCCESS", amountCents: 10000, feeCents: 200 },
+        { status: "RETURNED", amountCents: 10000, feeCents: 25 },
+        { status: "UNCLAIMED", amountCents: 10000, feeCents: 25 },
+        { status: "UNCLAIMED", amountCents: 10000, feeCents: 25 },
+        { status: "UNCLAIMED", amountCents: 10000, feeCents: 25 },
+      ],
+    });
+    expect(j.positions.fees).toBe(300);
+    expect(validateBalancedTransaction(j.entries).balanced).toBe(true);
+  });
+});
+
 const run = process.env.LANDFALL_DB_TESTS ? describe : describe.skip;
 const uid = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 
@@ -94,5 +111,32 @@ run("importing a pre-existing PayPal batch (database)", () => {
     expect(r.from).toBe("UNCLAIMED");
     expect((await getAccountBalance("paypal_available")) - cash).toBe(10_000);
     expect((await getAccountBalance("payout_unclaimed")) - unclaimed).toBe(-10_000);
+  });
+  it("REGRESSION: a refresh right after the import must not deduct the fees from cash a second time", async () => {
+    const id = `IMP${uid()}`;
+    const batch = BATCH(id, `batch_${id}_t1`);
+    await importExistingBatch(id, { fetchBatch: async () => ({ data: batch }), getAvailableUsd: async () => 1000 });
+    const cash = await getAccountBalance("paypal_available");
+    const fees = await getAccountBalance("payout_fees");
+    const unclaimed = await getAccountBalance("payout_unclaimed");
+
+    // exactly what POST /api/payouts/refresh feeds in: the same statuses PayPal reported, with their fees
+    for (const it of batch.items ?? []) {
+      const r = await applyItemObservation({
+        paypalItemId: it.payout_item_id,
+        senderItemId: it.payout_item!.sender_item_id!,
+        paypalBatchId: id,
+        transactionId: it.transaction_id,
+        rawStatus: it.transaction_status,
+        amountCents: 10000,
+        currency: "USD",
+        feeCents: it.payout_item_fee ? Math.round(parseFloat(it.payout_item_fee.value) * 100) : null,
+        source: "refresh",
+      });
+      expect(r.outcome).toBe("unchanged");
+    }
+    expect(await getAccountBalance("paypal_available")).toBe(cash);
+    expect(await getAccountBalance("payout_fees")).toBe(fees);
+    expect(await getAccountBalance("payout_unclaimed")).toBe(unclaimed);
   });
 });

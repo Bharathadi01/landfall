@@ -178,7 +178,7 @@ function ResidentShell({ children, pathname }: { children: React.ReactNode; path
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-canvas/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between gap-4 px-4">
-          <Link href="/" aria-label="Landfall home">
+          <Link href="/">
             <LandfallWordmark size={30} sub="Resident help" />
           </Link>
           <nav className="seg hidden sm:inline-flex" aria-label="Resident pages">
@@ -331,7 +331,7 @@ function SidebarContent({
   return (
     <>
       <div className={`flex h-16 shrink-0 items-center ${collapsed ? "justify-center px-2" : "justify-between px-5"}`}>
-        <Link href="/" aria-label="Landfall home">
+        <Link href="/" aria-label={collapsed ? "Landfall home" : undefined}>
           {collapsed ? <LandfallMark size={32} /> : <LandfallWordmark size={30} sub="Relief console" />}
         </Link>
         {onToggle && !collapsed && (

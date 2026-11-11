@@ -13,8 +13,9 @@ import { RELIEF_CASES } from "@/lib/relief/cases";
 import { TREASURY } from "@/lib/studio/landfall-studio-data";
 
 const usd0 = (n: number) => "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
-const caseStats = (pred: (c: (typeof RELIEF_CASES)[number]) => boolean) => {
-  const rows = RELIEF_CASES.filter(pred);
+type ReliefCaseLike = (typeof RELIEF_CASES)[number];
+const statsOf = (cases: readonly ReliefCaseLike[], pred: (c: ReliefCaseLike) => boolean) => {
+  const rows = cases.filter(pred);
   return { n: rows.length, usd: rows.reduce((t, c) => t + c.amountUsd, 0) };
 };
 
@@ -48,8 +49,11 @@ export const STUDIO_SUGGESTED_PROMPTS = [
  * Deterministic query parser for Studio Agent commands when Groq Free Plan is in fallback,
  * or as a post-processor for natural-language agent instructions.
  */
-export function interpretStudioQuery(query: string): StudioAgentCommand {
+export function interpretStudioQuery(query: string, cases: readonly ReliefCaseLike[] = RELIEF_CASES): StudioAgentCommand {
   const normalized = query.toLowerCase().trim();
+  // Counts and dollar totals in every reply come from the cases the caller is actually showing (live Sandbox OR replay),
+  // never from the replay fixtures by default when the grid is showing something else.
+  const caseStats = (pred: (c: ReliefCaseLike) => boolean) => statsOf(cases, pred);
 
   // Complex multi-intent query: "Show me the households in the highest-risk zone and compare the required assistance against currently allocatable funds"
   if (
@@ -212,7 +216,7 @@ export function interpretStudioQuery(query: string): StudioAgentCommand {
   if (normalized.includes("exposed") || normalized.includes("exposure")) {
     return {
       type: "RESET_FILTERS",
-      agentResponse: `All ${RELIEF_CASES.length} cases are for households inside the Hurricane Milton warning area, so no filter is needed. Cleared filters.`,
+      agentResponse: `All ${cases.length} cases shown are already for households in the storm’s path, so no filter is needed. Cleared filters.`,
     };
   }
 

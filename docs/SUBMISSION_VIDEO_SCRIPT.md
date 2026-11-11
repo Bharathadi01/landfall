@@ -54,4 +54,6 @@
 - That webhooks were received from PayPal on the public URL (not demonstrated).
 - That passkeys are server-verified (they are not in this build).
 - That anyone has used or validated Landfall.
-- Test counts other than the current ones: **405 passing without a database, 489 with a disposable `TEST_DATABASE_URL` database**.
+- Test counts other than the current ones: **586 passing without a database, 700 with a disposable `TEST_DATABASE_URL` database** (re-run 2026-11-12).
+- That the real batch is "one credited, four unclaimed": PayPal now reports one credited, three unclaimed and one returned, and the live Cases view also lists two $1 payouts (7 payments, $502).
+- That the Settlement proof tab shows this fund's real proof: it is a labelled replay storyline.

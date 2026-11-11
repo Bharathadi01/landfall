@@ -13,8 +13,13 @@ export function demoPin(env: Record<string, string | undefined> = process.env): 
   return env.DEMO_APPROVAL_PIN && env.DEMO_APPROVAL_PIN.length >= 4 ? env.DEMO_APPROVAL_PIN : DEFAULT_DEMO_PIN;
 }
 
+/**
+ * The demo PIN is public (it is printed on the judge card and defaulted in the repo), so it must never be able to authorise
+ * movement of real money: it is refused whenever PayPal is configured for LIVE, whatever DEMO_KEY_DISABLED says.
+ * Live deployments approve with passkeys only.
+ */
 export function demoKeyEnabled(env: Record<string, string | undefined> = process.env): boolean {
-  return env.DEMO_KEY_DISABLED !== "true";
+  return env.DEMO_KEY_DISABLED !== "true" && env.PAYPAL_ENV !== "live";
 }
 
 export async function demoKeySignature(personaId: string, payloadHash: string, env: Record<string, string | undefined> = process.env): Promise<string> {

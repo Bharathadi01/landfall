@@ -116,7 +116,7 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
   const [groupBy, setGroupBy] = useState<GroupBy>("stage");
   const [find, setFind] = useState("");
   const [query, setQuery] = useState("");
-  const [reply, setReply] = useState("Ask in plain English — for example “show unclaimed payments”. I can filter and sort this grid; I can’t change amounts or pay anyone.");
+  const [reply, setReply] = useState("Quick commands (rule-based keyword matcher, not an AI model), for example “show unclaimed payments”. They filter and sort this grid only; they can’t change amounts or pay anyone.");
   const [zoneFilter, setZoneFilter] = useState<string | null>(null);
   const [focus, setFocus] = useState<{ lng: number; lat: number; key: string } | null>(null);
   const [feed, setFeed] = useState<{ state: "idle" | "running" | "done"; last?: string }>({ state: "idle" });
@@ -352,7 +352,9 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
   const runCommand = (text: string) => {
     const userText = text.trim();
     if (!userText) return;
-    const command: StudioAgentCommand = interpretStudioQuery(userText);
+    const command: StudioAgentCommand = interpretStudioQuery(userText, cases);
+    // This box is a keyword matcher, not a model. Say so when part of the request was not understood.
+    const unsupported = /group by|\babove\b|\bover\b|more than|greater than|\bunder\b|below|less than|\$\s?\d/i.test(userText) && command.type !== "INFO";
     if (api) {
       if (command.type === "RESET_FILTERS") {
         api.setFilterModel(null);
@@ -374,7 +376,7 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
         api.applyColumnState({ state: [{ colId: command.sortColumn, sort: command.sortDirection || "asc" }], defaultState: { sort: null } });
       }
     }
-    setReply(command.agentResponse);
+    setReply(unsupported ? `${command.agentResponse} (This box is a keyword matcher, not an AI model: it applied the part it understands. Grouping and amount thresholds are not understood here; use “By stage / By status” above or the column menus.)` : command.agentResponse);
     setQuery("");
   };
 
@@ -489,7 +491,7 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
         <div className="flex flex-col gap-3 border-b border-white/[0.06] bg-ai/[0.035] px-5 py-3.5 xl:flex-row xl:items-center">
           <form onSubmit={(e) => { e.preventDefault(); runCommand(query); }} className="flex flex-1 items-center gap-2">
             <span className="icon-tile icon-tile-sm tone-ai"><I.aiAdvisor /></span>
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Ask the grid: “credited but not confirmed”, “Zone A”…" className="field-input h-9 rounded-full text-[13px]" aria-label="Ask the grid" />
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Quick command: “credited but not confirmed”, “Zone A”…" className="field-input h-9 rounded-full text-[13px]" aria-label="Ask the grid" />
             <Button type="submit" variant="signal" size="sm" iconOnly aria-label="Send"><I.bolt className="h-4 w-4" /></Button>
           </form>
           <div className="flex flex-wrap gap-1.5">

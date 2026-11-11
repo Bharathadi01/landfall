@@ -89,3 +89,17 @@ describe("Studio Agent Framework Bridge (§3, §4, §5)", () => {
     expect(cmd.sortColumn).toBe("priorityTier");
   });
 });
+
+describe("grid quick commands describe the cases the grid is showing", () => {
+  it("counts and totals come from the cases passed in, not from the replay fixtures", async () => {
+    const { interpretStudioQuery } = await import("@/lib/ai/watch-officer/studio-bridge");
+    const live = [
+      { status: "UNCLAIMED", amountUsd: 100, zone: "Zone B", nextAction: { safeAction: "SEND_REMINDER", needsPerson: false }, openIssue: false },
+      { status: "UNCLAIMED", amountUsd: 100, zone: "Zone B", nextAction: { safeAction: "SEND_REMINDER", needsPerson: false }, openIssue: false },
+      { status: "UNCLAIMED", amountUsd: 100, zone: "Zone B", nextAction: { safeAction: "SEND_REMINDER", needsPerson: false }, openIssue: false },
+      { status: "SUCCESS", amountUsd: 100, zone: "Zone B", nextAction: { safeAction: "ASK_RECIPIENT_TO_CONFIRM", needsPerson: false }, openIssue: false },
+    ] as never;
+    const cmd = interpretStudioQuery("show unclaimed payments", live);
+    expect(cmd.agentResponse).toContain("3 unclaimed payment(s) ($300)");
+  });
+});

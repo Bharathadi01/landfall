@@ -78,7 +78,7 @@ export default async function JudgesPage() {
 
       <h2 className="mt-12 text-title-3 text-ink">Resident test households</h2>
       <p className="mt-1 text-[13px] text-ink-3">Reference + 6-digit code. The code proves you are that household; the server returns only that household’s record.</p>
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]" tabIndex={0} role="region" aria-label="Scrollable table">
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]" tabIndex={0} role="region" aria-label="Resident test households, scrollable table">
         <table className="w-full min-w-[640px] text-left text-[13px]">
           <thead className="bg-white/[0.03] text-ink-3">
             <tr><th className="p-3 font-medium">Household</th><th className="p-3 font-medium">Reference</th><th className="p-3 font-medium">Code</th><th className="p-3 font-medium">What to try</th></tr>
@@ -119,7 +119,7 @@ export default async function JudgesPage() {
       )}
 
       <h2 className="mt-12 text-title-3 text-ink">What is real, and what is not</h2>
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]" tabIndex={0} role="region" aria-label="Scrollable table">
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]" tabIndex={0} role="region" aria-label="What is real and what is not, scrollable table">
         <table className="w-full min-w-[640px] text-left text-[13px]">
           <tbody className="divide-y divide-white/[0.06] text-ink-2">
             {[

@@ -281,11 +281,26 @@ describe.skipIf(!process.env.LANDFALL_DB_TESTS)("Groq Free Plan AI Provider & Ze
       apiKey: "gsk_mock_test_key",
       model: "openai/gpt-oss-20b",
       groqClient: mockGroqClient,
+      maxToolSteps: 5, // sequential rounds are still supported when asked for; the default is lower (see test 3b)
     });
 
     expect(session.executedTools).toContain("get_disaster_context");
     expect(session.executedTools).toContain("get_exposure_summary");
     expect(mockGroqClient.chat.completions.create).toHaveBeenCalledTimes(4);
+  });
+
+  it("3b. Token budget: by default at most two tool rounds plus one synthesis call, and tool calls are requested in parallel", async () => {
+    const toolTurn = (name: string) => ({ choices: [{ message: { role: "assistant", tool_calls: [{ id: `c_${name}`, type: "function", function: { name, arguments: "{}" } }] } }] });
+    const create = vi
+      .fn()
+      .mockResolvedValueOnce(toolTurn("get_disaster_context"))
+      .mockResolvedValueOnce(toolTurn("get_exposure_summary"))
+      .mockResolvedValueOnce({ choices: [{ message: { role: "assistant", content: JSON.stringify(sampleValidStructuredOutput) } }] });
+    const ctx: WatchOfficerContext = { fundId: testFundId, fundName: "Tampa Relief Fund", actorId: "coord_1", actorRole: "coordinator", query: "Full review" };
+    const out = await executeGroqWatchOfficerSession({ context: ctx, apiKey: "gsk_mock_test_key", model: "openai/gpt-oss-20b", groqClient: { chat: { completions: { create } } } as never });
+    expect(out.executedTools).toEqual(["get_disaster_context", "get_exposure_summary"]);
+    expect(create).toHaveBeenCalledTimes(3); // round 1, round 2, then synthesis: no third tool round
+    expect(create.mock.calls[0][0]).toMatchObject({ parallel_tool_calls: true, max_completion_tokens: 800 });
   });
 
   // Test 4: Tool allowlist enforcement

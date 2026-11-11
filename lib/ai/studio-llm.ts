@@ -5,7 +5,7 @@
  * the browser, inside Studio, against tools that cannot move money.
  */
 import Groq from "groq-sdk";
-import { GROQ_FREE_MODEL, validateModelName } from "@/lib/ai/watch-officer/groq-client";
+import { GROQ_FREE_MODEL, validateModelName, createWithRateLimitRetry } from "@/lib/ai/watch-officer/groq-client";
 import { requestToChat, chatChoiceToTurn, type StudioRequestLike, type ModelTurn } from "./studio-llm-mapping";
 
 export class StudioLlmUnavailable extends Error {
@@ -22,7 +22,7 @@ export async function runStudioChat(req: StudioRequestLike, opts: { client?: Pic
 
   const { messages, tools, tool_choice, json } = requestToChat(req);
   try {
-    const res: any = await (client as any).chat.completions.create({
+    const res: any = await createWithRateLimitRetry(client as Groq, {
       model,
       messages,
       ...(tools ? { tools, tool_choice } : {}),

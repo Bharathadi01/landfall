@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useCases } from "@/components/data/DataSourceProvider";
 
 export interface MoneyPathNode {
   step: number;
@@ -15,6 +16,7 @@ export interface MoneyPathNode {
 
 export function PayPalMoneyPathExplorer() {
   const [activeStep, setActiveStep] = useState<number>(5);
+  const { source } = useCases();
 
   const nodes: MoneyPathNode[] = [
     {
@@ -49,11 +51,11 @@ export function PayPalMoneyPathExplorer() {
     },
     {
       step: 4,
-      label: "Dual Passkey Sign-off",
-      sublabel: "FIDO2 WebAuthn",
+      label: "Two-person sign-off",
+      sublabel: "Passkey or labelled demo key",
       referenceId: "Hash: 46d87f7396a84f3e...",
       status: "CONFIRMED",
-      details: "Two distinct passkey signatures: Dr. Sarah Lin (Ops) + Marcus Vance (Finance). Zero AI approval.",
+      details: "Replay storyline: two distinct approvers (fictional: an operations lead and a finance director) each approved the same payload hash. The server records HOW each approved, a passkey or the labelled demo key. No AI approval.",
       timestamp: "2024-10-09 18:04:12 UTC",
     },
     {
@@ -77,11 +79,11 @@ export function PayPalMoneyPathExplorer() {
     },
     {
       step: 7,
-      label: "Cryptographic Proof",
-      sublabel: "SHA-256 Chain of Custody",
+      label: "Evidence record",
+      sublabel: "Hash-linked · replay",
       referenceId: "Proof: prf_rcv_master_9921",
       status: "RESOLVED",
-      details: "Master proof binds Obligation + Payout Trace + Webhook Verification + Ledger Trace + Passkey Authorization.",
+      details: "Replay storyline: a master hash links the obligation, payout trace, webhook record, ledger trace and approvals. Illustrative only: it is not an independently verified cryptographic proof.",
       timestamp: "2024-10-09 18:20:00 UTC",
     },
   ];
@@ -101,8 +103,14 @@ export function PayPalMoneyPathExplorer() {
           </p>
         </div>
         <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-paypal0/10 text-paypal border border-paypal0/30">
-          7-Stage Lifecycle
+          7-Stage Replay
         </span>
+      </div>
+
+      <div className="note" data-tone="amber" role="note" data-testid="money-path-replay-notice">
+        <span className="note-label">Replay storyline</span>
+        An illustrated sequence from the Hurricane Milton 2024 replay (fictional people, dates and batch). It shows how a payment is traced, not this fund’s payments or verified evidence.
+        {source === "live" ? " Your real PayPal Sandbox payments, with PayPal’s own statuses, are in the Cases tab." : ""}
       </div>
 
       {/* Interactive Horizontal Lifecycle Bar */}

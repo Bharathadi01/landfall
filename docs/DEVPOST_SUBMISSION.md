@@ -80,7 +80,7 @@ Coordinators cannot afford to learn their software or test payment rails during 
 - **False Alarms:** Instant cancellation when warning products are downgraded, protecting $0.00 lost.
 - **Reserve Protection:** Hard barriers preventing depletion of core organizational reserves.
 
-Every drill generates an immutable, cryptographically hashed reconciliation receipt verifying fee overhead ($0.25 flat fee = 0.25% fee overhead; **99.75% direct relief delivered**).
+Every drill generates a hash-linked (SHA-256) reconciliation receipt that shows the fees PayPal reported. On the real Sandbox batch the fees were $3.00 on $500 (0.6%), so we state what PayPal reports rather than a flat figure. The hash links records together; it is not an independently verified cryptographic proof.
 
 ---
 
@@ -127,7 +127,7 @@ Landfall deeply integrates the PayPal Developer Platform exclusively in the Sand
 
 All capabilities are verified through automated testing and empirical sandbox records:
 
-- **Automated Test Suite:** 53 files, **405 tests passing without a database, 489 with a disposable one** (84 database-backed tests need `TEST_DATABASE_URL`).
+- **Automated Test Suite:** 74 files, **586 tests passing without a database, 700 with a disposable one** (114 database-backed tests need `TEST_DATABASE_URL`; re-run 2026-11-12).
 - **Static Boundary Security:** 5 architectural boundary tests validating total AI isolation from financial cores.
 - **Strict TypeScript:** 0 compilation errors across strict mode.
 - **ESLint Code Quality:** 0 errors or warnings.

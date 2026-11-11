@@ -185,7 +185,11 @@ async function finish(
     const postings = statusChanged || created
       ? plannedPostings({ senderItemId: row.senderItemId, from, to, amountCents: row.amountCents, feeCents })
       : plannedPostings({ senderItemId: row.senderItemId, from: to, to, amountCents: row.amountCents, feeCents });
+    // An item that was IMPORTED already has its fee inside the opening journal (and PayPal's cash balance, which the
+    // journal starts from, is already net of it). Posting the per-item fee again would deduct it from cash twice.
+    const feeAlreadyInOpening = postings.some((p) => p.transactionId.endsWith("_fee")) && !created && (await wasImported(tx, row.senderItemId));
     for (const p of postings) {
+      if (feeAlreadyInOpening && p.transactionId.endsWith("_fee")) continue;
       if (await isTransactionRecorded(p.transactionId, tx)) continue;
       await recordLedgerTransaction(
         { hostId: "default", transactionId: p.transactionId, description: p.description, correlationId: row.paypalItemId ?? obs.paypalItemId ?? row.senderItemId, entries: p.entries },
@@ -315,4 +319,14 @@ export async function listStatusHistory(senderItemId: string) {
     .from(payoutStatusHistory)
     .where(and(eq(payoutStatusHistory.senderItemId, senderItemId)))
     .orderBy(payoutStatusHistory.observedAt);
+}
+
+/** True if this item entered Landfall through an import (its money positions, fee included, are in the opening journal). */
+async function wasImported(tx: Tx, senderItemId: string): Promise<boolean> {
+  const rows = await tx
+    .select({ id: payoutStatusHistory.id })
+    .from(payoutStatusHistory)
+    .where(and(eq(payoutStatusHistory.senderItemId, senderItemId), eq(payoutStatusHistory.source, "import")))
+    .limit(1);
+  return rows.length > 0;
 }

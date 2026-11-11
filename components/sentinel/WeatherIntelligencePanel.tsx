@@ -107,7 +107,7 @@ export function WeatherIntelligencePanel({
           {onTriggerReplay && state !== "REPLAY" && (
             <button
               onClick={onTriggerReplay}
-              className="px-3.5 py-1.5 rounded-lg bg-amber hover:bg-amber0 text-white text-xs font-bold shadow-md transition-colors flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-lg bg-amber hover:bg-amber0 text-[#17141a] text-xs font-bold shadow-md transition-colors flex items-center gap-1.5"
             >
               <span>▶</span>
               <span>Replay Milton 2024</span>
@@ -207,9 +207,9 @@ export function WeatherIntelligencePanel({
               <span className="text-[11px] font-bold uppercase tracking-wider text-ink-2">
                 Official Surface Observation Station
               </span>
-              <h3 className="text-xs font-bold text-white mt-0.5">
+              <h2 className="text-xs font-bold text-white mt-0.5">
                 {stationObservation.stationName} ({stationObservation.stationId})
-              </h3>
+              </h2>
             </div>
             <span className="text-[10px] font-mono text-ink-2">
               {new Date(stationObservation.timestamp).toLocaleTimeString([], {
