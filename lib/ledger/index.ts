@@ -12,6 +12,8 @@ export type AccountName =
   | "fees_reserved"
   | "paid_out"
   | "returned"
+  | "payout_unclaimed"
+  | "payout_fees"
   | "pledges_contingent"
   | "pledges_captured";
 
@@ -82,7 +84,9 @@ export function validateBalancedTransaction(entries: LedgerEntryItem[]): {
 /**
  * Persists a balanced ledger transaction.
  */
-export async function recordLedgerTransaction(params: RecordTransactionParams): Promise<void> {
+type LedgerExecutor = any; // a drizzle transaction handle, so callers can post inside their own transaction
+
+export async function recordLedgerTransaction(params: RecordTransactionParams, executor?: LedgerExecutor): Promise<void> {
   const validation = validateBalancedTransaction(params.entries);
   if (!validation.balanced) {
     throw new Error(
@@ -90,8 +94,9 @@ export async function recordLedgerTransaction(params: RecordTransactionParams): 
     );
   }
 
-  // Execute inside a database transaction to ensure atomicity
-  await db.transaction(async (tx) => {
+  // Execute inside a database transaction to ensure atomicity (or inside the caller's, when given)
+  const run: (fn: (tx: LedgerExecutor) => Promise<void>) => Promise<void> = executor ? (fn) => fn(executor) : (fn) => db.transaction(fn);
+  await run(async (tx) => {
     for (const entry of params.entries) {
       // Find or create account
       let [account] = await tx
@@ -101,15 +106,16 @@ export async function recordLedgerTransaction(params: RecordTransactionParams): 
         .limit(1);
 
       if (!account) {
-        const [created] = await tx
+        // onConflictDoNothing: two concurrent first postings to a new account must not collide on the primary key.
+        await tx
           .insert(ledgerAccounts)
           .values({
             id: entry.accountName,
             name: entry.accountName,
             accountType: entry.accountName.startsWith("committed:") ? "LIABILITY" : "ASSET",
           })
-          .returning();
-        account = created;
+          .onConflictDoNothing();
+        [account] = await tx.select().from(ledgerAccounts).where(eq(ledgerAccounts.name, entry.accountName)).limit(1);
       }
 
       await tx.insert(ledgerEntries).values({
@@ -127,14 +133,16 @@ export async function recordLedgerTransaction(params: RecordTransactionParams): 
 /**
  * Checks whether a transaction ID has already been recorded in the ledger.
  */
-export async function isTransactionRecorded(transactionId: string): Promise<boolean> {
-  const existing = await db
+export async function isTransactionRecorded(transactionId: string, executor?: LedgerExecutor): Promise<boolean> {
+  const existing = await (executor ?? db)
     .select({ id: ledgerEntries.id })
     .from(ledgerEntries)
     .where(eq(ledgerEntries.transactionId, transactionId))
     .limit(1);
   return existing.length > 0;
 }
+
+const DEBIT_POSITIVE_ACCOUNTS = new Set<string>(["paypal_available", "paid_out", "payout_unclaimed", "payout_fees"]);
 
 /**
  * Calculates current ledger balance for a given account in cents.
@@ -149,7 +157,9 @@ export async function getAccountBalance(accountName: AccountName): Promise<numbe
     .where(eq(ledgerEntries.accountId, accountName));
 
   let totalCents = 0;
-  const isAsset = accountName === "paypal_available";
+  // Debit-positive accounts. paid_out / payout_unclaimed / payout_fees were never posted before the
+  // payout lifecycle was wired to the ledger, so declaring them debit-positive changes no existing balance.
+  const isAsset = DEBIT_POSITIVE_ACCOUNTS.has(accountName);
 
   for (const entry of entries) {
     const cents = Math.round(parseFloat(entry.amount) * 100);

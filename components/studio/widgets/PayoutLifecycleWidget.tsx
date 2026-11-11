@@ -60,7 +60,7 @@ export function PayoutLifecycleWidget(props: any) {
       time: "18:05 UTC",
       status: "done",
       badge: "ES256 2-of-2",
-      evidence: "Dual approvals anchored. Cryptographic signatures verified against WebAuthn credential public keys.",
+      evidence: "Replay record of a two-person approval. In the app today the passkey prompts are demo-grade and are not verified server-side.",
     },
     {
       title: "3. Payout Batch Creation",
@@ -76,7 +76,7 @@ export function PayoutLifecycleWidget(props: any) {
       time: "18:15 UTC",
       status: "done",
       badge: "PAYPAL_API_ACCEPTED",
-      evidence: `PayPal acknowledged receipt. Batch ID: 7Y5GP4ETNLCUQ. Item ID: ${p.item_id}.`,
+      evidence: `Replay record (synthetic): batch ${p.batch_id}, item ${p.item_id}. Not a real PayPal batch.`,
     },
     {
       title: `5. Provider Observation: ${p.transaction_status}`,
@@ -85,7 +85,7 @@ export function PayoutLifecycleWidget(props: any) {
       status: isSuccess ? "done" : "attention",
       badge: p.status_label,
       color: statusColor,
-      evidence: `Observed via PayPal webhook PAYMENT.PAYOUTS-ITEM.${p.transaction_status}. Signature verified with PayPal public cert.`,
+      evidence: `Replay observation modelled on PayPal's ${p.transaction_status} status (synthetic data; no webhook was received for this record).`,
     },
     {
       title: "6. Ledger Reconciliation",

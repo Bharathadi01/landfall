@@ -79,7 +79,7 @@ describe.skipIf(!process.env.LANDFALL_DB_TESTS)("Treasury Reconciliation Engine"
     expect(report.notes).toMatch(/DISCREPANCY ALERT/);
   });
 
-  it("gracefully falls back to FALLBACK_LEDGER_ONLY when reporting API fails", async () => {
+  it("reports UNVERIFIED (never a match) when the PayPal reporting API fails", async () => {
     vi.spyOn(ledger, "getAccountBalance").mockResolvedValue(450000);
     vi.spyOn(reporting, "getAccountBalances").mockRejectedValue(
       new Error("PERMISSION_DENIED")
@@ -87,12 +87,13 @@ describe.skipIf(!process.env.LANDFALL_DB_TESTS)("Treasury Reconciliation Engine"
 
     const report = await runTreasuryReconciliation({ actor: "test_reconciler" });
 
-    expect(report.status).toBe("FALLBACK_LEDGER_ONLY");
-    expect(report.discrepancyCents).toBe(0);
-    expect(report.notes).toMatch(/Fallback to audited double-entry ledger/);
+    expect(report.status).toBe("UNVERIFIED");
+    expect(report.isMatched).toBe(false);
+    expect(report.matchedCount).toBe(0);
+    expect(report.notes).toMatch(/UNVERIFIED.*PERMISSION_DENIED/);
   });
 
-  it("forces fallback when forceFallback flag is set", async () => {
+  it("a ledger-only view (forceFallback) is labelled and is never counted as matched", async () => {
     vi.spyOn(ledger, "getAccountBalance").mockResolvedValue(300000);
 
     const report = await runTreasuryReconciliation({
@@ -101,8 +102,8 @@ describe.skipIf(!process.env.LANDFALL_DB_TESTS)("Treasury Reconciliation Engine"
     });
 
     expect(report.status).toBe("FALLBACK_LEDGER_ONLY");
-    expect(report.discrepancyCents).toBe(0);
-    expect(report.notes).toMatch(/standard sandbox fallback mode/);
+    expect(report.isMatched).toBe(false);
+    expect(report.notes).toMatch(/NOT a reconciliation/);
   });
 
   it("logs immutable audit event on every reconciliation pass", async () => {

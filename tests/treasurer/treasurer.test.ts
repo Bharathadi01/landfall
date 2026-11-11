@@ -262,7 +262,7 @@ describe("Hardened Treasurer Engine (§4.6)", () => {
       expect(attempts).toBe(2);
     });
 
-    it("Drill 5: Process restart resumes submitting state cleanly", async () => {
+    it("Drill 5: an unresolved SUBMITTING entry is reported as unresolved, never as success with an invented batch id", async () => {
       const treasurer = new TreasurerEngine();
       const { plan, approvals } = createValidPlan();
       const context = createValidContext();
@@ -281,9 +281,13 @@ describe("Hardened Treasurer Engine (§4.6)", () => {
       const mockSender = vi.fn();
       const result = await treasurer.executePlan({ plan, approvals, context, payoutSender: mockSender });
 
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
       expect(result.replayed).toBe(true);
-      expect(result.paypalBatchId).toBe("RECOVERED_BATCH");
+      expect(result.paypalBatchId).toBeUndefined();
+      expect(result.state).toBe("submitting");
+      expect(result.error).toContain("SUBMISSION_UNRESOLVED");
+      expect(JSON.stringify(result)).not.toContain("RECOVERED_BATCH");
+      // never resubmits on its own
       expect(mockSender).not.toHaveBeenCalled();
     });
 
@@ -431,7 +435,7 @@ describe("Hardened Treasurer Engine (§4.6)", () => {
       expect(mockSender).not.toHaveBeenCalled();
     });
 
-    it("falls back to batch_{senderBatchId} when payoutSender response omits payout_batch_id", async () => {
+    it("never fabricates a batch id when the payout response omits payout_batch_id", async () => {
       const treasurer = new TreasurerEngine();
       const { plan, approvals } = createValidPlan();
       const context = createValidContext();
@@ -451,8 +455,14 @@ describe("Hardened Treasurer Engine (§4.6)", () => {
         payoutSender: mockSender,
       });
 
-      expect(result.success).toBe(true);
-      expect(result.paypalBatchId).toContain("batch_");
+      expect(result.success).toBe(false);
+      expect(result.paypalBatchId).toBeUndefined();
+      expect(result.error).toContain("SUBMISSION_UNRESOLVED");
+
+      // A retry must not send again: PayPal may already have accepted the batch.
+      const retry = await treasurer.executePlan({ plan, approvals, context, payoutSender: mockSender });
+      expect(retry.success).toBe(false);
+      expect(mockSender).toHaveBeenCalledTimes(1);
     });
 
     it("recovers existing batch ID when PayPal returns duplicate SENDER_BATCH_ID error", async () => {
@@ -562,5 +572,85 @@ describe("Hardened Treasurer Engine (§4.6)", () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe("Duplicate batch but missing link");
     });
+  });
+});
+
+describe("Treasurer durable recording (audit D-1, D-14)", () => {
+  const accepted = vi.fn(async () => ({ data: { batch_header: { payout_batch_id: "PAYPAL_BATCH_REC_1", batch_status: "PENDING" } } }));
+
+  it("records the batch PayPal accepted, and one SUBMITTED payment per digital item with its deterministic sender_item_id", async () => {
+    const treasurer = new TreasurerEngine();
+    const { plan, approvals } = createValidPlan();
+    const recordBatch = vi.fn(async () => ({ persisted: true }));
+
+    const res = await treasurer.executePlan({ plan, approvals, context: createValidContext(), payoutSender: accepted, recordBatch });
+
+    expect(res.success).toBe(true);
+    expect(res.persisted).toBe(true);
+    expect(recordBatch).toHaveBeenCalledTimes(1);
+    expect(recordBatch).toHaveBeenCalledWith({
+      paypalBatchId: "PAYPAL_BATCH_REC_1",
+      senderBatchId: "batch_act_milton_001_t1",
+      planId: "plan_test_001",
+      status: "PENDING",
+      currency: "USD",
+      items: [
+        { senderItemId: "act_milton_001:t1:hh_1", amountCents: 10000, currency: "USD" },
+        { senderItemId: "act_milton_001:t1:hh_2", amountCents: 10000, currency: "USD" },
+      ],
+    });
+  });
+
+  it("never stores recipient addresses in the batch record it persists", async () => {
+    const treasurer = new TreasurerEngine();
+    const { plan, approvals } = createValidPlan();
+    const recordBatch = vi.fn(async () => ({ persisted: true }));
+    await treasurer.executePlan({ plan, approvals, context: createValidContext(), payoutSender: accepted, recordBatch });
+    expect(JSON.stringify(recordBatch.mock.calls)).not.toContain("resident1@example.com");
+    expect(JSON.stringify(recordBatch.mock.calls)).not.toContain("FR7DHMX8QE59A");
+  });
+
+  it("a persistence failure is reported but does not turn an accepted payout into a failure or trigger a resend", async () => {
+    const treasurer = new TreasurerEngine();
+    const { plan, approvals } = createValidPlan();
+    const sender = vi.fn(accepted);
+    const recordBatch = vi.fn(async () => ({ persisted: false, error: "db down" }));
+
+    const first = await treasurer.executePlan({ plan, approvals, context: createValidContext(), payoutSender: sender, recordBatch });
+    expect(first.success).toBe(true);
+    expect(first.persisted).toBe(false);
+    expect(first.persistenceError).toBe("db down");
+    expect(first.paypalBatchId).toBe("PAYPAL_BATCH_REC_1");
+
+    const replay = await treasurer.executePlan({ plan, approvals, context: createValidContext(), payoutSender: sender, recordBatch });
+    expect(replay.replayed).toBe(true);
+    expect(sender).toHaveBeenCalledTimes(1);
+  });
+
+  it("records a batch recovered from a duplicate sender_batch_id, with status UNKNOWN until a refresh says otherwise", async () => {
+    const treasurer = new TreasurerEngine();
+    const { plan, approvals } = createValidPlan();
+    const recordBatch = vi.fn(async () => ({ persisted: true }));
+    const duplicate = Object.assign(new Error("dup"), {
+      details: { details: [{ issue: "Batch with given sender_batch_id already exists", link: [{ rel: "self", href: "https://api.sandbox.paypal.com/v1/payments/payouts/RECOVERED_REC_9?status=all" }] }] },
+    });
+    const res = await treasurer.executePlan({ plan, approvals, context: createValidContext(), payoutSender: vi.fn().mockRejectedValue(duplicate), recordBatch });
+    expect(res.success).toBe(true);
+    expect(res.paypalBatchId).toBe("RECOVERED_REC_9");
+    expect(recordBatch).toHaveBeenCalledWith(expect.objectContaining({ paypalBatchId: "RECOVERED_REC_9", status: "UNKNOWN" }));
+  });
+
+  it("does not record anything for a purely offline plan (no PayPal batch exists)", async () => {
+    const treasurer = new TreasurerEngine();
+    const { plan, approvals } = createValidPlan();
+    const offlineBase = { ...plan, items: plan.items.map((i) => ({ ...i, recipientType: "MANUAL" as never })) };
+    const { state: _s, planHash: _h, ...rest } = offlineBase;
+    const hash = computePlanHash(rest);
+    const offline: PayoutPlan = { ...offlineBase, planHash: hash };
+    const offlineApprovals = approvals.map((a) => ({ ...a, planHash: hash }));
+    const recordBatch = vi.fn(async () => ({ persisted: true }));
+    const res = await treasurer.executePlan({ plan: offline, approvals: offlineApprovals, context: createValidContext(), payoutSender: vi.fn(), recordBatch });
+    expect(res.success).toBe(true);
+    expect(recordBatch).not.toHaveBeenCalled();
   });
 });

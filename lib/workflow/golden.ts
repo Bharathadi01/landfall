@@ -35,6 +35,8 @@ import {
 } from "@/lib/treasurer/index";
 import { type ApprovalKeyVerification } from "@/lib/security/passkeys";
 import { verifyWebhookSignature } from "@/lib/paypal/webhooks";
+import { validateBalancedTransaction } from "@/lib/ledger/index";
+import { plannedPostings } from "@/lib/payouts/status";
 
 export interface GoldenWorkflowStage {
   stageNumber: number;
@@ -394,6 +396,7 @@ export async function executeGoldenWorkflow({
         itemsCount: payoutPlan.items.length,
         disbursedAmount: `$${(payoutPlan.totalAmountCents / 100).toFixed(2)}`,
         idempotencyKey: `req_${payoutPlan.id}`,
+        recordedDurably: executionResult.persisted === true,
       };
       stages[6].summary = `Hardened Treasurer submitted batch ${executionResult.paypalBatchId} (${payoutPlan.items.length} items, ${stages[6].details.disbursedAmount}) to PayPal.`;
     } else {
@@ -417,24 +420,35 @@ export async function executeGoldenWorkflow({
       "paypal-transmission-time": new Date().toISOString(),
     };
 
-    // Ledger balancing verification: debits equal credits
-    const totalOutflowCents =
-      (payoutPlan?.totalAmountCents || 0) + (payoutPlan?.totalFeesCents || 0);
-    const ledgerDebit = totalOutflowCents;
-    const ledgerCredit = totalOutflowCents;
-    balanced = ledgerDebit === ledgerCredit;
+    // REHEARSAL journal: the entries the ledger WOULD receive if every item in this plan reached SUCCESS
+    // (built by the same rules the live payout store uses). They are checked for balance from their own
+    // debit and credit sums. Nothing is posted here, and no PayPal status has been observed yet.
+    const journal = (payoutPlan?.items ?? [])
+      .filter((i) => (i.recipientType as string) !== "MANUAL")
+      .flatMap((i) =>
+        plannedPostings({
+          senderItemId: `${payoutPlan!.activationId}:t${payoutPlan!.tranche}:${i.householdId}`,
+          from: "SUBMITTED",
+          to: "SUCCESS",
+          amountCents: i.amountCents,
+          feeCents: null,
+        })
+      )
+      .flatMap((p) => p.entries);
+    const check = validateBalancedTransaction(journal);
+    balanced = journal.length > 0 && check.balanced;
 
     stages[7].status = "COMPLETED";
     stages[7].timestamp = new Date().toISOString();
     stages[7].details = {
       transmissionId: webhookHeaders["paypal-transmission-id"],
       signatureStatus: "SIMULATED · not signature-checked here",
-      disbursementDebited: `$${(totalOutflowCents / 100).toFixed(2)}`,
-      ledgerAuditStatus: "BALANCED",
-      discrepancyCents: 0,
-      doubleEntryEquation: "Assets ($0.00 change) == Liabilities + Equity",
+      disbursementDebited: `$${(check.totalDebits / 100).toFixed(2)}`,
+      ledgerAuditStatus: balanced ? "BALANCED" : "UNBALANCED",
+      discrepancyCents: check.difference,
+      doubleEntryEquation: `Dr paid_out $${(check.totalDebits / 100).toFixed(2)} = Cr paypal_available $${(check.totalCredits / 100).toFixed(2)} (rehearsal journal, not posted)`,
     };
-    stages[7].summary = `Rehearsal ledger entries balance (debits = credits, 0¢). The webhook here is simulated; live webhook signatures are verified by PayPal's API on the real receiver. Flow complete.`;
+    stages[7].summary = `Rehearsal journal for ${payoutPlan?.items.length ?? 0} items balances (debits ${check.totalDebits}¢ = credits ${check.totalCredits}¢). Nothing was posted and no PayPal status has been observed yet: the webhook here is simulated, and real item statuses arrive via the verified webhook receiver or a status refresh.`;
   }
 
   return {

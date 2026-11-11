@@ -144,7 +144,7 @@ describe("Phase 13 — AG Grid & AG Studio Prize Correction Acceptance Suite", (
     expect(answer).not.toBeNull();
     expect(answer).toContain("Unclaimed Assistance Analysis");
     expect(answer).toContain("item_milton_002");
-    expect(answer).toContain("BATCH-7Y5GP4ETNLCUQ");
+    expect(answer).toContain("REPLAY-BATCH-A");
     expect(answer).toContain("Do NOT issue duplicate payment");
   });
 

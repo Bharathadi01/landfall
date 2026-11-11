@@ -1,5 +1,10 @@
 import { z } from "zod";
 import { paypalFetch } from "./client";
+import { PayoutBatchHeaderResponseSchema, PayoutItemDetailsSchema, type PayoutItemDetails } from "./payout-reads";
+
+// Read-only calls live in ./payout-reads (importable outside lib/treasurer). Re-exported here so
+// existing imports (scripts, tests) keep working.
+export * from "./payout-reads";
 
 export const PayoutItemRequestSchema = z.object({
   recipient_type: z.enum(["EMAIL", "PHONE", "PAYPAL_ID"]).default("EMAIL"),
@@ -28,29 +33,6 @@ export const CreatePayoutBatchRequestSchema = z.object({
 
 export type CreatePayoutBatchRequest = z.input<typeof CreatePayoutBatchRequestSchema>;
 
-export const PayoutBatchHeaderResponseSchema = z.object({
-  payout_batch_id: z.string(),
-  batch_status: z.string(),
-  sender_batch_header: z.object({
-    sender_batch_id: z.string(),
-    email_subject: z.string().optional(),
-  }),
-  amount: z
-    .object({
-      currency: z.string(),
-      value: z.string(),
-    })
-    .optional(),
-  fees: z
-    .object({
-      currency: z.string(),
-      value: z.string(),
-    })
-    .optional(),
-  time_created: z.string().optional(),
-  time_completed: z.string().optional(),
-});
-
 export const CreatePayoutBatchResponseSchema = z.object({
   batch_header: PayoutBatchHeaderResponseSchema,
   links: z
@@ -65,44 +47,6 @@ export const CreatePayoutBatchResponseSchema = z.object({
 });
 
 export type CreatePayoutBatchResponse = z.infer<typeof CreatePayoutBatchResponseSchema>;
-
-export const PayoutItemDetailsSchema = z.object({
-  payout_item_id: z.string(),
-  transaction_id: z.string().optional(),
-  transaction_status: z.string(), // SUCCESS, UNCLAIMED, RETURNED, FAILED, BLOCKED, HELD, REFUNDED, CANCELED, DENIED
-  payout_item_fee: z
-    .object({
-      currency: z.string(),
-      value: z.string(),
-    })
-    .optional(),
-  payout_batch_id: z.string().optional(),
-  payout_item: z
-    .object({
-      recipient_type: z.string(),
-      amount: z.object({
-        currency: z.string(),
-        value: z.string(),
-      }),
-      note: z.string().optional(),
-      receiver: z.string(),
-      sender_item_id: z.string().optional(),
-      recipient_wallet: z.string().optional(),
-    })
-    .optional(),
-  time_processed: z.string().optional(),
-  links: z.array(z.any()).optional(),
-});
-
-export type PayoutItemDetails = z.infer<typeof PayoutItemDetailsSchema>;
-
-export const GetPayoutBatchResponseSchema = z.object({
-  batch_header: PayoutBatchHeaderResponseSchema,
-  items: z.array(PayoutItemDetailsSchema).optional(),
-  links: z.array(z.any()).optional(),
-});
-
-export type GetPayoutBatchResponse = z.infer<typeof GetPayoutBatchResponseSchema>;
 
 /**
  * Creates a batch payout in PayPal Sandbox.
@@ -122,42 +66,6 @@ export async function createPayoutBatch(
     {
       schema: CreatePayoutBatchResponseSchema,
       requestId: validated.sender_batch_header.sender_batch_id,
-      actor,
-    }
-  );
-}
-
-/**
- * Retrieves the details and current items of a payout batch.
- */
-export async function getPayoutBatch(
-  payoutBatchId: string,
-  actor = "treasurer"
-): Promise<{ data: GetPayoutBatchResponse; debugId?: string; status: number }> {
-  return paypalFetch<GetPayoutBatchResponse>(
-    "GET",
-    `/v1/payments/payouts/${payoutBatchId}`,
-    undefined,
-    {
-      schema: GetPayoutBatchResponseSchema,
-      actor,
-    }
-  );
-}
-
-/**
- * Retrieves a single payout item by PayPal payout_item_id.
- */
-export async function getPayoutItem(
-  payoutItemId: string,
-  actor = "treasurer"
-): Promise<{ data: PayoutItemDetails; debugId?: string; status: number }> {
-  return paypalFetch<PayoutItemDetails>(
-    "GET",
-    `/v1/payments/payouts-item/${payoutItemId}`,
-    undefined,
-    {
-      schema: PayoutItemDetailsSchema,
       actor,
     }
   );

@@ -474,13 +474,14 @@ describe("Storm Treasury & Pledge Engine (§4.2)", () => {
   });
 
   describe("Treasury Reconciliation", () => {
-    it.skipIf(!process.env.LANDFALL_DB_TESTS)("reports in sync when ledger matches reporting balance", async () => {
+    it.skipIf(!process.env.LANDFALL_DB_TESTS)("a ledger-only view is labelled and never counts as in sync", async () => {
       const res = await runTreasuryReconciliation({
         ledgerBalanceCents: 100000,
         fallbackToLedgerOnly: true,
       });
 
-      expect(res.isMatched).toBe(true);
+      // A ledger-only view compares the ledger with itself: it must not be reported as a match.
+      expect(res.isMatched).toBe(false);
       expect(res.status).toBe("FALLBACK_LEDGER_ONLY");
     });
   });

@@ -272,6 +272,64 @@ export const payoutItems = pgTable("payout_items", {
   lastEventAt: timestamp("last_event_at").defaultNow().notNull(),
 });
 
+/**
+ * DURABLE PAYOUT RECORDS (audit D-1).
+ *
+ * `payout_batches` / `payout_items` above predate the Treasurer and are tied by foreign key to
+ * plan/household uuids that the guided flow never creates, so nothing could ever write to them.
+ * These three tables carry what PayPal actually told us, keyed by identifiers we control:
+ *  - payout_batch_records : one row per PayPal batch (id returned at creation, status at last sync)
+ *  - payout_item_records  : one row per payment, keyed by our deterministic sender_item_id; the
+ *                           PayPal item id / transaction id are filled in when first observed
+ *  - payout_status_history: append-only log of every status change and where it came from
+ * Statuses are PayPal's own vocabulary, plus the internal pre-provider state SUBMITTED.
+ */
+export const payoutBatchRecords = pgTable("payout_batch_records", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  paypalBatchId: text("paypal_batch_id").unique().notNull(),
+  senderBatchId: text("sender_batch_id").unique().notNull(),
+  planId: text("plan_id"),
+  status: text("status").notNull(), // PayPal batch_status at last observation
+  amountCents: integer("amount_cents"),
+  feeCents: integer("fee_cents"),
+  currency: text("currency").default("USD").notNull(),
+  itemCount: integer("item_count"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastSyncedAt: timestamp("last_synced_at"),
+  lastSyncSource: text("last_sync_source"), // creation | refresh | webhook
+  lastSyncError: text("last_sync_error"),
+});
+
+export const payoutItemRecords = pgTable("payout_item_records", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  senderItemId: text("sender_item_id").unique().notNull(),
+  paypalBatchId: text("paypal_batch_id").notNull(),
+  paypalItemId: text("paypal_item_id").unique(), // null until PayPal reports it
+  transactionId: text("transaction_id"),
+  status: text("status").notNull(),
+  amountCents: integer("amount_cents").notNull(),
+  currency: text("currency").notNull(),
+  feeCents: integer("fee_cents"),
+  providerTime: timestamp("provider_time"), // PayPal time_processed
+  lastEventTime: timestamp("last_event_time"), // PayPal webhook create_time of the last applied event
+  lastObservedAt: timestamp("last_observed_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const payoutStatusHistory = pgTable("payout_status_history", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  senderItemId: text("sender_item_id").notNull(),
+  paypalItemId: text("paypal_item_id"),
+  fromStatus: text("from_status"),
+  toStatus: text("to_status").notNull(),
+  source: text("source").notNull(), // creation | refresh | webhook
+  eventId: text("event_id"), // PayPal webhook event id, when applicable
+  providerTime: timestamp("provider_time"),
+  ledgerTransactionIds: text("ledger_transaction_ids").array(),
+  note: text("note"),
+  observedAt: timestamp("observed_at").defaultNow().notNull(),
+});
+
 export const pledgeConsents = pgTable("pledge_consents", {
   id: uuid("id").primaryKey().defaultRandom(),
   donorEmail: text("donor_email").notNull(),

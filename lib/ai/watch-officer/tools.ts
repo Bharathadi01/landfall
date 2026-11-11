@@ -12,8 +12,8 @@ import {
   policies,
   payoutPlans,
   approvals,
-  payoutBatches,
-  payoutItems,
+  payoutBatchRecords,
+  payoutItemRecords,
   stormPledges,
   donations,
 } from "@/lib/db/schema";
@@ -358,6 +358,21 @@ export async function getPolicyEvaluation(
 /**
  * Tool 5: get_payout_status
  */
+/** Counts from the durable records of what PayPal reported (payout_item_records). */
+async function summarizeProviderRecords() {
+  const [batch] = await db.select().from(payoutBatchRecords).orderBy(desc(payoutBatchRecords.createdAt)).limit(1);
+  const summary = { totalItems: 0, successCount: 0, unclaimedCount: 0, pendingCount: 0, failedCount: 0 };
+  if (!batch) return { batch: undefined, summary };
+  const items = await db.select().from(payoutItemRecords).where(eq(payoutItemRecords.paypalBatchId, batch.paypalBatchId));
+  summary.totalItems = items.length;
+  summary.successCount = items.filter((i) => i.status === "SUCCESS").length;
+  summary.unclaimedCount = items.filter((i) => i.status === "UNCLAIMED").length;
+  // SUBMITTED = sent, PayPal has not told us anything about the item yet: still unresolved, not success.
+  summary.pendingCount = items.filter((i) => ["PENDING", "PROCESSING", "SUBMITTED", "ONHOLD", "BLOCKED"].includes(i.status)).length;
+  summary.failedCount = items.filter((i) => ["FAILED", "RETURNED", "REFUNDED", "REVERSED", "DENIED"].includes(i.status)).length;
+  return { batch, summary };
+}
+
 export async function getPayoutStatus(ctx: WatchOfficerContext): Promise<{
   result: PayoutStatusToolResult;
   evidence: EvidenceItem;
@@ -373,21 +388,20 @@ export async function getPayoutStatus(ctx: WatchOfficerContext): Promise<{
     .limit(1);
 
   if (!latestPlan) {
+    const provider = await summarizeProviderRecords();
     const res: PayoutStatusToolResult = {
       hasActivePlan: false,
+      batchStatus: provider.batch?.status,
+      paypalBatchId: provider.batch?.paypalBatchId,
+      provenance: provider.batch ? "PROVIDER_RECORDS" : "NONE",
+      lastProviderSyncAt: provider.batch?.lastSyncedAt?.toISOString(),
       approvalStatus: {
         hasCoordinatorApproval: false,
         hasFinanceApproval: false,
         isFullyApproved: false,
         remainingApprovalsRequired: 2,
       },
-      itemsSummary: {
-        totalItems: 0,
-        successCount: 0,
-        unclaimedCount: 0,
-        pendingCount: 0,
-        failedCount: 0,
-      },
+      itemsSummary: provider.summary,
       evidenceId,
     };
     return {
@@ -414,35 +428,8 @@ export async function getPayoutStatus(ctx: WatchOfficerContext): Promise<{
   const isFullyApproved = hasCoordinator && hasFinance;
   const remainingApprovals = (hasCoordinator ? 0 : 1) + (hasFinance ? 0 : 1);
 
-  // Query payout batches & items
-  const [batch] = await db
-    .select()
-    .from(payoutBatches)
-    .where(eq(payoutBatches.planId, latestPlan.id))
-    .limit(1);
-
-  let itemsSummary = {
-    totalItems: 0,
-    successCount: 0,
-    unclaimedCount: 0,
-    pendingCount: 0,
-    failedCount: 0,
-  };
-
-  if (batch) {
-    const items = await db
-      .select()
-      .from(payoutItems)
-      .where(eq(payoutItems.batchId, batch.id));
-
-    itemsSummary = {
-      totalItems: items.length,
-      successCount: items.filter((i) => i.status === "SUCCESS").length,
-      unclaimedCount: items.filter((i) => i.status === "UNCLAIMED").length,
-      pendingCount: items.filter((i) => i.status === "PENDING" || i.status === "PROCESSING").length,
-      failedCount: items.filter((i) => i.status === "FAILED" || i.status === "RETURNED").length,
-    };
-  }
+  // Provider-reported batch + item records (not the legacy, never-written payout_batches tables)
+  const { batch, summary: itemsSummary } = await summarizeProviderRecords();
 
   const res: PayoutStatusToolResult = {
     hasActivePlan: true,
@@ -457,6 +444,8 @@ export async function getPayoutStatus(ctx: WatchOfficerContext): Promise<{
     },
     batchStatus: batch?.status,
     paypalBatchId: batch?.paypalBatchId || undefined,
+    provenance: batch ? "PROVIDER_RECORDS" : "NONE",
+    lastProviderSyncAt: batch?.lastSyncedAt?.toISOString(),
     itemsSummary,
     evidenceId,
   };
@@ -485,10 +474,9 @@ export async function getReconciliationStatus(ctx: WatchOfficerContext): Promise
   const now = new Date();
 
   // Run or retrieve deterministic reconciliation pass
-  const report = await runTreasuryReconciliation({
-    actor: "watch_officer_audit",
-    fallbackToLedgerOnly: true, // safe offline fallback
-  });
+  // Live, read-only comparison with PayPal. If PayPal cannot be reached the report says UNVERIFIED
+  // (it no longer substitutes a ledger-only "match").
+  const report = await runTreasuryReconciliation({ actor: "watch_officer_audit" });
 
   const res: ReconciliationStatusToolResult = {
     status: report.status,
@@ -509,7 +497,8 @@ export async function getReconciliationStatus(ctx: WatchOfficerContext): Promise
       id: evidenceId,
       source: "RECONCILIATION",
       timestamp: now.toISOString(),
-      status: report.isMatched ? "VERIFIED" : "PENDING",
+      // Only a genuine IN_SYNC comparison is VERIFIED; UNVERIFIED / FALLBACK / mismatches are not.
+      status: report.isMatched && report.status === "IN_SYNC" ? "VERIFIED" : "PENDING",
       summary: `Reconciliation: ${res.status}. Discrepancy: ${res.discrepancyFormatted}. Unmatched: ${res.unmatchedCount}.`,
       verifiedData: { ...res },
     },

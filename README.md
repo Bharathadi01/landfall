@@ -98,6 +98,10 @@ pnpm db:push
 
 # 5. Run tests & start development server
 pnpm test
+# Database-backed suites (payout store, webhook→ledger, reconciler) only run against a DISPOSABLE database:
+#   docker run -d --name landfall-test-pg -e POSTGRES_PASSWORD=test -e POSTGRES_DB=landfall_test -p 55432:5432 postgres:16-alpine
+#   DATABASE_URL=postgres://postgres:test@localhost:55432/landfall_test pnpm db:push
+#   TEST_DATABASE_URL=postgres://postgres:test@localhost:55432/landfall_test pnpm test
 pnpm dev
 # Open http://localhost:3000
 ```
@@ -111,7 +115,7 @@ Everything below runs against the PayPal **Sandbox** (`api-m.sandbox.paypal.com`
 | Capability / API | Status | Evidence / Sandbox ID | Technical Notes |
 |---|---|---|---|
 | **PayPal OAuth 2.0** | **VERIFIED** | `lib/paypal/client.ts` | In-memory token cache with expiration buffer; concurrency safe |
-| **PayPal Payouts v1** | **VERIFIED** | Batch `VTJG3SR5BY56C`, `WWN9FJ4KDJCHS`, `CYX4HC52K54WN` | Completed $500.00 USD (5 items) and $1.00 USD disbursements (`SUCCESS`, `UNCLAIMED`) to personal sandbox accounts |
+| **PayPal Payouts v1** | **VERIFIED** | Batch `VTJG3SR5BY56C` ($500.00, 5 × $100), `7Y5GP4ETNLCUQ`, `CYX4HC52K54WN`, `WWN9FJ4KDJCHS`, `YK4N42RDMN8AY` | Real Sandbox batches. PayPal reports `VTJG3SR5BY56C` as batch `SUCCESS`, but **1 of its 5 items is `SUCCESS` (credited) and 4 are `UNCLAIMED`** ($400 returns to the sender after 30 days), read back from PayPal with `GET /v1/payments/payouts/{id}` on 2026-11-11. The $1 batches also show `SUCCESS` and `UNCLAIMED` items. Batch `SUCCESS` is not 'every household credited'. |
 | **PayPal Batch Payouts** | **VERIFIED** | Batch `7Y5GP4ETNLCUQ` ($2.00 total) | Item `FR7DHMX8QE59A` (`SUCCESS`, $1.00); Item `2FN4JTY2SF8A2` (`UNCLAIMED`, $1.00) |
 | **PayPal Orders v2** | **VERIFIED** | Order `35996334K7032164X` | Created in Sandbox (`POST /v2/checkout/orders`); requires buyer authorization before capture; unapproved orders strictly segregated from ledger cash |
 | **PayPal Subscriptions v1**| **VERIFIED** | Product `PROD-4HV976845W620203M`, Plan `P-5A327449X7452233TNLYQY3A` | Monthly sustainer billing for standby liquidity |
@@ -197,8 +201,8 @@ $ pnpm exec tsc --noEmit
 
 # 3. Vitest Test Suite (Unit, Integration, Architectural)
 $ pnpm test
- Test Files  38 passed | 5 skipped (43)
-      Tests  350 passed | 54 skipped (404)   # DB suites need TEST_DATABASE_URL
+ Test Files  45 passed | 8 skipped (53)
+      Tests  405 passed | 84 skipped (489)   # DB suites need TEST_DATABASE_URL; all 489 pass when it is set
 
 # 4. Next.js Production Build
 $ pnpm build

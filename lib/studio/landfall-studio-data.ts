@@ -62,7 +62,7 @@ export interface PayoutItemRow {
 export const studioPayoutItems: PayoutItemRow[] = [
   {
     item_id: "item_milton_001",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     obligation_id: "obl_milton_001",
     household_ref: "hh_tbw_001",
     resident_name: "E. Rodriguez (Medical)",
@@ -89,7 +89,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
   },
   {
     item_id: "item_milton_002",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     obligation_id: "obl_milton_002",
     household_ref: "hh_tbw_002",
     resident_name: "A. Pendelton (Senior)",
@@ -116,7 +116,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
   },
   {
     item_id: "item_milton_003",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     obligation_id: "obl_milton_003",
     household_ref: "hh_tbw_003",
     resident_name: "F. Al-Mansoor (Mobility)",
@@ -143,7 +143,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
   },
   {
     item_id: "item_milton_004",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     obligation_id: "obl_milton_004",
     household_ref: "hh_tbw_004",
     resident_name: "C. Gomez (Evacuation)",
@@ -170,7 +170,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
   },
   {
     item_id: "item_milton_005",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     obligation_id: "obl_milton_005",
     household_ref: "hh_tbw_005",
     resident_name: "D. Washington (Family)",
@@ -197,7 +197,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
   },
   {
     item_id: "item_milton_006",
-    batch_id: "BATCH-8Z6HQ5FUMMDVR",
+    batch_id: "REPLAY-BATCH-B",
     obligation_id: "obl_replay_006",
     household_ref: "hh_clw_005",
     resident_name: "R. Jenkins (Clearwater)",
@@ -224,7 +224,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
   },
   {
     item_id: "item_milton_007",
-    batch_id: "BATCH-8Z6HQ5FUMMDVR",
+    batch_id: "REPLAY-BATCH-B",
     obligation_id: "obl_replay_007",
     household_ref: "hh_stp_004",
     resident_name: "C. Martinez (Pinellas)",
@@ -251,7 +251,7 @@ export const studioPayoutItems: PayoutItemRow[] = [
   },
   {
     item_id: "item_milton_008",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     obligation_id: "obl_milton_008",
     household_ref: "hh_tam_009",
     resident_name: "M. Hernandez (Tampa)",
@@ -294,8 +294,8 @@ export interface PayoutBatchRow {
 
 export const studioPayoutBatches: PayoutBatchRow[] = [
   {
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
-    paypal_batch_id: "7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
+    paypal_batch_id: "replay · no PayPal batch",
     submitted_date: "2024-10-09",
     batch_status: "SUCCESS",
     items_total: 6,
@@ -305,8 +305,8 @@ export const studioPayoutBatches: PayoutBatchRow[] = [
     environment: "REPLAY",
   },
   {
-    batch_id: "BATCH-8Z6HQ5FUMMDVR",
-    paypal_batch_id: "8Z6HQ5FUMMDVR",
+    batch_id: "REPLAY-BATCH-B",
+    paypal_batch_id: "replay · no PayPal batch",
     submitted_date: "2024-10-08",
     batch_status: "SUCCESS",
     items_total: 2,
@@ -578,7 +578,7 @@ export const studioWebhookObservations: WebhookObservationRow[] = [
     event_type: "PAYMENT.PAYOUTS-ITEM.SUCCEEDED",
     paypal_event_id: "WH-9V4881022H810931F",
     item_id: "item_milton_001",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     verified: "CRYPTOGRAPHICALLY_VERIFIED",
     deduplicated: "IDEMPOTENT_PASS",
     received_time: "2024-10-09T18:15:35Z",
@@ -588,7 +588,7 @@ export const studioWebhookObservations: WebhookObservationRow[] = [
     event_type: "PAYMENT.PAYOUTS-ITEM.UNCLAIMED",
     paypal_event_id: "WH-2L3991054H810932A",
     item_id: "item_milton_002",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     verified: "CRYPTOGRAPHICALLY_VERIFIED",
     deduplicated: "IDEMPOTENT_PASS",
     received_time: "2024-10-09T18:15:40Z",
@@ -598,7 +598,7 @@ export const studioWebhookObservations: WebhookObservationRow[] = [
     event_type: "PAYMENT.PAYOUTS-ITEM.SUCCEEDED",
     paypal_event_id: "WH-4M5001099H810933C",
     item_id: "item_milton_003",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     verified: "CRYPTOGRAPHICALLY_VERIFIED",
     deduplicated: "IDEMPOTENT_PASS",
     received_time: "2024-10-09T18:15:42Z",
@@ -608,7 +608,7 @@ export const studioWebhookObservations: WebhookObservationRow[] = [
     event_type: "PAYMENT.PAYOUTS-ITEM.HELD",
     paypal_event_id: "WH-7N8112001H810934D",
     item_id: "item_milton_005",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     verified: "CRYPTOGRAPHICALLY_VERIFIED",
     deduplicated: "IDEMPOTENT_PASS",
     received_time: "2024-10-09T18:15:45Z",
@@ -672,7 +672,7 @@ export interface RecoveryProofRow {
 export const studioRecoveryProofs: RecoveryProofRow[] = [
   {
     proof_id: "prf_milton_t1_2024",
-    batch_id: "BATCH-7Y5GP4ETNLCUQ",
+    batch_id: "REPLAY-BATCH-A",
     merkle_root: "0x8f93e2b1c4a0e71928374a5b6c3104928e47291a039b",
     ledger_balanced: "VERIFIED_ZERO_VARIANCE",
     reserve_preserved: "35.1%_EXCEEDS_30%_FLOOR",

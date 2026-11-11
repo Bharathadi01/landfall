@@ -113,6 +113,10 @@ export interface PayoutStatusToolResult {
   };
   batchStatus?: string;
   paypalBatchId?: string;
+  /** Where the item counts come from: Landfall's durable records of PayPal's own responses. */
+  provenance?: "PROVIDER_RECORDS" | "NONE";
+  /** When PayPal was last asked about this batch (null/undefined = never refreshed). */
+  lastProviderSyncAt?: string;
   itemsSummary: {
     totalItems: number;
     successCount: number;
@@ -124,7 +128,7 @@ export interface PayoutStatusToolResult {
 }
 
 export interface ReconciliationStatusToolResult {
-  status: "IN_SYNC" | "TIMING_DIFFERENCE" | "MISMATCH_ALERT" | "FALLBACK_LEDGER_ONLY";
+  status: "IN_SYNC" | "TIMING_DIFFERENCE" | "MISMATCH_ALERT" | "FALLBACK_LEDGER_ONLY" | "UNVERIFIED";
   isMatched: boolean;
   ledgerBalanceFormatted: string;
   paypalBalanceFormatted: string;

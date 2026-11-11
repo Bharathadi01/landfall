@@ -127,7 +127,7 @@ Landfall deeply integrates the PayPal Developer Platform exclusively in the Sand
 
 All capabilities are verified through automated testing and empirical sandbox records:
 
-- **Automated Test Suite:** 38 files, **350 tests passing**; 54 database-dependent tests are skipped unless `TEST_DATABASE_URL` points at a disposable database.
+- **Automated Test Suite:** 53 files, **405 tests passing without a database, 489 with a disposable one** (84 database-backed tests need `TEST_DATABASE_URL`).
 - **Static Boundary Security:** 5 architectural boundary tests validating total AI isolation from financial cores.
 - **Strict TypeScript:** 0 compilation errors across strict mode.
 - **ESLint Code Quality:** 0 errors or warnings.

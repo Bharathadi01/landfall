@@ -31,7 +31,11 @@ export interface UnmatchedItem {
 export interface DetailedReconciliationReport {
   reconciledAt: string;
   isMatched: boolean;
-  status: "IN_SYNC" | "TIMING_DIFFERENCE" | "MISMATCH_ALERT" | "FALLBACK_LEDGER_ONLY";
+  /**
+   * UNVERIFIED: PayPal could not be reached or answered with an error, so NOTHING was compared.
+   * FALLBACK_LEDGER_ONLY: the caller explicitly asked for a ledger-only view. Neither is a match.
+   */
+  status: "IN_SYNC" | "TIMING_DIFFERENCE" | "MISMATCH_ALERT" | "FALLBACK_LEDGER_ONLY" | "UNVERIFIED";
   ledgerBalanceCents: number;
   paypalBalanceCents: number;
   discrepancyCents: number;
@@ -80,23 +84,19 @@ export async function runTreasuryReconciliation(
   if (isFallback) {
     const report: DetailedReconciliationReport = {
       reconciledAt: timestamp,
-      isMatched: true,
+      // A ledger-only view compares the ledger with itself, so it can never count as "matched".
+      isMatched: false,
       status: "FALLBACK_LEDGER_ONLY",
       ledgerBalanceCents,
       paypalBalanceCents: ledgerBalanceCents,
       discrepancyCents: 0,
       recordsExamined: internalEntries.length,
-      matchedCount: internalEntries.length,
+      matchedCount: 0,
       unmatchedPayPalCount: 0,
-      unmatchedLedgerCount: 0,
+      unmatchedLedgerCount: internalEntries.length,
       unmatchedItems: [],
-      matchedTransactions: internalEntries.map((e) => ({
-        paypalTransactionId: e.correlationId || e.transactionId,
-        ledgerTransactionId: e.transactionId,
-        amountCents: Math.round(parseFloat(e.amount) * 100),
-        matchedAt: timestamp,
-      })),
-      notes: "Operating in standard sandbox fallback mode. Internal double-entry ledger is authoritative.",
+      matchedTransactions: [],
+      notes: "Ledger-only view requested: nothing was compared with PayPal, so this is NOT a reconciliation.",
     };
 
     await logAuditEvent({
@@ -158,7 +158,18 @@ export async function runTreasuryReconciliation(
         return idMatches;
       });
 
-      if (match) {
+      const ledgerCents = match ? Math.round(parseFloat(match.amount) * 100) : 0;
+      // IDs agreeing is not enough: the amounts must agree too (PayPal reports outflows as negatives).
+      if (match && Math.abs(ppTx.amountCents) !== ledgerCents) {
+        matchedLedgerIds.add(match.id);
+        matchedPayPalIds.add(ppTx.id);
+        unmatchedItems.push({
+          source: "PAYPAL",
+          identifier: ppTx.id,
+          amountCents: ppTx.amountCents,
+          description: `Amount mismatch: PayPal ${ppTx.amountCents}¢ vs ledger ${ledgerCents}¢ (ledger entry ${match.transactionId})`,
+        });
+      } else if (match) {
         matchedLedgerIds.add(match.id);
         matchedPayPalIds.add(ppTx.id);
         matchedTransactions.push({
@@ -238,27 +249,29 @@ export async function runTreasuryReconciliation(
     return report;
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
+    // PayPal could not be queried. That is an UNVERIFIED result, never a match: reporting
+    // "matched, 0 discrepancy" here would turn an outage or a credential problem into a clean bill of health.
     const report: DetailedReconciliationReport = {
       reconciledAt: timestamp,
-      isMatched: true,
-      status: "FALLBACK_LEDGER_ONLY",
+      isMatched: false,
+      status: "UNVERIFIED",
       ledgerBalanceCents,
       paypalBalanceCents: ledgerBalanceCents,
       discrepancyCents: 0,
       recordsExamined: internalEntries.length,
-      matchedCount: internalEntries.length,
+      matchedCount: 0,
       unmatchedPayPalCount: 0,
-      unmatchedLedgerCount: 0,
+      unmatchedLedgerCount: internalEntries.length,
       unmatchedItems: [],
-      matchedTransactions: internalEntries.map((e) => ({
-        paypalTransactionId: e.correlationId || e.transactionId,
-        ledgerTransactionId: e.transactionId,
-        amountCents: Math.round(parseFloat(e.amount) * 100),
-        matchedAt: timestamp,
-      })),
-      notes: `PayPal reporting returned: ${msg}. Fallback to audited double-entry ledger.`,
+      matchedTransactions: [],
+      notes: `UNVERIFIED: PayPal reporting was unavailable (${msg}). No comparison was made.`,
     };
-
+    await logAuditEvent({
+      actor,
+      action: "treasury.reconcile",
+      requestRedacted: { startDate: opts.startDate, endDate: opts.endDate },
+      responseRedacted: { status: report.status, error: msg.slice(0, 200) },
+    });
     return report;
   }
 }

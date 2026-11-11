@@ -7,7 +7,23 @@
 import { validateTwoKeyApproval, type ApprovalKeyVerification } from "@/lib/security/passkeys";
 import { calculateAllocatable } from "@/lib/ledger/index";
 import { createPayoutBatch, type CreatePayoutBatchResponse } from "@/lib/paypal/payouts";
+import { tryRecordBatchCreation, type BatchCreationRecord } from "@/lib/payouts/store";
 import crypto from "crypto";
+
+/** PayPal rejects sender_batch_id longer than 30 characters. */
+export const MAX_SENDER_BATCH_ID = 30;
+
+/**
+ * Deterministic sender_batch_id for an activation + tranche. Keeps the readable form
+ * `batch_<activation>_t<n>` whenever it fits (so ids already used at PayPal are unchanged) and
+ * otherwise falls back to a stable hash, instead of failing validation or truncating ambiguously.
+ */
+export function makeSenderBatchId(activationId: string, tranche: number): string {
+  const readable = `batch_${activationId}_t${tranche}`;
+  if (readable.length <= MAX_SENDER_BATCH_ID) return readable;
+  const digest = crypto.createHash("sha256").update(`${activationId}|t${tranche}`).digest("hex").slice(0, 24);
+  return `lf_${digest}_t${tranche}`.slice(0, MAX_SENDER_BATCH_ID);
+}
 
 export type PlanState =
   | "draft"
@@ -97,6 +113,9 @@ export interface ExecutionResult {
   digitalDisbursementsCount?: number;
   offlineDisbursementsCount?: number;
   offlineItems?: PlanItem[];
+  /** True once the batch id and its items are durably recorded (payout_batch_records). */
+  persisted?: boolean;
+  persistenceError?: string;
 }
 
 /**
@@ -168,6 +187,23 @@ export function validatePreConditions({
   return { valid: true };
 }
 
+function toBatchRecord(paypalBatchId: string, senderBatchId: string, plan: PayoutPlan, digitalItems: PlanItem[], response: any): BatchCreationRecord {
+  const header = response?.data?.batch_header ?? response?.batch_header;
+  return {
+    paypalBatchId,
+    senderBatchId,
+    planId: plan.id,
+    // A recovered (duplicate) batch has no header in PayPal's error body: record UNKNOWN until a refresh says otherwise.
+    status: String(header?.batch_status ?? "UNKNOWN").toUpperCase(),
+    currency: digitalItems[0]?.currency ?? "USD",
+    items: digitalItems.map((i) => ({
+      senderItemId: `${plan.activationId}:t${plan.tranche}:${i.householdId}`,
+      amountCents: i.amountCents,
+      currency: i.currency,
+    })),
+  };
+}
+
 /**
  * Hardened Treasurer Executor
  * Manages outbox pattern, idempotency keys, and recovery.
@@ -185,11 +221,14 @@ export class TreasurerEngine {
     approvals,
     context,
     payoutSender = createPayoutBatch as any,
+    recordBatch = tryRecordBatchCreation,
   }: {
     plan: PayoutPlan;
     approvals: ApprovalKeyVerification[];
     context: TreasurerContext;
     payoutSender?: (params: any) => Promise<any>;
+    /** Durable recording of the accepted batch. Injectable so unit tests stay database-free. */
+    recordBatch?: (rec: BatchCreationRecord) => Promise<{ persisted: boolean; error?: string }>;
   }): Promise<ExecutionResult> {
     // Check if another concurrent execution of this exact plan is in progress
     if (this.activeSubmissions.has(plan.id)) {
@@ -213,13 +252,18 @@ export class TreasurerEngine {
         };
       }
       if (existing.status === "SUBMITTING") {
-        // Recovery scenario: process restart or resume
+        // We cannot confirm PayPal accepted this batch, so we must not claim it did, and we must not
+        // invent a batch id. PayPal de-duplicates on sender_batch_id for 30 days, so the safe resolution
+        // is to look the batch up (refresh) rather than to send again.
+        if (existing.paypalBatchId) {
+          return { success: true, batchId: existing.senderBatchId, paypalBatchId: existing.paypalBatchId, state: "submitted", replayed: true };
+        }
         return {
-          success: true,
+          success: false,
           batchId: existing.senderBatchId,
-          paypalBatchId: existing.paypalBatchId || "RECOVERED_BATCH",
-          state: "submitted",
+          state: "submitting",
           replayed: true,
+          error: `SUBMISSION_UNRESOLVED: batch ${existing.senderBatchId} was sent but PayPal's batch id was never recorded. Look it up by sender_batch_id; do not resubmit.`,
         };
       }
     }
@@ -230,7 +274,7 @@ export class TreasurerEngine {
       return { success: false, state: plan.state, error: validation.error };
     }
 
-    const senderBatchId = `batch_${plan.activationId}_t${plan.tranche}`;
+    const senderBatchId = makeSenderBatchId(plan.activationId, plan.tranche);
     const paypalRequestId = `req_${plan.id}`;
 
     // Write Outbox Entry BEFORE sending external call
@@ -279,7 +323,21 @@ export class TreasurerEngine {
         });
 
         const batchData = batchResponse.data || batchResponse;
-        paypalBatchId = batchData?.batch_header?.payout_batch_id || `batch_${senderBatchId}`;
+        paypalBatchId = batchData?.batch_header?.payout_batch_id;
+        if (!paypalBatchId) {
+          // PayPal answered but gave us no batch id. Money may have moved; never fabricate an id.
+          // Leave the outbox SUBMITTING so a retry cannot send again, and report it as unresolved.
+          outboxRecord.error = "PayPal response had no payout_batch_id";
+          outboxRecord.responsePayload = batchResponse;
+          outboxRecord.updatedAt = new Date().toISOString();
+          this.activeSubmissions.delete(plan.id);
+          return {
+            success: false,
+            batchId: senderBatchId,
+            state: "submitting",
+            error: `SUBMISSION_UNRESOLVED: PayPal responded without a payout_batch_id for ${senderBatchId}. Look it up by sender_batch_id; do not resubmit.`,
+          };
+        }
       } else {
         // Purely offline cash card / manual relief batch (zero PayPal API call required)
         paypalBatchId = `offline_${senderBatchId}`;
@@ -297,12 +355,19 @@ export class TreasurerEngine {
       outboxRecord.updatedAt = new Date().toISOString();
       this.activeSubmissions.delete(plan.id);
 
+      // Durable record of what PayPal accepted (offline-only plans have no PayPal batch to record).
+      const persistence = digitalItems.length > 0
+        ? await recordBatch(toBatchRecord(paypalBatchId, senderBatchId, plan, digitalItems, batchResponse))
+        : { persisted: false as boolean, error: undefined as string | undefined };
+
       return {
         success: true,
         batchId: senderBatchId,
         paypalBatchId,
         state: "submitted",
         replayed: false,
+        persisted: persistence.persisted,
+        persistenceError: persistence.error,
         digitalDisbursementsCount: digitalItems.length,
         offlineDisbursementsCount: manualItems.length,
         offlineItems: manualItems.length > 0 ? manualItems : undefined,
@@ -332,12 +397,18 @@ export class TreasurerEngine {
         outboxRecord.updatedAt = new Date().toISOString();
         this.activeSubmissions.delete(plan.id);
 
+        const persistence = digitalItems.length > 0
+          ? await recordBatch(toBatchRecord(recoveredBatchId, senderBatchId, plan, digitalItems, rawDetails))
+          : { persisted: false as boolean, error: undefined as string | undefined };
+
         return {
           success: true,
           batchId: senderBatchId,
           paypalBatchId: recoveredBatchId,
           state: "submitted",
           replayed: true,
+          persisted: persistence.persisted,
+          persistenceError: persistence.error,
           digitalDisbursementsCount: digitalItems.length,
           offlineDisbursementsCount: manualItems.length,
           offlineItems: manualItems.length > 0 ? manualItems : undefined,

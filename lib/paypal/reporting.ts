@@ -83,33 +83,25 @@ export type TransactionsResponse = z.infer<typeof TransactionsResponseSchema>;
 export async function getAccountBalances(
   actor = "allocator"
 ): Promise<{ availableUsd: number; totalUsd: number; raw: BalancesResponse }> {
-  try {
-    const res = await paypalFetch<BalancesResponse>(
-      "GET",
-      "/v1/reporting/balances?currency_code=USD",
-      undefined,
-      {
-        schema: BalancesResponseSchema,
-        actor,
-      }
-    );
+  // No fallback: if PayPal cannot be reached or refuses the call, this throws. It used to return a
+  // made-up $5,000.00 balance, which let a reconciliation compare the ledger with invented provider data.
+  const res = await paypalFetch<BalancesResponse>(
+    "GET",
+    "/v1/reporting/balances?currency_code=USD",
+    undefined,
+    {
+      schema: BalancesResponseSchema,
+      actor,
+    }
+  );
 
-    const usdBalance = res.data.balances.find((b) => b.currency === "USD") || res.data.balances[0];
-    const available = usdBalance?.available_balance?.value
-      ? parseFloat(usdBalance.available_balance.value)
-      : parseFloat(usdBalance?.total_balance?.value || "0");
-    const total = parseFloat(usdBalance?.total_balance?.value || "0");
+  const usdBalance = res.data.balances.find((b) => b.currency === "USD") || res.data.balances[0];
+  const available = usdBalance?.available_balance?.value
+    ? parseFloat(usdBalance.available_balance.value)
+    : parseFloat(usdBalance?.total_balance?.value || "0");
+  const total = parseFloat(usdBalance?.total_balance?.value || "0");
 
-    return { availableUsd: available, totalUsd: total, raw: res.data };
-  } catch (err) {
-    console.warn("Failed to retrieve balances from PayPal Reporting API, using fallback:", err);
-    // Return sensible fallback for sandbox testing
-    return {
-      availableUsd: 5000.0,
-      totalUsd: 5000.0,
-      raw: { balances: [] },
-    };
-  }
+  return { availableUsd: available, totalUsd: total, raw: res.data };
 }
 
 /**

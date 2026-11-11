@@ -54,4 +54,4 @@
 - That webhooks were received from PayPal on the public URL (not demonstrated).
 - That passkeys are server-verified (they are not in this build).
 - That anyone has used or validated Landfall.
-- Test counts other than the current ones: **350 passing, 54 database tests gated behind `TEST_DATABASE_URL`**.
+- Test counts other than the current ones: **405 passing without a database, 489 with a disposable `TEST_DATABASE_URL` database**.

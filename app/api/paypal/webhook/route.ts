@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  verifyWebhookSignature,
-  shouldUpdatePayoutStatus,
-  shouldUpdateSubscriptionStatus,
-} from "@/lib/paypal/webhooks";
+import { verifyWebhookSignature, shouldUpdateSubscriptionStatus } from "@/lib/paypal/webhooks";
 import { db } from "@/lib/db/client";
-import { webhookEvents, payoutItems, donations, subscriptions } from "@/lib/db/schema";
+import { webhookEvents, donations, subscriptions } from "@/lib/db/schema";
+import { applyBatchSnapshot, applyItemObservation } from "@/lib/payouts/store";
+import { refreshPayoutBatch } from "@/lib/payouts/refresh";
+import { toCents } from "@/lib/payouts/status";
 import { recordLedgerTransaction, isTransactionRecorded } from "@/lib/ledger/index";
 import { eq } from "drizzle-orm";
 
@@ -59,86 +58,67 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "PayPal signature verification failed; event rejected" }, { status: 401 });
     }
 
-    // 2. Atomic de-duplication on the PayPal event id (redeliveries are acknowledged, not reprocessed).
-    const inserted = await db
+    // 2. Claim the event. De-duplication is on the PayPal event id, but an event only counts as
+    //    DONE once it has been fully handled (processed_at is set at the very end). If an earlier
+    //    attempt crashed or threw, PayPal's retry finds processed_at NULL and handles it again,
+    //    instead of being acknowledged as a duplicate and lost. Every handler below is idempotent.
+    const claimed = await db
       .insert(webhookEvents)
-      .values({
-        paypalEventId: eventId,
-        type: eventType,
-        verified: true,
-        payload: event,
-        receivedAt: new Date(),
-        processedAt: new Date(),
-      })
+      .values({ paypalEventId: eventId, type: eventType, verified: true, payload: event, receivedAt: new Date(), processedAt: null })
       .onConflictDoNothing({ target: webhookEvents.paypalEventId })
       .returning({ id: webhookEvents.paypalEventId });
 
-    if (inserted.length === 0) {
-      return NextResponse.json({ message: "Duplicate event already processed" }, { status: 200 });
+    if (claimed.length === 0) {
+      const [prior] = await db.select({ processedAt: webhookEvents.processedAt }).from(webhookEvents).where(eq(webhookEvents.paypalEventId, eventId)).limit(1);
+      if (prior?.processedAt) {
+        return NextResponse.json({ message: "Duplicate event already processed" }, { status: 200 });
+      }
+      // previous attempt did not finish: fall through and process it again
     }
 
     // 4. Handle Event Payload
     const resource = (event.resource || {}) as Record<string, unknown>;
+    const eventTime = typeof event.create_time === "string" && !Number.isNaN(Date.parse(event.create_time)) ? new Date(event.create_time) : null;
 
-    // 4a. Payout item events: update payout_items table
-    if (
-      eventType.startsWith("PAYMENT.PAYOUTS-ITEM.") ||
-      eventType.startsWith("PAYMENT.PAYOUTS_ITEM.")
-    ) {
+    // 4a. Payout item events -> durable payout records (+ ledger), serialised per item under a row lock.
+    if (eventType.startsWith("PAYMENT.PAYOUTS-ITEM.") || eventType.startsWith("PAYMENT.PAYOUTS_ITEM.")) {
+      const payoutItem = (resource.payout_item || {}) as Record<string, unknown>;
+      const amount = (payoutItem.amount || {}) as Record<string, string>;
+      const fee = (resource.payout_item_fee || {}) as Record<string, string>;
+      // Prefer the item's own transaction_status; otherwise the event-name suffix (SUCCEEDED/HELD are mapped in normalizeItemStatus).
+      const rawStatus = String(resource.transaction_status || eventType.split(".").pop() || "");
       const payoutItemId = String(resource.payout_item_id || "");
-      let rawStatus = String(resource.transaction_status || eventType.split(".").pop() || "");
-      // Event suffixes differ from item transaction_status values (SUCCEEDED→SUCCESS, HELD→ONHOLD).
-      const upper = rawStatus.toUpperCase();
-      const newStatus = upper === "SUCCEEDED" ? "SUCCESS" : upper === "HELD" ? "ONHOLD" : upper;
-
       if (payoutItemId) {
-        const currentItem = await db
-          .select()
-          .from(payoutItems)
-          .where(eq(payoutItems.paypalItemId, payoutItemId))
-          .limit(1);
-
-        if (currentItem.length > 0) {
-          if (shouldUpdatePayoutStatus(currentItem[0].status, newStatus)) {
-            await db
-              .update(payoutItems)
-              .set({
-                status: newStatus,
-                lastEventAt: new Date(),
-              })
-              .where(eq(payoutItems.paypalItemId, payoutItemId));
-          }
-        }
+        await applyItemObservation({
+          paypalItemId: payoutItemId,
+          senderItemId: payoutItem.sender_item_id ? String(payoutItem.sender_item_id) : undefined,
+          paypalBatchId: resource.payout_batch_id ? String(resource.payout_batch_id) : undefined,
+          transactionId: resource.transaction_id ? String(resource.transaction_id) : null,
+          rawStatus,
+          amountCents: toCents(amount.value),
+          currency: amount.currency ?? null,
+          feeCents: toCents(fee.value),
+          providerTime: typeof resource.time_processed === "string" ? new Date(resource.time_processed) : null,
+          eventTime,
+          source: "webhook",
+          eventId,
+        });
       }
     }
 
-    // 4a-2. Payout batch events: update items via batch manifest or HATEOAS traversal
+    // 4a-2. Payout batch events carry the batch header, not the items. Record the batch status, then ask
+    //       PayPal (read-only GET) for the items, so a batch event brings every item up to date.
     if (eventType.startsWith("PAYMENT.PAYOUTSBATCH.")) {
       const batchHeader = (resource.batch_header || resource) as Record<string, unknown>;
+      const batchId = String(batchHeader.payout_batch_id || "");
       const batchStatus = String(batchHeader.batch_status || eventType.split(".").pop() || "").toUpperCase();
-      const itemsList = Array.isArray(resource.items) ? (resource.items as Array<Record<string, unknown>>) : [];
-
-      for (const it of itemsList) {
-        const itemId = String(it.payout_item_id || "");
-        const itStatusRaw = String(it.transaction_status || (batchStatus === "SUCCESS" ? "SUCCESS" : "PROCESSING"));
-        const itStatus = itStatusRaw.toUpperCase() === "SUCCEEDED" ? "SUCCESS" : itStatusRaw.toUpperCase();
-
-        if (itemId) {
-          const currentItem = await db
-            .select()
-            .from(payoutItems)
-            .where(eq(payoutItems.paypalItemId, itemId))
-            .limit(1);
-
-          if (currentItem.length > 0 && shouldUpdatePayoutStatus(currentItem[0].status, itStatus)) {
-            await db
-              .update(payoutItems)
-              .set({
-                status: itStatus,
-                lastEventAt: new Date(),
-              })
-              .where(eq(payoutItems.paypalItemId, itemId));
-          }
+      if (batchId) {
+        await applyBatchSnapshot(batchId, { status: batchStatus, source: "webhook" });
+        try {
+          await refreshPayoutBatch(batchId);
+        } catch (err) {
+          // Best effort: the webhook itself is still valid and recorded. A later refresh recovers the items.
+          console.warn("[webhook] batch refresh failed", batchId, err instanceof Error ? err.message : err);
         }
       }
     }
@@ -312,6 +292,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    await db.update(webhookEvents).set({ processedAt: new Date() }).where(eq(webhookEvents.paypalEventId, eventId));
     return NextResponse.json({ status: "success", verified: isVerified });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
