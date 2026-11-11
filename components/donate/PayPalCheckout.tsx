@@ -107,11 +107,11 @@ export function PayPalCheckout({
   }, [clientId, fundId]);
 
   return (
-    <div>
+    <div className="paypal-panel">
       <div ref={box} data-testid="paypal-buttons" className={state === "ready" ? "min-h-[48px]" : "min-h-[48px] opacity-60"} aria-busy={state === "loading"} />
-      {state === "loading" && <p className="mt-2 text-center text-[12.5px] text-ink-3">Loading PayPal…</p>}
+      {state === "loading" && <p className="paypal-note">Loading PayPal…</p>}
       {state === "unavailable" && (
-        <p role="alert" className="mt-2 text-center text-[12.5px] text-ink-3">
+        <p role="alert" className="paypal-note">
           PayPal checkout couldn’t load in this browser (an ad blocker can cause this). Reload, or allow paypal.com.
         </p>
       )}
