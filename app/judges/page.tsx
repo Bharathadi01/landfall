@@ -63,7 +63,7 @@ export default async function JudgesPage() {
         {[
           { n: "1", t: "Sign in as a demo persona", d: "One click. Roles are enforced by the server on every request.", href: "/signin", cta: "Open sign-in" },
           { n: "2", t: "Open a case", d: "Command Center → Cases. Open the unclaimed payment and press “Investigate with AI”.", href: "/console/war-room", cta: "Open Command Center" },
-          { n: "3", t: "Be the resident", d: "Use a reference and code below on the resident page. Your answer appears to the coordinator.", href: "/r/enroll", cta: "Open resident page" },
+          { n: "3", t: "Be the resident", d: "Use a reference and code below on the resident page. Your answer appears to the coordinator.", href: "/r/enroll?tab=status", cta: "Open resident page" },
         ].map((s) => (
           <li key={s.n} className="list-none"><GlassPane level={2}>
             <div className="font-mono text-[11px] text-ink-3">STEP {s.n}</div>

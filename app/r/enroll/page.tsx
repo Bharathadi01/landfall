@@ -316,6 +316,10 @@ export default function ResidentEnrollPage() {
 
   // Active view: ENROLL or STATUS
   const [activeTab, setActiveTab] = useState<"ENROLL" | "STATUS">("ENROLL");
+  // /r/enroll?tab=status opens the "check my payment" view directly (linked from the judge card and sign-in page).
+  React.useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("tab") === "status") setActiveTab("STATUS");
+  }, []);
 
   // Multi-step intake state (1 to 5)
   const [currentStep, setCurrentStep] = useState<number>(1);

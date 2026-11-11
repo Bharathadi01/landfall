@@ -223,7 +223,7 @@ export default function WatchOfficerConsolePage() {
 
           {/* Executive Summary Callout */}
           <div className="field-paper p-6 bg-surface border border-line shadow-sm">
-            <div className="flex items-center justify-between pb-3 border-b border-line">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-line">
               <div className="flex items-center gap-2 text-accent text-xs font-mono font-bold uppercase tracking-wider">
                 <I.document className="w-4 h-4" />
                 Executive Operational Brief

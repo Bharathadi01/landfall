@@ -86,7 +86,7 @@ export function SignInClient() {
       </div>
 
       <p className="mt-8 text-[12.5px] text-ink-3">
-        Are you a resident checking a payment? <a className="text-accent-strong underline underline-offset-2" href="/r/enroll">Use your reference and code here</a>.
+        Are you a resident checking a payment? <a className="text-accent-strong underline underline-offset-2" href="/r/enroll?tab=status">Use your reference and code here</a>.
         Judges: the <a className="text-accent-strong underline underline-offset-2" href="/judges">test card</a> lists everything you need.
       </p>
     </div>

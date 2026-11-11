@@ -155,7 +155,7 @@ export default function StormRehearsalLabPage() {
         <div className="lg:col-span-6 space-y-6">
           {/* Narrative Card */}
           <div className="field-paper p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-line pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
               <div>
                 <span className="field-badge-evergreen font-mono text-[11px]">
                   {currentStorm.stormId.toUpperCase()} · Peak Cat {currentStorm.peakCategory}
