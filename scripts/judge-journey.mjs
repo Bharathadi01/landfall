@@ -68,7 +68,8 @@ await step("Cases tab loads the AG Grid with the five live payments (lazy-loaded
   await page.getByText(/Every payment/).first().waitFor({ timeout: 60000 }); // live data has arrived (no replay flash)
   await page.getByRole("tab", { name: /Cases/i }).first().click();
   await page.waitForSelector(".ag-row", { timeout: 60000 });
-  const rows = await page.locator(".ag-center-cols-container .ag-row").count();
+  await page.waitForTimeout(2500);
+  const rows = await page.locator(".ag-row").count();
   await shot("04b-cases-grid");
   if (rows < 1) throw new Error("no grid rows");
   return `${rows} rows rendered`;

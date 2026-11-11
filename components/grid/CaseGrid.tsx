@@ -564,7 +564,7 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
             />
             <div className="pointer-events-none absolute inset-x-3 top-3 flex items-start justify-between gap-2">
               <div className="glass-hud pointer-events-auto flex items-center gap-2 rounded-full px-3 py-1.5">
-                <Tag tone="storm" solid>Replay</Tag>
+                {cases.some((c) => c.origin === "SANDBOX_LIVE") ? <Tag tone="amber" solid>Synthetic locations</Tag> : <Tag tone="storm" solid>Replay</Tag>}
                 <span className="text-[12px] font-semibold text-ink">Where they live</span>
               </div>
             </div>
