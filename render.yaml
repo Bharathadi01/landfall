@@ -3,7 +3,7 @@ services:
   - type: web
     name: landfall-web
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: pnpm install && pnpm build
     startCommand: pnpm start
     envVars:
@@ -41,10 +41,11 @@ services:
       # Signs session cookies. Render generates a strong value once.
       - key: SESSION_SECRET
         generateValue: true
+      # Set after the first deploy, once Render shows the real URL (e.g. my-service.onrender.com / https://my-service.onrender.com)
       - key: WEBAUTHN_RP_ID
-        value: landfall-web.onrender.com
+        sync: false
       - key: WEBAUTHN_ORIGIN
-        value: https://landfall-web.onrender.com
+        sync: false
       - key: PAYOUT_REFRESH_ENABLED
         value: "true"
       # Server-side only: household id -> Sandbox receiver, e.g. {"hh_tbw_001":"sb-...@personal.example.com"}. Never returned by any API.
@@ -70,23 +71,10 @@ services:
       - key: APP_URL
         sync: false
 
-  # Sentinel Cron Poller (Every 5 Minutes)
-  - type: cron
-    name: landfall-sentinel-cron
-    runtime: node
-    schedule: "*/5 * * * *"
-    buildCommand: pnpm install
-    startCommand: pnpm run cron:poll
-    envVars:
-      - key: APP_URL
-        sync: false
-      - key: CRON_SECRET
-        fromService:
-          type: web
-          name: landfall-web
-          envVarKey: CRON_SECRET
+  # No cron service: Render cron jobs have no free tier. Refresh payouts with the "Refresh from PayPal" button, or run
+  # `pnpm run cron:poll` from any scheduler (it calls /api/alerts/poll and /api/payouts/refresh-due with CRON_SECRET).
 
 databases:
   - name: landfall-db
     databaseName: landfall
-    plan: starter
+    plan: free
