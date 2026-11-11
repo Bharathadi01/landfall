@@ -6,6 +6,7 @@ import { I } from "@/components/icons";
 import React, { useState, useEffect, useCallback } from "react";
 import type { NormalizedAlert, ServiceHealth } from "@/lib/sentinel/types";
 import { StormDesk } from "@/components/sentinel/desk/StormDesk";
+import { Button } from "@/components/ui/Button";
 import { WeatherIntelligencePanel } from "@/components/sentinel/WeatherIntelligencePanel";
 import {
   COMMUNITY_FUNDS_GEO,
@@ -132,32 +133,21 @@ export default function StormIntelligenceConsolePage() {
       {/* Editorial Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
         <PageTitle
-          eyebrow="Storm Map · NOAA & NWS"
+          eyebrow="Storm desk · live weather"
           icon={I.forecastCone}
           tone="storm"
           title="Who is in the storm’s path?"
           accent="Answered by official data."
-          description="Live radar, the forecast cone and official warning areas, laid over enrolled households. Homes are clustered so no one’s exact address is shown."
+          description="Real satellite clouds, radar and model winds, with official warnings laid over enrolled households. Homes are clustered, so no one’s exact address is shown."
         />
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handlePollLive}
-            disabled={loading}
-            className="field-btn field-btn-secondary text-xs flex items-center gap-1.5"
-          >
-            <I.refresh className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            <span>{loading ? "Polling..." : "Poll Live NWS"}</span>
-          </button>
-
-          <button
-            onClick={handleTriggerReplay}
-            disabled={replaying}
-            className="field-btn field-btn-primary text-xs flex items-center gap-1.5"
-          >
-            <I.play className="w-3.5 h-3.5 fill-current" />
-            <span>{replaying ? "Replaying..." : "Replay Milton 2024"}</span>
-          </button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button variant="glass" onClick={handlePollLive} loading={loading} leading={<I.refresh className="h-4 w-4" />}>
+            {loading ? "Checking…" : "Refresh warnings"}
+          </Button>
+          <Button variant="signal" onClick={handleTriggerReplay} loading={replaying} leading={<I.play className="h-4 w-4" />}>
+            {replaying ? "Loading replay…" : "Replay Hurricane Milton"}
+          </Button>
         </div>
       </div>
 
@@ -165,7 +155,7 @@ export default function StormIntelligenceConsolePage() {
         <div className="field-paper p-4 border-storm bg-storm-soft flex items-center gap-3 text-sm text-storm">
           <I.warning className="w-5 h-5 flex-shrink-0" />
           <div>
-            <strong className="font-semibold">Weather Engine Error:</strong> {error}
+            <strong className="font-semibold">We couldn’t load the weather feed:</strong> {error}
           </div>
         </div>
       )}

@@ -141,13 +141,14 @@ export default function HomePage() {
           <div className="absolute inset-y-0 right-[-8%] w-[88%] lg:w-[78%]">
             <StormDesk variant="hero" fund={fund} alerts={[]} clusters={null} className="!h-full !rounded-none !border-0 !bg-transparent" />
           </div>
+          <div className="absolute inset-0 bg-canvas/55 lg:hidden" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgb(10_10_12)_0%,rgb(10_10_12/0.92)_34%,rgb(10_10_12/0.35)_62%,transparent_100%)]" />
           <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-canvas to-transparent" />
         </div>
 
         <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-6 pb-40 pt-32">
           <div className="max-w-3xl space-y-8">
-            <div className="hero-chip inline-flex items-center gap-2.5">
+            <div className="hero-chip flex flex-wrap items-center gap-x-2.5 gap-y-2">
               <Tag tone="paypal" solid>PayPal AI Hackathon</Tag>
               <span className="font-mono text-[11.5px] uppercase tracking-[0.1em] text-ink-2">Anticipatory cash relief · open source</span>
             </div>
