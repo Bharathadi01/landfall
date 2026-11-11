@@ -34,3 +34,14 @@ Panes use `--glass-fill*` over a translucent surface with backdrop blur and a sp
 
 ## Honesty labels are part of the design
 Replay data, sandbox mode, simulated steps and demo passkeys must stay visible in every layout. "PayPal SUCCESS" is provider evidence, not proof the family received help.
+
+## Components (`components/ui`, `components/grid`, `components/sentinel/desk`)
+- `Button` — liquid glass; variants `signal` (primary), `glass`, `ghost`, `paypal`, `danger`. `Tag` is the on-air label (solid = LIVE / REPLAY / SANDBOX bug). `GlassPane` levels 1–3. `LowerThird`, `NewsCrawl`, `SegmentedTabs`, `Ticker`, `LiveClock`, `Dialog`.
+- Icons: one concept = one icon through `components/icons` (`I.twoKeyApproval`, `I.reserve`, …). Phosphor duotone for generic UI plus 14 hand-drawn Landfall glyphs. `tests/ui/icon-registry.test.ts` guards uniqueness.
+- Colour: `tests/ui/no-raw-palette.test.ts` forbids raw Tailwind palette classes; use meaning tokens.
+
+## The storm desk globe
+Real data only: NASA GIBS GOES-East/West + Himawari infrared lifted into 3D clouds, RainViewer radar and falling rain, Open-Meteo wind and 48 h forecast, NWS warnings, NHC storms. Replay data (Milton 2024) is drawn only in replay mode and always tagged. WebGL layers live in `components/sentinel/desk/gl`.
+
+## The case grid
+`components/grid/CaseGrid.tsx` is the centre of the app: AG Grid Enterprise with grouping panel, set/floating filters, sparkline, integrated charts, Find, context menu, live feed with cell flashing, custom status bar, and a globe linked both ways. Licence keys: `NEXT_PUBLIC_AG_GRID_LICENSE` (grid) and `NEXT_PUBLIC_AG_STUDIO_LICENSE` (Studio) are separate.
