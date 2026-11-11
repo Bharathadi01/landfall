@@ -19,6 +19,9 @@ All runs below were made against the live Groq API with the project's key on 202
 - Groq's free tier rate-limits (HTTP 429) when runs are repeated within a minute; the page then shows
   "OFFLINE TEMPLATE (AI unavailable)" rather than pretending.
 
+## Input screening (measured — see `docs/AI_EVAL_RESULTS.md`)
+60 labelled prompts: the shipped layers (regex → Prompt Guard 2 → policy model) blocked 29/30 attacks with 0/30 benign blocked; the
+regex alone blocked 8/30. Small, author-written sample — indicative, not a benchmark.
+
 ## Not yet measured
-Block rate / false-positive rate of the prompt-injection layer and investigator factuality over a labelled set
-(`evals/`) have **not** been run. Do not cite numbers for them.
+Investigator factuality over a labelled set has **not** been measured. Do not cite numbers for it.

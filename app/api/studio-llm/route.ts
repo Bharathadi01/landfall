@@ -3,6 +3,7 @@ import { limitRequest } from "@/lib/security/rate-limit";
 import { runStudioChat, StudioLlmUnavailable } from "@/lib/ai/studio-llm";
 import { isMoneyMovementRequest } from "@/lib/studio/studio-answers";
 import { lastUserText, isToolFollowUp } from "@/lib/ai/studio-llm-mapping";
+import { screen } from "@/lib/ai/safety/guard";
 
 /**
  * Model gateway for the AG Studio Agent.
@@ -28,6 +29,12 @@ export async function POST(req: NextRequest) {
   // Guardrail: never put a money-moving instruction in front of a model.
   if (!isToolFollowUp(body.input) && isMoneyMovementRequest(lastUserText(body.input))) {
     return NextResponse.json({ refused: true }, { status: 200 });
+  }
+
+  // Layered screening (Prompt Guard 2 + policy model). Skipped for tool follow-ups, which carry our own tool output, not user text.
+  if (!isToolFollowUp(body.input)) {
+    const verdict = await screen(lastUserText(body.input));
+    if (verdict.action === "block") return NextResponse.json({ refused: true, safety: { layer: verdict.layer } }, { status: 200 });
   }
 
   try {

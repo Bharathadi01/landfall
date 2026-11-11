@@ -163,6 +163,8 @@ function PublicShell({ children }: { children: React.ReactNode }) {
             <Link href="/console/studio" className="hover:text-ink">Analytics Studio</Link>
             <Link href="/console/golden-flow" className="hover:text-ink">Guided Response</Link>
             <Link href="/r/enroll" className="hover:text-ink">Resident portal</Link>
+            <Link href="/judges" className="hover:text-ink">Judge test card</Link>
+            <Link href="/validate" className="hover:text-ink">Give feedback</Link>
             <a href="https://github.com/Bharathadi01/landfall" className="hover:text-ink" target="_blank" rel="noreferrer">GitHub</a>
           </div>
         </div>
@@ -402,6 +404,8 @@ function SidebarContent({
               {[
                 { label: "Public site", href: "/", icon: I.globe },
                 { label: "Resident portal", href: "/r/enroll", icon: I.household },
+                { label: "Judge test card", href: "/judges", icon: I.check },
+                { label: "Give feedback", href: "/validate", icon: I.help },
               ].map((l) => (
                 <li key={l.href}>
                   <Link

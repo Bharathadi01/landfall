@@ -7,6 +7,7 @@ import type { WatchOfficerContext, Role } from "@/lib/ai/watch-officer/types";
 import { safeError } from "@/lib/http/safe-error";
 import { limitRequest } from "@/lib/security/rate-limit";
 import { getSession } from "@/lib/auth/guard";
+import { screen } from "@/lib/ai/safety/guard";
 
 export async function POST(req: NextRequest) {
   const session = await getSession(req);
@@ -15,6 +16,15 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json().catch(() => ({}));
+    if (typeof body.query === "string" && body.query.trim()) {
+      const verdict = await screen(body.query);
+      if (verdict.action === "block") {
+        return NextResponse.json(
+          { success: false, refused: true, error: "The Watch Officer is read-only: it can explain and advise, but it can’t move money, change priorities or reveal its instructions. Rephrase as a question, or use the approvals page for payments.", safety: { layer: verdict.layer } },
+          { status: 422 }
+        );
+      }
+    }
     let targetFundId = body.fundId;
 
     // Resolve fund or default

@@ -136,7 +136,7 @@ export default async function JudgesPage() {
         </table>
       </div>
       <p className="mt-6 text-[12px] text-ink-3">
-        Tip: the server may take ~30 s to wake on the first visit. <Link className="text-accent-strong underline underline-offset-2" href="/">Back to the site</Link>.
+        Tip: the server may take ~30 s to wake on the first visit. <Link className="text-accent-strong underline underline-offset-2" href="/validate">Tell us if this would help a real fund</Link> · <Link className="text-accent-strong underline underline-offset-2" href="/">Back to the site</Link>.
       </p>
     </div>
   );
