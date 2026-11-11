@@ -122,3 +122,24 @@ run("propose → two approvals → Treasurer executes (cancel unclaimed)", () =>
     expect(await getAccountBalance("paypal_available")).toBe(before);
   });
 });
+
+run("proposals see the residents' reports (regression: cancel was refused despite a reported barrier)", () => {
+  it("a stored CANT_ACCESS report unlocks the cancel option on the live case the proposal is built from", async () => {
+    const { loadLiveCasesWithReports } = await import("@/lib/relief/case-source");
+    const { buildProposal } = await import("@/lib/proposals/create");
+    const { recordAccessReport, resetAccessReports } = await import("@/lib/relief/access-reports");
+    const { LIVE_CASE_PREFIX } = await import("@/lib/relief/live-cases.server");
+    resetAccessReports();
+    const { senderItemId } = await unclaimedItem();
+    const caseRef = `${LIVE_CASE_PREFIX}${senderItemId}`;
+    const deps = { loadLiveCases: loadLiveCasesWithReports, activeHouseholds: async () => new Set<string>() };
+
+    const before = await buildProposal({ kind: "CANCEL_ITEM", caseRef }, deps);
+    expect(before.ok).toBe(false); // plenty of claim days left, no barrier
+
+    recordAccessReport(caseRef, { kind: "CANT_ACCESS", reason: "NO_PAYPAL_ACCOUNT" }, { channel: "web" });
+    const after = await buildProposal({ kind: "CANCEL_ITEM", caseRef }, deps);
+    expect(after.ok).toBe(true);
+    resetAccessReports();
+  });
+});

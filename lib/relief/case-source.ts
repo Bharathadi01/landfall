@@ -72,3 +72,9 @@ export function findCaseIn(cases: ReliefCase[], ref: string): ReliefCase | null 
     (hh ? cases.find((c) => c.householdRef === hh) ?? null : null)
   );
 }
+
+/** Live cases WITH the residents' stored reports applied (barrier, "reported received"), exactly as the case list shows them. */
+export async function loadLiveCasesWithReports(): Promise<ReliefCase[]> {
+  await hydrateAccessReports();
+  return (await getLiveSnapshot(listAccessReports())).cases;
+}

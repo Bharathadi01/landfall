@@ -4,7 +4,7 @@ import { limitRequest } from "@/lib/security/rate-limit";
 import { safeError } from "@/lib/http/safe-error";
 import { buildProposal, CreateProposalInput } from "@/lib/proposals/create";
 import { createProposal, listProposals } from "@/lib/proposals/store";
-import { getLiveSnapshot } from "@/lib/relief/live-cases.server";
+import { loadLiveCasesWithReports } from "@/lib/relief/case-source";
 import { householdsWithActivePayments } from "@/lib/treasurer/recovery";
 import { logAuditEvent } from "@/lib/db/audit";
 
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const built = await buildProposal(parsed.data, {
-      loadLiveCases: async () => (await getLiveSnapshot()).cases,
+      loadLiveCases: loadLiveCasesWithReports,
       activeHouseholds: householdsWithActivePayments,
     });
     if (!built.ok) return NextResponse.json({ error: built.error, message: built.message }, { status: built.status });
