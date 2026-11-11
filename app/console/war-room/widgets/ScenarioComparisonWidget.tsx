@@ -42,12 +42,12 @@ export function ScenarioComparisonWidget({
     <div className="glass p-5">
       <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-purple-500" />
+          <div className="w-2.5 h-2.5 rounded-full bg-ai0" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
             Response Scenario Stress Simulation
           </h3>
         </div>
-        <span className="text-xs text-purple-400 font-mono">Deterministic Policy Simulator</span>
+        <span className="text-xs text-ai font-mono">Deterministic Policy Simulator</span>
       </div>
 
       <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -59,22 +59,22 @@ export function ScenarioComparisonWidget({
               onClick={() => onSelectScenario?.(sc.id as any)}
               className={`text-left p-3.5 rounded-xl border transition-all ${
                 isSelected
-                  ? "bg-purple-950/40 border-purple-500/80 shadow-md ring-1 ring-purple-500/50"
-                  : "bg-black/20 border-white/[0.06] hover:border-slate-700"
+                  ? "bg-ai-soft/40 border-ai0/80 shadow-md ring-1 ring-ai0/50"
+                  : "bg-black/20 border-white/[0.06] hover:border-line"
               }`}
             >
               <div className="flex justify-between items-center mb-1">
-                <span className="font-bold text-xs text-slate-100 font-mono">{sc.name}</span>
+                <span className="font-bold text-xs text-ink font-mono">{sc.name}</span>
                 {isSelected && (
-                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-500 text-white">
+                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-ai0 text-white">
                     ACTIVE
                   </span>
                 )}
               </div>
-              <div className="text-sm font-bold text-purple-300 font-mono mt-1">
-                {sc.fundedCount} Funded <span className="text-slate-400 font-normal">/ {sc.waitlistedCount} Waitlisted</span>
+              <div className="text-sm font-bold text-ai font-mono mt-1">
+                {sc.fundedCount} Funded <span className="text-ink-2 font-normal">/ {sc.waitlistedCount} Waitlisted</span>
               </div>
-              <div className="text-[11px] text-slate-400 mt-1 font-sans leading-relaxed">
+              <div className="text-[11px] text-ink-2 mt-1 font-sans leading-relaxed">
                 {sc.description}
               </div>
             </button>

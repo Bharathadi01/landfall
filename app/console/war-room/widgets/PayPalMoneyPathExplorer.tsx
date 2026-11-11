@@ -92,15 +92,15 @@ export function PayPalMoneyPathExplorer() {
     <div className="glass p-5 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.07] pb-3">
         <div>
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-sky-400"></span>
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-paypal flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-paypal"></span>
             PayPal End-to-End Money Path Explorer
           </span>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-ink-2 mt-0.5">
             Proof-carrying relief recovery tracing: Inflow → Ledger → Obligation → Payout → Exception → Proof
           </p>
         </div>
-        <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-sky-500/10 text-sky-300 border border-sky-500/30">
+        <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-paypal0/10 text-paypal border border-paypal0/30">
           7-Stage Lifecycle
         </span>
       </div>
@@ -109,11 +109,11 @@ export function PayPalMoneyPathExplorer() {
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
         {nodes.map((n) => {
           const isSelected = n.step === activeStep;
-          let badgeColor = "bg-slate-800 text-slate-300 border-slate-700";
-          if (n.status === "CONFIRMED") badgeColor = "bg-emerald-950/80 text-emerald-300 border-emerald-800";
-          if (n.status === "EXCEPTION") badgeColor = "bg-rose-950/80 text-rose-300 border-rose-800";
-          if (n.status === "IN_PROGRESS") badgeColor = "bg-amber-950/80 text-amber-300 border-amber-800";
-          if (n.status === "RESOLVED") badgeColor = "bg-purple-950/80 text-purple-300 border-purple-800";
+          let badgeColor = "bg-surface-3 text-ink-2 border-line";
+          if (n.status === "CONFIRMED") badgeColor = "bg-delivered-soft/80 text-delivered border-delivered-line";
+          if (n.status === "EXCEPTION") badgeColor = "bg-danger-soft/80 text-danger border-danger-line";
+          if (n.status === "IN_PROGRESS") badgeColor = "bg-amber-soft/80 text-amber border-amber-line";
+          if (n.status === "RESOLVED") badgeColor = "bg-ai-soft/80 text-ai border-ai-line";
 
           return (
             <button
@@ -121,49 +121,49 @@ export function PayPalMoneyPathExplorer() {
               onClick={() => setActiveStep(n.step)}
               className={`p-2.5 rounded-lg border text-left transition-all relative ${
                 isSelected
-                  ? "border-sky-400 bg-slate-800/90 shadow-md ring-1 ring-sky-400/50"
-                  : "border-white/[0.07] bg-slate-950/50 hover:bg-slate-800/40"
+                  ? "border-paypal bg-surface-3/90 shadow-md ring-1 ring-paypal/50"
+                  : "border-white/[0.07] bg-surface/50 hover:bg-surface-3/40"
               }`}
             >
-              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <div className="flex items-center justify-between text-[10px] font-mono text-ink-2">
                 <span>Stage {n.step}</span>
                 <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold border ${badgeColor}`}>
                   {n.status}
                 </span>
               </div>
               <div className="text-xs font-bold text-white mt-1 truncate">{n.label}</div>
-              <div className="text-[10px] text-slate-400 truncate">{n.sublabel}</div>
+              <div className="text-[10px] text-ink-2 truncate">{n.sublabel}</div>
             </button>
           );
         })}
       </div>
 
       {/* Selected Node Forensic Card */}
-      <div className="p-4 bg-slate-950 rounded-xl border border-white/[0.07] space-y-3 font-mono text-xs">
+      <div className="p-4 bg-surface rounded-xl border border-white/[0.07] space-y-3 font-mono text-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.07]/60 pb-2">
           <div>
-            <span className="text-slate-400">Stage {currentNode.step}: </span>
+            <span className="text-ink-2">Stage {currentNode.step}: </span>
             <span className="text-white font-bold">{currentNode.label}</span>
-            <span className="text-slate-400 ml-2">({currentNode.sublabel})</span>
+            <span className="text-ink-2 ml-2">({currentNode.sublabel})</span>
           </div>
-          <span className="text-slate-400 text-[11px]">{currentNode.timestamp}</span>
+          <span className="text-ink-2 text-[11px]">{currentNode.timestamp}</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="p-2.5 bg-slate-900 rounded border border-white/[0.07] space-y-1">
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Reference Identifier</span>
-            <span className="text-sky-300 font-bold break-all block">{currentNode.referenceId}</span>
+          <div className="p-2.5 bg-surface-2 rounded border border-white/[0.07] space-y-1">
+            <span className="text-[10px] text-ink0 uppercase tracking-wider block">Reference Identifier</span>
+            <span className="text-paypal font-bold break-all block">{currentNode.referenceId}</span>
           </div>
           {currentNode.amountFormatted && (
-            <div className="p-2.5 bg-slate-900 rounded border border-white/[0.07] space-y-1">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Transacted Amount</span>
-              <span className="text-emerald-400 font-bold block">{currentNode.amountFormatted}</span>
+            <div className="p-2.5 bg-surface-2 rounded border border-white/[0.07] space-y-1">
+              <span className="text-[10px] text-ink0 uppercase tracking-wider block">Transacted Amount</span>
+              <span className="text-delivered font-bold block">{currentNode.amountFormatted}</span>
             </div>
           )}
         </div>
 
-        <div className="p-2.5 bg-slate-900/80 rounded border border-white/[0.07] space-y-1 font-sans text-xs leading-relaxed text-slate-300">
-          <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">Auditable Trace</span>
+        <div className="p-2.5 bg-surface-2/80 rounded border border-white/[0.07] space-y-1 font-sans text-xs leading-relaxed text-ink-2">
+          <span className="text-[10px] font-mono text-ink-2 uppercase tracking-wider block">Auditable Trace</span>
           {currentNode.details}
         </div>
       </div>

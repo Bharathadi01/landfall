@@ -47,27 +47,27 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 text-slate-100 shadow-xl max-w-2xl mx-auto space-y-6">
+    <div className="bg-surface-2 border border-line rounded-xl p-6 text-ink shadow-xl max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+      <div className="flex items-start justify-between border-b border-line pb-4">
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold tracking-tight text-white">{household.name}</h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-delivered-soft text-delivered border border-delivered-line">
               v{household.recipientVersion}
             </span>
             {household.isDisplaced && (
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-950 text-amber-400 border border-amber-800">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-soft text-amber border border-amber-line">
                 Displaced Resident
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-400 font-mono mt-1">ID: {household.id}</p>
+          <p className="text-xs text-ink-2 font-mono mt-1">ID: {household.id}</p>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white text-sm px-2 py-1 rounded bg-slate-800 hover:bg-slate-700"
+            className="text-ink-2 hover:text-white text-sm px-2 py-1 rounded bg-surface-3 hover:bg-surface-3"
           >
             Close
           </button>
@@ -76,94 +76,94 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
 
       {/* Four Verification Chips */}
       <div>
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-2 mb-3">
           Four Independent Verification Checks
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* 1. Payment Channel Chip */}
-          <div className="p-3 rounded-lg bg-slate-800/60 border border-slate-700/60 flex flex-col justify-between">
+          <div className="p-3 rounded-lg bg-surface-3/60 border border-line/60 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">Payment Route</span>
+                <span className="text-xs text-ink-2 font-medium">Payment Route</span>
                 <span
                   className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                     fourChecks.paymentChannel.status === "VERIFIED"
-                      ? "bg-emerald-900/60 text-emerald-300"
+                      ? "bg-delivered-soft/60 text-delivered"
                       : fourChecks.paymentChannel.status === "MANUAL"
-                      ? "bg-purple-900/60 text-purple-300"
-                      : "bg-blue-900/60 text-blue-300"
+                      ? "bg-ai-soft/60 text-ai"
+                      : "bg-paypal-soft/60 text-paypal"
                   }`}
                 >
                   {fourChecks.paymentChannel.status}
                 </span>
               </div>
-              <p className="text-sm font-semibold text-slate-200 mt-1">
+              <p className="text-sm font-semibold text-ink mt-1">
                 {fourChecks.paymentChannel.label}
               </p>
             </div>
-            <p className="text-xs text-slate-400 mt-2">{fourChecks.paymentChannel.detail}</p>
+            <p className="text-xs text-ink-2 mt-2">{fourChecks.paymentChannel.detail}</p>
           </div>
 
           {/* 2. Residence Evidence Chip */}
-          <div className="p-3 rounded-lg bg-slate-800/60 border border-slate-700/60 flex flex-col justify-between">
+          <div className="p-3 rounded-lg bg-surface-3/60 border border-line/60 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">Residence Evidence</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300">
+                <span className="text-xs text-ink-2 font-medium">Residence Evidence</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-delivered-soft/60 text-delivered">
                   {fourChecks.residenceEvidence.level}
                 </span>
               </div>
-              <p className="text-sm font-semibold text-slate-200 mt-1">
+              <p className="text-sm font-semibold text-ink mt-1">
                 {fourChecks.residenceEvidence.label}
               </p>
             </div>
             {fourChecks.residenceEvidence.disclaimer && (
-              <p className="text-[11px] text-amber-400/90 italic mt-2">
+              <p className="text-[11px] text-amber/90 italic mt-2">
                 ⚠ {fourChecks.residenceEvidence.disclaimer}
               </p>
             )}
           </div>
 
           {/* 3. Hazard Exposure Chip */}
-          <div className="p-3 rounded-lg bg-slate-800/60 border border-slate-700/60 flex flex-col justify-between">
+          <div className="p-3 rounded-lg bg-surface-3/60 border border-line/60 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">Hazard Exposure</span>
+                <span className="text-xs text-ink-2 font-medium">Hazard Exposure</span>
                 <span
                   className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                     fourChecks.exposure.status === "CONFIRMED"
-                      ? "bg-red-900/60 text-red-300"
+                      ? "bg-danger-soft/60 text-danger"
                       : fourChecks.exposure.status === "OUT_OF_AREA"
-                      ? "bg-slate-700 text-slate-300"
-                      : "bg-amber-900/60 text-amber-300"
+                      ? "bg-surface-3 text-ink-2"
+                      : "bg-amber-soft/60 text-amber"
                   }`}
                 >
                   {fourChecks.exposure.status}
                 </span>
               </div>
-              <p className="text-sm font-semibold text-slate-200 mt-1">
+              <p className="text-sm font-semibold text-ink mt-1">
                 {fourChecks.exposure.label}
               </p>
             </div>
-            <p className="text-xs text-slate-400 mt-2">
+            <p className="text-xs text-ink-2 mt-2">
               Assessed against NWS Hurricane Warning cone using landfall home location.
             </p>
           </div>
 
           {/* 4. Need Priority Chip */}
-          <div className="p-3 rounded-lg bg-slate-800/60 border border-slate-700/60 flex flex-col justify-between">
+          <div className="p-3 rounded-lg bg-surface-3/60 border border-line/60 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">Need Evaluation</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-900/60 text-indigo-300">
+                <span className="text-xs text-ink-2 font-medium">Need Evaluation</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-ai-soft/60 text-ai">
                   Tier {fourChecks.need.priorityTier}
                 </span>
               </div>
-              <p className="text-sm font-semibold text-slate-200 mt-1">
+              <p className="text-sm font-semibold text-ink mt-1">
                 {fourChecks.need.code}
               </p>
             </div>
-            <p className="text-xs text-slate-400 mt-2">
+            <p className="text-xs text-ink-2 mt-2">
               Deterministic policy tier. Paperwork status never alters this assignment.
             </p>
           </div>
@@ -171,25 +171,25 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
       </div>
 
       {/* Profile Details */}
-      <div className="bg-slate-950/60 rounded-lg p-4 border border-slate-800 space-y-3 text-xs">
+      <div className="bg-surface/60 rounded-lg p-4 border border-line space-y-3 text-xs">
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <span className="text-slate-400">Address:</span>
-            <p className="text-slate-200 font-medium mt-0.5">{household.address}</p>
+            <span className="text-ink-2">Address:</span>
+            <p className="text-ink font-medium mt-0.5">{household.address}</p>
           </div>
           <div>
-            <span className="text-slate-400">Payment Destination:</span>
-            <p className="text-slate-200 font-mono mt-0.5">{household.receiver}</p>
+            <span className="text-ink-2">Payment Destination:</span>
+            <p className="text-ink font-mono mt-0.5">{household.receiver}</p>
           </div>
           <div>
-            <span className="text-slate-400">Enrollment Channel:</span>
-            <p className="text-slate-200 mt-0.5">
+            <span className="text-ink-2">Enrollment Channel:</span>
+            <p className="text-ink mt-0.5">
               {household.enrollmentMethod} ({household.recipientPath})
             </p>
           </div>
           <div>
-            <span className="text-slate-400">Last Reconfirmed:</span>
-            <p className="text-slate-200 mt-0.5">
+            <span className="text-ink-2">Last Reconfirmed:</span>
+            <p className="text-ink mt-0.5">
               {household.reconfirmedAt
                 ? new Date(household.reconfirmedAt).toLocaleDateString()
                 : "Not reconfirmed"}
@@ -199,7 +199,7 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
 
         {/* Displacement details if applicable */}
         {household.isDisplaced && (
-          <div className="pt-2 border-t border-slate-800 text-[11px] text-amber-300/90">
+          <div className="pt-2 border-t border-line text-[11px] text-amber/90">
             <strong>Displacement Notice:</strong> Landfall coordinates ({household.lat}, {household.lng})
             preserved for hazard models. Temporary current coordinates ({household.currentLat}, {household.currentLng})
             tracked in location history.
@@ -209,14 +209,14 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
 
       {/* Action footer */}
       <div className="flex items-center justify-between pt-2">
-        <span className="text-[11px] text-slate-500">
+        <span className="text-[11px] text-ink0">
           Modifying destination increments version and invalidates unsubmitted plan approvals.
         </span>
         {onReconfirm && (
           <button
             onClick={handleReconfirmClick}
             disabled={reconfirming || reconfirmedSuccess}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white transition-colors"
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-paypal hover:bg-paypal0 disabled:bg-surface-3 text-white transition-colors"
           >
             {reconfirmedSuccess ? "✓ Reconfirmed" : reconfirming ? "Saving..." : "Reconfirm 'Still Here'"}
           </button>

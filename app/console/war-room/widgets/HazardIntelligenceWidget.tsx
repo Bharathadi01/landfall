@@ -29,13 +29,13 @@ export function HazardIntelligenceWidget({
     <div className="glass p-5">
       <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+          <div className="w-2.5 h-2.5 rounded-full bg-danger0 animate-pulse" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
             Hazard Intelligence & Telemetry
           </h3>
         </div>
         {isRehearsal && (
-          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber0/20 text-amber border border-amber0/30">
             IEM HISTORICAL REPLAY
           </span>
         )}
@@ -43,32 +43,32 @@ export function HazardIntelligenceWidget({
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-slate-400 font-mono">Intensity</div>
-          <div className="text-base font-bold text-rose-400 mt-0.5">{category}</div>
-          <div className="text-[10px] text-slate-500 mt-0.5">{maxWindsMph} mph sustained</div>
+          <div className="text-[11px] text-ink-2 font-mono">Intensity</div>
+          <div className="text-base font-bold text-danger mt-0.5">{category}</div>
+          <div className="text-[10px] text-ink0 mt-0.5">{maxWindsMph} mph sustained</div>
         </div>
 
         <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-slate-400 font-mono">Central Pressure</div>
-          <div className="text-base font-bold text-sky-400 mt-0.5">{centralPressureMb} mb</div>
-          <div className="text-[10px] text-slate-500 mt-0.5">Rapidly deepening</div>
+          <div className="text-[11px] text-ink-2 font-mono">Central Pressure</div>
+          <div className="text-base font-bold text-paypal mt-0.5">{centralPressureMb} mb</div>
+          <div className="text-[10px] text-ink0 mt-0.5">Rapidly deepening</div>
         </div>
 
         <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-slate-400 font-mono">Peak Storm Surge</div>
-          <div className="text-base font-bold text-amber-400 mt-0.5">{stormSurgeFeet}</div>
-          <div className="text-[10px] text-slate-500 mt-0.5">Tampa Bay inundation</div>
+          <div className="text-[11px] text-ink-2 font-mono">Peak Storm Surge</div>
+          <div className="text-base font-bold text-amber mt-0.5">{stormSurgeFeet}</div>
+          <div className="text-[10px] text-ink0 mt-0.5">Tampa Bay inundation</div>
         </div>
 
         <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
-          <div className="text-[11px] text-slate-400 font-mono">Warning Office</div>
-          <div className="text-base font-bold text-slate-200 mt-0.5">{warningOffice}</div>
-          <div className="text-[10px] text-slate-500 mt-0.5">{polygonVertexCount} vertex polygon</div>
+          <div className="text-[11px] text-ink-2 font-mono">Warning Office</div>
+          <div className="text-base font-bold text-ink mt-0.5">{warningOffice}</div>
+          <div className="text-[10px] text-ink0 mt-0.5">{polygonVertexCount} vertex polygon</div>
         </div>
       </div>
 
-      <div className="mt-3 p-3 bg-rose-950/20 border border-rose-900/40 rounded-lg text-xs text-rose-200/90 leading-relaxed font-sans">
-        <span className="font-semibold uppercase tracking-wider text-[10px] text-rose-400 block mb-0.5 font-mono">
+      <div className="mt-3 p-3 bg-danger-soft/20 border border-danger-line/40 rounded-lg text-xs text-danger/90 leading-relaxed font-sans">
+        <span className="font-semibold uppercase tracking-wider text-[10px] text-danger block mb-0.5 font-mono">
           Official Warning Bulletin:
         </span>
         {headline}

@@ -63,21 +63,21 @@ export function ImpactTimelineWidget({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/[0.07] gap-2">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            <div className="w-2.5 h-2.5 rounded-full bg-delivered0" />
             <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
               Anticipatory Impact Timeline (Cash Before The Storm)
             </h3>
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
+          <p className="text-[10px] text-ink-2 mt-0.5 font-mono">
             Modelled scenario metrics based on official NWS Hurricane Milton 2024 Replay
           </p>
         </div>
-        <span className="text-xs font-mono font-bold text-emerald-400 self-start sm:self-center">
+        <span className="text-xs font-mono font-bold text-delivered self-start sm:self-center">
           +49.2 Hours Modelled Pre-Landfall Lead Time
         </span>
       </div>
 
-      <div className="mt-4 relative pl-4 border-l-2 border-emerald-500/40 space-y-4">
+      <div className="mt-4 relative pl-4 border-l-2 border-delivered0/40 space-y-4">
         {milestones.map((m, idx) => {
           const isDone = m.status === "COMPLETED";
           return (
@@ -86,15 +86,15 @@ export function ImpactTimelineWidget({
               <div
                 className={`absolute -left-[23px] top-1 w-3.5 h-3.5 rounded-full border-2 ${
                   isDone
-                    ? "bg-emerald-500 border-emerald-300"
-                    : "bg-slate-900 border-slate-600"
+                    ? "bg-delivered0 border-delivered"
+                    : "bg-surface-2 border-line"
                 }`}
               />
               <div className="flex justify-between items-center text-xs font-mono">
-                <span className="font-bold text-slate-200">{m.stageName}</span>
-                <span className="text-emerald-400 font-semibold">{m.leadTimeHoursRemaining}</span>
+                <span className="font-bold text-ink">{m.stageName}</span>
+                <span className="text-delivered font-semibold">{m.leadTimeHoursRemaining}</span>
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5 font-sans leading-relaxed">
+              <div className="text-[11px] text-ink-2 mt-0.5 font-sans leading-relaxed">
                 {m.description}
               </div>
             </div>

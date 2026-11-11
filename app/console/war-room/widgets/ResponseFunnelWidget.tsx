@@ -24,12 +24,12 @@ export function ResponseFunnelWidget({
     <div className="glass p-5">
       <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-sky-500" />
+          <div className="w-2.5 h-2.5 rounded-full bg-paypal0" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
             Delivery funnel
           </h3>
         </div>
-        <span className="text-xs text-emerald-400 font-mono font-semibold">
+        <span className="text-xs text-delivered font-mono font-semibold">
           Conversion: 83% (1 Excluded Safely)
         </span>
       </div>
@@ -38,18 +38,18 @@ export function ResponseFunnelWidget({
         {stages.map((st, i) => (
           <div key={st.label} className="bg-black/20 p-2.5 rounded-lg border border-white/[0.06]">
             <div className="flex justify-between items-center text-xs font-mono mb-1">
-              <span className="text-slate-200 font-medium">{st.label}</span>
-              <span className="text-sky-400 font-bold">
+              <span className="text-ink font-medium">{st.label}</span>
+              <span className="text-paypal font-bold">
                 {st.count} households ({st.percentage}%)
               </span>
             </div>
-            <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-sky-500 h-full transition-all duration-500"
+                className="bg-paypal0 h-full transition-all duration-500"
                 style={{ width: `${st.percentage}%` }}
               />
             </div>
-            <div className="text-[10px] text-slate-400 mt-1 font-sans">{st.description}</div>
+            <div className="text-[10px] text-ink-2 mt-1 font-sans">{st.description}</div>
           </div>
         ))}
       </div>

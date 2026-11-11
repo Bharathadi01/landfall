@@ -1180,7 +1180,7 @@ export function WeatherMap({
   }, [mapBounds]);
 
   return (
-    <div className="relative w-full h-[640px] md:h-[720px] lg:h-[780px] bg-slate-950 overflow-hidden rounded-2xl border border-slate-800 shadow-2xl select-none">
+    <div className="relative w-full h-[640px] md:h-[720px] lg:h-[780px] bg-surface overflow-hidden rounded-2xl border border-line shadow-2xl select-none">
       {/* WEBGL MAPLIBRE 3D CONTAINER */}
       <div
         ref={mapContainerRef}
@@ -1343,11 +1343,11 @@ export function WeatherMap({
               })}
           </svg>
 
-          <div className="absolute bottom-16 left-4 z-10 max-w-sm bg-slate-900/90 border border-slate-700/80 rounded-xl p-2.5 backdrop-blur-md text-xs text-slate-300 flex items-center gap-2 shadow-xl">
-            <span className="text-amber-400 font-bold text-sm">ℹ️</span>
+          <div className="absolute bottom-16 left-4 z-10 max-w-sm bg-surface-2/90 border border-line/80 rounded-xl p-2.5 backdrop-blur-md text-xs text-ink-2 flex items-center gap-2 shadow-xl">
+            <span className="text-amber font-bold text-sm">ℹ️</span>
             <div>
               <span className="font-semibold text-white">2D Geospatial Fallback Active</span>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-ink-2">
                 Vector warning polygons, evacuation zones, and household exposure calculations active.
               </p>
             </div>
@@ -1362,38 +1362,38 @@ export function WeatherMap({
           <div
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-lg border ${
               mode === "LIVE"
-                ? "bg-emerald-950/80 text-emerald-300 border-emerald-600/80"
-                : "bg-amber-950/80 text-amber-200 border-amber-600/80"
+                ? "bg-delivered-soft/80 text-delivered border-delivered/80"
+                : "bg-amber-soft/80 text-amber border-amber/80"
             }`}
           >
             <span
               className={`w-2 h-2 rounded-full ${
-                mode === "LIVE" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
+                mode === "LIVE" ? "bg-delivered animate-pulse" : "bg-amber"
               }`}
             />
             <span>{mode === "HISTORICAL_REPLAY" ? "HISTORICAL REPLAY" : "LIVE FEED"}</span>
           </div>
 
           {/* Scope Badge */}
-          <div className="px-2.5 py-1 rounded-xl text-xs font-semibold text-slate-200 bg-slate-900/90 border border-slate-700/80 backdrop-blur-md flex items-center gap-1.5 shadow-lg">
-            <I.pin className="w-3.5 h-3.5 text-blue-400" />
+          <div className="px-2.5 py-1 rounded-xl text-xs font-semibold text-ink bg-surface-2/90 border border-line/80 backdrop-blur-md flex items-center gap-1.5 shadow-lg">
+            <I.pin className="w-3.5 h-3.5 text-paypal" />
             <span>Tampa Bay, FL</span>
-            <span className="text-[10px] text-slate-400 font-mono">(WFO TBW)</span>
+            <span className="text-[10px] text-ink-2 font-mono">(WFO TBW)</span>
           </div>
 
           {/* Sensor Identification */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-mono text-cyan-300 bg-cyan-950/70 border border-cyan-800/80 backdrop-blur-md shadow-lg">
-            <I.pulse className="w-3 h-3 text-cyan-400" />
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-mono text-ai bg-ai-soft/70 border border-ai-line/80 backdrop-blur-md shadow-lg">
+            <I.pulse className="w-3 h-3 text-ai" />
             <span>GOES-16 ABI · nowCOAST WMS</span>
           </div>
         </div>
 
         {/* Observation Timestamp & Sensor Attribution */}
-        <div className="text-[10px] text-slate-300/90 font-mono bg-slate-950/75 border border-slate-800/80 px-2 py-0.5 rounded-lg backdrop-blur-md self-start pointer-events-auto flex items-center gap-2">
-          <I.clock className="w-3 h-3 text-slate-400" />
+        <div className="text-[10px] text-ink-2/90 font-mono bg-surface/75 border border-line/80 px-2 py-0.5 rounded-lg backdrop-blur-md self-start pointer-events-auto flex items-center gap-2">
+          <I.clock className="w-3 h-3 text-ink-2" />
           <span>Valid: {currentFrame.displayTime}</span>
-          <span className="text-slate-500">|</span>
-          <span className="text-slate-400">Esri / NASA GIBS / NOAA</span>
+          <span className="text-ink0">|</span>
+          <span className="text-ink-2">Esri / NASA GIBS / NOAA</span>
         </div>
       </div>
 
@@ -1401,13 +1401,13 @@ export function WeatherMap({
       <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-2 pointer-events-none">
         <div className="flex items-center gap-2 pointer-events-auto">
           {/* CAMERA MODE SWITCHER (Weather View [Default] vs 3D Explore vs Globe) */}
-          <div className="flex items-center bg-slate-900/90 border border-slate-700/80 rounded-xl p-0.5 backdrop-blur-md shadow-xl">
+          <div className="flex items-center bg-surface-2/90 border border-line/80 rounded-xl p-0.5 backdrop-blur-md shadow-xl">
             <button
               onClick={transitionToWeatherView}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
                 cameraMode === "WEATHER_VIEW"
-                  ? "bg-blue-600 text-white shadow"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-paypal text-white shadow"
+                  : "text-ink-2 hover:text-ink"
               }`}
               title="Overhead Meteorological Weather View (Default)"
             >
@@ -1419,8 +1419,8 @@ export function WeatherMap({
               onClick={transitionTo3DExplore}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
                 cameraMode === "EXPLORE_3D"
-                  ? "bg-blue-600 text-white shadow"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-paypal text-white shadow"
+                  : "text-ink-2 hover:text-ink"
               }`}
               title="Optional 3D Perspective Explore Mode with Terrain Tilt"
             >
@@ -1432,8 +1432,8 @@ export function WeatherMap({
               onClick={transitionToGlobe}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
                 cameraMode === "GLOBE"
-                  ? "bg-blue-600 text-white shadow"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-paypal text-white shadow"
+                  : "text-ink-2 hover:text-ink"
               }`}
               title="Orbital Weather Globe View"
             >
@@ -1447,8 +1447,8 @@ export function WeatherMap({
             onClick={handleStartCinematicTour}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shadow-lg backdrop-blur-md ${
               isCinematicTourActive
-                ? "bg-amber-600 text-white border-amber-400 animate-pulse"
-                : "bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white border-blue-500/80"
+                ? "bg-amber text-white border-amber animate-pulse"
+                : "bg-gradient-to-r from-paypal to-ai hover:from-paypal hover:to-ai text-white border-paypal0/80"
             }`}
             title="Launch 10-step Demonstration Sequence (Finishes Overhead)"
           >
@@ -1459,7 +1459,7 @@ export function WeatherMap({
           {/* Settings / Opacity Popover Button */}
           <button
             onClick={() => setShowSettingsPopover(!showSettingsPopover)}
-            className="p-1.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-slate-300 hover:text-white transition-colors shadow-lg backdrop-blur-md"
+            className="p-1.5 bg-surface-2/90 hover:bg-surface-3 border border-line/80 rounded-xl text-ink-2 hover:text-white transition-colors shadow-lg backdrop-blur-md"
             title="Weather Layer Controls & Display Settings"
           >
             <I.sliders className="w-4 h-4" />
@@ -1467,13 +1467,13 @@ export function WeatherMap({
         </div>
 
         {/* COMPACT FLOATING LAYER SWITCHER */}
-        <div className="flex flex-wrap items-center gap-1 bg-slate-900/90 border border-slate-700/80 rounded-xl p-1 backdrop-blur-md shadow-xl pointer-events-auto text-xs">
+        <div className="flex flex-wrap items-center gap-1 bg-surface-2/90 border border-line/80 rounded-xl p-1 backdrop-blur-md shadow-xl pointer-events-auto text-xs">
           <button
             onClick={() => setShowSatellite(!showSatellite)}
             className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
               showSatellite
-                ? "bg-slate-700/90 text-white"
-                : "text-slate-500 hover:text-slate-300"
+                ? "bg-surface-3/90 text-white"
+                : "text-ink0 hover:text-ink-2"
             }`}
           >
             Satellite
@@ -1483,8 +1483,8 @@ export function WeatherMap({
             onClick={() => setShowSatelliteClouds(!showSatelliteClouds)}
             className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
               showSatelliteClouds
-                ? "bg-sky-600/90 text-white"
-                : "text-slate-500 hover:text-slate-300"
+                ? "bg-paypal/90 text-white"
+                : "text-ink0 hover:text-ink-2"
             }`}
           >
             Clouds
@@ -1494,8 +1494,8 @@ export function WeatherMap({
             onClick={() => setShowCloudTops(!showCloudTops)}
             className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
               showCloudTops
-                ? "bg-purple-600/90 text-white"
-                : "text-slate-500 hover:text-slate-300"
+                ? "bg-ai/90 text-white"
+                : "text-ink0 hover:text-ink-2"
             }`}
           >
             Cloud Tops
@@ -1506,7 +1506,7 @@ export function WeatherMap({
             className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
               showRadar
                 ? "bg-accent/90 text-white"
-                : "text-slate-500 hover:text-slate-300"
+                : "text-ink0 hover:text-ink-2"
             }`}
           >
             Radar
@@ -1516,8 +1516,8 @@ export function WeatherMap({
             onClick={() => setShowWarnings(!showWarnings)}
             className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
               showWarnings
-                ? "bg-amber-600/90 text-white"
-                : "text-slate-500 hover:text-slate-300"
+                ? "bg-amber/90 text-white"
+                : "text-ink0 hover:text-ink-2"
             }`}
           >
             Warnings
@@ -1527,8 +1527,8 @@ export function WeatherMap({
             onClick={() => setShowNHCTrack(!showNHCTrack)}
             className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
               showNHCTrack
-                ? "bg-red-600/90 text-white"
-                : "text-slate-500 hover:text-slate-300"
+                ? "bg-danger/90 text-white"
+                : "text-ink0 hover:text-ink-2"
             }`}
           >
             Track
@@ -1538,8 +1538,8 @@ export function WeatherMap({
             onClick={() => setShowEvacZones(!showEvacZones)}
             className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
               showEvacZones
-                ? "bg-cyan-600/90 text-white"
-                : "text-slate-500 hover:text-slate-300"
+                ? "bg-ai/90 text-white"
+                : "text-ink0 hover:text-ink-2"
             }`}
           >
             Surge
@@ -1549,8 +1549,8 @@ export function WeatherMap({
             onClick={() => setShowClusters(!showClusters)}
             className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold transition-all ${
               showClusters
-                ? "bg-orange-600/90 text-white"
-                : "text-slate-500 hover:text-slate-300"
+                ? "bg-accent/90 text-white"
+                : "text-ink0 hover:text-ink-2"
             }`}
           >
             Households
@@ -1562,7 +1562,7 @@ export function WeatherMap({
               else if (cameraMode === "EXPLORE_3D") transitionTo3DExplore();
               else transitionToGlobe();
             }}
-            className="px-2 py-0.5 rounded-lg text-[11px] text-slate-400 hover:text-white bg-slate-800/80 transition-colors ml-1"
+            className="px-2 py-0.5 rounded-lg text-[11px] text-ink-2 hover:text-white bg-surface-3/80 transition-colors ml-1"
             title="Reset camera orientation"
           >
             Reset
@@ -1571,12 +1571,12 @@ export function WeatherMap({
 
         {/* SETTINGS POPOVER (Opacity, Basemap, 3D Pitch) */}
         {showSettingsPopover && (
-          <div className="bg-slate-900/95 border border-slate-700/80 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl space-y-3 w-64 pointer-events-auto text-xs text-slate-200 animate-in fade-in slide-in-from-top-2">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+          <div className="bg-surface-2/95 border border-line/80 rounded-2xl p-3.5 backdrop-blur-xl shadow-2xl space-y-3 w-64 pointer-events-auto text-xs text-ink animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center justify-between border-b border-line pb-1.5">
               <span className="font-bold text-white">Display & Sensor Settings</span>
               <button
                 onClick={() => setShowSettingsPopover(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-ink-2 hover:text-white"
               >
                 ✕
               </button>
@@ -1585,8 +1585,8 @@ export function WeatherMap({
             {/* Radar Opacity */}
             <div className="space-y-1">
               <div className="flex justify-between text-[11px]">
-                <span className="text-slate-400">Radar Opacity</span>
-                <span className="font-mono text-emerald-400">{Math.round(radarOpacity * 100)}%</span>
+                <span className="text-ink-2">Radar Opacity</span>
+                <span className="font-mono text-delivered">{Math.round(radarOpacity * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -1595,15 +1595,15 @@ export function WeatherMap({
                 step="0.05"
                 value={radarOpacity}
                 onChange={(e) => setRadarOpacity(parseFloat(e.target.value))}
-                className="w-full accent-emerald-500 cursor-pointer"
+                className="w-full accent-delivered0 cursor-pointer"
               />
             </div>
 
             {/* Cloud Tops Opacity */}
             <div className="space-y-1">
               <div className="flex justify-between text-[11px]">
-                <span className="text-slate-400">Cloud Tops Opacity</span>
-                <span className="font-mono text-purple-400">{Math.round(cloudTopsOpacity * 100)}%</span>
+                <span className="text-ink-2">Cloud Tops Opacity</span>
+                <span className="font-mono text-ai">{Math.round(cloudTopsOpacity * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -1612,7 +1612,7 @@ export function WeatherMap({
                 step="0.05"
                 value={cloudTopsOpacity}
                 onChange={(e) => setCloudTopsOpacity(parseFloat(e.target.value))}
-                className="w-full accent-purple-500 cursor-pointer"
+                className="w-full accent-ai0 cursor-pointer"
               />
             </div>
 
@@ -1620,8 +1620,8 @@ export function WeatherMap({
             {cameraMode === "EXPLORE_3D" && (
               <div className="space-y-1">
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-slate-400">Perspective Pitch</span>
-                  <span className="font-mono text-blue-400">{explorePitch}°</span>
+                  <span className="text-ink-2">Perspective Pitch</span>
+                  <span className="font-mono text-paypal">{explorePitch}°</span>
                 </div>
                 <input
                   type="range"
@@ -1636,14 +1636,14 @@ export function WeatherMap({
                       mapInstanceRef.current.setPitch(p);
                     }
                   }}
-                  className="w-full accent-blue-500 cursor-pointer"
+                  className="w-full accent-paypal0 cursor-pointer"
                 />
               </div>
             )}
 
             {/* Basemap Switcher */}
-            <div className="space-y-1 pt-1 border-t border-slate-800">
-              <span className="text-slate-400 text-[11px]">Basemap Surface</span>
+            <div className="space-y-1 pt-1 border-t border-line">
+              <span className="text-ink-2 text-[11px]">Basemap Surface</span>
               <div className="grid grid-cols-2 gap-1 pt-0.5">
                 {(Object.keys(BASEMAP_STYLES) as BasemapTheme[]).map((themeKey) => (
                   <button
@@ -1651,8 +1651,8 @@ export function WeatherMap({
                     onClick={() => handleBasemapChange(themeKey)}
                     className={`py-1 px-1.5 rounded text-[10px] font-semibold text-center transition-all ${
                       selectedBasemap === themeKey
-                        ? "bg-blue-600 text-white"
-                        : "bg-slate-800 text-slate-400 hover:text-white"
+                        ? "bg-paypal text-white"
+                        : "bg-surface-3 text-ink-2 hover:text-white"
                     }`}
                   >
                     {themeKey === "satellite"
@@ -1668,15 +1668,15 @@ export function WeatherMap({
             </div>
 
             {/* Radar Outage Simulator */}
-            <div className="pt-1 border-t border-slate-800 flex items-center justify-between">
-              <span className="text-slate-400 text-[11px]">nowCOAST WMS</span>
+            <div className="pt-1 border-t border-line flex items-center justify-between">
+              <span className="text-ink-2 text-[11px]">nowCOAST WMS</span>
               <button
                 data-testid="radar-outage-toggle"
                 onClick={() => setRadarOutage(!radarOutage)}
                 className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
                   radarOutage
-                    ? "bg-red-950 text-red-300 border border-red-700"
-                    : "bg-slate-800 text-slate-300 hover:text-white"
+                    ? "bg-danger-soft text-danger border border-danger"
+                    : "bg-surface-3 text-ink-2 hover:text-white"
                 }`}
               >
                 {radarOutage ? "Simulated Outage" : "Online"}
@@ -1688,45 +1688,45 @@ export function WeatherMap({
 
       {/* BROADCAST STORM INFORMATION CARD (Floating Bottom-Left) */}
       {showStormCard && (
-        <div className="absolute bottom-20 left-3 z-10 max-w-xs bg-slate-950/90 border border-slate-800 rounded-2xl p-3 backdrop-blur-xl shadow-2xl text-xs space-y-2">
-          <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
+        <div className="absolute bottom-20 left-3 z-10 max-w-xs bg-surface/90 border border-line rounded-2xl p-3 backdrop-blur-xl shadow-2xl text-xs space-y-2">
+          <div className="flex items-center justify-between border-b border-line/80 pb-1.5">
             <div className="flex items-center gap-1.5">
-              <I.wind className="w-4 h-4 text-red-400" />
+              <I.wind className="w-4 h-4 text-danger" />
               <span className="font-bold text-white tracking-wide">HURRICANE MILTON</span>
             </div>
-            <span className="px-2 py-0.5 bg-red-950/80 text-red-300 border border-red-800 rounded text-[10px] font-extrabold uppercase tracking-wider">
+            <span className="px-2 py-0.5 bg-danger-soft/80 text-danger border border-danger-line rounded text-[10px] font-extrabold uppercase tracking-wider">
               CAT {currentFrame.category}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-[11px]">
-            <div className="bg-slate-900/80 rounded-lg p-1.5 border border-slate-800/80">
-              <span className="text-slate-400 text-[10px] block">Max Winds</span>
+            <div className="bg-surface-2/80 rounded-lg p-1.5 border border-line/80">
+              <span className="text-ink-2 text-[10px] block">Max Winds</span>
               <span className="font-bold text-white text-xs">{currentFrame.windSpeedMph} mph</span>
             </div>
-            <div className="bg-slate-900/80 rounded-lg p-1.5 border border-slate-800/80">
-              <span className="text-slate-400 text-[10px] block">Central Pressure</span>
+            <div className="bg-surface-2/80 rounded-lg p-1.5 border border-line/80">
+              <span className="text-ink-2 text-[10px] block">Central Pressure</span>
               <span className="font-mono text-white text-xs">{currentFrame.pressureMb} mb</span>
             </div>
           </div>
 
-          <p className="text-[11px] text-slate-300 leading-tight">
+          <p className="text-[11px] text-ink-2 leading-tight">
             {currentFrame.headline}
           </p>
 
-          <div className="text-[10px] text-slate-400 font-mono flex items-center justify-between pt-1 border-t border-slate-800/80">
+          <div className="text-[10px] text-ink-2 font-mono flex items-center justify-between pt-1 border-t border-line/80">
             <span>NHC Advisory 19 / 20</span>
-            <span className="text-emerald-400">67% Cone Active</span>
+            <span className="text-delivered">67% Cone Active</span>
           </div>
         </div>
       )}
 
       {/* CLOUD-TOP ALTITUDE SCIENTIFIC LEGEND (When Cloud Tops Layer is Active) */}
       {showCloudTops && (
-        <div className="absolute bottom-20 right-3 z-10 bg-slate-950/90 border border-slate-800 rounded-xl px-2.5 py-1.5 backdrop-blur-xl shadow-2xl text-[10px] text-slate-300 space-y-1 max-w-[200px]">
+        <div className="absolute bottom-20 right-3 z-10 bg-surface/90 border border-line rounded-xl px-2.5 py-1.5 backdrop-blur-xl shadow-2xl text-[10px] text-ink-2 space-y-1 max-w-[200px]">
           <span className="font-bold text-white block">GOES-16 Cloud Tops (ACHA)</span>
-          <div className="h-2 w-full rounded-sm bg-gradient-to-r from-sky-400 via-indigo-300 via-purple-400 to-rose-400" />
-          <div className="flex justify-between text-[9px] text-slate-400 font-mono">
+          <div className="h-2 w-full rounded-sm bg-gradient-to-r from-paypal via-ai via-ai to-danger" />
+          <div className="flex justify-between text-[9px] text-ink-2 font-mono">
             <span>5,000m</span>
             <span>10,000m</span>
             <span>16,000m+</span>
@@ -1735,19 +1735,19 @@ export function WeatherMap({
       )}
 
       {/* BOTTOM WEATHER TIMELINE BAR */}
-      <div className="absolute bottom-3 left-3 right-3 z-10 bg-slate-950/95 border border-slate-800 rounded-2xl p-2.5 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+      <div className="absolute bottom-3 left-3 right-3 z-10 bg-surface/95 border border-line rounded-2xl p-2.5 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
         {/* Playback Controls & Frame Headline */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsPlayingTimeline(!isPlayingTimeline)}
-            className="w-8 h-8 rounded-xl bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition-colors shadow-lg"
+            className="w-8 h-8 rounded-xl bg-paypal hover:bg-paypal0 text-white flex items-center justify-center transition-colors shadow-lg"
             title={isPlayingTimeline ? "Pause timeline replay" : "Play timeline progression"}
           >
             {isPlayingTimeline ? <I.pause className="w-4 h-4" /> : <I.play className="w-4 h-4 ml-0.5" />}
           </button>
 
           <div className="flex flex-col">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-ink-2">
               Meteorological Timeline
             </span>
             <span className="font-mono font-bold text-white text-xs">
@@ -1755,12 +1755,12 @@ export function WeatherMap({
             </span>
           </div>
 
-          <div className="hidden lg:flex items-center gap-2 pl-2 border-l border-slate-800 text-slate-300 text-[11px]">
-            <span className="text-amber-400 font-semibold">{currentFrame.windSpeedMph} mph</span>
+          <div className="hidden lg:flex items-center gap-2 pl-2 border-l border-line text-ink-2 text-[11px]">
+            <span className="text-amber font-semibold">{currentFrame.windSpeedMph} mph</span>
             <span>·</span>
-            <span className="font-mono text-slate-400">{currentFrame.pressureMb} mb</span>
+            <span className="font-mono text-ink-2">{currentFrame.pressureMb} mb</span>
             <span>·</span>
-            <span className="truncate max-w-xs text-slate-300">{currentFrame.headline}</span>
+            <span className="truncate max-w-xs text-ink-2">{currentFrame.headline}</span>
           </div>
         </div>
 
@@ -1775,8 +1775,8 @@ export function WeatherMap({
               }}
               className={`flex-1 py-1 px-1.5 rounded-lg text-[10px] font-medium transition-all text-center border ${
                 timelineIndex === idx
-                  ? "bg-blue-600/90 text-white border-blue-400 shadow-md font-bold"
-                  : "bg-slate-900/80 text-slate-400 border-slate-800 hover:text-slate-200"
+                  ? "bg-paypal/90 text-white border-paypal shadow-md font-bold"
+                  : "bg-surface-2/80 text-ink-2 border-line hover:text-ink"
               }`}
             >
               {frame.displayTime.split("·")[1]?.trim() || frame.displayTime}
@@ -1787,19 +1787,19 @@ export function WeatherMap({
 
       {/* CONTEXTUAL INSPECTION DRAWER */}
       {selectedItem && (
-        <div className="absolute top-20 right-3 z-20 max-w-sm w-full bg-slate-900/95 border border-slate-700/80 rounded-2xl p-4 backdrop-blur-xl shadow-2xl space-y-2.5 animate-in fade-in slide-in-from-right-2">
-          <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
+        <div className="absolute top-20 right-3 z-20 max-w-sm w-full bg-surface-2/95 border border-line/80 rounded-2xl p-4 backdrop-blur-xl shadow-2xl space-y-2.5 animate-in fade-in slide-in-from-right-2">
+          <div className="flex items-center justify-between gap-2 border-b border-line pb-2">
             <span className="text-xs font-bold text-white truncate">{selectedItem.title}</span>
             {selectedItem.badge && (
               <span
                 className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider ${
                   selectedItem.isTranche1
-                    ? "bg-red-950 text-red-300 border border-red-800"
+                    ? "bg-danger-soft text-danger border border-danger-line"
                     : selectedItem.type === "CLOUD_TOP"
-                    ? "bg-purple-950 text-purple-300 border border-purple-800"
+                    ? "bg-ai-soft text-ai border border-ai-line"
                     : selectedItem.type === "TRACK_POINT"
-                    ? "bg-amber-950 text-amber-300 border border-amber-800"
-                    : "bg-emerald-950 text-emerald-300 border border-emerald-800"
+                    ? "bg-amber-soft text-amber border border-amber-line"
+                    : "bg-delivered-soft text-delivered border border-delivered-line"
                 }`}
               >
                 {selectedItem.badge}
@@ -1807,33 +1807,33 @@ export function WeatherMap({
             )}
             <button
               onClick={() => setSelectedItem(null)}
-              className="text-slate-400 hover:text-slate-200 text-xs ml-auto"
+              className="text-ink-2 hover:text-ink text-xs ml-auto"
             >
               ✕
             </button>
           </div>
 
           {selectedItem.headline && (
-            <div className="text-xs font-semibold text-slate-100">{selectedItem.headline}</div>
+            <div className="text-xs font-semibold text-ink">{selectedItem.headline}</div>
           )}
 
-          <p className="text-xs text-slate-300 leading-relaxed">{selectedItem.details}</p>
+          <p className="text-xs text-ink-2 leading-relaxed">{selectedItem.details}</p>
 
           {selectedItem.type === "CLOUD_TOP" && selectedItem.altitudeMeters && (
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-[11px] text-slate-300 font-mono">
-              <div className="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
-                <span className="text-slate-500 text-[10px] block">Altitude</span>
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-line text-[11px] text-ink-2 font-mono">
+              <div className="bg-surface/60 p-1.5 rounded-lg border border-line">
+                <span className="text-ink0 text-[10px] block">Altitude</span>
                 <span className="text-white font-bold">{selectedItem.altitudeMeters.toLocaleString()} m</span>
               </div>
-              <div className="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800">
-                <span className="text-slate-500 text-[10px] block">IR Brightness</span>
-                <span className="text-purple-400 font-bold">{selectedItem.tempC}°C</span>
+              <div className="bg-surface/60 p-1.5 rounded-lg border border-line">
+                <span className="text-ink0 text-[10px] block">IR Brightness</span>
+                <span className="text-ai font-bold">{selectedItem.tempC}°C</span>
               </div>
             </div>
           )}
 
           {selectedItem.effective && (
-            <div className="text-[10px] text-slate-400 pt-1 font-mono">
+            <div className="text-[10px] text-ink-2 pt-1 font-mono">
               Valid: {new Date(selectedItem.effective).toUTCString()}
             </div>
           )}
