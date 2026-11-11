@@ -8,8 +8,9 @@
  */
 import { gibsWmsUrl, GIBS_LAYERS } from "@/lib/sentinel/imagery-urls";
 
-export const COMPOSITE_W = 2048;
-export const COMPOSITE_H = 1024;
+/** 1024×512 (~0.35 km/px at the equator is not needed for a cloud layer): 4× fewer bytes and 4× less main-thread blending than 2048×1024. */
+export const COMPOSITE_W = 1024;
+export const COMPOSITE_H = 512;
 
 const SATS = [
   { key: "himawariIR" as const, subLng: 140.7, label: "Himawari" },

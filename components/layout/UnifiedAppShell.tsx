@@ -296,14 +296,17 @@ function OperationsShellInner({ children, pathname }: { children: React.ReactNod
  */
 function ConsoleContent({ children }: { children: React.ReactNode }) {
   const { status } = useCases();
-  const pathname = usePathname();
-  if (status === "loading" && pathname !== "/console/cases/[ref]") {
+  // Only the FIRST load shows a skeleton. Switching Live ⇄ Replay later keeps the page mounted (a heavy page like Analytics
+  // Studio must not be torn down and rebuilt — that is what made it look blank), and the header says "Loading…".
+  const loadedOnce = useRef(false);
+  if (status !== "loading") loadedOnce.current = true;
+  if (status === "loading" && !loadedOnce.current) {
     return (
       <div role="status" aria-busy="true" aria-label="Loading the latest records" className="space-y-6" data-testid="console-skeleton">
-        <div className="h-8 w-40 animate-pulse rounded-lg bg-white/[0.06]" />
-        <div className="h-24 w-full max-w-2xl animate-pulse rounded-2xl bg-white/[0.05]" />
+        <div className="h-8 w-40 animate-pulse rounded-lg bg-white/[0.12]" />
+        <div className="h-24 w-full max-w-2xl animate-pulse rounded-2xl bg-white/[0.10]" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {[0, 1, 2, 3].map((i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-white/[0.04]" />)}
+          {[0, 1, 2, 3].map((i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-white/[0.08]" />)}
         </div>
         <span className="sr-only">Loading the latest records…</span>
       </div>

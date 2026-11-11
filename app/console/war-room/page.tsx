@@ -10,6 +10,7 @@ import {
 } from "ag-charts-community";
 import { chartTheme } from "@/styles/ag-studio-theme";
 import dynamic from "next/dynamic";
+import { StudioDataNotice } from "@/components/studio/StudioDataNotice";
 import { LandfallStudio } from "@/components/studio/LandfallStudio";
 import { PageHeader, StatCard, SectionHeader, Chip, IconTile, type Tone } from "@/components/ui/primitives";
 import { ProvenanceTag, PayPalStatusBadge, StageDots, EvidenceState, money, money2 } from "@/components/relief/parts";
@@ -397,6 +398,7 @@ export default function CommandCenterPage() {
       {tab === "GRID" && <CaseGrid cases={cases} queue={queue} openRef={pendingOpen} />}
 
       {/* Studio is ~2.6 MB: mount it the first time its tab opens, then keep it mounted (hidden) so its state survives tab switches. */}
+      {studioSeen && tab === "STUDIO" && <StudioDataNotice />}
       {studioSeen && (
         <div
           className="h-[920px] w-full overflow-hidden rounded-[18px] border border-white/[0.06] bg-canvas/60"

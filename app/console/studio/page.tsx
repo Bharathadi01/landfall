@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { I } from "@/components/icons";
 import { LandfallStudio } from "@/components/studio/LandfallStudio";
+import { StudioDataNotice } from "@/components/studio/StudioDataNotice";
 import { PageHeader, Chip, IconTile } from "@/components/ui/primitives";
 
 const FEATURES = [
@@ -48,6 +49,8 @@ export default function AnalyticsStudioPage() {
           </div>
         }
       />
+
+      <StudioDataNotice />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {FEATURES.map((f) => (

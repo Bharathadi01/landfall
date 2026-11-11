@@ -236,6 +236,8 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
         } as any,
         ...start,
         maxPitch: 78,
+        // Retina screens render 4× the pixels for little visible gain on a satellite layer.
+        pixelRatio: Math.min(window.devicePixelRatio || 1, hero ? 1.25 : 1.75),
         attributionControl: { compact: true },
         interactive: !hero,
       });
@@ -344,7 +346,11 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
   useEffect(() => {
     if (!mapReady || !advertisedLatest) return;
     const ac = new AbortController();
-    (async () => {
+    // The hero globe and the small panel map are decoration + context: let the page paint and become usable first, then
+    // fetch imagery, and for them load only the newest frame (no 2 h loop). The full Storm Desk loads the loop too.
+    const delay = hero ? 1800 : panel ? 900 : 0;
+    const timer = window.setTimeout(() => void run(), delay);
+    const run = async () => {
       setLoadingMsg("Loading live satellite…");
       const start = Date.parse(advertisedLatest);
       let found: string | null = null;
@@ -358,6 +364,7 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
       if (!found) { setLoadingMsg("Satellite imagery is not available right now"); return; }
       setAnchor(found);
       setFramesVersion((v) => v + 1);
+      if (hero || panel) { setLoadingMsg(null); return; }
       const loop = [1, 2, 3, 4].map((k) => new Date(Date.parse(found!) - k * 30 * 60_000).toISOString().replace(".000Z", "Z"));
       let n = 0;
       for (const t of loop) {
@@ -368,8 +375,11 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
         if (f) { framesRef.current.set(t, f); n++; setFramesVersion((v) => v + 1); }
       }
       setLoadingMsg(null);
-    })();
-    return () => ac.abort();
+    };
+    return () => {
+      window.clearTimeout(timer);
+      ac.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapReady, advertisedLatest]);
 
