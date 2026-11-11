@@ -5,7 +5,7 @@ import { PageTitle } from "@/components/ui/primitives";
 import { I } from "@/components/icons";
 import React, { useState, useEffect, useCallback } from "react";
 import type { NormalizedAlert, ServiceHealth } from "@/lib/sentinel/types";
-import { WeatherMap } from "@/components/sentinel/WeatherMap";
+import { StormDesk } from "@/components/sentinel/desk/StormDesk";
 import { WeatherIntelligencePanel } from "@/components/sentinel/WeatherIntelligencePanel";
 import {
   COMMUNITY_FUNDS_GEO,
@@ -170,35 +170,16 @@ export default function StormIntelligenceConsolePage() {
         </div>
       )}
 
-      {/* Signature Feature: Interactive Storm Atlas Weather & Exposure Map */}
-      <div className="field-paper p-3 md:p-4 shadow-sm border border-line space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse"></span>
-            <h2 className="text-base font-serif font-bold text-ink">
-              Storm Atlas 3D Weather & Exposure View
-            </h2>
-            <span className="text-xs text-ink-3 font-mono">
-              (NOAA nowCOAST Radar · MapLibre GL)
-            </span>
-          </div>
-          <span className="text-xs text-ink-3 font-mono">
-            {clusterData?.totalHouseholds || 0} enrolled households mapped into differential-privacy clusters
-          </span>
-        </div>
-
-        <div className="rounded-xl overflow-hidden border border-line">
-          <WeatherMap
-            fund={selectedFund}
-            alerts={displayedAlerts}
-            clusters={clusterData}
-            nhcStorms={weatherData?.nhcStorms || []}
-            mode={mapMode}
-            onSelectCluster={(c) => setSelectedCluster(c)}
-            onSelectAlert={(a) => setSelectedAlert(a)}
-          />
-        </div>
-      </div>
+      {/* The live weather globe */}
+      <StormDesk
+        fund={selectedFund}
+        alerts={displayedAlerts}
+        clusters={clusterData}
+        nhcStorms={weatherData?.nhcStorms || []}
+        mode={mapMode}
+        onSelectCluster={(c) => setSelectedCluster(c)}
+        onSelectAlert={(a) => setSelectedAlert(a)}
+      />
 
       {/* Weather Intelligence Telemetry Bar */}
       <div className="field-paper p-4 md:p-6 shadow-sm border border-line">
