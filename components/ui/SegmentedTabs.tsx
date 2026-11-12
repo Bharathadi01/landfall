@@ -59,7 +59,11 @@ export function SegmentedTabs<T extends string>({
     if (!el || typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(() => place(false));
     ro.observe(el);
-    return () => ro.disconnect();
+    // labels change width when the web font arrives: watch each button, and measure again once fonts are ready
+    Object.values(btns.current).forEach((b) => b && ro.observe(b));
+    let alive = true;
+    document.fonts?.ready.then(() => alive && place(false)).catch(() => {});
+    return () => { alive = false; ro.disconnect(); };
   }, [place]);
 
   const onKeyDown = (e: React.KeyboardEvent) => {
