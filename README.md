@@ -16,9 +16,9 @@ Relief payments for community funds, followed all the way from the storm warning
 
 Built for the PayPal AI Hackathon 2026.
 
-[![Landfall — Every Relief Payment Deserves an Answer](https://img.youtube.com/vi/bwP16ZKI26E/maxresdefault.jpg)](https://youtu.be/bwP16ZKI26E)
+[![Landfall — Every Relief Payment Deserves an Answer](https://img.youtube.com/vi/HJbbtvwYJsc/maxresdefault.jpg)](https://www.youtube.com/watch?v=HJbbtvwYJsc)
 
-### [▶ WATCH THE FULL DEMONSTRATION](https://youtu.be/bwP16ZKI26E)
+### [▶ WATCH THE FULL DEMONSTRATION](https://www.youtube.com/watch?v=HJbbtvwYJsc)
 
 </div>
 
@@ -26,7 +26,7 @@ Built for the PayPal AI Hackathon 2026.
 
 ## See Landfall in Action
 
-[![Landfall preview: public site, Command Center, Storm Desk, Storm Drill, Guided Response, Payments, AI Watch Officer, Resident portal](docs/assets/landfall-preview.gif)](https://youtu.be/bwP16ZKI26E)
+[![Landfall preview: public site, Command Center, Storm Desk, Storm Drill, Guided Response, Payments, AI Watch Officer, Resident portal](docs/assets/landfall-preview.gif)](https://www.youtube.com/watch?v=HJbbtvwYJsc)
 
 *Eight real screens of the deployed application, cross-faded, with a caption strip added. Click for the full video.*
 
