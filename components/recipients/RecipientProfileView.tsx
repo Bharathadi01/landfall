@@ -47,12 +47,12 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
   };
 
   return (
-    <div className="bg-surface-2 border border-line rounded-xl p-6 text-ink shadow-xl max-w-2xl mx-auto space-y-6">
+    <div className="bg-surface border border-line rounded-xl p-6 text-ink shadow-[0_40px_90px_-30px_rgb(24_34_30/0.5)] w-full max-w-2xl mx-auto space-y-6 max-h-[90vh] overflow-y-auto">
       {/* Header */}
       <div className="flex items-start justify-between border-b border-line pb-4">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold tracking-tight text-white">{household.name}</h2>
+            <h2 className="text-xl font-bold tracking-tight text-ink">{household.name}</h2>
             <span className="px-2.5 py-0.5 rounded-sm text-xs font-semibold bg-delivered-soft text-delivered border border-delivered-line">
               v{household.recipientVersion}
             </span>
@@ -67,7 +67,7 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
         {onClose && (
           <button
             onClick={onClose}
-            className="text-ink-2 hover:text-white text-sm px-2 py-1 rounded bg-surface-3 hover:bg-surface-3"
+            className="text-ink-2 hover:text-ink text-sm px-2.5 py-1 rounded-md border border-line hover:bg-surface-2"
           >
             Close
           </button>
@@ -81,7 +81,7 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* 1. Payment Channel Chip */}
-          <div className="p-3 rounded-lg bg-surface-3/60 border border-line/60 flex flex-col justify-between">
+          <div className="p-3.5 rounded-md bg-surface-2/60 border border-line flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-ink-2 font-medium">Payment Route</span>
@@ -105,7 +105,7 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
           </div>
 
           {/* 2. Residence Evidence Chip */}
-          <div className="p-3 rounded-lg bg-surface-3/60 border border-line/60 flex flex-col justify-between">
+          <div className="p-3.5 rounded-md bg-surface-2/60 border border-line flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-ink-2 font-medium">Residence Evidence</span>
@@ -125,7 +125,7 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
           </div>
 
           {/* 3. Hazard Exposure Chip */}
-          <div className="p-3 rounded-lg bg-surface-3/60 border border-line/60 flex flex-col justify-between">
+          <div className="p-3.5 rounded-md bg-surface-2/60 border border-line flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-ink-2 font-medium">Hazard Exposure</span>
@@ -151,7 +151,7 @@ export function RecipientProfileView({ household, onClose, onReconfirm }: Recipi
           </div>
 
           {/* 4. Need Priority Chip */}
-          <div className="p-3 rounded-lg bg-surface-3/60 border border-line/60 flex flex-col justify-between">
+          <div className="p-3.5 rounded-md bg-surface-2/60 border border-line flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-ink-2 font-medium">Need Evaluation</span>

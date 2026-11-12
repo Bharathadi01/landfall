@@ -1,388 +1,241 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useLayoutEffect, useMemo, useRef } from "react";
 import Link from "next/link";
-import { AgCharts } from "ag-charts-react";
-import {
-  type AgChartOptions,
-  ModuleRegistry as AgChartsModuleRegistry,
-  AllCommunityModule as AgChartsAllCommunityModule,
-} from "ag-charts-community";
-import { chartTheme } from "@/styles/ag-studio-theme";
 import dynamic from "next/dynamic";
-import { StudioDataNotice } from "@/components/studio/StudioDataNotice";
-import { LandfallStudio } from "@/components/studio/LandfallStudio";
-import { PageHeader, StatCard, SectionHeader, Chip, IconTile, type Tone } from "@/components/ui/primitives";
-import { ProvenanceTag, PayPalStatusBadge, StageDots, EvidenceState, money, money2 } from "@/components/relief/parts";
-import { STAGES, ACCESS_REASON_LABEL, type ReliefCase } from "@/lib/relief/cases";
+import { gsap } from "gsap";
+import { PageHeader } from "@/components/ui/primitives";
+import { Ticker } from "@/components/ui/Ticker";
+import { Tag } from "@/components/ui/Tag";
+import { ProvenanceTag, money, money2 } from "@/components/relief/parts";
+import { ACCESS_REASON_LABEL, type ReliefCase } from "@/lib/relief/cases";
 import { studioApprovalEvents, studioWebhookObservations } from "@/lib/studio/landfall-studio-data";
 import { useCases } from "@/components/data/DataSourceProvider";
 import { relativeTime } from "@/components/data/SourceSwitch";
-import { useToast } from "@/components/ui/Toast";
-import {
-  HazardIntelligenceWidget,
-  ExposureDistributionWidget,
-  TreasuryWaterfallWidget,
-  ResponseFunnelWidget,
-  PayoutHealthWidget,
-  ReadinessMonitorWidget,
-  ImpactTimelineWidget,
-  PayPalMoneyPathExplorer,
-  SettlementIntegrityBridge,
-  RecipientRescueQueue,
-  ImpactEvidenceWidget,
-} from "./widgets";
+import { FLOW } from "@/components/layout/flow";
 import { I } from "@/components/icons";
 
-AgChartsModuleRegistry.registerModules([AgChartsAllCommunityModule]);
+// AG Charts loads after the numbers are on screen.
+const MoneyDonut = dynamic(() => import("./MoneyDonut"), { ssr: false, loading: () => <div className="skeleton mx-auto h-[210px] w-[210px] rounded-full" aria-hidden /> });
 
-// The grid (and its Enterprise modules) is ~1 MB: load it only when the Cases tab is opened.
-const CaseGrid = dynamic(() => import("@/components/grid/CaseGrid").then((m) => m.CaseGrid), {
-  ssr: false,
-  loading: () => <div className="glass p-6 text-[13px] text-ink-3" role="status">Loading the case grid…</div>,
-});
-
-type Tab = "OVERVIEW" | "GRID" | "STUDIO" | "WIDGETS" | "SETTLEMENT";
-
-const STAGE_ICON = {
-  APPROVED: I.approved,
-  SENT: I.send,
-  CREDITED: I.treasury,
-  CONFIRMED: I.relief,
-  CLOSED: I.doubleCheck,
-} as const;
-const STAGE_TONE: Record<string, Tone> = { APPROVED: "neutral", SENT: "neutral", CREDITED: "paypal", CONFIRMED: "accent", CLOSED: "accent" };
-
+/**
+ * COMMAND CENTER — the console's home. It answers one question first: what needs a person right now?
+ * Three calm zones, nothing else:
+ *   1. the delivery line: each payment's journey, and the gap between "PayPal credited it" and "the family confirmed it"
+ *   2. the people who still need an answer, each with one clear next action
+ *   3. the fund: what can be spent, what is protected, what has gone out
+ */
 export default function CommandCenterPage() {
-  const pendingOpen = useRef<string | null>(null);
-  const [tab, setTab] = useState<Tab>("OVERVIEW");
-  const [refreshing, setRefreshing] = useState(false);
-  const [studioSeen, setStudioSeen] = useState(false);
-  useEffect(() => {
-    if (tab === "STUDIO") setStudioSeen(true);
-  }, [tab]);
-  const toast = useToast();
-  // One source for every number on this page: live PayPal Sandbox records, or the synthetic replay.
-  const { cases, summary: sum, queue, treasury: TREASURY, source, status, lastSyncedAt, batches, error: sourceError, refreshFromPayPal } = useCases();
+  const { cases, summary: sum, queue, treasury: T, source, lastSyncedAt } = useCases();
   const live = source === "live";
 
-  // Resident reports, derived from the cases themselves (the barrier / "reported they received it" evidence).
-  type ReportLite = { kind: "RECEIVED" | "CANT_ACCESS"; reason?: ReliefCase["barrier"] };
-  const reports = useMemo<ReportLite[]>(
+  const reports = useMemo(
     () =>
-      cases.flatMap<ReportLite>((c) =>
-        c.barrier
-          ? [{ kind: "CANT_ACCESS" as const, reason: c.barrier }]
-          : c.evidence.some((e) => e.key === "recipient" && /reported they received it/.test(e.detail))
-          ? [{ kind: "RECEIVED" as const, reason: undefined }]
-          : []
+      cases.flatMap((c) =>
+        c.barrier ? [`“Can’t access: ${ACCESS_REASON_LABEL[c.barrier ?? "OTHER"].toLowerCase()}”`] : c.evidence.some((e) => e.key === "recipient" && /reported they received it/.test(e.detail)) ? ["“I received it”"] : []
       ),
     [cases]
   );
 
-  const doRefresh = async () => {
-    setRefreshing(true);
-    const r = await refreshFromPayPal();
-    setRefreshing(false);
-    toast({ title: r.ok ? "Refreshed from PayPal" : "Could not refresh", body: r.message, tone: r.ok ? (r.changed ? "success" : "info") : "warn" });
-  };
-
   const activity = useMemo(() => {
     if (live) {
-      // Real stored PayPal observations only; nothing from the replay fixtures.
       const now = Date.now();
       return cases
-        .map((c) => ({ t: new Date(now - c.ageHours * 3_600_000).toISOString(), icon: I.send, tone: "paypal" as Tone, text: `PayPal reports ${c.status} · item ${c.itemId}` }))
+        .map((c) => ({ t: new Date(now - c.ageHours * 3_600_000).toISOString(), who: "PayPal", text: `${c.status.toLowerCase()} · ${c.resident}` }))
         .sort((a, b) => b.t.localeCompare(a.t))
-        .slice(0, 5);
+        .slice(0, 4);
     }
     const ev = [
-      { t: "2024-10-09T18:05:00Z", icon: I.stormEye, tone: "storm" as Tone, text: "NWS Hurricane Warning TBW:HU.W:0009 issued (replay)" },
-      ...studioApprovalEvents.map((a) => ({ t: a.approved_at, icon: I.twoKeyApproval, tone: "amber" as Tone, text: `${a.approver_role} signed the plan (replay data)` })),
-      ...studioWebhookObservations.map((w) => ({
-        t: w.received_time,
-        icon: I.send,
-        tone: "paypal" as Tone,
-        text: `PayPal ${w.event_type.replace("PAYMENT.PAYOUTS-ITEM.", "")} · ${w.item_id} (replay)`,
-      })),
+      { t: "2024-10-09T18:05:00Z", who: "NWS", text: "Hurricane Warning issued for Tampa Bay" },
+      ...studioApprovalEvents.map((a) => ({ t: a.approved_at, who: "Approval", text: `${a.approver_role} signed the plan` })),
+      ...studioWebhookObservations.map((w) => ({ t: w.received_time, who: "PayPal", text: `${w.event_type.replace("PAYMENT.PAYOUTS-ITEM.", "").toLowerCase()} · ${w.item_id}` })),
     ];
-    return ev.sort((a, b) => b.t.localeCompare(a.t)).slice(0, 5);
+    return ev.sort((a, b) => b.t.localeCompare(a.t)).slice(0, 4);
   }, [live, cases]);
 
-  const openCase = (c: ReliefCase) => {
-    pendingOpen.current = c.caseRef;
-    setTab("GRID");
-  };
-
-  /* ── Money chart (derived: segments sum to funds received) ── */
-
-  const chartOptions = useMemo<AgChartOptions>(
-    () =>
-      ({
-        theme: chartTheme(),
-        data: [
-          { bucket: "Ready to allocate", amount: TREASURY.allocatable },
-          { bucket: "Protected reserve", amount: TREASURY.reserve },
-          { bucket: "Sent to PayPal", amount: TREASURY.paidOut + TREASURY.inFlight },
-        ],
-        series: [
-          {
-            type: "donut",
-            angleKey: "amount",
-            legendItemKey: "bucket",
-            innerRadiusRatio: 0.72,
-            fills: ["#6FD49A", "#FFB020", "#8A847B"],
-            strokes: ["#141316", "#141316", "#141316"],
-            strokeWidth: 3,
-            cornerRadius: 6,
-            innerLabels: [
-              { text: money(TREASURY.total), fontSize: 26, fontWeight: 650, color: "#F3EFE8" },
-              { text: "funds received", fontSize: 12, color: "#8A847B", spacing: 6 },
-            ],
-            tooltip: { renderer: (p: any) => ({ heading: p.datum.bucket, data: [{ label: "Amount", value: money(p.datum.amount) }] }) },
-          },
-        ],
-        legend: { position: "bottom", item: { label: { color: "#B9B3AA", fontSize: 12 }, marker: { shape: "circle" } } },
-        padding: { top: 4, bottom: 4 },
-      }) as any,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [TREASURY.allocatable, TREASURY.reserve, TREASURY.paidOut, TREASURY.inFlight, TREASURY.total]
-  );
-
-  const TABS: { id: Tab; label: string; icon: any }[] = [
-    { id: "OVERVIEW", label: "Overview", icon: I.dashboard },
-    { id: "GRID", label: "Cases", icon: I.people },
-    { id: "STUDIO", label: "Studio", icon: I.chart },
-    { id: "WIDGETS", label: "Widgets", icon: I.boxes },
-    { id: "SETTLEMENT", label: "Settlement proof", icon: I.evidence },
-  ];
-
-  const statusTone = (s: string): Tone => (s === "UNCLAIMED" || s === "RETURNED" ? "amber" : s === "SUCCESS" ? "paypal" : s === "PENDING" ? "neutral" : "danger");
+  const open = sum.needPersonCount;
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-10">
       <PageHeader
-        eyebrow={live ? `Live PayPal Sandbox · PayPal asked ${relativeTime(lastSyncedAt)}` : "Hurricane Milton replay · synthetic scenario"}
-        title={live ? "Every payment," : "12 hours to landfall."}
-        accent={live ? "answered or not yet." : "Here’s what needs you."}
-        description={`${sum.households} ${live ? "real PayPal Sandbox payments" : "households approved"} · ${money(sum.approvedUsd)} sent · ${sum.creditedCount} credited by PayPal, ${sum.confirmedCount} confirmed by residents.`}
-        actions={
-          <>
-            {live && (
-              <button onClick={doRefresh} disabled={refreshing} className="field-btn field-btn-secondary" data-testid="refresh-paypal">
-                <I.refresh className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} /> {refreshing ? "Asking PayPal…" : "Refresh from PayPal"}
-              </button>
-            )}
-            <Link href="/console/proposals" className="field-btn field-btn-primary">
-              Review approvals
-            </Link>
-          </>
-        }
+        eyebrow={live ? `Live PayPal Sandbox · PayPal asked ${relativeTime(lastSyncedAt)}` : "Hurricane Milton replay · 12 hours to landfall"}
+        title={open === 0 ? "Every payment has an answer." : `${open} ${open === 1 ? "payment still needs" : "payments still need"} an answer.`}
+        accent={open === 0 ? "Nothing needs you right now." : "Here is what to do."}
+        description={`${sum.households} ${live ? "real PayPal Sandbox payments" : "households paid"} · ${money(sum.approvedUsd)} sent · ${sum.creditedCount} credited by PayPal · ${sum.confirmedCount} confirmed by the family.`}
       />
 
-      {/* Delivery tracker — PayPal credit is not the finish line */}
-      <section className="glass p-3" data-reveal aria-label="Relief delivery progress">
-        <ol className="grid grid-cols-1 gap-1 sm:grid-cols-5">
-          {sum.stageCounts.map((s, i) => {
-            const Icon = STAGE_ICON[s.key as keyof typeof STAGE_ICON];
-            const gap = s.key === "CONFIRMED" && sum.creditedUnconfirmedCount > 0;
-            return (
-              <li key={s.key} className={`relative flex items-center gap-3 rounded-xl px-3.5 py-3 ${gap ? "bg-amber/[0.07]" : ""}`}>
-                <div className="min-w-0">
-                  <div className="flex items-baseline gap-1.5 text-[13.5px] font-semibold text-ink">
-                    {s.label}
-                    <span className="tabular text-[12px] font-normal text-ink-3">
-                      {s.count}/{sum.households}
-                    </span>
-                  </div>
-                  <div className={`truncate text-[12px] ${gap ? "text-amber" : "text-ink-3"}`}>
-                    {gap ? `${sum.creditedUnconfirmedCount} credited, not confirmed` : s.help}
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-        {sum.creditedUnconfirmedCount > 0 && (
-          <p className="px-3.5 pb-2 pt-1 text-[12.5px] text-ink-2">
-            PayPal <span className="font-mono text-paypal">SUCCESS</span> means credited to the account — not proof the household can use the money. Landfall keeps the two facts apart.
-          </p>
-        )}
-      </section>
+      <ResponsePath />
 
-      {/* KPIs: the three numbers that decide what to do next */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Cash in PayPal account" value={TREASURY.available} prefix="$" tone="neutral" hint={live ? "From the ledger, posted from PayPal’s statuses" : "Replay data"} />
-        <StatCard label="Ready to allocate" value={TREASURY.allocatable} prefix="$" tone="neutral" hint={`After a protected reserve of ${money(TREASURY.reserve)} that can’t be spent`} />
-        <StatCard label="Need a person" value={sum.needPersonCount} tone="neutral" hint={`${money(sum.needPersonUsd)} across cases needing follow-up`} />
-      </section>
+      <DeliveryLine sum={sum} />
 
-      {/* Tabs */}
-      <div className="flex flex-wrap items-center gap-1 border-b border-line" role="tablist">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className={`-mb-px border-b-2 px-4 py-3 text-[14px] font-medium transition-colors ${
-              tab === t.id ? "border-accent text-ink" : "border-transparent text-ink-3 hover:text-ink"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-12">
+        {/* 2 — people who still need an answer */}
+        <section className="pane p-6 xl:col-span-7" aria-labelledby="needs-person">
+          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-4">
+            <div>
+              <h2 id="needs-person" className="text-title-2 text-ink">Needs a person</h2>
+              <p className="mt-1 text-[13px] text-ink-3">Ranked by stated rules: every point of priority has a reason you can read.</p>
+            </div>
+            <Link href="/console/payments" className="text-[13.5px] font-semibold text-ink link">All payments</Link>
+          </div>
 
-      {tab === "OVERVIEW" && (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-12 animate-field-fade">
-          <section className="glass p-6 xl:col-span-7" data-reveal>
-            <SectionHeader
-              icon={I.warning}
-              tone="danger"
-              title="Needs your attention"
-              description="Ranked by explainable rules — every point has a stated reason"
-              right={
-                <Link href="/console/watch-officer" className="field-btn field-btn-secondary px-3.5 py-2 text-[13px]">
-                  Ask the AI why
-                </Link>
-              }
-            />
-            {reports.length > 0 && (
-              <div className="mt-5 flex items-start gap-3 rounded-2xl border border-accent/30 bg-accent/[0.07] p-3.5" data-testid="resident-reports-banner">
-                <I.relief className="mt-0.5 h-4 w-4 shrink-0 text-accent-strong" />
-                <div className="text-[13px] text-ink">
-                  <span className="font-semibold">{reports.length} resident report{reports.length === 1 ? "" : "s"} received</span>{" "}
-                  <ProvenanceTag provenance="RECIPIENT_REPORTED" className="ml-1" />
-                  <div className="mt-1 text-ink-2">
-                    {reports
-                      .slice(-3)
-                      .reverse()
-                      .map((r) => (r.kind === "RECEIVED" ? "“I received it”" : `“Can’t access: ${ACCESS_REASON_LABEL[r.reason ?? "OTHER"].toLowerCase()}”`))
-                      .join(" · ")}
-                    . Self-reported — shown as such, never as PayPal confirmation.
-                  </div>
-                </div>
-              </div>
-            )}
-            <ul className="mt-5 divide-y divide-line">
-              {queue.map((c) => (
-                <li key={c.caseRef} className="py-4 first:pt-0">
-                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <span className="text-[15px] font-semibold text-ink">{c.resident}</span>
-                    <span className="text-[13px] text-ink-3">{c.barrier ? "Resident reported a problem" : c.status === "SUCCESS" ? "Credited, not yet confirmed" : c.status.toLowerCase()}</span>
-                    <span className="ml-auto text-[15px] font-semibold tabular text-ink">{money2(c.amountUsd)}</span>
-                  </div>
-                  <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-[13.5px] text-ink-2">{c.nextAction.plain}</p>
-                    <button onClick={() => openCase(c)} className="shrink-0 text-[13px] font-medium text-accent-strong underline-offset-2 hover:underline">
-                      See the evidence
-                    </button>
-                  </div>
+          {reports.length > 0 && (
+            <div className="note mt-5" data-tone="delivered" data-testid="resident-reports-banner">
+              <span className="note-label">
+                {reports.length} {reports.length === 1 ? "family has" : "families have"} answered <ProvenanceTag provenance="RECIPIENT_REPORTED" className="ml-1.5 align-middle" />
+              </span>
+              {reports.slice(-3).reverse().join(" · ")}. Self-reported, shown as such, never as PayPal’s confirmation.
+            </div>
+          )}
+
+          <ul className="mt-2 divide-y divide-line">
+            {queue.map((c) => (
+              <QueueRow key={c.caseRef} c={c} />
+            ))}
+            {queue.length === 0 && <li className="py-6 text-[14px] text-ink-2">Nothing needs a person right now.</li>}
+          </ul>
+        </section>
+
+        {/* 3 — the fund */}
+        <section className="pane p-6 xl:col-span-5" aria-labelledby="the-fund">
+          <div className="border-b border-line pb-4">
+            <h2 id="the-fund" className="text-title-2 text-ink">The fund</h2>
+            <p className="mt-1 text-[13px] text-ink-3">{live ? "From the ledger, posted from PayPal’s own statuses." : "Replay ledger, synthetic."}</p>
+          </div>
+          <dl className="mt-5 grid grid-cols-3 gap-4">
+            <Figure label="Free to send" value={T.allocatable} tone="delivered" />
+            <Figure label="Protected reserve" value={T.reserve} tone="amber" />
+            <Figure label="Sent to PayPal" value={T.paidOut + T.inFlight} tone="paypal" />
+          </dl>
+          <div className="mt-4 h-[240px]">
+            <MoneyDonut allocatable={T.allocatable} reserve={T.reserve} sent={T.paidOut + T.inFlight} total={T.total} />
+          </div>
+          <div className="mt-6 border-t border-line pt-4">
+            <div className="text-[13px] font-semibold text-ink">Latest from the record</div>
+            <ol className="mt-3 space-y-2.5">
+              {activity.map((a) => (
+                <li key={a.t + a.text} className="grid grid-cols-[64px_1fr_auto] items-baseline gap-3 text-[13px]">
+                  <span className={`text-[12px] font-semibold ${a.who === "PayPal" ? "text-paypal" : "text-ink-3"}`}>{a.who}</span>
+                  <span className="truncate text-ink-2">{a.text}</span>
+                  <span className="font-code text-[11.5px] text-ink-3">{a.t.slice(11, 16)}</span>
                 </li>
               ))}
-              {queue.length === 0 && <li className="py-2 text-[13.5px] text-ink-2">Nothing needs a person right now.</li>}
-            </ul>
-          </section>
-
-          <div className="space-y-6 xl:col-span-5">
-            <section className="glass p-6" data-reveal>
-              <SectionHeader icon={I.wallet} tone="paypal" title="Where the money sits" right={live ? undefined : <Chip tone="amber">Replay ledger</Chip>} />
-              <div className="mt-2 h-[300px]">
-                <AgCharts options={chartOptions} />
-              </div>
-            </section>
-
-            <section className="glass p-6" data-reveal>
-              <SectionHeader icon={I.clock} title="Latest activity" description="Replay clock · UTC" />
-              <ol className="relative mt-5 space-y-4 before:absolute before:bottom-2 before:left-[13px] before:top-2 before:w-px before:bg-white/[0.07]">
-                {activity.map((a) => (
-                  <li key={a.t + a.text} className="relative flex items-center gap-3">
-                    <IconTile icon={a.icon} tone={a.tone} size="sm" className="relative z-10 !bg-surface" />
-                    <span className="flex-1 text-[13.5px] text-ink-2">{a.text}</span>
-                    <span className="font-mono text-[11px] text-ink-3">{a.t.slice(11, 16)}</span>
-                  </li>
-                ))}
-              </ol>
-              <div className="mt-6 space-y-3">
-                <div>
-                  <div className="flex justify-between text-[12.5px]">
-                    <span className="text-ink-2">Credited by PayPal</span>
-                    <span className="tabular text-ink">
-                      {sum.creditedCount} of {sum.households}
-                    </span>
-                  </div>
-                  <div className="meter mt-2">
-                    <span style={{ width: `${(sum.creditedCount / sum.households) * 100}%` }} />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-[12.5px]">
-                    <span className="text-ink-2">Confirmed by the household</span>
-                    <span className="tabular text-ink">
-                      {sum.confirmedCount} of {sum.households}
-                    </span>
-                  </div>
-                  <div className="meter mt-2">
-                    <span style={{ width: `${(sum.confirmedCount / sum.households) * 100}%` }} />
-                  </div>
-                </div>
-              </div>
-            </section>
+            </ol>
           </div>
+        </section>
+      </div>
+    </div>
+  );
+}
 
-          <Link href="/console/studio" className="glass card-hover group flex flex-col gap-4 p-6 sm:flex-row sm:items-center xl:col-span-12" data-reveal>
-            <IconTile icon={I.chart} tone="paypal" size="lg" />
-            <div className="flex-1">
-              <div className="text-[16px] font-semibold text-ink">Explore this response in Analytics Studio</div>
-              <div className="text-[13.5px] text-ink-3">AG Studio workspace · custom widgets · cross-filters · ask the Studio agent in plain English</div>
-            </div>
-            <span className="field-btn field-btn-secondary">
-              Open Studio <I.arrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </span>
-          </Link>
-        </div>
+/** Orientation: the three questions of a relief response, each one click away. Quiet, one line. */
+function ResponsePath() {
+  const stages = FLOW.filter((g) => g.stage);
+  return (
+    <nav aria-label="The three stages of a response" className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-3" data-testid="response-path">
+      {stages.map((g, i) => (
+        <Link key={g.stage} href={g.pages[0].href} className="group flex items-start gap-3 bg-canvas p-4 transition-colors hover:bg-surface">
+          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line-strong text-[12px] font-semibold tabular text-ink-2 group-hover:border-accent group-hover:text-accent-strong">{i + 1}</span>
+          <span className="min-w-0">
+            <span className="block text-[12.5px] text-ink-3">{g.stage}</span>
+            <span className="block text-[14.5px] font-semibold text-ink">{g.question}</span>
+            <span className="mt-0.5 block truncate text-[12.5px] text-ink-3 group-hover:text-ink-2">{g.pages.map((p) => p.label).join(" · ")}</span>
+          </span>
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
+/**
+ * The delivery line. Five facts about every payment, in order. The bars grow in on arrival so the eye reads it left to right,
+ * and the gap that matters — credited by PayPal, not yet confirmed by the family — is called out in words, not just colour.
+ */
+function DeliveryLine({ sum }: { sum: ReturnType<typeof useCases>["summary"] }) {
+  const ref = useRef<HTMLElement>(null);
+  const total = Math.max(1, sum.households);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const bars = el.querySelectorAll<HTMLElement>("[data-bar]");
+    const tw = gsap.fromTo(bars, { scaleX: 0 }, { scaleX: 1, transformOrigin: "left center", duration: 1.1, ease: "expo.out", stagger: 0.09, delay: 0.25 });
+    return () => { tw.kill(); };
+  }, [sum.households, sum.creditedCount, sum.confirmedCount]);
+
+  const gap = sum.creditedUnconfirmedCount;
+  return (
+    <section ref={ref} className="pane p-6" aria-labelledby="delivery-line">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 id="delivery-line" className="text-title-2 text-ink">Where each payment is</h2>
+        <span className="text-[13px] text-ink-3">Out of {sum.households}</span>
+      </div>
+      <ol className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-5 sm:gap-3">
+        {sum.stageCounts.map((s, i) => {
+          const isGap = s.key === "CONFIRMED" && gap > 0;
+          const tone = s.key === "CREDITED" ? "bg-paypal" : s.key === "CONFIRMED" || s.key === "CLOSED" ? "bg-delivered" : "bg-ink-2";
+          return (
+            <li key={s.key} className="min-w-0">
+              <div className="flex items-baseline gap-2">
+                <span className="figure text-[34px] leading-none text-ink">
+                  <Ticker value={s.count} />
+                </span>
+                <span className="text-[12.5px] text-ink-3">of {sum.households}</span>
+              </div>
+              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-line-strong/60">
+                <div data-bar className={`h-full rounded-full ${tone}`} style={{ width: `${(s.count / total) * 100}%` }} />
+              </div>
+              <div className="mt-3 flex items-center gap-1.5 text-[14px] font-semibold text-ink">
+                <span className="text-[11.5px] font-semibold tabular text-ink-3">{i + 1}</span> {s.label}
+              </div>
+              <p className={`mt-0.5 text-[12.5px] leading-snug ${isGap ? "text-amber" : "text-ink-3"}`}>{isGap ? `${gap} credited by PayPal, not yet confirmed by the family` : s.help}</p>
+            </li>
+          );
+        })}
+      </ol>
+      {gap > 0 && (
+        <p className="mt-6 border-t border-line pt-4 text-[13.5px] text-ink-2">
+          <span className="font-semibold text-ink">Why two facts?</span> PayPal’s <span className="text-paypal">SUCCESS</span> means the money reached an account. It does not prove a family can use it: the account may be locked, the phone lost, the household evacuated. Landfall keeps asking until the family answers.
+        </p>
       )}
+    </section>
+  );
+}
 
-      {tab === "GRID" && <CaseGrid cases={cases} queue={queue} openRef={pendingOpen} />}
+function QueueRow({ c }: { c: ReliefCase }) {
+  const WORD: Record<string, string> = { UNCLAIMED: "Waiting to be claimed", RETURNED: "Returned by PayPal", PENDING: "Pending at PayPal", ONHOLD: "On hold at PayPal", FAILED: "Failed at PayPal", BLOCKED: "Blocked at PayPal", REFUNDED: "Refunded", REVERSED: "Reversed" };
+  const state = c.barrier
+    ? { word: "Family reported a problem", tone: "danger" as const }
+    : c.status === "SUCCESS"
+    ? { word: "Credited, not confirmed", tone: "paypal" as const }
+    : { word: WORD[c.status] ?? c.status, tone: (c.status === "FAILED" || c.status === "BLOCKED" ? "danger" : "amber") as "danger" | "amber" };
+  const href = `/console/cases/${encodeURIComponent(c.caseRef)}`;
+  return (
+    <li className="group py-4">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <span className="text-[15px] font-semibold text-ink">{c.resident}</span>
+        <Tag tone={state.tone}>{state.word}</Tag>
+        <span className="figure ml-auto text-[17px] text-ink">{money2(c.amountUsd)}</span>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <p className="min-w-0 flex-1 text-[13.5px] text-ink-2">{c.nextAction.plain}</p>
+        <Link href={href} className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-ink link" data-testid="queue-open">
+          Open and ask the AI <I.arrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </div>
+    </li>
+  );
+}
 
-      {/* Studio is ~2.6 MB: mount it the first time its tab opens, then keep it mounted (hidden) so its state survives tab switches. */}
-      {studioSeen && tab === "STUDIO" && <StudioDataNotice />}
-      {studioSeen && (
-        <div
-          className="h-[920px] w-full overflow-hidden rounded-sm border border-white/[0.06] bg-canvas/60"
-          style={{ display: tab === "STUDIO" ? "block" : "none" }}
-        >
-          <LandfallStudio mode="view" />
-        </div>
-      )}
-
-      {tab === "WIDGETS" && (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 animate-field-fade">
-          <HazardIntelligenceWidget />
-          <ExposureDistributionWidget />
-          <TreasuryWaterfallWidget />
-          <ResponseFunnelWidget />
-          <PayoutHealthWidget />
-          <ReadinessMonitorWidget />
-          <ImpactTimelineWidget />
-          <PayPalMoneyPathExplorer />
-          <SettlementIntegrityBridge />
-          <RecipientRescueQueue />
-          <ImpactEvidenceWidget />
-        </div>
-      )}
-
-      {tab === "SETTLEMENT" && (
-        <div className="space-y-6 animate-field-fade">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <PayPalMoneyPathExplorer />
-            <SettlementIntegrityBridge />
-          </div>
-          <ImpactEvidenceWidget />
-        </div>
-      )}
-
+function Figure({ label, value, tone }: { label: string; value: number; tone?: "delivered" | "amber" | "paypal" }) {
+  return (
+    <div className="min-w-0">
+      <dt className="flex items-center gap-1.5 text-[12.5px] text-ink-3">
+        {tone && <span className={`h-2 w-2 rounded-full ${tone === "delivered" ? "bg-delivered" : tone === "paypal" ? "bg-paypal" : "bg-amber"}`} aria-hidden />}
+        {label}
+      </dt>
+      <dd className="figure mt-1.5 truncate text-[26px] leading-none text-ink">
+        <Ticker value={value} prefix="$" />
+      </dd>
     </div>
   );
 }

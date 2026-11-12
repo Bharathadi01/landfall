@@ -1,28 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Schibsted_Grotesk, Martian_Mono } from "next/font/google";
+import { Archivo, Public_Sans, Overpass_Mono } from "next/font/google";
 import "./globals.css";
 import { UnifiedAppShell } from "@/components/layout/UnifiedAppShell";
 import { ToastProvider } from "@/components/ui/Toast";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { TourProvider } from "@/components/tour/TourProvider";
 
-const display = Fraunces({
+/**
+ * Type, chosen for the people who read it under stress:
+ *  - Archivo (expanded) for headlines: the wide, steady letterforms of public-information signage — calm authority, not drama.
+ *  - Public Sans for everything people read: the U.S. Web Design System face, built for public-service forms read by everyone,
+ *    including people in a crisis. Residents meet the same type they would on a government relief form.
+ *  - Overpass Mono for identifiers only: from the Highway Gothic lineage of U.S. road signs — the evacuation-route signs families follow.
+ */
+const display = Archivo({
   subsets: ["latin"],
-  axes: ["opsz", "SOFT", "WONK"],
-  style: ["normal", "italic"],
+  axes: ["wdth"],
   variable: "--font-display",
   display: "swap",
 });
 
-const ui = Schibsted_Grotesk({
+const ui = Public_Sans({
   subsets: ["latin"],
   variable: "--font-ui",
   display: "swap",
 });
 
-const data = Martian_Mono({
+const data = Overpass_Mono({
   subsets: ["latin"],
-  axes: ["wdth"],
   variable: "--font-data",
   display: "swap",
 });
@@ -34,8 +39,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0C",
-  colorScheme: "dark",
+  themeColor: "#F6F3EC",
+  colorScheme: "light",
 };
 
 /**

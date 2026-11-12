@@ -40,7 +40,7 @@ export function ScenarioComparisonWidget({
 
   return (
     <div className="glass p-5">
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
+      <div className="flex items-center justify-between pb-3 border-b border-ink/[0.07]">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-ai0" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
@@ -60,7 +60,7 @@ export function ScenarioComparisonWidget({
               className={`text-left p-3.5 rounded-xl border transition-all ${
                 isSelected
                   ? "bg-ai-soft/40 border-ai0/80 shadow-md ring-1 ring-ai0/50"
-                  : "bg-black/20 border-white/[0.06] hover:border-line"
+                  : "bg-ink/[0.04] border-ink/[0.06] hover:border-line"
               }`}
             >
               <div className="flex justify-between items-center mb-1">

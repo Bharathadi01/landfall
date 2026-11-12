@@ -11,7 +11,8 @@ const AI = process.argv.includes("--ai");
 const shotsDir = process.argv.includes("--shots") ? process.argv[process.argv.indexOf("--shots") + 1] : null;
 if (shotsDir) fs.mkdirSync(shotsDir, { recursive: true });
 
-const ALLOWED_WRITES = [/^POST \/api\/auth\/session$/, /^POST \/api\/workflow\/golden$/, ...(AI ? [/^POST \/api\/cases\/[^/]+\/investigate$/, /^POST \/api\/watch-officer$/] : [])];
+// The resident lookup signs in as that household (like the judge sign-in); it writes nothing to any record.
+const ALLOWED_WRITES = [/^POST \/api\/auth\/session$/, /^POST \/api\/resident\/session$/, /^POST \/api\/workflow\/golden$/, ...(AI ? [/^POST \/api\/cases\/[^/]+\/investigate$/, /^POST \/api\/watch-officer$/, /^POST \/api\/studio-llm$/] : [])];
 const browser = await chromium.launch({ channel: "chromium", args: ["--use-angle=metal", "--ignore-gpu-blocklist"] });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
 const page = await ctx.newPage();
@@ -32,17 +33,18 @@ if ((await box.isChecked()) !== AI) await box.click();
 await page.getByTestId("tour-start").click();
 
 let pendingShot = null; const seen = new Set(); const t0 = Date.now(); let done = false;
-while (Date.now() - t0 < 8 * 60 * 1000) {
+while (Date.now() - t0 < 12 * 60 * 1000) {
   const dock = page.getByTestId("tour-dock");
   const txt = (await dock.innerText().catch(() => "")).replace(/\s+/g, " ");
   const m = txt.match(/Step (\d+) of (\d+)/);
   if (m && !seen.has(m[1])) { seen.add(m[1]); console.log(`  step ${m[1]}/${m[2]} @${Math.round((Date.now() - t0) / 1000)}s: ${txt.slice(txt.indexOf("Step") + 12, txt.indexOf("Step") + 90)}`); if (shotsDir) { pendingShot = { n: m[1], at: Date.now() + 5500 }; } }
   if (pendingShot && Date.now() >= pendingShot.at) { await page.screenshot({ path: `${shotsDir}/step-${String(pendingShot.n).padStart(2, "0")}.png` }); pendingShot = null; }
   if (/That.s Landfall/.test(txt)) { done = true; break; }
+  if (/isn.t available|didn.t open|moves on/.test(txt)) { const k = "note:" + txt.slice(0, 160); if (!seen.has(k)) { seen.add(k); console.log("  NOTE:", txt.slice(0, 220)); } }
   await page.waitForTimeout(700);
 }
 check(done, `tour reached its closing screen in ${Math.round((Date.now() - t0) / 1000)}s`);
-check(seen.size >= 12, `all steps were shown (${seen.size})`);
+check([...seen].filter((k) => !String(k).startsWith("note:")).length >= 40, `all steps were shown (${seen.size})`);
 const bad = writes.filter((w) => !ALLOWED_WRITES.some((a) => a.test(w)));
 console.log("  write requests during the tour:", [...new Set(writes)].join(", ") || "none");
 check(bad.length === 0, `no write request outside the allow-list ${bad.length ? JSON.stringify(bad) : ""}`);

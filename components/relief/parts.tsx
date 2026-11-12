@@ -68,7 +68,7 @@ export function StageDots({ c, showLabel = true }: { c: Pick<ReliefCase, "stages
                   : s.key === "CONFIRMED" || s.key === "CLOSED"
                   ? "bg-delivered"
                   : "bg-ink-2"
-                : "bg-white/12"
+                : "bg-ink/12"
             }`}
           />
         ))}

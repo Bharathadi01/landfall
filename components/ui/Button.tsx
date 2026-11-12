@@ -42,7 +42,7 @@ function Spinner() {
 }
 
 /**
- * Liquid-glass button. One component for every action in the product.
+ * One button for every action in the product.
  * `signal` = the primary action, `glass` = secondary, `ghost` = tertiary, `paypal` = PayPal rails, `danger` = destructive.
  * Renders a Next <Link> for internal hrefs, <a> for external, <button> otherwise.
  */
@@ -84,7 +84,7 @@ export function Button(props: ButtonProps) {
     <>
       {loading ? <Spinner /> : leading}
       {children != null && <span className="btn-label">{children}</span>}
-      {!loading && trailing}
+      {!loading && trailing != null && <span className="btn-trail inline-flex" aria-hidden>{trailing}</span>}
     </>
   );
 

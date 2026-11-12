@@ -23,7 +23,7 @@ export function ResponseFunnelWidget({ stages: stagesProp }: { stages?: FunnelSt
   const confirmed = summary.confirmedCount;
   return (
     <div className="glass p-5">
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
+      <div className="flex items-center justify-between pb-3 border-b border-ink/[0.07]">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-paypal0" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
@@ -37,7 +37,7 @@ export function ResponseFunnelWidget({ stages: stagesProp }: { stages?: FunnelSt
 
       <div className="mt-4 space-y-2.5">
         {stages.map((st, i) => (
-          <div key={st.label} className="bg-black/20 p-2.5 rounded-lg border border-white/[0.06]">
+          <div key={st.label} className="bg-ink/[0.04] p-2.5 rounded-lg border border-ink/[0.06]">
             <div className="flex justify-between items-center text-xs font-mono mb-1">
               <span className="text-ink font-medium">{st.label}</span>
               <span className="text-paypal font-bold">

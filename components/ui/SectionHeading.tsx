@@ -15,7 +15,7 @@ const eyebrowTone: Record<Tone, string> = {
 };
 
 /**
- * Editorial section opener for landing pages: mono eyebrow, Fraunces title with one italic phrase, short description.
+ * Editorial section opener for landing pages: mono eyebrow, Archivo title with one light-weight phrase, short description.
  */
 export function SectionHeading({
   eyebrow,

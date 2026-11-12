@@ -32,6 +32,12 @@ import type { WatchOfficerContext, AllToolEvidence, EvidenceItem } from "./types
 export const GROQ_FREE_MODEL = "openai/gpt-oss-20b" as const;
 export const FREE_MODEL_ALLOWLIST = [GROQ_FREE_MODEL, "openai/gpt-oss-120b"] as const;
 
+/** Allowed models in the order to try them: the configured one first, then the other (its own rate-limit bucket). */
+export function modelLadder(env: Record<string, string | undefined> = process.env): string[] {
+  const first = validateModelName(undefined);
+  return [first, ...FREE_MODEL_ALLOWLIST.filter((m) => m !== first)];
+}
+
 export function validateModelName(modelName?: string): string {
   const selected = modelName || process.env.WATCH_OFFICER_MODEL || process.env.GROQ_MODEL_REASONING || GROQ_FREE_MODEL;
   if (!FREE_MODEL_ALLOWLIST.includes(selected as any)) {
@@ -254,6 +260,8 @@ export interface GroqSessionParams {
   model?: string;
   timeoutMs?: number;
   maxToolSteps?: number;
+  /** How many times to try each call when Groq answers 429 (1 = give up at once so the caller can switch model). */
+  rateLimitAttempts?: number;
   groqClient?: any; // For test injection and mocking
 }
 
@@ -290,7 +298,7 @@ STRICT INVARIANTS (NON-NEGOTIABLE):
  * the answer OFFLINE_FALLBACK. Only 429s are retried; every other error surfaces immediately.
  */
 const RETRY_MAX_ATTEMPTS = 2;
-const RETRY_MAX_WAIT_MS = 8_000;
+const RETRY_MAX_WAIT_MS = 12_000;
 
 export function retryDelayMs(err: any, attempt: number): number {
   const h = err?.headers ?? {};
@@ -305,13 +313,13 @@ export function retryDelayMs(err: any, attempt: number): number {
   return Math.min(1500 * (attempt + 1), RETRY_MAX_WAIT_MS);
 }
 
-export async function createWithRateLimitRetry(client: Groq, params: any, sleep: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms))): Promise<any> {
+export async function createWithRateLimitRetry(client: Groq, params: any, sleep: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms)), maxAttempts: number = RETRY_MAX_ATTEMPTS): Promise<any> {
   for (let attempt = 0; ; attempt++) {
     try {
       return await client.chat.completions.create(params);
     } catch (err: any) {
       const is429 = (err?.status ?? err?.statusCode) === 429;
-      if (!is429 || attempt >= RETRY_MAX_ATTEMPTS - 1) throw err;
+      if (!is429 || attempt >= maxAttempts - 1) throw err;
       await sleep(retryDelayMs(err, attempt));
     }
   }
@@ -331,6 +339,7 @@ export async function executeGroqWatchOfficerSession({
   // Every call re-sends the system prompt and tool definitions (~1.2k tokens), and the free tier allows 8,000 tokens per
   // MINUTE. Two tool rounds (the model is told to request all tools in the first) keeps a briefing at about 3 calls.
   maxToolSteps = 2,
+  rateLimitAttempts,
   groqClient,
 }: GroqSessionParams): Promise<GroqSessionResult> {
   // 1. Model Validation (Strict Zero-Cost Guarantee)
@@ -390,7 +399,7 @@ export async function executeGroqWatchOfficerSession({
         temperature: 0.1,
         reasoning_effort: "low",
         max_completion_tokens: 800,
-      } as any);
+      } as any, undefined, rateLimitAttempts);
     } catch (err: any) {
       // The model sometimes writes its final JSON as a "tool call". If evidence is already gathered, go on to Stage B.
       if (err?.status === 400 && /tool_use_failed|tool call validation/i.test(String(err?.message)) && Object.keys(evidenceMap).length > 0) break;
@@ -457,7 +466,7 @@ export async function executeGroqWatchOfficerSession({
       temperature: 0.1,
       reasoning_effort: "low",
       max_completion_tokens: 3500,
-    } as any);
+    } as any, undefined, rateLimitAttempts);
   } catch (err: any) {
     handleGroqApiError(err);
   }

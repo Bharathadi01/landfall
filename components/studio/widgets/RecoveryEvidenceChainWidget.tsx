@@ -15,16 +15,16 @@ import { RELIEF_CASES, type EvidenceRow, type Provenance } from "@/lib/relief/ca
  */
 
 const PROV_STYLE: Record<Provenance, { label: string; color: string }> = {
-  PROVIDER: { label: "PayPal", color: "#CFC9BF" },
-  INTERNAL: { label: "Landfall", color: "#B9B3AA" },
-  RECIPIENT_REPORTED: { label: "Resident", color: "#8FE4B3" },
-  OPERATOR_ATTESTED: { label: "Operator", color: "#FFB020" },
+  PROVIDER: { label: "PayPal", color: "#343D39" },
+  INTERNAL: { label: "Landfall", color: "#343D39" },
+  RECIPIENT_REPORTED: { label: "Resident", color: "#0E6B50" },
+  OPERATOR_ATTESTED: { label: "Operator", color: "#B07012" },
 };
 
 const STATE_STYLE = {
-  present: { label: "Present", color: "#8FE4B3", bg: "rgba(111,212,154,0.10)", border: "rgba(111,212,154,0.28)" },
-  missing: { label: "Missing", color: "#FFB020", bg: "rgba(255,176,32,0.10)", border: "rgba(255,176,32,0.32)" },
-  not_expected: { label: "Not expected", color: "#8A847B", bg: "rgba(255,255,255,0.03)", border: "rgba(255,255,255,0.10)" },
+  present: { label: "Present", color: "#0E6B50", bg: "rgba(111,212,154,0.10)", border: "rgba(111,212,154,0.28)" },
+  missing: { label: "Missing", color: "#B07012", bg: "rgba(255,176,32,0.10)", border: "rgba(255,176,32,0.32)" },
+  not_expected: { label: "Not expected", color: "#525A56", bg: "rgba(24,34,30,0.03)", border: "rgba(24,34,30,0.1)" },
 } as const;
 
 export const EVIDENCE_CHAIN_WIDGET_TYPE = "landfall-evidence-chain";
@@ -102,19 +102,19 @@ export function RecoveryEvidenceChainWidget(props: any) {
   if (!current) return null;
 
   return (
-    <div data-testid="evidence-chain-widget" style={{ display: "flex", flexDirection: "column", gap: 10, height: "100%", padding: "2px 4px", fontFamily: "var(--font-geist-sans), system-ui", color: "#F3EFE8", overflow: "auto" }}>
+    <div data-testid="evidence-chain-widget" style={{ display: "flex", flexDirection: "column", gap: 10, height: "100%", padding: "2px 4px", fontFamily: "var(--font-geist-sans), system-ui", color: "#18221E", overflow: "auto" }}>
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <div>
-          <div style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "#8A847B", fontFamily: "var(--font-geist-mono)" }}>Evidence behind this payment</div>
+          <div style={{ fontSize: 12, color: "#525A56", fontFamily: "var(--font-geist-sans)" }}>Evidence behind this payment</div>
           <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.015em" }}>
-            {current.resident} · <span style={{ color: "#CFC9BF" }}>{current.status}</span> · ${current.amountUsd}
+            {current.resident} · <span style={{ color: "#343D39" }}>{current.status}</span> · ${current.amountUsd}
           </div>
         </div>
         <div
           style={{
             fontSize: 11,
             fontWeight: 600,
-            color: present === applicable ? "#8FE4B3" : "#FFB020",
+            color: present === applicable ? "#0E6B50" : "#B07012",
             background: present === applicable ? "rgba(111,212,154,0.10)" : "rgba(255,176,32,0.10)",
             border: `1px solid ${present === applicable ? "rgba(111,212,154,0.3)" : "rgba(255,176,32,0.32)"}`,
             borderRadius: 999,
@@ -134,13 +134,13 @@ export function RecoveryEvidenceChainWidget(props: any) {
             onClick={() => pick(c.itemId)}
             style={{
               fontSize: 11,
-              fontFamily: "var(--font-geist-mono)",
+              fontFamily: "var(--font-geist-sans)",
               padding: "3px 9px",
               borderRadius: 999,
               cursor: "pointer",
-              color: c.itemId === current.itemId ? "#F3EFE8" : "#B9B3AA",
-              background: c.itemId === current.itemId ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.03)",
-              border: `1px solid ${c.itemId === current.itemId ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.08)"}`,
+              color: c.itemId === current.itemId ? "#18221E" : "#343D39",
+              background: c.itemId === current.itemId ? "rgba(24,34,30,0.12)" : "rgba(24,34,30,0.03)",
+              border: `1px solid ${c.itemId === current.itemId ? "rgba(24,34,30,0.12)" : "rgba(24,34,30,0.08)"}`,
             }}
           >
             {c.itemId.replace("item_milton_", "#")}
@@ -158,21 +158,20 @@ export function RecoveryEvidenceChainWidget(props: any) {
               key={e.key}
               onClick={() => setOpen(isOpen ? null : e.key)}
               aria-expanded={isOpen}
-              style={{ textAlign: "left", cursor: "pointer", padding: 9, borderRadius: 12, color: "inherit", background: st.bg, border: `1px solid ${isOpen ? st.color : st.border}`, display: "flex", flexDirection: "column", gap: 5 }}
+              style={{ textAlign: "left", cursor: "pointer", minWidth: 0, overflow: "hidden", padding: 10, borderRadius: 12, color: "inherit", background: st.bg, border: `1px solid ${isOpen ? st.color : st.border}`, display: "flex", flexDirection: "column", gap: 5 }}
             >
-              <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
-                <span style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.2 }}>{e.title}</span>
-                <span style={{ fontSize: 9, fontFamily: "var(--font-geist-mono)", textTransform: "uppercase", color: pv.color, border: `1px solid ${pv.color}55`, borderRadius: 999, padding: "2px 6px", whiteSpace: "nowrap" }}>{pv.label}</span>
-              </span>
+              {/* source chip on its own line above the title: side by side they collided in narrow cards */}
+              <span style={{ alignSelf: "flex-start", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", fontSize: 9, fontFamily: "var(--font-geist-sans)", textTransform: "uppercase", color: pv.color, border: `1px solid ${pv.color}55`, borderRadius: 999, padding: "2px 7px", whiteSpace: "nowrap" }}>{pv.label}</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.25, overflowWrap: "anywhere" }}>{e.title}</span>
               <span style={{ fontSize: 11, fontWeight: 600, color: st.color }}>{e.state === "present" ? "✓ " : e.state === "missing" ? "● " : "– "}{st.label}</span>
-              <span style={{ fontSize: 10.5, color: "#B9B3AA", lineHeight: 1.35, display: isOpen ? "block" : "-webkit-box", WebkitLineClamp: isOpen ? undefined : 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.detail}</span>
-              {isOpen && e.ref && <span style={{ fontSize: 10, fontFamily: "var(--font-geist-mono)", color: "#CFC9BF", wordBreak: "break-all" }}>{e.ref}</span>}
+              <span style={{ fontSize: 10.5, color: "#343D39", lineHeight: 1.35, display: isOpen ? "block" : "-webkit-box", WebkitLineClamp: isOpen ? undefined : 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.detail}</span>
+              {isOpen && e.ref && <span style={{ fontSize: 10, fontFamily: "var(--font-geist-sans)", color: "#343D39", wordBreak: "break-all" }}>{e.ref}</span>}
             </button>
           );
         })}
       </div>
 
-      <div style={{ fontSize: 10.5, color: "#8A847B" }}>
+      <div style={{ fontSize: 12, color: "#525A56" }}>
         Replay data. PayPal status is provider-reported; a resident’s confirmation is self-reported and never upgraded to PayPal’s. Missing evidence is shown as missing.
       </div>
     </div>

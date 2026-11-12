@@ -60,7 +60,7 @@ export function ImpactTimelineWidget({
 }) {
   return (
     <div className="glass p-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/[0.07] gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-ink/[0.07] gap-2">
         <div>
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-delivered0" />

@@ -77,7 +77,7 @@ export function RecoveryPanel({ c, me }: { c: ReliefCase; me: Me | null }) {
 
   if (!live) {
     return (
-      <section aria-label="Recovery" className="rounded-2xl border border-white/[0.07] bg-black/20 p-4 text-[13px] text-ink-3">
+      <section aria-label="Recovery" className="text-[13.5px] text-ink-2">
         Recovery actions are available on Live Sandbox cases only. Replay cases are historical records, so there is nothing to change at PayPal.
       </section>
     );
@@ -85,15 +85,16 @@ export function RecoveryPanel({ c, me }: { c: ReliefCase; me: Me | null }) {
 
   return (
     <section aria-label="Recovery" className="space-y-3" data-testid="recovery-panel">
-      <h3 className="text-[15px] font-semibold text-ink">What can safely be done</h3>
+      <h2 className="text-title-2 text-ink">What can safely be done</h2>
+      <p className="text-[13px] text-ink-3">The recovery rules decide what is possible. Any action needs two approvals before PayPal is touched.</p>
       <ul className="space-y-2">
         {options.map((o) => (
-          <li key={o.kind} className="rounded-xl border border-white/[0.07] bg-black/20 p-3">
+          <li key={o.kind} className="rounded-md border border-line p-3.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[13.5px] font-medium text-ink">{LABEL[o.kind]}</span>
+              <span className="text-[14px] font-semibold text-ink">{LABEL[o.kind]}</span>
               <Tag tone={o.allowed ? "delivered" : "neutral"}>{o.allowed ? "Allowed" : "Not allowed"}</Tag>
             </div>
-            <p className="mt-1 text-[12.5px] text-ink-3">{o.reason}</p>
+            <p className="mt-1 text-[13px] text-ink-2">{o.reason}</p>
             {o.allowed && (
               <button type="button" disabled={!canPropose || busy !== null} onClick={() => propose(o.kind)} className="field-btn field-btn-secondary mt-2" data-testid={`propose-${o.kind}`}>
                 {busy === o.kind ? "Creating…" : "Propose this (needs two approvals)"}
@@ -109,7 +110,7 @@ export function RecoveryPanel({ c, me }: { c: ReliefCase; me: Me | null }) {
           <h4 className="text-[13px] font-medium text-ink-2">Proposals for this payment</h4>
           <ul className="mt-2 space-y-2">
             {proposals.map((p) => (
-              <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/[0.07] bg-black/20 px-3 py-2 text-[13px]">
+              <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-line px-3 py-2 text-[13px]">
                 <span className="text-ink">{describeProposal(p).title} · {describeProposal(p).usd}</span>
                 <span className="flex items-center gap-2">
                   <Tag tone={p.status === "EXECUTED" ? "delivered" : p.status === "FAILED" || p.status === "REJECTED" ? "danger" : "amber"}>{p.status}</Tag>

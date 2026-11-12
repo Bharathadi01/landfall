@@ -39,6 +39,8 @@ export interface ChatOptions {
   timeoutMs?: number;
   /** Test seam. */
   client?: Pick<Groq, "chat">;
+  /** Internal: set when this call already IS the fallback, so it never recurses. */
+  noFallback?: boolean;
 }
 
 export interface ChatResult {
@@ -54,7 +56,23 @@ export const groqConfigured = () => !!process.env.GROQ_API_KEY;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+const ALT_MODEL: Record<string, string> = { "openai/gpt-oss-120b": "openai/gpt-oss-20b", "openai/gpt-oss-20b": "openai/gpt-oss-120b" };
+
+/** gpt-oss-120b and gpt-oss-20b have separate rate-limit buckets: if one is busy, slow or fails, try the other once before giving up. */
 export async function chat(opts: ChatOptions): Promise<ChatResult> {
+  try {
+    return await chatOnce(opts);
+  } catch (err) {
+    const model = opts.model ?? MODELS.reasoning();
+    const alt = ALT_MODEL[model];
+    const retryable = err instanceof GroqUnavailable && ["RATE_LIMITED", "TIMEOUT", "PROVIDER_ERROR", "EMPTY", "TRUNCATED", "BAD_JSON"].includes(err.code);
+    if (!retryable || !alt || opts.noFallback || opts.client) throw err;
+    console.warn(`[groq] ${model} failed (${(err as GroqUnavailable).code}); trying ${alt}`);
+    return chatOnce({ ...opts, model: alt, noFallback: true });
+  }
+}
+
+async function chatOnce(opts: ChatOptions): Promise<ChatResult> {
   if (!opts.client && !groqConfigured()) throw new GroqUnavailable("NO_KEY", "GROQ_API_KEY is not configured.");
   const client = opts.client ?? new Groq({ apiKey: process.env.GROQ_API_KEY, timeout: opts.timeoutMs ?? 20_000, maxRetries: 0 });
   const model = opts.model ?? MODELS.reasoning();

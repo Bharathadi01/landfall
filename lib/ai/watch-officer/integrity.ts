@@ -104,6 +104,44 @@ export function enforceNumberIntegrity(
     return kf;
   });
 
+  // 4b. Money binding. A dollar figure the model writes must exist in the evidence it cites; a claim about the treasury must match the
+  // treasury's actual figures. Otherwise the finding is restated from the authoritative numbers (and the change is reported).
+  const t = evidence.treasury;
+  const amountsIn = (text: string): number[] => (text.match(/\$\s?\d[\d,]*(?:\.\d+)?/g) ?? []).map((a) => Number(a.replace(/[$,\s]/g, "")));
+  const same = (a: number, b: number) => Math.abs(a - b) < 0.005;
+  const evidenceAmounts = (id: string) => amountsIn(evidence.items.find((i) => i.id === id)?.summary ?? "");
+  const allEvidenceAmounts = evidence.items.flatMap((i) => amountsIn(i.summary));
+  const treasuryLine = `${t.allocatableFormatted} is free to send (${t.paypalAvailableFormatted} at PayPal, ${t.reserveProtectedFormatted} protected reserve, ${t.committedFormatted} committed).`;
+  const treasuryClaim = (text: string) => /\b(treasury|balance|cash|available|allocatable|liquidity|funds?)\b/i.test(text) && !/\b(gap|required|requirement|need(ed)?|reserve|pledge|committed)\b/i.test(text);
+  const treasuryFigures = [t.allocatableCents, t.paypalAvailableCents].map((c) => c / 100);
+  verified.keyFindings = verified.keyFindings.map((kf, idx) => {
+    const amounts = amountsIn(kf.finding);
+    if (!amounts.length) return kf;
+    if (treasuryClaim(kf.finding) && !amounts.every((a) => treasuryFigures.some((f) => same(a, f)))) {
+      discrepancies.push(`Finding ${idx + 1} stated a treasury figure (${kf.finding}) that does not match the ledger; restated from the treasury snapshot.`);
+      return { ...kf, finding: `Treasury: ${treasuryLine}`, evidenceId: t.evidenceId };
+    }
+    if (amounts.every((a) => evidenceAmounts(kf.evidenceId).some((e) => same(a, e)))) return kf;
+    const home = evidence.items.find((i) => amounts.every((a) => amountsIn(i.summary).some((e) => same(a, e))));
+    if (home) {
+      discrepancies.push(`Finding ${idx + 1} cited '${kf.evidenceId}' for figures that come from '${home.id}'; citation corrected.`);
+      return { ...kf, evidenceId: home.id };
+    }
+    discrepancies.push(`Finding ${idx + 1} stated figures found in no evidence (${kf.finding}); removed.`);
+    return null as unknown as typeof kf;
+  }).filter(Boolean);
+
+  // 4c. Summary guard: a summary that states an amount found in no evidence, or misstates the treasury, is replaced by a deterministic one.
+  const summaryAmounts = amountsIn(verified.summary ?? "");
+  const summaryBad =
+    summaryAmounts.some((a) => !allEvidenceAmounts.some((e) => same(a, e))) ||
+    (t.allocatableCents > 0 && /\b(treasury|balance|cash|funds?)\b[^.;]*(\$\s?0(?:\.00)?\b|\bzero\b|\bempty\b|\bno (?:cash|funds|money)\b)/i.test(verified.summary ?? ""));
+  if (summaryBad) {
+    discrepancies.push("The summary stated figures that the evidence does not support; replaced with a summary computed from the evidence.");
+    const storm = evidence.disaster.hasActiveDisaster ? `${evidence.disaster.event} is active.` : "No storm warning is active.";
+    verified.summary = `${storm} ${treasuryLine} Funding needed: ${evidence.policy.totalRequiredFundingFormatted}; gap: ${evidence.policy.fundingGapFormatted}.`;
+  }
+
   // 5. Append Verified Evidence References
   verified.evidenceReferences = evidence.items.map((i) => ({
     evidenceId: i.id,

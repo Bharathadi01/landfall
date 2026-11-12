@@ -1,7 +1,9 @@
 "use client";
 
 
-import { PageTitle } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/ui/primitives";
+import { Tag } from "@/components/ui/Tag";
+import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { I } from "@/components/icons";
 import React, { useState, useEffect, useCallback } from "react";
 import type { NormalizedAlert, ServiceHealth } from "@/lib/sentinel/types";
@@ -99,63 +101,52 @@ export default function StormIntelligenceConsolePage() {
       ? "REPLAY"
       : weatherData?.state || "LIVE";
 
+  const replayOn = !!replayPackage || activeMode === "HISTORICAL_REPLAY";
+
   return (
-    <div className="space-y-6">
-      {/* Historical Replay Banner */}
-      {(replayPackage || activeMode === "HISTORICAL_REPLAY") && (
-        <div className="field-paper p-4 border-amber bg-amber-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="p-2 rounded-lg bg-amber/20 text-amber font-bold text-lg">
-              ⚠️
-            </span>
-            <div>
-              <p className="font-bold text-xs font-mono uppercase tracking-wider text-amber">
-                Historical Replay · Hurricane Milton (Oct 2024 Archive)
-              </p>
-              <p className="text-xs text-ink-2 mt-0.5">
-                Iowa Environmental Mesonet (IEM) VTEC official archive feed. Replay telemetry is tagged; zero live disbursements executed.
-              </p>
-            </div>
-          </div>
-          <button
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Before landfall · NOAA, NWS, NASA and RainViewer feeds"
+        title="Who is in the storm’s path?"
+        accent="Answered by official data."
+        description="Live satellite clouds, radar and model winds, with official warnings laid over the homes enrolled for relief. Homes are clustered, so no one’s exact address is shown."
+        actions={
+          <>
+            <Button variant="glass" onClick={handlePollLive} loading={loading} leading={<I.refresh className="h-4 w-4" />}>
+              {loading ? "Checking…" : "Refresh warnings"}
+            </Button>
+            <Button variant="signal" onClick={handleTriggerReplay} loading={replaying} leading={<I.play className="h-4 w-4" />}>
+              {replaying ? "Loading replay…" : "Replay Hurricane Milton"}
+            </Button>
+          </>
+        }
+      />
+
+      {replayOn && (
+        <div className="note flex flex-wrap items-center justify-between gap-3" data-tone="amber">
+          <span>
+            <span className="note-label">Replay · Hurricane Milton, October 2024</span>
+            Archived official warnings from the Iowa Environmental Mesonet. Everything from the replay is labelled; no payment moves.
+          </span>
+          <Button
+            variant="glass"
+            size="sm"
             onClick={() => {
               setReplayPackage(null);
               setActiveMode("LIVE");
               fetchUnifiedWeather("LIVE");
             }}
-            className="field-btn field-btn-secondary text-xs self-start sm:self-auto font-medium"
           >
-            Exit Replay Mode
-          </button>
+            Back to live
+          </Button>
         </div>
       )}
-
-      {/* Editorial Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
-        <PageTitle
-          eyebrow="Storm desk · live weather"
-          icon={I.forecastCone}
-          tone="storm"
-          title="Who is in the storm’s path?"
-          accent="Answered by official data."
-          description="Real satellite clouds, radar and model winds, with official warnings laid over enrolled households. Homes are clustered, so no one’s exact address is shown."
-        />
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Button variant="glass" onClick={handlePollLive} loading={loading} leading={<I.refresh className="h-4 w-4" />}>
-            {loading ? "Checking…" : "Refresh warnings"}
-          </Button>
-          <Button variant="signal" onClick={handleTriggerReplay} loading={replaying} leading={<I.play className="h-4 w-4" />}>
-            {replaying ? "Loading replay…" : "Replay Hurricane Milton"}
-          </Button>
-        </div>
-      </div>
 
       {error && (
         <div className="note" data-tone="danger" role="alert"><span className="note-label">We couldn’t load the weather feed</span>{error}</div>
       )}
 
-      {/* The live weather globe */}
+      {/* the live weather globe */}
       <StormDesk
         fund={selectedFund}
         alerts={displayedAlerts}
@@ -166,235 +157,126 @@ export default function StormIntelligenceConsolePage() {
         onSelectAlert={(a) => setSelectedAlert(a)}
       />
 
-      {/* Weather Intelligence Telemetry Bar */}
-      <div className="field-paper p-4 md:p-6 shadow-sm border border-line">
-        <WeatherIntelligencePanel
-          weather={weatherData}
-          selectedFund={selectedFund}
-          onSelectFund={(fund) => setSelectedFund(fund)}
-          onSelectAlert={(a) => setSelectedAlert(a)}
-          onTriggerReplay={handleTriggerReplay}
-          onRefresh={handlePollLive}
-          loading={loading}
-        />
-      </div>
-
-      {/* Active Alert Feed & Geometric Inspection Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Alerts Feed List */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
-              Active Official Alerts ({displayedAlerts.length})
+      {/* official warnings: a list, and what the selected one would trigger */}
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-12" aria-labelledby="alerts-h">
+        <div className="space-y-4 lg:col-span-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="alerts-h" className="text-title-2 text-ink">
+              Active Official Alerts <span className="text-ink-3">· {displayedAlerts.length}</span>
             </h2>
-
-            <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-lg border border-line text-xs font-mono">
-              <button
-                onClick={() => setActiveMode("ALL")}
-                className={`px-2.5 py-0.5 rounded transition ${
-                  activeMode === "ALL"
-                    ? "bg-surface text-ink font-semibold shadow-xs"
-                    : "text-ink-3 hover:text-ink"
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setActiveMode("LIVE")}
-                className={`px-2.5 py-0.5 rounded transition ${
-                  activeMode === "LIVE"
-                    ? "bg-surface text-ink font-semibold shadow-xs"
-                    : "text-ink-3 hover:text-ink"
-                }`}
-              >
-                Live
-              </button>
-              <button
-                onClick={() => setActiveMode("HISTORICAL_REPLAY")}
-                className={`px-2.5 py-0.5 rounded transition ${
-                  activeMode === "HISTORICAL_REPLAY"
-                    ? "bg-surface text-ink font-semibold shadow-xs"
-                    : "text-ink-3 hover:text-ink"
-                }`}
-              >
-                Replay
-              </button>
-            </div>
+            <SegmentedTabs<"ALL" | "LIVE" | "HISTORICAL_REPLAY">
+              ariaLabel="Which alerts"
+              size="sm"
+              value={(activeMode as any) ?? "ALL"}
+              onChange={(k) => setActiveMode(k as any)}
+              tabs={[{ id: "ALL", label: "All" }, { id: "LIVE", label: "Live" }, { id: "HISTORICAL_REPLAY", label: "Replay" }]}
+            />
           </div>
 
           {displayedAlerts.length === 0 ? (
-            <div className="field-paper p-8 text-center text-xs text-ink-3">
-              No active warnings detected for {selectedFund.name}. Click &quot;Replay Milton 2024&quot; above to simulate historical hurricane alerts.
+            <div className="pane p-8 text-center text-[14px] text-ink-2">
+              No active warnings for {selectedFund.name}. That is the usual state. Press <span className="font-semibold text-ink">Replay Hurricane Milton</span> to see a real past storm.
             </div>
           ) : (
-            <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1" tabIndex={0} role="region" aria-label="Scrollable list">
+            <ul className="max-h-[560px] space-y-2.5 overflow-y-auto pr-1" tabIndex={0} aria-label="Active official alerts">
               {displayedAlerts.map((alert) => {
                 const isSelected = selectedAlert?.id === alert.id;
                 const isWarning = alert.significance === "W";
                 const isReplay = alert.mode === "HISTORICAL_REPLAY";
-
                 return (
-                  <div
-                    key={alert.id}
-                    onClick={() => setSelectedAlert(alert)}
-                    className={`field-paper p-4 cursor-pointer transition-all ${
-                      isSelected
-                        ? "border-accent ring-2 ring-accent/20 shadow-md"
-                        : "hover:border-ink-3/50"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span
-                            className={
-                              isReplay ? "field-badge-warning font-mono text-[10px]" : "field-badge-evergreen font-mono text-[10px]"
-                            }
-                          >
-                            {alert.mode}
-                          </span>
-                          <span
-                            className={
-                              isWarning ? "field-badge-critical font-mono text-[10px]" : "field-badge-neutral font-mono text-[10px]"
-                            }
-                          >
-                            {alert.event}
-                          </span>
-                        </div>
-                        <h3 className="text-sm font-semibold text-ink mt-2 leading-snug">
-                          {alert.headline}
-                        </h3>
+                  <li key={alert.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedAlert(alert)}
+                      aria-pressed={isSelected}
+                      className={`pane w-full p-4 text-left transition-colors ${isSelected ? "!border-accent ring-2 ring-accent/15" : "hover:!border-line-strong"}`}
+                    >
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <Tag tone={isReplay ? "amber" : "delivered"}>{isReplay ? "Replay" : "Live"}</Tag>
+                        <Tag tone={isWarning ? "danger" : "neutral"}>{alert.event}</Tag>
+                        {alert.isTranche1Eligible && <Tag tone="accent">Can trigger relief</Tag>}
                       </div>
-                      {alert.isTranche1Eligible && (
-                        <span className="field-badge-evergreen text-[10px] font-mono shrink-0">
-                          Tranche 1 Trigger
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] text-ink-3 mt-3 pt-2 border-t border-line font-mono">
-                      <span>VTEC: {alert.eventKey}</span>
-                      <span>Expires: {new Date(alert.expires).toLocaleDateString()}</span>
-                    </div>
-                  </div>
+                      <h3 className="mt-2.5 text-[14.5px] font-semibold leading-snug text-ink">{alert.headline}</h3>
+                      <div className="mt-3 flex items-center justify-between gap-3 border-t border-line pt-2.5 text-[12px] text-ink-3">
+                        <span className="font-code">{alert.eventKey}</span>
+                        <span>Expires {new Date(alert.expires).toLocaleDateString()}</span>
+                      </div>
+                    </button>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           )}
         </div>
 
-        {/* Right Column: Geometry Details & Replay Radar Player */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className="lg:col-span-7">
           {selectedAlert ? (
-            <div className="field-paper p-6 space-y-6">
-              {/* Alert Title & Key */}
+            <div className="pane space-y-6 p-6 lg:sticky lg:top-[84px]">
               <div className="border-b border-line pb-4">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="field-badge-evergreen font-mono text-xs">
-                      {selectedAlert.eventKey}
-                    </span>
-                    <span className="text-xs text-ink-3 font-mono">Office: {selectedAlert.office}</span>
-                  </div>
-                  <span className="field-badge-neutral font-mono text-xs">
-                    {selectedAlert.status} / {selectedAlert.messageType}
-                  </span>
+                <div className="flex flex-wrap items-center gap-2 text-[12.5px] text-ink-3">
+                  <span className="font-code text-ink-2">{selectedAlert.eventKey}</span>
+                  <span>· Office {selectedAlert.office}</span>
+                  <span>· {String(selectedAlert.status).toLowerCase()} / {String(selectedAlert.messageType).toLowerCase()}</span>
                 </div>
-                <h2 className="text-xl font-serif font-bold text-ink mt-2.5">
-                  {selectedAlert.headline}
-                </h2>
-                <p className="text-xs text-ink-2 mt-1">{selectedAlert.areaDesc}</p>
+                <h2 className="mt-2 text-title-2 text-ink">{selectedAlert.headline}</h2>
+                <p className="mt-1.5 text-[13.5px] text-ink-2">{selectedAlert.areaDesc}</p>
               </div>
 
-              {/* Geographic Warning Geometry Detail */}
-              <div>
-                <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink mb-2">
-                  Geographic Warning Polygon Geometry
-                </h3>
-                <div className="p-4 rounded-xl bg-canvas border border-line space-y-2.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-2">Geometry Type:</span>
-                    <span className="font-mono font-semibold text-ink">
-                      {selectedAlert.geometry?.type || "None (County/Zone Alert)"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-2">Polygon Coordinate Rings:</span>
-                    <span className="font-mono font-semibold text-ink">
-                      {selectedAlert.geometry?.coordinates?.length || 0} ring(s)
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-ink-3 italic pt-1 border-t border-line">
-                    Evaluated with Turf.js point-in-polygon. AI is strictly barred from determining spatial exposure.
-                  </p>
-                </div>
-              </div>
+              <dl className="divide-y divide-line">
+                <Row label="Where it applies" value={`${selectedAlert.geometry?.type || "County or zone"} · ${selectedAlert.geometry?.coordinates?.length || 0} ring(s)`} note="Homes are tested against this shape with a point-in-polygon check in code. The AI never decides who is exposed." />
+                <Row label="What it triggers" value={selectedAlert.isTranche1Eligible ? "Eligible for the relief policy" : "Information only"} note={selectedAlert.isTranche1Eligible ? "The fixed policy can now decide who is paid and how much." : "This kind of alert does not start a payment."} />
+                <Row label="Before any payout" value="Two different people approve" note="Then the Treasurer, which is code and not AI, sends it once." />
+              </dl>
 
-              {/* Historical NEXRAD Radar Frame Player (if replay) */}
               {selectedAlert.mode === "HISTORICAL_REPLAY" && replayPackage?.radarFrames && (
                 <div>
-                  <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink mb-2">
-                    Historical NEXRAD Radar Playback (IEM Tampa Bay TBW-N0Q)
-                  </h3>
-                  <div className="p-4 rounded-xl bg-canvas border border-line space-y-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-amber">
-                        {replayPackage.radarFrames[selectedRadarIndex]?.headline}
-                      </span>
-                      <span className="font-mono text-ink-3">
-                        {new Date(replayPackage.radarFrames[selectedRadarIndex]?.timestamp).toUTCString()}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2 pt-2 border-t border-line">
-                      {replayPackage.radarFrames.map((frame: any, idx: number) => (
-                        <button
-                          key={frame.timestamp}
-                          onClick={() => setSelectedRadarIndex(idx)}
-                          className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-mono transition-colors ${
-                            selectedRadarIndex === idx
-                              ? "bg-accent text-white font-semibold"
-                              : "bg-surface text-ink-2 hover:bg-surface-2 border border-line"
-                          }`}
-                        >
-                          Frame {idx + 1}
-                        </button>
-                      ))}
-                    </div>
+                  <h3 className="text-[15px] font-semibold text-ink">Radar at the time</h3>
+                  <p className="mt-1 text-[13px] text-ink-3">{replayPackage.radarFrames[selectedRadarIndex]?.headline} · {new Date(replayPackage.radarFrames[selectedRadarIndex]?.timestamp).toUTCString()}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {replayPackage.radarFrames.map((frame: any, idx: number) => (
+                      <Button key={frame.timestamp} size="sm" variant={selectedRadarIndex === idx ? "signal" : "glass"} onClick={() => setSelectedRadarIndex(idx)}>
+                        Frame {idx + 1}
+                      </Button>
+                    ))}
                   </div>
                 </div>
               )}
-
-              {/* Downstream Activation Traceability */}
-              <div>
-                <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink mb-2">
-                  Downstream Relief Workflow Traceability
-                </h3>
-                <div className="p-4 rounded-xl bg-canvas border border-line text-xs space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-2">Downstream Signal:</span>
-                    <span className="field-badge-evergreen font-mono text-[11px]">
-                      {selectedAlert.isTranche1Eligible ? "✓ Eligible for Policy Evaluation" : "Informational Only"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-2">Two-Person Passkey Approval:</span>
-                    <span className="text-ink font-medium">Mandatory before any payout</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-2">Treasurer Execution:</span>
-                    <span className="text-ink font-medium">Code only; isolated from AI</span>
-                  </div>
-                </div>
-              </div>
             </div>
           ) : (
-            <div className="field-paper p-12 text-center text-ink-3 text-sm">
-              Select an alert from the feed to view geographic geometry and downstream traceability.
+            <div className="pane flex h-full min-h-[220px] items-center justify-center p-10 text-center text-[14px] text-ink-3">
+              Choose an alert to see where it applies and what it would set in motion.
             </div>
           )}
         </div>
-      </div>
+      </section>
+
+      {/* conditions on the ground, for the fund chosen */}
+      <section aria-labelledby="ground-h" className="space-y-4">
+        <h2 id="ground-h" className="text-title-2 text-ink">Conditions at the fund</h2>
+        <div className="pane p-5 md:p-6">
+          <WeatherIntelligencePanel
+            weather={weatherData}
+            selectedFund={selectedFund}
+            onSelectFund={(fund) => setSelectedFund(fund)}
+            onSelectAlert={(a) => setSelectedAlert(a)}
+            onTriggerReplay={handleTriggerReplay}
+            onRefresh={handlePollLive}
+            loading={loading}
+          />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Row({ label, value, note }: { label: string; value: string; note: string }) {
+  return (
+    <div className="grid grid-cols-1 gap-1 py-3.5 sm:grid-cols-[160px_1fr] sm:gap-4">
+      <dt className="text-[13px] text-ink-3">{label}</dt>
+      <dd>
+        <div className="text-[14.5px] font-semibold text-ink">{value}</div>
+        <div className="mt-0.5 text-[13px] text-ink-2">{note}</div>
+      </dd>
     </div>
   );
 }

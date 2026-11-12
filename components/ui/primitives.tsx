@@ -28,7 +28,7 @@ const toneGlow: Record<Tone, string> = {
   amber: "rgb(var(--c-amber) / 0.22)",
   storm: "rgb(var(--c-storm) / 0.24)",
   danger: "rgb(var(--c-danger) / 0.26)",
-  neutral: "rgb(255 244 232 / 0.07)",
+  neutral: "rgb(24 34 30 / 0.07)",
 };
 
 /**
@@ -82,7 +82,7 @@ function TitleBlock({
       {accent && (
         <>
           {" "}
-          <span className="text-ink-2">{accent}</span>
+          <span className="block text-ink-2">{accent}</span>
         </>
       )}
     </h1>
@@ -106,7 +106,7 @@ export function PageTitle({
   description?: React.ReactNode;
 }) {
   return (
-    <div className="max-w-3xl space-y-4" data-reveal>
+    <div className="max-w-3xl space-y-3">
       <div className="flex flex-wrap items-center gap-2.5">
         {icon && <IconTile icon={icon} tone={tone} size="sm" />}
         <span className={cn("eyebrow", toneText[tone])}>{eyebrow}</span>
@@ -123,8 +123,6 @@ export function PageTitle({
  */
 export function PageHeader({
   eyebrow,
-  icon,
-  tone = "accent",
   title,
   accent,
   description,
@@ -141,16 +139,16 @@ export function PageHeader({
   meta?: React.ReactNode;
 }) {
   return (
-    <header className="relative flex flex-col gap-6 border-b border-line pb-8 lg:flex-row lg:items-end lg:justify-between" data-reveal>
-      <div className="max-w-3xl space-y-4">
+    <header className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between" data-testid="page-header">
+      <div className="max-w-[54rem] space-y-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="eyebrow">{eyebrow}</span>
           {meta}
         </div>
         <TitleBlock title={title} accent={accent} />
-        {description && <p className="text-body-base max-w-2xl text-ink-2">{description}</p>}
+        {description && <p className="max-w-3xl text-[15.5px] leading-relaxed text-ink-2">{description}</p>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-3">{actions}</div>}
+      {actions && <div className="flex shrink-0 flex-wrap items-center gap-3">{actions}</div>}
     </header>
   );
 }
@@ -179,9 +177,9 @@ export function StatCard({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="glass p-5" data-reveal>
+    <div className="pane p-5">
       <span className="eyebrow">{label}</span>
-      <div className="mt-3 font-serif text-[40px] font-normal leading-none tracking-[-0.03em] tabular text-ink">
+      <div className="figure mt-3 text-[36px] leading-none text-ink">
         {display ?? (value !== undefined ? <Ticker value={value} prefix={prefix} suffix={suffix} decimals={decimals} /> : null)}
       </div>
       {hint && <p className="mt-3 text-[13px] leading-snug text-ink-3">{hint}</p>}
@@ -206,7 +204,7 @@ export function SectionHeader({
   return (
     <div className="flex flex-col gap-3 border-b border-line pb-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h2 className="font-serif text-[20px] font-normal leading-tight tracking-[-0.01em] text-ink">{title}</h2>
+        <h2 className="text-title-2 text-ink">{title}</h2>
         {description && <p className="mt-1 text-[13px] text-ink-3">{description}</p>}
       </div>
       {right}

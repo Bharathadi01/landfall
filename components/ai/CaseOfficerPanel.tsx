@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { Tag } from "@/components/ui/Tag";
+import { Button } from "@/components/ui/Button";
+import { I } from "@/components/icons";
 import { useToast } from "@/components/ui/Toast";
 import type { Investigation } from "@/lib/ai/case-officer";
 
@@ -43,72 +45,96 @@ export function CaseOfficerPanel({ caseRef }: { caseRef: string }) {
   const evText = (id: string) => r?.evidence.find((e) => e.id === id)?.text ?? id;
 
   return (
-    <section className="glass space-y-4 p-4" aria-label="AI case officer" data-testid="case-officer">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="text-[15px] font-semibold text-ink">Investigate with AI</h3>
-          <p className="text-[12.5px] text-ink-3">Reads this payment’s stored evidence, asks PayPal for its live status, and runs the recovery rules. It cannot change anything.</p>
+    <section className="space-y-4" aria-label="AI case officer" data-testid="case-officer">
+      <div className="pane p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0 max-w-xl">
+            <h2 className="text-title-2 text-ink">Investigate with AI</h2>
+            <p className="mt-1 text-[13.5px] text-ink-2">It reads this payment’s evidence, asks PayPal for the live status and PayPal’s own transaction record, then checks what the recovery rules allow. It cannot change anything.</p>
+          </div>
+          <Button variant="signal" onClick={run} loading={busy} data-testid="investigate" leading={<I.aiAdvisor className="h-4 w-4" />}>
+            {busy ? "Investigating…" : r ? "Run again" : "Investigate"}
+          </Button>
         </div>
-        <div className="flex items-center gap-2">
-          <label className="sr-only" htmlFor="co-lang">Message language</label>
-          <select id="co-lang" value={lang} onChange={(e) => setLang(e.target.value as typeof lang)} className="rounded-lg border border-white/10 bg-black/30 px-2 py-2 text-[13px] text-ink">
-            {LANGS.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-          </select>
-          <button type="button" onClick={run} disabled={busy} className="field-btn field-btn-primary" data-testid="investigate">{busy ? "Investigating…" : r ? "Run again" : "Investigate"}</button>
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-3">
+          <span className="text-[12.5px] text-ink-3" id="co-lang-l">Write the resident’s message in</span>
+          <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-labelledby="co-lang-l">
+            {LANGS.map(([k, v]) => (
+              <button key={k} type="button" role="radio" aria-checked={lang === k} onClick={() => setLang(k)} className={`rounded-full border px-3 py-1 text-[12.5px] font-medium transition-colors ${lang === k ? "border-accent bg-accent-soft text-accent-strong" : "border-line-strong text-ink-2 hover:border-ink-3"}`}>
+                {v}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {error && <p role="alert" className="rounded-xl border border-danger/30 bg-danger/10 p-3 text-[12.5px] text-danger">{error}</p>}
+      {error && <div role="alert" className="note" data-tone="danger"><span className="note-label">The investigation stopped</span>{error}</div>}
 
-      {r && (
-        <div className="space-y-4" aria-live="polite">
+      {busy && (
+        <div className="ai-draft p-5" role="status">
+          <div className="text-[13.5px] font-semibold text-ink">Reading the evidence and asking PayPal…</div>
+          <div className="mt-3 space-y-2"><div className="skeleton h-4 w-3/4" /><div className="skeleton h-4 w-2/3" /><div className="skeleton h-4 w-1/2" /></div>
+        </div>
+      )}
+
+      {r && !busy && (
+        <div className="ai-draft space-y-5 p-5 sm:p-6" aria-live="polite">
           <div className="flex flex-wrap items-center gap-2 text-[12px]">
-            {r.answeredBy === "ai" ? <Tag tone="paypal">AI · {r.model} · {(r.latencyMs / 1000).toFixed(1)} s</Tag> : <Tag tone="amber" title={r.fallbackReason}>Offline rules (AI unavailable) · {(r.latencyMs / 1000).toFixed(1)} s</Tag>}
-            {r.toolCalls.map((t, i) => <Tag key={i} tone={t.ok ? "neutral" : "danger"} title={t.server ? "The server ran this read-only tool because the model skipped it" : "The model called this read-only tool"}>{t.server ? "server" : "tool"}: {t.name}</Tag>)}
+            {r.answeredBy === "ai" ? <Tag tone="ai">Draft by AI · {r.model} · {(r.latencyMs / 1000).toFixed(1)} s</Tag> : <Tag tone="amber" title={r.fallbackReason}>Offline rules (AI unavailable) · {(r.latencyMs / 1000).toFixed(1)} s</Tag>}
+            {r.toolCalls.map((t, i) => <Tag key={i} tone={t.ok ? (t.name.toLowerCase().includes("paypal") ? "paypal" : "neutral") : "danger"} title={t.server ? "The server ran this read-only tool because the model skipped it" : "The model called this read-only tool"}>{t.server ? "server read" : "read"} · {t.name}</Tag>)}
           </div>
 
           <div>
-            <h4 className="text-[13px] font-medium text-ink-2">What the evidence shows</h4>
-            <ul className="mt-2 space-y-1.5">
+            <h3 className="text-[15px] font-semibold text-ink">What the evidence shows</h3>
+            <ul className="mt-2 divide-y divide-line">
               {r.facts.map((f, i) => (
-                <li key={i} className="text-[13.5px] text-ink">
-                  {f.text}
-                  <span className="ml-2 text-[11px] text-ink-3" title={f.evidenceIds.map(evText).join("\n")}>[{f.evidenceIds.join(", ")}]</span>
+                <li key={i} className="flex flex-wrap items-start justify-between gap-3 py-2.5">
+                  <span className="min-w-0 flex-1 text-[14.5px] leading-relaxed text-ink">{f.text}</span>
+                  <span className="flex shrink-0 flex-wrap gap-1">
+                    {f.evidenceIds.map((id) => <span key={id} className="rounded-sm border border-line-strong px-1.5 py-0.5 font-code text-[11px] text-ink-2" title={evText(id)}>{id}</span>)}
+                  </span>
                 </li>
               ))}
-              {r.facts.length === 0 && <li className="text-[13px] text-ink-3">No cited facts survived the evidence check.</li>}
+              {r.facts.length === 0 && <li className="py-2 text-[13.5px] text-ink-3">No cited facts survived the evidence check.</li>}
             </ul>
-            {r.integrity.droppedFacts > 0 && <p className="mt-2 text-[12px] text-amber">{r.integrity.droppedFacts} statement{r.integrity.droppedFacts === 1 ? "" : "s"} dropped: {r.integrity.reasons[0]}</p>}
+            {r.integrity.droppedFacts > 0 && <p className="mt-2 text-[12.5px] text-amber">{r.integrity.droppedFacts} statement{r.integrity.droppedFacts === 1 ? "" : "s"} dropped because they had no evidence: {r.integrity.reasons[0]}</p>}
           </div>
 
-          {r.hypotheses.length > 0 && (
-            <div>
-              <h4 className="text-[13px] font-medium text-ink-2">Possible explanations (not confirmed)</h4>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-[13.5px] text-ink-2">{r.hypotheses.map((h, i) => <li key={i}>{h.text}</li>)}</ul>
-            </div>
-          )}
-          {r.unknowns.length > 0 && (
-            <div>
-              <h4 className="text-[13px] font-medium text-ink-2">What we don’t know</h4>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-[13.5px] text-ink-2">{r.unknowns.map((u, i) => <li key={i}>{u}</li>)}</ul>
+          {(r.hypotheses.length > 0 || r.unknowns.length > 0) && (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              {r.hypotheses.length > 0 && (
+                <div>
+                  <h3 className="text-[14px] font-semibold text-ink">Possible explanations <span className="font-normal text-ink-3">· not confirmed</span></h3>
+                  <ul className="mt-2 space-y-1.5 text-[13.5px] text-ink-2">{r.hypotheses.map((h, i) => <li key={i} className="border-l-2 border-line-strong pl-3">{h.text}</li>)}</ul>
+                </div>
+              )}
+              {r.unknowns.length > 0 && (
+                <div>
+                  <h3 className="text-[14px] font-semibold text-ink">Still unknown</h3>
+                  <ul className="mt-2 space-y-1.5 text-[13.5px] text-ink-2">{r.unknowns.map((u, i) => <li key={i} className="border-l-2 border-amber/60 pl-3">{u}</li>)}</ul>
+                </div>
+              )}
             </div>
           )}
 
-          <div className="rounded-xl border border-white/[0.08] bg-black/20 p-3">
+          <div className="rounded-md border border-line bg-surface p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[13.5px] font-medium text-ink">Suggested next step: {ACTION_LABEL[r.recommendedAction] ?? r.recommendedAction}</span>
-              <Tag tone="neutral">A person decides</Tag>
+              <span className="text-[15px] font-semibold text-ink">Suggested: {ACTION_LABEL[r.recommendedAction] ?? r.recommendedAction}</span>
+              <Tag tone="accent">A person decides</Tag>
             </div>
-            <p className="mt-1 text-[12.5px] text-ink-3">{r.actionReason}</p>
-            <p className="mt-1 text-[11.5px] text-ink-3">Allowed by the rules now: {r.allowed.map((a) => ACTION_LABEL[a] ?? a).join(" · ")}</p>
+            <p className="mt-1 text-[13.5px] text-ink-2">{r.actionReason}</p>
+            <p className="mt-2 text-[12.5px] text-ink-3">Allowed by the rules right now: {r.allowed.map((a) => ACTION_LABEL[a] ?? a).join(" · ")}</p>
           </div>
 
-          <div className="rounded-xl border border-white/[0.08] bg-black/20 p-3">
-            <h4 className="text-[13px] font-medium text-ink-2">Draft message to the resident (never sent automatically)</h4>
-            <p className="mt-2 whitespace-pre-wrap text-[13.5px] text-ink" lang={r.residentMessage.language}>{r.residentMessage.text}</p>
-            {r.residentMessage.language !== "en" && <p className="mt-2 text-[12px] text-ink-3">English: {r.residentMessage.englishGloss}</p>}
-            <button type="button" className="mt-2 text-[12.5px] text-accent-strong underline-offset-2 hover:underline" onClick={() => navigator.clipboard?.writeText(r.residentMessage.text).then(() => toast({ tone: "success", title: "Message copied" }))}>Copy message</button>
-          </div>
+          <figure className="rounded-md border border-line bg-surface p-4">
+            <figcaption className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[13.5px] font-semibold text-ink">Draft message to the resident</span>
+              <span className="text-[12px] text-ink-3">Never sent automatically</span>
+            </figcaption>
+            <blockquote className="mt-3 whitespace-pre-wrap border-l-2 border-sun pl-4 text-[15px] leading-relaxed text-ink" lang={r.residentMessage.language}>{r.residentMessage.text}</blockquote>
+            {r.residentMessage.language !== "en" && <p className="mt-2 pl-4 text-[12.5px] text-ink-3">In English: {r.residentMessage.englishGloss}</p>}
+            <Button variant="ghost" size="sm" className="mt-2" onClick={() => navigator.clipboard?.writeText(r.residentMessage.text).then(() => toast({ tone: "success", title: "Message copied" }))}>Copy message</Button>
+          </figure>
         </div>
       )}
     </section>

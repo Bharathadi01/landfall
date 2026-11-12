@@ -92,7 +92,7 @@ export function PayPalMoneyPathExplorer() {
 
   return (
     <div className="glass p-5 space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.07] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/[0.07] pb-3">
         <div>
           <span className="text-xs font-mono font-bold uppercase tracking-wider text-paypal flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-paypal"></span>
@@ -110,11 +110,11 @@ export function PayPalMoneyPathExplorer() {
       <div className="note" data-tone="amber" role="note" data-testid="money-path-replay-notice">
         <span className="note-label">Replay storyline</span>
         An illustrated sequence from the Hurricane Milton 2024 replay (fictional people, dates and batch). It shows how a payment is traced, not this fund’s payments or verified evidence.
-        {source === "live" ? " Your real PayPal Sandbox payments, with PayPal’s own statuses, are in the Cases tab." : ""}
+        {source === "live" ? " Your real PayPal Sandbox payments, with PayPal’s own statuses, are in the Payments tab." : ""}
       </div>
 
       {/* Interactive Horizontal Lifecycle Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2">
         {nodes.map((n) => {
           const isSelected = n.step === activeStep;
           let badgeColor = "bg-surface-3 text-ink-2 border-line";
@@ -130,47 +130,47 @@ export function PayPalMoneyPathExplorer() {
               className={`p-2.5 rounded-lg border text-left transition-all relative ${
                 isSelected
                   ? "border-paypal bg-surface-3/90 shadow-md ring-1 ring-paypal/50"
-                  : "border-white/[0.07] bg-surface/50 hover:bg-surface-3/40"
+                  : "border-ink/[0.07] bg-surface/50 hover:bg-surface-3/40"
               }`}
             >
-              <div className="flex items-center justify-between text-[10px] font-mono text-ink-2">
-                <span>Stage {n.step}</span>
-                <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold border ${badgeColor}`}>
+              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[10px] font-mono text-ink-2">
+                <span className="whitespace-nowrap">Stage {n.step}</span>
+                <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border whitespace-nowrap ${badgeColor}`}>
                   {n.status}
                 </span>
               </div>
-              <div className="text-xs font-bold text-white mt-1 truncate">{n.label}</div>
-              <div className="text-[10px] text-ink-2 truncate">{n.sublabel}</div>
+              <div className="text-xs font-bold text-ink mt-1.5 leading-snug">{n.label}</div>
+              <div className="text-[10px] text-ink-2 leading-snug">{n.sublabel}</div>
             </button>
           );
         })}
       </div>
 
       {/* Selected Node Forensic Card */}
-      <div className="p-4 bg-surface rounded-xl border border-white/[0.07] space-y-3 font-mono text-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.07]/60 pb-2">
-          <div>
+      <div className="p-4 bg-surface rounded-xl border border-ink/[0.07] space-y-3 font-mono text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-ink/[0.07]/60 pb-2">
+          <div className="min-w-0">
             <span className="text-ink-2">Stage {currentNode.step}: </span>
-            <span className="text-white font-bold">{currentNode.label}</span>
-            <span className="text-ink-2 ml-2">({currentNode.sublabel})</span>
+            <span className="text-ink font-bold">{currentNode.label}</span>
+            <span className="text-ink-2 ml-2 whitespace-nowrap">({currentNode.sublabel})</span>
           </div>
           <span className="text-ink-2 text-[11px]">{currentNode.timestamp}</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="p-2.5 bg-surface-2 rounded border border-white/[0.07] space-y-1">
+          <div className="p-2.5 bg-surface-2 rounded border border-ink/[0.07] space-y-1">
             <span className="text-[10px] text-ink0 uppercase tracking-wider block">Reference Identifier</span>
             <span className="text-paypal font-bold break-all block">{currentNode.referenceId}</span>
           </div>
           {currentNode.amountFormatted && (
-            <div className="p-2.5 bg-surface-2 rounded border border-white/[0.07] space-y-1">
+            <div className="p-2.5 bg-surface-2 rounded border border-ink/[0.07] space-y-1">
               <span className="text-[10px] text-ink0 uppercase tracking-wider block">Transacted Amount</span>
               <span className="text-delivered font-bold block">{currentNode.amountFormatted}</span>
             </div>
           )}
         </div>
 
-        <div className="p-2.5 bg-surface-2/80 rounded border border-white/[0.07] space-y-1 font-sans text-xs leading-relaxed text-ink-2">
+        <div className="p-2.5 bg-surface-2/80 rounded border border-ink/[0.07] space-y-1 font-sans text-xs leading-relaxed text-ink-2">
           <span className="text-[10px] font-mono text-ink-2 uppercase tracking-wider block">Auditable Trace</span>
           {currentNode.details}
         </div>

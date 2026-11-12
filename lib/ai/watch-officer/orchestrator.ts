@@ -16,6 +16,7 @@ import {
   executeGroqWatchOfficerSession,
   GroqProviderError,
   GROQ_FREE_MODEL,
+  modelLadder,
 } from "./groq-client";
 
 const SYSTEM_PROMPT = `You are the Landfall Watch Officer, an AI operational intelligence copilot for community disaster relief finance built on PayPal.
@@ -133,24 +134,35 @@ Analyze the verified evidence and synthesize structured operational intelligence
   const groqKey = process.env.GROQ_API_KEY;
 
   if (useLiveModel && (groqKey || groqClient)) {
-    try {
-      const sessionResult = await executeGroqWatchOfficerSession({
-        context,
-        apiKey: groqKey,
-        groqClient,
-      });
-
-      rawAnalysis = sessionResult.rawAnalysis;
-      modelName = sessionResult.modelUsed;
-    } catch (err: any) {
-      console.warn(
-        `[WATCH_OFFICER] Groq Free Plan inference unavailable (${err?.code || err?.message || "error"}: ${String(err?.message ?? "").slice(0, 600)}), falling back to deterministic template.`
-      );
+    // Try every allowed model before giving up: gpt-oss-120b and gpt-oss-20b have SEPARATE rate-limit buckets on Groq's free tier,
+    // so one being busy (429), slow (timeout) or answering badly (output fails validation) should not turn the briefing into
+    // the offline template while the other model is free. The labelled offline template is the last resort, with the reason.
+    const ladder = modelLadder();
+    const failures: string[] = [];
+    let live: Awaited<ReturnType<typeof executeGroqWatchOfficerSession>> | null = null;
+    for (const m of ladder) {
+      const last = ladder.indexOf(m) === ladder.length - 1;
+      try {
+        // earlier rungs give up on a 429 at once and hand over to the other model (its own bucket); the last rung waits for the reset
+        live = await executeGroqWatchOfficerSession({ context, apiKey: groqKey, groqClient, model: m, rateLimitAttempts: last ? 2 : 1 });
+        break;
+      } catch (err: any) {
+        const code = String(err?.code || "UNAVAILABLE");
+        failures.push(`${m.replace("openai/", "")}: ${code}`);
+        console.warn(`[WATCH_OFFICER] ${m} unavailable (${code}: ${String(err?.message ?? "").slice(0, 300)})${ladder.indexOf(m) < ladder.length - 1 ? ", trying the next model" : ", falling back to the deterministic template"}.`);
+        if (code === "MISSING_API_KEY") break;
+      }
+    }
+    if (live) {
+      rawAnalysis = live.rawAnalysis;
+      modelName = live.modelUsed;
+      if (failures.length) rawAnalysis.warnings = [...(rawAnalysis.warnings || []), `[MODEL_FALLBACK] Answered by ${live.modelUsed.replace("groq/", "")} after ${failures.join(", ")}.`];
+    } else {
       rawAnalysis = generateDeterministicTemplateAnalysis(context, evidence, userQuery);
       modelName = `${GROQ_FREE_MODEL} (OFFLINE_FALLBACK)`;
       rawAnalysis.warnings = [
         ...(rawAnalysis.warnings || []),
-        `[OFFLINE_FALLBACK] Groq Free Plan inference unavailable (${err?.code || "UNAVAILABLE"}). Operating via deterministic offline engine.`,
+        `[OFFLINE_FALLBACK] The AI could not answer (${failures.join("; ") || "UNAVAILABLE"}). This is the deterministic offline template, not a model. ${/RATE_LIMITED/.test(failures.join()) ? "Groq's free tier is rate limiting: try again in about a minute." : "Try again."}`,
       ];
     }
   } else {

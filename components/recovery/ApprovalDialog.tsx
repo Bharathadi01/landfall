@@ -102,7 +102,7 @@ export function ApprovalDialog({ proposal, me, open, onClose, onChanged }: { pro
   const status = proposal.status;
   return (
     <Dialog open={open} onClose={onClose} title="Two-person approval" description="Two different people must approve this exact action, one of them from Finance. The server checks each approval; this page only reports what it says.">
-      <div className="rounded-2xl border border-white/[0.07] bg-black/25 p-4" data-testid="proposal-summary">
+      <div className="rounded-2xl border border-ink/[0.07] bg-ink/[0.04] p-4" data-testid="proposal-summary">
         <div className="text-[13px] text-ink-2">{info.title}</div>
         <div className="mt-1 flex items-baseline justify-between gap-3">
           <span className="text-[28px] font-semibold tabular text-accent-strong">{info.usd}</span>
@@ -148,7 +148,7 @@ export function ApprovalDialog({ proposal, me, open, onClose, onChanged }: { pro
           >
             <label className="text-[12.5px] text-ink-2">
               Demo approval PIN <span className="text-ink-3">(on the judge card; labelled demo key)</span>
-              <input value={pin} onChange={(e) => setPin(e.target.value)} inputMode="numeric" autoComplete="off" className="mt-1 block w-44 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[14px] text-ink" data-testid="demo-pin" />
+              <input value={pin} onChange={(e) => setPin(e.target.value)} inputMode="numeric" autoComplete="off" className="mt-1 block w-44 rounded-lg border border-ink/10 bg-ink/[0.04] px-3 py-2 text-[14px] text-ink" data-testid="demo-pin" />
             </label>
             <button type="submit" disabled={busy || pin.length < 4} className="field-btn field-btn-secondary" data-testid="approve-pin">Approve with demo key</button>
           </form>

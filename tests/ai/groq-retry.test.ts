@@ -27,8 +27,8 @@ describe("Groq 429 retry", () => {
 
   it("caps the wait and understands retry-after and minute-second reset formats", () => {
     expect(retryDelayMs(rateLimited({ "retry-after": "3" }), 0)).toBe(3000);
-    expect(retryDelayMs(rateLimited({ "retry-after": "120" }), 0)).toBe(8000);
-    expect(retryDelayMs(rateLimited({ "x-ratelimit-reset-tokens": "1m26.4s" }), 0)).toBe(8000);
+    expect(retryDelayMs(rateLimited({ "retry-after": "120" }), 0)).toBe(12000);
+    expect(retryDelayMs(rateLimited({ "x-ratelimit-reset-tokens": "1m26.4s" }), 0)).toBe(12000);
     expect(retryDelayMs(rateLimited({ "x-ratelimit-reset-tokens": "727ms" }), 0)).toBe(1027);
     expect(retryDelayMs(rateLimited(), 0)).toBe(1500);
   });

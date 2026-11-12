@@ -1,7 +1,8 @@
 "use client";
 
 
-import { PageTitle } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/ui/primitives";
+import { Button } from "@/components/ui/Button";
 import { I } from "@/components/icons";
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
@@ -139,77 +140,32 @@ export default function GoldenWorkflowPage() {
 
   return (
     <div className="space-y-6">
-      {/* Editorial Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-8">
-        <PageTitle
-          eyebrow="Guided Response · 8 steps"
-          icon={I.flow}
-          tone="accent"
-          title="From donation to doorstep,"
-          accent="one step at a time."
-          description="Rehearse the whole Milton response: money in, storm warning, who gets paid, AI check, two approvals, PayPal payout and proof. This is a safe rehearsal — no PayPal request is made. Real payouts are sent from a case, after two real approvals."
-        />
-
-        {/* Action Controls & Presentation Jump Menu */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Jump to stage dropdown */}
-          <select
-            value={selectedStage}
-            onChange={(e) => setSelectedStage(Number(e.target.value))}
-            className="field-input text-xs py-2 px-3 font-medium bg-surface cursor-pointer"
-            aria-label="Jump to workflow stage"
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-              <option key={num} value={num}>
-                Stage {num}: {STAGE_METADATA[num]?.name}
-              </option>
-            ))}
-          </select>
-
-          <button
-            onClick={() => runWorkflow(1)}
-            disabled={loading}
-            className="field-btn field-btn-secondary text-xs flex items-center gap-1.5"
-            title="Reset to Stage 1"
-          >
-            <I.retry className="w-3.5 h-3.5 text-ink-2" />
-            Restart
-          </button>
-
-          <button
-            onClick={() => runWorkflow(currentStep >= 1 && currentStep < 8 ? currentStep + 1 : 1)}
-            disabled={loading}
-            className="field-btn field-btn-secondary text-xs flex items-center gap-1.5 font-medium"
-          >
-            {loading ? (
-              "Advancing..."
-            ) : (
-              <>
-                <span>Next step</span>
-                <I.arrowRight className="w-3.5 h-3.5" />
-              </>
-            )}
-          </button>
-
-          <button
-            onClick={() => runWorkflow(8)}
-            disabled={loading}
-            className="field-btn field-btn-primary text-xs flex items-center gap-1.5"
-          >
-            <I.bolt className="w-3.5 h-3.5" />
-            {loading ? "Running…" : "Rehearse all 8 steps"}
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Decide and pay · Guided Response · a safe rehearsal"
+        title="From donation to doorstep,"
+        accent="one step at a time."
+        description="Rehearse the whole Milton response: money in, the warning, who gets paid, the AI check, two approvals, the PayPal payout and the proof. No PayPal request is made here; real payouts are sent from a case, after two real approvals."
+        actions={
+          <>
+            <Button variant="ghost" onClick={() => runWorkflow(1)} disabled={loading} leading={<I.retry className="h-4 w-4" />}>Restart</Button>
+            <Button variant="glass" onClick={() => runWorkflow(currentStep >= 1 && currentStep < 8 ? currentStep + 1 : 1)} disabled={loading}>
+              {loading ? "Advancing…" : "Next step"}
+            </Button>
+            <Button variant="signal" onClick={() => runWorkflow(8)} loading={loading} leading={<I.play className="h-4 w-4" />}>
+              {loading ? "Running…" : "Rehearse all 8 steps"}
+            </Button>
+          </>
+        }
+      />
 
       {error && (
-        <div className="note" data-tone="danger" role="alert"><span className="note-label">Pipeline Exception</span>{error}</div>
+        <div className="note" data-tone="danger" role="alert"><span className="note-label">The rehearsal stopped</span>{error}</div>
       )}
 
       {/* 8-step pipeline */}
-      <div className="glass p-3" data-reveal>
-        <div className="mb-3 flex items-center justify-between px-1.5 text-[12px] text-ink-3">
-          <span>Tap a step — or use ← → — to see what happened and the evidence behind it</span>
+      <div className="pane p-3">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1.5 text-[12.5px] text-ink-3">
+          <span>Choose a step, or use <kbd className="kbd">←</kbd> <kbd className="kbd">→</kbd>, to see what happened and the evidence behind it</span>
           <span className="tabular">
             <span className="text-ink">{completedCount}</span> of 8 complete
           </span>
@@ -229,12 +185,12 @@ export default function GoldenWorkflowPage() {
                 key={stageNum}
                 onClick={() => setSelectedStage(stageNum)}
                 aria-current={isSelected ? "step" : undefined}
-                className={`group relative flex flex-col gap-3 rounded-2xl border p-3 text-left transition-all duration-300 ${
+                className={`group relative flex flex-col gap-3 rounded-md border p-3 text-left transition-colors duration-300 ${
                   isSelected
-                    ? "border-white/20 bg-white/[0.08] shadow-[0_0_0_1px_rgb(255_255_255/0.06),0_12px_30px_-12px_rgb(0_0_0/0.8)]"
+                    ? "border-accent bg-accent-soft/60 ring-2 ring-accent/15"
                     : isPassed
-                    ? "border-white/[0.06] bg-white/[0.025] hover:bg-white/[0.05]"
-                    : "border-white/[0.05] bg-transparent opacity-55 hover:opacity-80"
+                    ? "border-line bg-surface hover:border-line-strong"
+                    : "border-line bg-surface-2/40 text-ink-3 hover:border-line-strong"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -246,25 +202,25 @@ export default function GoldenWorkflowPage() {
                   ) : isFailed ? (
                     <I.warning className="h-4 w-4 text-danger" />
                   ) : (
-                    <span className="font-mono text-[10px] text-ink-3">0{stageNum}</span>
+                    <span className="text-[11.5px] font-semibold tabular text-ink-3">{stageNum}</span>
                   )}
                 </div>
                 <div>
                   <div className="text-[13px] font-semibold leading-tight text-ink">{metaInfo?.name || `Stage ${stageNum}`}</div>
-                  <div className={`mt-1 text-[11px] ${isPassed ? "text-ink-3" : isFailed ? "text-danger" : "text-amber"}`}>
-                    {isPassed ? (stageData?.durationMs != null ? `Done · ${(stageData.durationMs / 1000).toFixed(1)}s` : "Done") : isFailed ? "Failed" : workflow ? "Not reached" : "Ready"}
+                  <div className={`mt-1 text-[12px] ${isPassed ? "text-delivered" : isFailed ? "text-danger" : "text-ink-3"}`}>
+                    {isPassed ? (stageData?.durationMs != null ? `Done · ${(stageData.durationMs / 1000).toFixed(1)} s` : "Done") : isFailed ? "Failed" : workflow ? "Not reached" : "Not started"}
                   </div>
                 </div>
               </button>
             );
           })}
         </div>
-        <div className="mx-1.5 mt-3 h-1 overflow-hidden rounded-full bg-white/[0.05]">
+        <div className="mx-1.5 mt-3 h-1 overflow-hidden rounded-full bg-ink/[0.05]">
           <div
             className="h-full rounded-full transition-[width] duration-700 ease-[cubic-bezier(.16,1,.3,1)]"
             style={{
               width: `${(completedCount / 8) * 100}%`,
-              background: "linear-gradient(90deg, rgb(var(--c-paypal)), rgb(var(--c-amber)), rgb(var(--c-storm)), rgb(var(--c-accent)), rgb(var(--c-ai)), rgb(var(--c-paypal)))",
+              background: "rgb(var(--c-accent))",
             }}
           />
         </div>

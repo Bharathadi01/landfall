@@ -37,7 +37,7 @@ export function PayoutHealthWidget({
 
   return (
     <div className="glass p-5">
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
+      <div className="flex items-center justify-between pb-3 border-b border-ink/[0.07]">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-delivered0" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">

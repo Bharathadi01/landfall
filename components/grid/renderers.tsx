@@ -30,7 +30,7 @@ export function StageCell({ data, value }: { data?: { stageKey: StageKey; stages
               "h-2 w-2 rounded-full transition-colors duration-500",
               data.stagesReached[s.key as StageKey]
                 ? s.key === "CREDITED" ? "bg-paypal" : s.key === "CONFIRMED" || s.key === "CLOSED" ? "bg-delivered" : "bg-ink-2"
-                : "bg-white/12"
+                : "bg-ink/12"
             )}
           />
         ))}
@@ -44,7 +44,7 @@ export function EvidenceCell({ data, value }: { data?: { evidencePct: number }; 
   if (!data) return null;
   return (
     <span className="inline-flex items-center gap-2">
-      <span className="h-1.5 w-14 overflow-hidden rounded-full bg-white/10">
+      <span className="h-1.5 w-14 overflow-hidden rounded-full bg-ink/10">
         <span className={cn("block h-full rounded-full", data.evidencePct === 100 ? "bg-delivered" : "bg-amber")} style={{ width: `${data.evidencePct}%` }} />
       </span>
       <span className="tabular text-[12px] text-ink-2">{value}</span>
@@ -64,7 +64,7 @@ export function CaseTooltip(params: { data?: { _case?: any } }) {
       <div className="eyebrow mb-1.5">Why this action</div>
       <p className="text-ink-2">{c.nextAction.reason || c.nextAction.plain}</p>
       {c.priority.reasons.length > 0 && (
-        <ul className="mt-2.5 space-y-1 border-t border-white/10 pt-2.5">
+        <ul className="mt-2.5 space-y-1 border-t border-ink/10 pt-2.5">
           {c.priority.reasons.slice(0, 4).map((r: { label: string; points: number }) => (
             <li key={r.label} className="flex justify-between gap-4 text-ink-2">
               <span>{r.label}</span>

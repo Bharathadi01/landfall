@@ -56,7 +56,7 @@ export function ReserveGuardrailWidget(props: any) {
   }, [widgetApi, reserveField, totalField]);
 
   const isCompliant = data.headroom >= 0;
-  const statusColor = isCompliant ? "#6FD49A" : "#FF3B4E";
+  const statusColor = isCompliant ? "#268C54" : "#B42318";
   const pctFloor = 30;
   const currentPct = Math.min(100, Math.max(0, data.ratio));
   const fmt = (n: number) => "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
@@ -71,20 +71,20 @@ export function ReserveGuardrailWidget(props: any) {
         height: "100%",
         padding: "8px 12px",
         fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
-        color: "#F3EFE8",
+        color: "#18221E",
       }}
     >
       {/* Top Header Row */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
         <div>
-          <div style={{ fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "#8A847B", fontFamily: "var(--font-geist-mono)" }}>
+          <div style={{ fontSize: 12, color: "#525A56", fontFamily: "var(--font-geist-sans)" }}>
             Protected Reserve vs 30% Floor
           </div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 2 }}>
-            <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.03em", color: "#FFB020" }}>
+            <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.03em", color: "#B07012" }}>
               {fmt(data.reserve)}
             </span>
-            <span style={{ fontSize: 13, color: "#B9B3AA" }}>
+            <span style={{ fontSize: 13, color: "#343D39" }}>
               ({data.ratio.toFixed(1)}% of total {fmt(data.total)})
             </span>
           </div>
@@ -111,9 +111,9 @@ export function ReserveGuardrailWidget(props: any) {
 
       {/* Segmented Meter Bar with Threshold Marker */}
       <div style={{ margin: "14px 0 8px 0" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#8A847B", marginBottom: 6 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#525A56", marginBottom: 6 }}>
           <span>0%</span>
-          <span style={{ color: "#FFB020", fontWeight: 600 }}>Policy floor: 30% ({fmt(data.requiredFloor)})</span>
+          <span style={{ color: "#B07012", fontWeight: 600 }}>Policy floor: 30% ({fmt(data.requiredFloor)})</span>
           <span>100%</span>
         </div>
 
@@ -121,7 +121,7 @@ export function ReserveGuardrailWidget(props: any) {
           style={{
             position: "relative",
             height: 12,
-            background: "rgba(255, 255, 255, 0.08)",
+            background: "rgba(24,34,30,0.08)",
             borderRadius: 6,
             overflow: "visible",
           }}
@@ -134,7 +134,7 @@ export function ReserveGuardrailWidget(props: any) {
               top: 0,
               bottom: 0,
               width: `${currentPct}%`,
-              background: `linear-gradient(90deg, #FFB020 0%, ${statusColor} 100%)`,
+              background: `linear-gradient(90deg, #B07012 0%, ${statusColor} 100%)`,
               borderRadius: 6,
               transition: "width 600ms cubic-bezier(0.16, 1, 0.3, 1)",
               boxShadow: `0 0 10px ${statusColor}44`,
@@ -149,9 +149,9 @@ export function ReserveGuardrailWidget(props: any) {
               top: -4,
               bottom: -4,
               width: 3,
-              background: "#F3EFE8",
+              background: "#18221E",
               borderRadius: 2,
-              boxShadow: "0 0 6px rgba(0,0,0,0.6)",
+              boxShadow: "0 0 6px rgba(24,34,30,0.25)",
               zIndex: 2,
             }}
           />
@@ -164,29 +164,29 @@ export function ReserveGuardrailWidget(props: any) {
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
           gap: 8,
-          background: "rgba(255, 255, 255, 0.025)",
-          border: "1px solid rgba(255, 255, 255, 0.06)",
+          background: "rgba(24,34,30,0.025)",
+          border: "1px solid rgba(24,34,30,0.06)",
           borderRadius: 8,
           padding: "6px 10px",
         }}
       >
         <div>
-          <div style={{ fontSize: 9.5, color: "#8A847B", textTransform: "uppercase" }}>Required Floor</div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#F3EFE8" }}>{fmt(data.requiredFloor)}</div>
+          <div style={{ fontSize: 9.5, color: "#525A56", textTransform: "uppercase" }}>Required Floor</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#18221E" }}>{fmt(data.requiredFloor)}</div>
         </div>
         <div>
-          <div style={{ fontSize: 9.5, color: "#8A847B", textTransform: "uppercase" }}>Current Headroom</div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: data.headroom >= 0 ? "#8FE4B3" : "#FF3B4E" }}>
+          <div style={{ fontSize: 9.5, color: "#525A56", textTransform: "uppercase" }}>Current Headroom</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: data.headroom >= 0 ? "#0E6B50" : "#B42318" }}>
             {data.headroom >= 0 ? "+" : "−"}{fmt(Math.abs(data.headroom))}
           </div>
         </div>
         <div>
-          <div style={{ fontSize: 9.5, color: "#8A847B", textTransform: "uppercase" }}>Policy Rule</div>
-          <div style={{ fontSize: 12, fontWeight: 500, color: "#B9B3AA" }}>Deterministic 30%</div>
+          <div style={{ fontSize: 9.5, color: "#525A56", textTransform: "uppercase" }}>Policy Rule</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: "#343D39" }}>Deterministic 30%</div>
         </div>
         <div>
-          <div style={{ fontSize: 9.5, color: "#8A847B", textTransform: "uppercase" }}>Last Calculation</div>
-          <div style={{ fontSize: 11, fontFamily: "var(--font-geist-mono)", color: "#CFC9BF" }}>18:30:00 UTC (Replay)</div>
+          <div style={{ fontSize: 9.5, color: "#525A56", textTransform: "uppercase" }}>Last Calculation</div>
+          <div style={{ fontSize: 11, fontFamily: "var(--font-geist-sans)", color: "#343D39" }}>18:30:00 UTC (Replay)</div>
         </div>
       </div>
     </div>

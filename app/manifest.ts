@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Landfall — Cash Before the Storm",
+    name: "Landfall — Relief that lands before the storm",
     short_name: "Landfall",
     description: "Anticipatory emergency mutual aid powered by PayPal.",
-    start_url: "/enroll",
+    start_url: "/",
     display: "standalone",
-    background_color: "#041633",
-    theme_color: "#0B3D91",
+    background_color: "#F6F3EC",
+    theme_color: "#0E6B50",
     icons: [
       {
         src: "/icon-192.png",

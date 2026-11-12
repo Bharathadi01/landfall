@@ -1,67 +1,76 @@
 /**
- * LANDFALL · "BROADCAST WEATHER DESK" DESIGN TOKENS
+ * LANDFALL · DESIGN TOKENS — "refuge"
  *
- * Warm graphite canvas, flat quiet panes. A CALM palette: neutrals do the work; colour is rare and always means something.
- *   accent    (flare orange) → the ONE action / "you are here" colour
- *   delivered (green)        → status only: delivered, done, safe
- *   amber                    → status only: caution, pending, waiting
- *   danger    (red)          → status only: failure / blocked
- * money / paypal / ai / storm are deliberately NEUTRAL (same as body ink): they used to be gold, blue, ice and magenta, which
- * made every screen a rainbow. Hierarchy now comes from size, weight and whitespace, not hue.
+ * Landfall exists to help, so the interface is built from the visual language of help, not of alarm:
+ *
+ *   canvas    warm paper      The ground is light and warm, like the forms, maps and notices that relief work runs on and that are
+ *                             handed across a table. Light reads as open and hopeful; a dark "situation room" reads as threat.
+ *   accent    refuge green    The green of every first-aid and emergency-exit sign (ISO 7010 "safe condition"): internationally it
+ *                             means "this way to safety, help is here". It marks the one thing you can do on a screen, and the brand.
+ *   sun       sunrise yellow  The morning after the storm. Used sparingly: the logo, and moments of hope. Never a status.
+ *
+ * Status colours answer one question each and never mean anything else:
+ *   delivered leaf green      "it reached them" (a family has the money, or a step is truly done)
+ *   amber     amber           "waiting on someone": pending, unclaimed, needs a person. Never a failure.
+ *   danger    brick red       "it failed or is blocked". Rare on purpose, so it is never ignored.
+ *   paypal    PayPal blue     "PayPal says so": facts that come from PayPal's own records.
+ * AI output carries no colour: it is drawn as a DRAFT (a dashed edge), because that is what it is — advice for a person.
  *
  * Channels are space-separated RGB so Tailwind can apply alpha: rgb(var(--c-ink) / 0.6)
  */
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* ── Surfaces (warm graphite, never navy) ─────────────── */
-  --c-canvas: 10 10 12;        /* #0A0A0C page */
-  --c-surface: 20 19 22;       /* #141316 pane */
-  --c-surface-2: 28 27 31;     /* #1C1B1F inset / hover */
-  --c-surface-3: 38 36 41;     /* #262429 pressed / track */
-  --c-line: 44 42 47;          /* #2C2A2F hairline */
-  --c-line-strong: 66 63 70;   /* #423F46 */
+  /* ── Surfaces: warm paper ─────────────────────────────── */
+  --c-canvas: 246 243 236;     /* #F6F3EC page: linen paper */
+  --c-surface: 255 255 255;    /* #FFFFFF card */
+  --c-surface-2: 240 236 227;  /* #F0ECE3 inset / hover */
+  --c-surface-3: 230 225 214;  /* #E6E1D6 pressed / track */
+  --c-line: 225 219 207;       /* #E1DBCF hairline */
+  --c-line-strong: 176 167 150;/* #B0A796 — control borders read clearly on paper */
 
-  /* ── Ink (warm paper white) ───────────────────────────── */
-  --c-ink: 243 239 232;        /* #F3EFE8 */
-  --c-ink-2: 185 179 170;      /* #B9B3AA */
-  --c-ink-3: 138 132 123;      /* #8A847B — 5.3:1 on canvas */
-  --c-on-accent: 32 12 0;      /* text on bright fills */
+  /* ── Ink: deep evergreen-black, warm ──────────────────── */
+  --c-ink: 24 34 30;           /* #18221E */
+  --c-ink-2: 52 61 57;         /* #343D39 — 10:1 on paper */
+  --c-ink-3: 82 90 86;         /* #525A56 — 6.6:1 on paper: secondary text stays easy to read */
+  --c-on-accent: 255 255 255;  /* text on refuge green */
 
   /* ── Meaning ──────────────────────────────────────────── */
-  --c-accent: 255 107 44;      /* #FF6B2C flare */
-  --c-accent-strong: 255 144 92;
-  --c-accent-soft: 46 20 10;
-  --c-accent-line: 120 52 22;
+  --c-accent: 14 107 80;       /* #0E6B50 refuge green — the way to safety */
+  --c-accent-strong: 10 86 64; /* #0A5640 for text and hover */
+  --c-accent-soft: 225 240 233;
+  --c-accent-line: 150 196 176;
 
-  --c-money: 231 225 215;       /* #F2C14E gold */
-  --c-money-soft: 28 27 31;
-  --c-money-line: 66 63 70;
+  --c-sun: 232 163 61;         /* #E8A33D sunrise */
 
-  --c-delivered: 111 212 154;  /* #6FD49A */
-  --c-delivered-soft: 12 38 26;
-  --c-delivered-line: 30 96 64;
+  --c-money: 24 34 30;         /* dollars read as ink */
+  --c-money-soft: 240 236 227;
+  --c-money-line: 200 192 177;
 
-  --c-paypal: 231 225 215;      /* #4C9BFF */
-  --c-paypal-soft: 28 27 31;
-  --c-paypal-line: 66 63 70;
+  --c-delivered: 38 140 84;    /* #268C54 leaf green — reached the family */
+  --c-delivered-soft: 226 242 231;
+  --c-delivered-line: 150 205 172;
 
-  --c-ai: 231 225 215;         /* #8EE3F5 ice */
-  --c-ai-soft: 28 27 31;
-  --c-ai-line: 66 63 70;
+  --c-paypal: 0 94 184;        /* #005EB8 — PayPal says so */
+  --c-paypal-soft: 226 236 249;
+  --c-paypal-line: 150 184 226;
 
-  --c-amber: 255 176 32;       /* #FFB020 */
-  --c-amber-soft: 44 30 8;
-  --c-amber-line: 108 72 12;
+  --c-ai: 70 80 75;            /* neutral: AI is shown as a draft, not a colour */
+  --c-ai-soft: 240 236 227;
+  --c-ai-line: 200 192 177;
 
-  --c-storm: 231 225 215;       /* #FF4FA3 */
-  --c-storm-soft: 28 27 31;
-  --c-storm-line: 66 63 70;
+  --c-amber: 176 112 18;       /* #B07012 — waiting on someone (dark enough for text) */
+  --c-amber-soft: 251 239 214;
+  --c-amber-line: 230 196 132;
 
-  --c-danger: 255 59 78;       /* #FF3B4E */
-  --c-danger-soft: 50 14 20;
-  --c-danger-line: 124 30 42;
+  --c-storm: 70 80 75;
+  --c-storm-soft: 240 236 227;
+  --c-storm-line: 200 192 177;
+
+  --c-danger: 180 35 24;       /* #B42318 */
+  --c-danger-soft: 252 231 228;
+  --c-danger-line: 236 170 162;
 
   /* ── Legacy variable names (kept so existing CSS keeps working) ── */
   --canvas: rgb(var(--c-canvas));
@@ -102,11 +111,11 @@
   --status-neutral-border: rgb(var(--c-line-strong));
 
   /* ── Glass (warm-tinted, specular) ────────────────────── */
-  --glass-fill: linear-gradient(180deg, rgb(255 244 232 / 0.07) 0%, rgb(255 244 232 / 0.025) 100%);
-  --glass-fill-strong: linear-gradient(180deg, rgb(255 244 232 / 0.11) 0%, rgb(255 244 232 / 0.04) 100%);
-  --glass-border: rgb(255 244 232 / 0.09);
-  --glass-border-strong: rgb(255 244 232 / 0.16);
-  --glass-highlight: inset 0 1px 0 0 rgb(255 244 232 / 0.09);
+  --glass-fill: rgb(var(--c-surface));
+  --glass-fill-strong: rgb(var(--c-surface));
+  --glass-border: rgb(var(--c-line));
+  --glass-border-strong: rgb(var(--c-line-strong));
+  --glass-highlight: none;
   --glass-blur: 24px;
 
   /* ── Spacing (4px base) ───────────────────────────────── */
@@ -123,19 +132,22 @@
   --space-20: 80px;
   --space-24: 96px;
 
-  /* ── Radii (square-cornered: survey chart, not glass pill) ─ */
-  --radius-sm: 2px;
-  --radius-md: 3px;
-  --radius-lg: 4px;
-  --radius-xl: 6px;
+  /* ── Radii: gentle (curved contours read as safe), never pill-shaped ─ */
+  --radius-tag: 4px;
+  --radius-control: 6px;
+  --radius-pane: 8px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
   --radius-full: 9999px;
 
-  /* ── Elevation (warm black) ───────────────────────────── */
-  --shadow-subtle: 0 1px 2px rgb(0 0 0 / 0.45);
-  --shadow-card: 0 1px 0 0 rgb(255 244 232 / 0.05) inset, 0 14px 36px -14px rgb(0 0 0 / 0.7);
-  --shadow-raised: 0 1px 0 0 rgb(255 244 232 / 0.07) inset, 0 28px 64px -22px rgb(0 0 0 / 0.8);
-  --shadow-floating: 0 1px 0 0 rgb(255 244 232 / 0.1) inset, 0 36px 90px -26px rgb(0 0 0 / 0.9);
-  --glow-accent: 0 0 0 1px rgb(var(--c-accent) / 0.4), 0 8px 34px -6px rgb(var(--c-accent) / 0.5);
+  /* ── Elevation: soft, warm, low ──────────────────────── */
+  --shadow-subtle: 0 1px 2px rgb(60 48 30 / 0.06);
+  --shadow-card: 0 1px 2px rgb(60 48 30 / 0.05), 0 8px 24px -12px rgb(60 48 30 / 0.12);
+  --shadow-raised: 0 2px 4px rgb(60 48 30 / 0.06), 0 18px 40px -16px rgb(60 48 30 / 0.2);
+  --shadow-floating: 0 4px 10px rgb(60 48 30 / 0.08), 0 30px 70px -24px rgb(60 48 30 / 0.3);
+  --glow-accent: 0 0 0 3px rgb(var(--c-accent) / 0.2);
 
   /* ── Motion ───────────────────────────────────────────── */
   --duration-instant: 100ms;
@@ -153,4 +165,26 @@
     --duration-normal: 0ms;
     --duration-slow: 0ms;
   }
+}
+
+/* The map is a night instrument: satellite imagery and radar read best on dark glass. Anything inside `.theme-night`
+   (the Storm Desk globe and its HUD, the map beside the payments grid) uses these tokens instead. */
+.theme-night {
+  color-scheme: dark;
+  --c-canvas: 10 12 12;
+  --c-surface: 18 22 21;
+  --c-surface-2: 26 31 30;
+  --c-surface-3: 36 42 40;
+  --c-line: 44 52 50;
+  --c-line-strong: 70 80 77;
+  --c-ink: 240 242 238;
+  --c-ink-2: 186 194 190;
+  --c-ink-3: 140 150 146;
+  --c-accent: 52 168 126;
+  --c-accent-strong: 98 200 160;
+  --c-delivered: 111 212 154;
+  --c-amber: 255 190 80;
+  --c-danger: 255 99 99;
+  --c-paypal: 125 172 240;
+  color: rgb(var(--c-ink));
 }

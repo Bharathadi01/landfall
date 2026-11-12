@@ -107,7 +107,7 @@ export function WeatherIntelligencePanel({
           {onTriggerReplay && state !== "REPLAY" && (
             <button
               onClick={onTriggerReplay}
-              className="px-3.5 py-1.5 rounded-lg bg-amber hover:bg-amber0 text-[#17141a] text-xs font-bold shadow-md transition-colors flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-lg bg-amber hover:bg-amber0 text-[#FFFFFF] text-xs font-bold shadow-md transition-colors flex items-center gap-1.5"
             >
               <span>▶</span>
               <span>Replay Milton 2024</span>
@@ -172,7 +172,7 @@ export function WeatherIntelligencePanel({
             <div className="mt-2.5 p-3 rounded-lg bg-surface border border-line flex items-center gap-3">
               <span className="text-xl">{hasActiveAtlanticCyclone ? "🌀" : "🛡️"}</span>
               <div>
-                <p className="text-xs font-bold text-white tracking-wide">
+                <p className="text-xs font-bold text-ink tracking-wide">
                   {atlanticStatusMessage}
                 </p>
                 <p className="text-[11px] text-ink-2 mt-0.5">
@@ -185,7 +185,7 @@ export function WeatherIntelligencePanel({
           <div className="grid grid-cols-3 gap-2 text-center text-[11px] pt-2 border-t border-line">
             <div>
               <span className="text-ink-2 block">NWS Alerts</span>
-              <span className="font-bold text-white">{nwsAlerts.length} Active</span>
+              <span className="font-bold text-ink">{nwsAlerts.length} Active</span>
             </div>
             <div>
               <span className="text-ink-2 block">Tranche 1 Triggers</span>
@@ -207,7 +207,7 @@ export function WeatherIntelligencePanel({
               <span className="text-[11px] font-bold uppercase tracking-wider text-ink-2">
                 Official Surface Observation Station
               </span>
-              <h2 className="text-xs font-bold text-white mt-0.5">
+              <h2 className="text-xs font-bold text-ink mt-0.5">
                 {stationObservation.stationName} ({stationObservation.stationId})
               </h2>
             </div>
@@ -222,14 +222,14 @@ export function WeatherIntelligencePanel({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div className="p-2.5 rounded-lg bg-surface border border-line">
               <span className="text-ink-2 text-[11px] block">Condition</span>
-              <span className="font-bold text-white mt-0.5 block truncate">
+              <span className="font-bold text-ink mt-0.5 block truncate">
                 {stationObservation.description}
               </span>
             </div>
 
             <div className="p-2.5 rounded-lg bg-surface border border-line">
               <span className="text-ink-2 text-[11px] block">Temperature</span>
-              <span className="font-bold text-white mt-0.5 block">
+              <span className="font-bold text-ink mt-0.5 block">
                 {stationObservation.temperatureC !== null
                   ? `${stationObservation.temperatureC.toFixed(1)}°C / ${(
                       (stationObservation.temperatureC * 9) / 5 +
@@ -241,7 +241,7 @@ export function WeatherIntelligencePanel({
 
             <div className="p-2.5 rounded-lg bg-surface border border-line">
               <span className="text-ink-2 text-[11px] block">Wind Velocity</span>
-              <span className="font-bold text-white mt-0.5 block">
+              <span className="font-bold text-ink mt-0.5 block">
                 {stationObservation.windSpeedKmh !== null
                   ? `${stationObservation.windSpeedKmh.toFixed(0)} km/h`
                   : "Calm"}
@@ -251,7 +251,7 @@ export function WeatherIntelligencePanel({
 
             <div className="p-2.5 rounded-lg bg-surface border border-line">
               <span className="text-ink-2 text-[11px] block">Barometric Pressure</span>
-              <span className="font-bold text-white mt-0.5 block">
+              <span className="font-bold text-ink mt-0.5 block">
                 {stationObservation.barometricPressurePa !== null
                   ? `${(stationObservation.barometricPressurePa / 100).toFixed(1)} hPa`
                   : "N/A"}
@@ -276,7 +276,7 @@ export function WeatherIntelligencePanel({
                 <span className="text-[10px] text-ink-2 block font-mono">
                   {new Date(period.startTime).toLocaleTimeString([], { hour: "numeric" })}
                 </span>
-                <span className="text-xs font-bold text-white block mt-1">
+                <span className="text-xs font-bold text-ink block mt-1">
                   {period.temperature}°{period.temperatureUnit}
                 </span>
                 <span className="text-[10px] text-paypal block mt-0.5">

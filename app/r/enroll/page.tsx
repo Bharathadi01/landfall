@@ -59,8 +59,8 @@ interface I18nContent {
 
 const I18N_ENROLL: Record<string, I18nContent> = {
   en: {
-    title: "Community Storm Assistance",
-    subtitle: "Direct financial relief delivered before hurricane landfall.",
+    title: "Get help before the storm.",
+    subtitle: "Cash for your household, sent before the hurricane arrives. Signing up takes about five minutes, and your details stay private.",
     stepIndicator: "Step {step} of 5",
     step1Title: "Your Household & Address",
     step1Desc: "Tell us who you are and where your home is located so we can check storm warnings.",
@@ -513,7 +513,7 @@ export default function ResidentEnrollPage() {
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
-            className="field-input text-xs py-1.5 px-2.5 bg-surface font-medium"
+            className="field-input !w-auto min-w-[10.5rem] text-[13.5px] font-medium"
             aria-label="Select language"
           >
             <option value="en">English (EN)</option>

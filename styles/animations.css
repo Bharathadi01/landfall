@@ -46,7 +46,7 @@
 .field-interactive:active { transform: translateY(0); }
 
 /* GSAP reveal targets start hidden only when JS is ready (set by MotionProvider) */
-html.js-motion [data-reveal] { opacity: 0; }
+html.js-motion .reveal-scope [data-reveal] { opacity: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -55,6 +55,12 @@ html.js-motion [data-reveal] { opacity: 0; }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  html.js-motion [data-reveal] { opacity: 1 !important; }
+  html.js-motion .reveal-scope [data-reveal] { opacity: 1 !important; }
   .field-interactive:hover, .field-interactive:active { transform: none !important; }
 }
+
+/* Landing "on the clock": a step lights up when the reader reaches it */
+.clock-step.is-on .clock-node { border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent-strong)); }
+.clock-step.is-on .clock-time { color: rgb(var(--c-accent-strong)); }
+.clock-step.is-on .clock-title { color: rgb(var(--c-ink)); }
+html:not(.js-motion) .clock-title { color: rgb(var(--c-ink)); }

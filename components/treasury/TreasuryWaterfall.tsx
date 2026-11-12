@@ -117,8 +117,8 @@ export function TreasuryWaterfall({ initialData }: TreasuryWaterfallProps) {
         <div>
           <div className="flex items-center gap-3">
             <div className="h-3 w-3 rounded-full bg-delivered0 animate-ping" />
-            <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-              <span className="text-paypal">#0B3D91</span> Storm Treasury Waterfall
+            <h2 className="text-xl font-bold tracking-tight text-ink flex items-center gap-2">
+              <span className="text-paypal">#005EB8</span> Storm Treasury Waterfall
             </h2>
           </div>
           <p className="text-xs text-ink-2 mt-1">
@@ -151,7 +151,7 @@ export function TreasuryWaterfall({ initialData }: TreasuryWaterfallProps) {
             <div className="text-[11px] font-semibold uppercase tracking-wider text-paypal">
               1. PayPal Available
             </div>
-            <div className="text-2xl font-bold text-white mt-1">
+            <div className="text-2xl font-bold text-ink mt-1">
               {formatCents(paypalAvailableCents)}
             </div>
           </div>

@@ -1,95 +1,32 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { gsap } from "gsap";
-import { I, type IconType } from "@/components/icons";
+import { I } from "@/components/icons";
 import { LandfallMark, LandfallWordmark } from "@/components/brand/LandfallMark";
-import { MEANING, MeaningDot, type Tone } from "@/components/ui/primitives";
 import { Button } from "@/components/ui/Button";
-import { Tag } from "@/components/ui/Tag";
-import { LiveClock } from "@/components/ui/LiveClock";
 import { SessionChip } from "@/components/auth/SessionChip";
 import { DataSourceProvider, useCases } from "@/components/data/DataSourceProvider";
 import { SourceSwitch } from "@/components/data/SourceSwitch";
-import { IncidentBug, SidebarIncident } from "@/components/data/IncidentBug";
+import { SidebarIncident } from "@/components/data/IncidentBug";
+import { FLOW, flowPage, flowStage, nextFlowPage } from "./flow";
 
 type Variant = "PUBLIC" | "OPERATIONS" | "RESIDENT";
 
-interface NavItem {
-  label: string;
-  href: string;
-  icon: IconType;
-  tone: Tone;
-  hint: string;
-  tag?: string;
-}
-
-const NAV: { group: string; items: NavItem[] }[] = [
-  {
-    group: "Overview",
-    items: [
-      { label: "Command Center", href: "/console/war-room", icon: I.dashboard, tone: "accent", hint: "What needs attention right now" },
-      { label: "Analytics Studio", href: "/console/studio", icon: I.chart, tone: "paypal", hint: "Ask questions of the relief data", tag: "AG" },
-    ],
-  },
-  {
-    group: "Respond",
-    items: [
-      { label: "Guided Response", href: "/console/golden-flow", icon: I.flow, tone: "accent", hint: "Warning to payout in 8 steps" },
-      { label: "Storm Desk", href: "/console/sentinel", icon: I.radar, tone: "storm", hint: "Live weather and who is in the path" },
-      { label: "Storm Drill", href: "/console/rehearsal", icon: I.lab, tone: "amber", hint: "Rehearse on past hurricanes" },
-    ],
-  },
-  {
-    group: "Verify",
-    items: [
-      { label: "AI Watch Officer", href: "/console/watch-officer", icon: I.aiAdvisor, tone: "ai", hint: "Read-only briefing & investigation" },
-      { label: "Households", href: "/console/recipients", icon: I.household, tone: "money", hint: "Enrolled residents & priority" },
-    ],
-  },
-];
-
-const ALL_ITEMS = NAV.flatMap((g) => g.items);
-
-const toneActive: Record<Tone, string> = {
-  accent: "text-accent-strong",
-  money: "text-money",
-  delivered: "text-delivered",
-  paypal: "text-paypal",
-  ai: "text-ai",
-  amber: "text-amber",
-  storm: "text-storm",
-  danger: "text-danger",
-  neutral: "text-ink",
-};
-
-const toneBar: Record<Tone, string> = {
-  accent: "bg-accent",
-  money: "bg-money",
-  delivered: "bg-delivered",
-  paypal: "bg-paypal",
-  ai: "bg-ai",
-  amber: "bg-amber",
-  storm: "bg-storm",
-  danger: "bg-danger",
-  neutral: "bg-ink",
-};
-
 const useIso = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+const reducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function useVariant(pathname: string): Variant {
-  return useMemo(() => {
-    if (pathname.startsWith("/console")) return "OPERATIONS";
-    if (pathname.startsWith("/r/")) return "RESIDENT";
-    return "PUBLIC";
-  }, [pathname]);
+function variantOf(pathname: string): Variant {
+  if (pathname.startsWith("/console")) return "OPERATIONS";
+  if (pathname.startsWith("/r/")) return "RESIDENT";
+  return "PUBLIC";
 }
 
 export function UnifiedAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const variant = useVariant(pathname);
+  const variant = variantOf(pathname);
   return (
     <>
       <a
@@ -98,72 +35,102 @@ export function UnifiedAppShell({ children }: { children: React.ReactNode }) {
       >
         Skip to content
       </a>
-      {variant === "PUBLIC" ? <PublicShell>{children}</PublicShell> : variant === "RESIDENT" ? <ResidentShell pathname={pathname}>{children}</ResidentShell> : <OperationsShell pathname={pathname}>{children}</OperationsShell>}
+      {variant === "PUBLIC" ? (
+        <PublicShell pathname={pathname}>{children}</PublicShell>
+      ) : variant === "RESIDENT" ? (
+        <ResidentShell pathname={pathname}>{children}</ResidentShell>
+      ) : (
+        <OperationsShell pathname={pathname}>{children}</OperationsShell>
+      )}
     </>
   );
 }
 
+/** Content enters the way a page of a report is turned to: the header first, then each block a beat later. Calm, never bouncy. */
+function usePageEntrance(ref: React.RefObject<HTMLElement | null>, key: string) {
+  useIso(() => {
+    const el = ref.current;
+    if (!el || reducedMotion()) return;
+    const kids = Array.from(el.children).slice(0, 8) as HTMLElement[];
+    if (!kids.length) return;
+    const tween = gsap.fromTo(
+      kids,
+      { autoAlpha: 0, y: 14 },
+      { autoAlpha: 1, y: 0, duration: 0.7, ease: "expo.out", stagger: 0.055, clearProps: "transform,opacity,visibility" }
+    );
+    return () => { tween.kill(); gsap.set(kids, { clearProps: "transform,opacity,visibility" }); };
+  }, [key]);
+}
+
 /* ── Public ───────────────────────────────────────────────── */
 
-function PublicShell({ children }: { children: React.ReactNode }) {
+function PublicShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
   const [scrolled, setScrolled] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 24);
     on();
     window.addEventListener("scroll", on, { passive: true });
     return () => window.removeEventListener("scroll", on);
   }, []);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/auth/session", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => alive && setSignedIn(!!j.authenticated && j.session?.role !== "resident"))
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [pathname]);
+
+  const home = pathname === "/";
+  const anchor = (h: string) => (home ? h : `/${h}`);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className={`fixed inset-x-0 top-0 z-50 border-b transition-colors duration-300 ${scrolled ? "border-line bg-canvas/95" : "border-transparent"}`}>
-        <header
-          className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-6"
-        >
-          <Link href="/" aria-label="Landfall home">
-            <LandfallWordmark size={30} />
+    <div className="flex min-h-screen flex-col">
+      <div className={`fixed inset-x-0 top-0 z-50 border-b transition-colors duration-300 ${scrolled ? "border-line bg-canvas/92 backdrop-blur-md" : "border-transparent"}`}>
+        <header className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-6">
+          <Link href="/" aria-label="Landfall home" className="rounded-md">
+            <LandfallWordmark size={28} />
           </Link>
-          <nav className="hidden md:flex items-center gap-1 text-[13.5px] text-ink-2" aria-label="Sections">
+          <nav className="hidden items-center gap-1 text-[14px] text-ink-2 md:flex" aria-label="Sections">
             {[
               ["How it works", "#how-it-works"],
-              ["PayPal", "#paypal"],
-              ["AG Studio", "#studio"],
+              ["Proof it landed", "#assurance"],
+              ["Give", "#paypal"],
               ["Safety", "#safety"],
             ].map(([l, h]) => (
-              <a key={h} href={h} className="rounded-sm px-3.5 py-2 font-medium transition-colors hover:bg-white/[0.06] hover:text-ink">
+              <a key={h} href={anchor(h)} className="rounded-md px-3 py-2 font-medium transition-colors hover:bg-ink/5 hover:text-ink">
                 {l}
               </a>
             ))}
           </nav>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <Button href="/r/enroll" variant="ghost" size="sm" className="hidden sm:inline-flex">
               I need help
             </Button>
-            <Button href="/console/war-room" variant="signal" size="sm" trailing={<I.arrowUpRight className="h-4 w-4" />}>
-              Open console
-            </Button>
+            {pathname !== "/signin" && (
+              <Button href={signedIn ? "/console/war-room" : "/signin"} variant="signal" size="sm" data-testid="enter-console">
+                {signedIn ? "Back to the console" : "Enter the console"}
+              </Button>
+            )}
           </div>
         </header>
       </div>
 
-      <main id="main" tabIndex={-1} className="flex-1 outline-none">{children}</main>
+      <main id="main" tabIndex={-1} className="reveal-scope flex-1 outline-none">{children}</main>
 
-      <footer className="relative border-t border-white/[0.06] py-14">
-        <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 md:flex-row md:items-end md:justify-between">
-          <div className="space-y-4">
-            <LandfallWordmark size={30} sub="Relief before landfall" />
+      <footer className="relative border-t border-line py-12">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 md:grid-cols-[1.2fr_2fr]">
+          <div className="space-y-3">
+            <LandfallWordmark size={26} sub="Relief that lands before the storm" />
             <p className="max-w-sm text-[13px] leading-relaxed text-ink-3">
-              Open-source, PayPal-native relief payouts for community funds. Built for the PayPal AI Hackathon 2026. MIT licensed.
+              Open-source, PayPal-native relief payouts for community funds. Built for the PayPal AI Hackathon 2026. MIT licensed. All people shown are fictional; all money is PayPal Sandbox play money.
             </p>
           </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-ink-2">
-            <Link href="/console/war-room" className="hover:text-ink">Command Center</Link>
-            <Link href="/console/studio" className="hover:text-ink">Analytics Studio</Link>
-            <Link href="/console/golden-flow" className="hover:text-ink">Guided Response</Link>
-            <Link href="/r/enroll" className="hover:text-ink">Resident portal</Link>
-            <Link href="/judges" className="hover:text-ink">Judge test card</Link>
-            <Link href="/validate" className="hover:text-ink">Give feedback</Link>
-            <a href="https://github.com/Bharathadi01/landfall" className="hover:text-ink" target="_blank" rel="noreferrer">GitHub</a>
+          <div className="grid grid-cols-2 gap-8 text-[13.5px] sm:grid-cols-3">
+            <FooterCol title="For coordinators" links={[["Enter the console", "/signin"], ["Payments (AG Grid)", "/console/payments"], ["Analytics Studio", "/console/studio"]]} />
+            <FooterCol title="For residents" links={[["Get help", "/r/enroll"], ["Check a payment", "/r/enroll?tab=status"], ["Report a problem", "/r/complaints"]]} />
+            <FooterCol title="For judges" links={[["Judge test card", "/judges"], ["Give feedback", "/validate"], ["Source on GitHub", "https://github.com/Bharathadi01/landfall"]]} />
           </div>
         </div>
       </footer>
@@ -171,15 +138,36 @@ function PublicShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function FooterCol({ title, links }: { title: string; links: [string, string][] }) {
+  return (
+    <div>
+      <div className="text-[12.5px] font-semibold text-ink">{title}</div>
+      <ul className="mt-2 space-y-0.5">
+        {links.map(([l, h]) => (
+          <li key={h}>
+            {h.startsWith("http") ? (
+              <a href={h} target="_blank" rel="noreferrer" className="inline-flex min-h-[28px] items-center text-ink-3 transition-colors hover:text-ink">{l}</a>
+            ) : (
+              <Link href={h} className="inline-flex min-h-[28px] items-center text-ink-3 transition-colors hover:text-ink">{l}</Link>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /* ── Resident ─────────────────────────────────────────────── */
 
 function ResidentShell({ children, pathname }: { children: React.ReactNode; pathname: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  usePageEntrance(ref, pathname);
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-canvas/70 backdrop-blur-xl">
+    <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-40 border-b border-line bg-canvas/92 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between gap-4 px-4">
-          <Link href="/">
-            <LandfallWordmark size={30} sub="Resident help" />
+          <Link href="/" className="rounded-md">
+            <LandfallWordmark size={28} sub="Help for residents" />
           </Link>
           <nav className="seg hidden sm:inline-flex" aria-label="Resident pages">
             {[
@@ -191,17 +179,19 @@ function ResidentShell({ children, pathname }: { children: React.ReactNode; path
               </Link>
             ))}
           </nav>
-          <span className="hidden md:inline-flex items-center gap-2 text-[12px] text-ink-3">
-            <I.globe className="h-4 w-4 text-accent-strong" />
-            5 languages
+          <span className="hidden items-center gap-2 text-[12.5px] text-ink-3 md:inline-flex">
+            <I.globe className="h-4 w-4" />
+            English · Español · Tiếng Việt · Kreyòl
           </span>
         </div>
       </header>
 
-      <main id="main" tabIndex={-1} className="flex-1 px-4 py-10 outline-none">{children}</main>
+      <main id="main" tabIndex={-1} className="flex-1 px-4 py-10 outline-none">
+        <div ref={ref}>{children}</div>
+      </main>
 
-      <footer className="border-t border-white/[0.06] px-4 py-8 text-center text-[12.5px] text-ink-3">
-        Your details are encrypted. Need a person? Use “Report a problem” — a coordinator replies within 24 hours.
+      <footer className="border-t border-line px-4 py-8 text-center text-[13px] text-ink-3">
+        Your details are encrypted. Need a person? Use “Report a problem” and a coordinator replies within 24 hours.
       </footer>
     </div>
   );
@@ -222,13 +212,15 @@ function OperationsShellInner({ children, pathname }: { children: React.ReactNod
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => setMobileOpen(false), [pathname]);
 
-  const current = ALL_ITEMS.find((i) => i.href === pathname);
+  const page = flowPage(pathname);
+  const stage = flowStage(pathname);
+  const isCase = pathname.startsWith("/console/cases/");
 
   return (
     <div className="flex min-h-screen">
       <aside
         className={`sticky top-0 z-30 hidden h-screen shrink-0 flex-col overflow-hidden border-r border-line bg-canvas transition-[width] duration-300 lg:flex ${
-          collapsed ? "w-[76px]" : "w-[262px]"
+          collapsed ? "w-[72px]" : "w-[260px]"
         }`}
       >
         <SidebarContent pathname={pathname} collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
@@ -236,13 +228,9 @@ function OperationsShellInner({ children, pathname }: { children: React.ReactNod
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
+          <div className="absolute inset-0 bg-ink/[0.04]" onClick={() => setMobileOpen(false)} />
           <aside className="absolute inset-y-0 left-0 flex w-[284px] max-w-[86vw] flex-col overflow-hidden border-r border-line bg-canvas animate-field-drawer">
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-4 z-10 rounded-sm p-2 text-ink-2 hover:bg-white/5"
-              aria-label="Close navigation"
-            >
+            <button onClick={() => setMobileOpen(false)} className="absolute right-3 top-4 z-10 rounded-md p-2 text-ink-2 hover:bg-ink/5" aria-label="Close navigation">
               <I.close className="h-5 w-5" />
             </button>
             <SidebarContent pathname={pathname} collapsed={false} />
@@ -251,24 +239,74 @@ function OperationsShellInner({ children, pathname }: { children: React.ReactNod
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b border-line bg-canvas/95 px-4 sm:px-6 lg:px-10">
+        <header className="sticky top-0 z-20 flex h-[60px] items-center justify-between gap-4 border-b border-line bg-canvas/92 px-4 backdrop-blur-md sm:px-6 lg:px-10">
           <div className="flex min-w-0 items-center gap-3">
-            <Button variant="ghost" size="sm" iconOnly aria-label="Open navigation" className="shrink-0 min-w-9 lg:hidden" onClick={() => setMobileOpen(true)}>
+            <Button variant="ghost" size="sm" iconOnly aria-label="Open navigation" className="shrink-0 lg:hidden" onClick={() => setMobileOpen(true)}>
               <I.menu className="h-4 w-4" />
             </Button>
-            <span className="truncate whitespace-nowrap font-serif text-[18px] tracking-[-0.01em] text-ink">{current?.label ?? "Console"}</span>
+            <nav aria-label="You are here" className="flex min-w-0 items-center gap-2 text-[13px]">
+              {stage?.stage && <span className="hidden whitespace-nowrap text-ink-3 sm:inline">{stage.stage}</span>}
+              {stage?.stage && <I.chevronRight className="hidden h-3.5 w-3.5 shrink-0 text-ink-3 sm:inline" aria-hidden />}
+              {isCase ? (
+                <>
+                  <Link href="/console/payments" className="whitespace-nowrap text-ink-3 hover:text-ink">Payments</Link>
+                  <I.chevronRight className="h-3.5 w-3.5 shrink-0 text-ink-3" aria-hidden />
+                  <span className="truncate font-semibold text-ink">One payment</span>
+                </>
+              ) : (
+                <span className="truncate font-semibold text-ink">{page?.label ?? "Console"}</span>
+              )}
+            </nav>
           </div>
           <div className="flex shrink-0 items-center gap-4">
+            <Button
+              variant="glass"
+              size="sm"
+              onClick={() => window.dispatchEvent(new CustomEvent("landfall:tour"))}
+              leading={<span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent text-on-accent"><svg width="7" height="7" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M7 4.5v15l13-7.5z" /></svg></span>}
+              data-testid="tour-header"
+            >
+              Guided tour
+            </Button>
             <SourceSwitch />
+            <span className="hidden h-6 w-px bg-line lg:block" aria-hidden />
             <SessionChip />
           </div>
         </header>
 
         <main id="main" tabIndex={-1} className="relative flex-1 px-4 py-8 outline-none sm:px-6 lg:px-10 lg:py-10">
-          <div className="mx-auto w-full max-w-[1480px]"><ConsoleContent>{children}</ConsoleContent></div>
+          <div className="mx-auto w-full max-w-[1440px]">
+            <ConsoleContent pathname={pathname}>{children}</ConsoleContent>
+            <NextStep pathname={pathname} />
+          </div>
         </main>
       </div>
     </div>
+  );
+}
+
+/** Wayfinding: every console page ends by saying what comes next in a relief response, so no one is left wondering where to go. */
+function NextStep({ pathname }: { pathname: string }) {
+  const next = nextFlowPage(pathname);
+  if (!next || pathname.startsWith("/console/cases/")) return null;
+  const nextStage = FLOW.find((g) => g.pages.includes(next));
+  const Icon = next.icon;
+  return (
+    <nav aria-label="Next step" className="mt-16 border-t border-line pt-8">
+      <Link href={next.href} className="next-step group" data-testid="next-step">
+        <span className="flex min-w-0 items-center gap-4">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-line-strong text-ink-2">
+            <Icon className="h-5 w-5" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-[12.5px] text-ink-3">Next{nextStage?.stage ? ` · ${nextStage.stage}` : ""}</span>
+            <span className="block text-[16px] font-semibold text-ink">{next.label}</span>
+            <span className="block truncate text-[13px] text-ink-2">{next.purpose}</span>
+          </span>
+        </span>
+        <I.arrowRight className="next-arrow h-5 w-5 shrink-0 text-ink-2" aria-hidden />
+      </Link>
+    </nav>
   );
 }
 
@@ -276,45 +314,40 @@ function OperationsShellInner({ children, pathname }: { children: React.ReactNod
  * Until the case source (live or replay) is known, show a skeleton instead of the page: otherwise the first paint
  * briefly shows the synthetic replay numbers as if they were the app's data before the live records arrive.
  */
-function ConsoleContent({ children }: { children: React.ReactNode }) {
+function ConsoleContent({ children, pathname }: { children: React.ReactNode; pathname: string }) {
   const { status } = useCases();
+  const ref = useRef<HTMLDivElement>(null);
   // Only the FIRST load shows a skeleton. Switching Live ⇄ Replay later keeps the page mounted (a heavy page like Analytics
-  // Studio must not be torn down and rebuilt — that is what made it look blank), and the header says "Loading…".
+  // Studio must not be torn down and rebuilt — that is what made it look blank).
   const loadedOnce = useRef(false);
   if (status !== "loading") loadedOnce.current = true;
-  if (status === "loading" && !loadedOnce.current) {
+  const ready = !(status === "loading" && !loadedOnce.current);
+  usePageEntrance(ref, `${pathname}:${ready}`);
+  if (!ready) {
     return (
       <div role="status" aria-busy="true" aria-label="Loading the latest records" className="space-y-6" data-testid="console-skeleton">
-        <div className="h-8 w-40 animate-pulse rounded-lg bg-white/[0.12]" />
-        <div className="h-24 w-full max-w-2xl animate-pulse rounded-2xl bg-white/[0.10]" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {[0, 1, 2, 3].map((i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-white/[0.08]" />)}
+        <div className="skeleton h-4 w-56" />
+        <div className="skeleton h-10 w-full max-w-xl" />
+        <div className="skeleton h-4 w-full max-w-2xl" />
+        <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => <div key={i} className="skeleton h-32" />)}
         </div>
         <span className="sr-only">Loading the latest records…</span>
       </div>
     );
   }
-  return <>{children}</>;
+  return <div ref={ref}>{children}</div>;
 }
 
-function SidebarContent({
-  pathname,
-  collapsed,
-  onToggle,
-}: {
-  pathname: string;
-  collapsed: boolean;
-  onToggle?: () => void;
-}) {
-  const navRef = useRef<HTMLElement>(null);
+function SidebarContent({ pathname, collapsed, onToggle }: { pathname: string; collapsed: boolean; onToggle?: () => void }) {
   const indRef = useRef<HTMLSpanElement>(null);
   const links = useRef<Record<string, HTMLAnchorElement | null>>({});
   const first = useRef(true);
-  const active = ALL_ITEMS.find((i) => i.href === pathname);
+  const activeHref = pathname.startsWith("/console/cases/") ? "/console/payments" : pathname;
 
-  // GSAP-driven active marker that glides between items.
+  // The "you are here" marker glides between items, so the eye follows the move instead of re-reading the list.
   useIso(() => {
-    const link = links.current[pathname];
+    const link = links.current[activeHref];
     const ind = indRef.current;
     if (!ind) return;
     if (!link) {
@@ -322,66 +355,65 @@ function SidebarContent({
       return;
     }
     const props = { y: link.offsetTop, height: link.offsetHeight, opacity: 1 };
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (first.current || reduce) gsap.set(ind, props);
+    if (first.current || reducedMotion()) gsap.set(ind, props);
     else gsap.to(ind, { ...props, duration: 0.55, ease: "expo.out", overwrite: "auto" });
     first.current = false;
-  }, [pathname, collapsed]);
+  }, [activeHref, collapsed]);
 
   return (
     <>
-      <div className={`flex h-16 shrink-0 items-center ${collapsed ? "justify-center px-2" : "justify-between px-5"}`}>
-        <Link href="/" aria-label={collapsed ? "Landfall home" : undefined}>
-          {collapsed ? <LandfallMark size={32} /> : <LandfallWordmark size={30} sub="Relief console" />}
+      <div className={`flex h-[60px] shrink-0 items-center border-b border-line ${collapsed ? "justify-center px-2" : "justify-between px-5"}`}>
+        <Link href="/" aria-label="Landfall home" className="rounded-md">
+          {collapsed ? <LandfallMark size={30} /> : <LandfallWordmark size={26} />}
         </Link>
         {onToggle && !collapsed && (
-          <button onClick={onToggle} className="rounded-sm p-1.5 text-ink-3 hover:bg-white/5 hover:text-ink" aria-label="Collapse sidebar">
+          <button onClick={onToggle} className="rounded-md p-1.5 text-ink-3 hover:bg-ink/5 hover:text-ink" aria-label="Collapse sidebar">
             <I.sidebarClose className="h-4 w-4" />
           </button>
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 pb-4 pt-2">
+      <div className="flex-1 overflow-y-auto px-3 pb-4 pt-4">
         {!collapsed && (
-          <Link href="/console/sentinel" className="mb-6 block border-y border-line px-3 py-3 hover:bg-white/[0.03]">
+          <Link href="/console/payments" className="mb-5 block rounded-md border border-line px-3 py-2.5 transition-colors hover:border-line-strong hover:bg-surface" data-testid="sidebar-source">
             <SidebarIncident />
           </Link>
         )}
 
-        <nav ref={navRef} className="relative space-y-6" aria-label="Console">
-          {/* sliding active marker: a thin accent rule on the left edge */}
-          <span
-            ref={indRef}
-            aria-hidden
-            className="pointer-events-none absolute left-0 right-0 top-0 border-l-2 border-accent bg-white/[0.04] opacity-0"
-            style={{ height: 0 }}
-          />
+        <nav className="relative space-y-5" aria-label="Console">
+          <span ref={indRef} aria-hidden className="pointer-events-none absolute left-0 right-0 top-0 rounded-md bg-surface-2 opacity-0" style={{ height: 0 }}>
+            <span className="absolute inset-y-2 left-0 w-[2px] rounded-full bg-accent" />
+          </span>
 
-          {NAV.map((g) => (
-            <div key={g.group}>
-              {!collapsed && <div className="mb-2 px-3 eyebrow">{g.group}</div>}
+          {FLOW.map((g, gi) => (
+            <div key={g.stage ?? "home"}>
+              {!collapsed && g.stage && (
+                <div className="mb-1.5 flex items-baseline gap-2 px-3">
+                  <span className="text-[11px] font-semibold tabular text-ink-3">{gi}</span>
+                  <span className="eyebrow text-ink-2">{g.stage}</span>
+                </div>
+              )}
+              {collapsed && gi > 0 && <div className="mx-auto mb-2 h-px w-6 bg-line" aria-hidden />}
               <ul className="space-y-0.5">
-                {g.items.map((item) => {
-                  const isActive = pathname === item.href;
-                  const n = ALL_ITEMS.findIndex((i) => i.href === item.href) + 1;
+                {g.pages.map((item) => {
+                  const isActive = activeHref === item.href;
+                  const Icon = item.icon;
                   return (
                     <li key={item.href}>
                       <Link
-                        ref={(el) => {
-                          links.current[item.href] = el;
-                        }}
+                        ref={(el) => { links.current[item.href] = el; }}
                         href={item.href}
-                        title={collapsed ? item.label : item.hint}
+                        title={collapsed ? `${item.label}: ${item.purpose}` : item.purpose}
                         aria-current={isActive ? "page" : undefined}
-                        className={`group relative z-10 flex items-baseline gap-3 px-3 py-2 text-[14px] transition-colors ${
-                          collapsed ? "justify-center" : ""
-                        } ${isActive ? "text-ink" : "text-ink-2 hover:text-ink"}`}
+                        className={`group relative z-10 flex items-center gap-3 rounded-md px-3 py-2 text-[14px] transition-colors ${collapsed ? "justify-center" : ""} ${
+                          isActive ? "text-ink" : "text-ink-2 hover:bg-ink/[0.04] hover:text-ink"
+                        }`}
                       >
-                        <span className={`font-mono text-[11px] tabular ${isActive ? "text-accent-strong" : "text-ink-3"}`}>{String(n).padStart(2, "0")}</span>
+                        <Icon className={`h-[18px] w-[18px] shrink-0 transition-colors ${isActive ? "text-accent-strong" : "text-ink-3 group-hover:text-ink-2"}`} />
                         {!collapsed && (
                           <>
                             <span className="flex-1 truncate font-medium">{item.label}</span>
-                            {item.tag && <span className="text-[11px] text-ink-3">{item.tag}</span>}
+                            {item.tag && <span className="text-[11px] font-medium text-ink-3">{item.tag}</span>}
                           </>
                         )}
                       </Link>
@@ -391,34 +423,22 @@ function SidebarContent({
               </ul>
             </div>
           ))}
-
-          <div>
-            {!collapsed && <div className="mb-2 px-3 eyebrow">Public</div>}
-            <ul className="space-y-0.5">
-              {[
-                { label: "Public site", href: "/" },
-                { label: "Resident portal", href: "/r/enroll" },
-                { label: "Judge test card", href: "/judges" },
-              ].map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} title={l.label} className={`flex items-baseline gap-3 px-3 py-1.5 text-[13px] text-ink-3 transition-colors hover:text-ink ${collapsed ? "justify-center" : ""}`}>
-                    <span className="font-mono text-[11px]" aria-hidden>↗</span>
-                    {!collapsed && <span>{l.label}</span>}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
         </nav>
       </div>
 
-      <div className="relative shrink-0 border-t border-white/[0.06] p-3">
-        {!collapsed ? null : (
+      <div className="shrink-0 border-t border-line p-3">
+        {collapsed ? (
           onToggle && (
-            <button onClick={onToggle} className="mx-auto flex rounded-sm p-2 text-ink-3 hover:bg-white/5 hover:text-ink" aria-label="Expand sidebar">
+            <button onClick={onToggle} className="mx-auto flex rounded-md p-2 text-ink-3 hover:bg-ink/5 hover:text-ink" aria-label="Expand sidebar">
               <I.sidebarOpen className="h-4 w-4" />
             </button>
           )
+        ) : (
+          <div className="flex flex-wrap gap-x-3 px-1 text-[12.5px]">
+            <Link href="/" className="inline-flex min-h-[28px] items-center rounded px-1 text-ink-3 hover:text-ink">Public site</Link>
+            <Link href="/r/enroll" className="inline-flex min-h-[28px] items-center rounded px-1 text-ink-3 hover:text-ink">Resident view</Link>
+            <Link href="/judges" className="inline-flex min-h-[28px] items-center rounded px-1 text-ink-3 hover:text-ink">Judge card</Link>
+          </div>
         )}
       </div>
     </>

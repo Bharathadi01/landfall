@@ -168,6 +168,10 @@ const widgetsConfig = (defaults: any) =>
   });
 
 /** Four Canonical Report Pages (§4) */
+/** Fixed, readable column widths with one-line headers. Auto-sizing squeezed nine columns into the width of the widget, so headers
+ *  wrapped letter by letter ("Gran t Amou nt") and cells were cut to "$5…". The grid scrolls sideways instead. */
+const GRID_STYLE = { columnAutoSize: false, columnWidth: 172, headerRow: { wrapText: false } } as const;
+
 export const CANONICAL_REPORT_STATE: AgReportState = {
   version: "3.1.0",
   selectedPageId: "overview",
@@ -227,7 +231,7 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
           type: "grid",
           format: {
             title: { text: "Priority Exceptions Worklist (Authoritative PayPal Status)", enabled: true, wrapping: true },
-            style: { columnAutoSize: true, headerRow: { wrapText: true } },
+            style: GRID_STYLE,
           },
           dataMapping: {
             cols: [
@@ -305,7 +309,7 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
           type: "grid",
           format: {
             title: { text: "Double-Entry Ledger Reconciliation (Minor Unit Precision)", enabled: true, wrapping: true },
-            style: { columnAutoSize: true, headerRow: { wrapText: true } },
+            style: GRID_STYLE,
           },
           dataMapping: {
             cols: [
@@ -323,7 +327,7 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
           type: "grid",
           format: {
             title: { text: "PayPal Payout Batches Audit Trail", enabled: true, wrapping: true },
-            style: { columnAutoSize: true, headerRow: { wrapText: true } },
+            style: GRID_STYLE,
           },
           dataMapping: {
             cols: [
@@ -417,7 +421,7 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
           format: {
             title: { text: "Payout Exception Workbench", enabled: true, wrapping: true },
             crossFilter: "filter",
-            style: { columnAutoSize: true, headerRow: { wrapText: true } },
+            style: GRID_STYLE,
           },
           dataMapping: {
             cols: [
@@ -491,7 +495,7 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
           type: "grid",
           format: {
             title: { text: "Grievances & Community Feedback Log", enabled: true, wrapping: true },
-            style: { columnAutoSize: true, headerRow: { wrapText: true } },
+            style: GRID_STYLE,
           },
           dataMapping: {
             cols: [
@@ -508,7 +512,7 @@ export const CANONICAL_REPORT_STATE: AgReportState = {
           type: "grid",
           format: {
             title: { text: "Privacy-Preserving Resident Obligation Roster", enabled: true, wrapping: true },
-            style: { columnAutoSize: true, headerRow: { wrapText: true } },
+            style: GRID_STYLE,
           },
           dataMapping: {
             cols: [
@@ -540,7 +544,7 @@ const STORAGE_KEY = "landfall_ag_studio_state_v5";
 
 const ANALYST_INSTRUCTIONS =
   "You are Landfall's Relief Finance Analyst inside AG Studio. Help relief coordinators and auditors understand payout outcomes, exceptions, reserve compliance and ledger reconciliation.\n" +
-  "DATA: tables payout_items, payout_batches, relief_obligations, webhook_observations, ledger_reconciliation, treasury, solvency, households, grievance_summary, recovery_proofs. Use viewSchema / executeQuery before quoting numbers; never invent figures.\n" +
+  "DATA: tables payout_items, payout_batches, relief_obligations, webhook_observations, ledger_reconciliation, treasury, solvency, households, grievance_summary, recovery_proofs. Use execute_query before quoting numbers (its schema lists every valid field id); never invent figures.\n" +
   "FACTS TO RESPECT: PayPal item status SUCCESS means credited to the recipient's account — it is NOT proof the household can access or has received the money; keep provider status and recipient-reported confirmation separate. UNCLAIMED payments auto-return after 30 days and must be resolved by helping the resident claim, never by paying again. PENDING has no item webhook — monitor. ONHOLD/BLOCKED need investigation. FAILED/RETURNED need a NEW two-person-approved plan.\n" +
   "TOOLS: you can read data, add/modify widgets and filters, and call " + CREATE_RECOVERY_PAGE_TOOL + " to add a ready-made recovery page. " +
   "SAFETY: you are strictly read-only for money. You cannot execute, re-issue, approve or alter any payout, ledger entry or reserve — no such tool exists. If asked, refuse and explain the safe alternative. Keep answers short and cite the record ids you used.";
@@ -696,21 +700,18 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
           justifyContent: "space-between",
           gap: 10,
           padding: "8px 14px",
-          background: "rgba(20,19,22, 0.95)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          background: "rgba(255,255,255,0.97)",
+          borderBottom: "1px solid rgba(24,34,30,0.08)",
           fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
           fontSize: 12.5,
-          color: "#F3EFE8",
+          color: "#18221E",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#8FE4B3", letterSpacing: "-0.01em" }}>Relief Finance Intelligence</span>
-          <span style={{ fontSize: 10, fontFamily: "var(--font-geist-mono)", background: "rgba(255, 255, 255, 0.06)", color: "#B9B3AA", border: "1px solid rgba(255, 255, 255, 0.12)", borderRadius: 4, padding: "2px 6px" }}>
-            REPLAY DATA · SYNTHETIC
-          </span>
-        </div>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#0E6B50", letterSpacing: "-0.01em" }}>Relief Finance Intelligence</span>
+                  </div>
 
-        <div role="tablist" aria-label="Report pages" style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255, 255, 255, 0.04)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 8, padding: 3 }}>
+        <div role="tablist" aria-label="Report pages" style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(24,34,30,0.04)", border: "1px solid rgba(24,34,30,0.08)", borderRadius: 8, padding: 3 }}>
           {nav.map(({ id, label, Icon }) => {
             const isActive = activePageId === id;
             return (
@@ -727,8 +728,8 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
                   borderRadius: 6,
                   fontSize: 12,
                   fontWeight: isActive ? 600 : 500,
-                  color: isActive ? "#F3EFE8" : "#B9B3AA",
-                  background: isActive ? "rgba(255, 255, 255, 0.12)" : "transparent",
+                  color: isActive ? "#18221E" : "#343D39",
+                  background: isActive ? "rgba(24,34,30,0.12)" : "transparent",
                   border: "none",
                   cursor: "pointer",
                   transition: "all 150ms ease",
@@ -746,7 +747,7 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
             <button
               data-testid="filter-unclaimed-btn"
               onClick={() => applyCrossFilter("UNCLAIMED")}
-              style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,176,32, 0.12)", border: "1px solid rgba(255,176,32, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#FFB020", cursor: "pointer", fontWeight: 600 }}
+              style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,176,32, 0.12)", border: "1px solid rgba(255,176,32, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#B07012", cursor: "pointer", fontWeight: 600 }}
               title="Cross-filter the report to UNCLAIMED payouts"
             >
               Filter: UNCLAIMED
@@ -754,11 +755,11 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
           )}
 
           {activeCrossFilter && (
-            <div data-testid="active-crossfilter-chip" style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(76,155,255, 0.15)", border: "1px solid rgba(76,155,255, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#CFC9BF" }}>
+            <div data-testid="active-crossfilter-chip" style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(76,155,255, 0.15)", border: "1px solid rgba(76,155,255, 0.35)", borderRadius: 6, padding: "3px 8px", fontSize: 11, color: "#343D39" }}>
               <span>
                 Filtered: <strong>{activeCrossFilter.value}</strong>
               </span>
-              <button data-testid="clear-crossfilter-btn" onClick={clearCrossFilter} style={{ background: "none", border: "none", color: "#F3EFE8", cursor: "pointer", padding: "0 2px", fontWeight: "bold", fontSize: 12 }} title="Clear filter">
+              <button data-testid="clear-crossfilter-btn" onClick={clearCrossFilter} style={{ background: "none", border: "none", color: "#18221E", cursor: "pointer", padding: "0 2px", fontWeight: "bold", fontSize: 12 }} title="Clear filter">
                 ✕
               </button>
             </div>
@@ -766,7 +767,7 @@ export default function StudioCanvas({ mode }: { mode: "view" | "edit" }) {
 
           <button
             onClick={resetToTemplate}
-            style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: 6, color: "#B9B3AA", padding: "4px 10px", fontSize: 11, cursor: "pointer" }}
+            style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(24,34,30,0.05)", border: "1px solid rgba(24,34,30,0.1)", borderRadius: 6, color: "#343D39", padding: "4px 10px", fontSize: 11, cursor: "pointer" }}
             title="Reset the report to the Landfall template"
           >
             <I.retry size={12} /> Reset

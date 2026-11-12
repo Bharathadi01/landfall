@@ -62,7 +62,7 @@ export function ReadinessMonitorWidget() {
 
   return (
     <div className="glass p-5" data-testid="readiness-monitor">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.07] pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ink/[0.07] pb-3">
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-delivered0" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">Pre-disaster readiness</h3>
@@ -75,7 +75,7 @@ export function ReadinessMonitorWidget() {
 
       <div className="mt-4 space-y-2">
         {checks.map((c) => (
-          <div key={c.key} className="flex flex-col gap-1 rounded border border-white/[0.07] bg-surface/40 p-2 text-xs sm:flex-row sm:items-center sm:justify-between">
+          <div key={c.key} className="flex flex-col gap-1 rounded border border-ink/[0.07] bg-surface/40 p-2 text-xs sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <span className={c.state === "ok" ? "text-delivered" : c.state === "fail" ? "text-danger" : "text-amber"} aria-label={c.state === "ok" ? "passes" : c.state === "fail" ? "fails" : "not checked"}>
                 {c.state === "ok" ? "✓" : c.state === "fail" ? "✗" : "?"}

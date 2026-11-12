@@ -19,6 +19,7 @@ const config: Config = {
         line: { DEFAULT: c("line"), strong: c("line-strong") },
         ink: { DEFAULT: c("ink"), 2: c("ink-2"), 3: c("ink-3") },
         "on-accent": c("on-accent"),
+        sun: c("sun"),
         accent: { DEFAULT: c("accent"), strong: c("accent-strong"), soft: c("accent-soft"), line: c("accent-line") },
         money: { DEFAULT: c("money"), soft: c("money-soft"), line: c("money-line") },
         delivered: { DEFAULT: c("delivered"), soft: c("delivered-soft"), line: c("delivered-line") },
@@ -41,24 +42,25 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        // `font-serif`, `font-display` and `font-accent` all resolve to the display face (Fraunces).
-        serif: ["var(--font-serif)", "Georgia", "serif"],
-        display: ["var(--font-serif)", "Georgia", "serif"],
-        accent: ["var(--font-serif)", "Georgia", "serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        // `font-serif`, `font-display` and `font-accent` all resolve to the display face (Archivo, expanded).
+        serif: ["var(--font-serif)", "Arial", "sans-serif"],
+        display: ["var(--font-serif)", "Arial", "sans-serif"],
+        accent: ["var(--font-serif)", "Arial", "sans-serif"],
+        // `font-mono` was used for labels and figures: they are tabular sans now. Real identifiers use `font-code`.
+        mono: ["var(--font-sans)", "system-ui", "sans-serif"],
+        code: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
-      // Landfall is square-cornered on purpose: panels, buttons and labels read like a survey chart / logbook,
-      // not the rounded glass pills most dashboards use. `full` is kept only for dots and meters.
+      // Gentle corners: 4px tags, 6px controls, 8px panes. `full` only for dots and meters.
       borderRadius: {
-        sm: "2px",
-        DEFAULT: "2px",
-        md: "3px",
-        lg: "3px",
-        xl: "4px",
-        "2xl": "4px",
-        "3xl": "6px",
-        "4xl": "6px",
-        "5xl": "8px",
+        sm: "4px",
+        DEFAULT: "6px",
+        md: "6px",
+        lg: "8px",
+        xl: "8px",
+        "2xl": "8px",
+        "3xl": "10px",
+        "4xl": "12px",
+        "5xl": "12px",
       },
       keyframes: {
         "sweep": {

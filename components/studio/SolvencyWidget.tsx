@@ -38,7 +38,7 @@ export function SolvencyWidget(props: any) {
 
   if (!valueField || !targetField) {
     return (
-      <div style={{ display: "grid", placeItems: "center", height: "100%", color: "#8A847B", fontSize: 12 }}>
+      <div style={{ display: "grid", placeItems: "center", height: "100%", color: "#525A56", fontSize: 12 }}>
         Map “Available” and “Needed” to see solvency.
       </div>
     );
@@ -49,7 +49,7 @@ export function SolvencyWidget(props: any) {
   const ratio = target > 0 ? value / target : 0;
   const pct = Math.min(1, ratio);
   const covered = ratio >= 1;
-  const color = covered ? "#6FD49A" : ratio >= 0.6 ? "#FFB020" : "#FF3B4E";
+  const color = covered ? "#268C54" : ratio >= 0.6 ? "#B07012" : "#B42318";
   const R = 44;
   const C = 2 * Math.PI * R;
   const fmt = (n: number) => "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
@@ -59,11 +59,11 @@ export function SolvencyWidget(props: any) {
       <svg width="112" height="112" viewBox="0 0 112 112" style={{ flexShrink: 0 }}>
         <defs>
           <linearGradient id="lf-solv" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={covered ? "#8FE4B3" : color} />
-            <stop offset="100%" stopColor={covered ? "#CFC9BF" : color} />
+            <stop offset="0%" stopColor={covered ? "#0E6B50" : color} />
+            <stop offset="100%" stopColor={covered ? "#343D39" : color} />
           </linearGradient>
         </defs>
-        <circle cx="56" cy="56" r={R} stroke="rgba(255,255,255,0.07)" strokeWidth="10" fill="none" />
+        <circle cx="56" cy="56" r={R} stroke="rgba(24,34,30,0.07)" strokeWidth="10" fill="none" />
         <circle
           cx="56"
           cy="56"
@@ -76,25 +76,25 @@ export function SolvencyWidget(props: any) {
           transform="rotate(-90 56 56)"
           style={{ transition: "stroke-dasharray 900ms cubic-bezier(.16,1,.3,1)", filter: `drop-shadow(0 0 8px ${color}88)` }}
         />
-        <text x="56" y="53" textAnchor="middle" fill="#F3EFE8" fontSize="20" fontWeight="650" style={{ letterSpacing: "-0.03em" }}>
+        <text x="56" y="53" textAnchor="middle" fill="#18221E" fontSize="20" fontWeight="650" style={{ letterSpacing: "-0.03em" }}>
           {target > 0 ? `${ratio.toFixed(1)}×` : "—"}
         </text>
-        <text x="56" y="70" textAnchor="middle" fill="#8A847B" fontSize="9.5" style={{ letterSpacing: "0.08em" }}>
+        <text x="56" y="70" textAnchor="middle" fill="#525A56" fontSize="9.5" style={{ letterSpacing: "0.08em" }}>
           COVERAGE
         </text>
       </svg>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
         <div>
-          <div style={{ fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "#8A847B", fontFamily: "var(--font-geist-mono)" }}>
+          <div style={{ fontSize: 12, color: "#525A56", fontFamily: "var(--font-geist-sans)" }}>
             Available to pay
           </div>
-          <div style={{ fontSize: 22, fontWeight: 650, color: "#8FE4B3", letterSpacing: "-0.03em" }}>{fmt(value)}</div>
+          <div style={{ fontSize: 22, fontWeight: 650, color: "#0E6B50", letterSpacing: "-0.03em" }}>{fmt(value)}</div>
         </div>
         <div>
-          <div style={{ fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "#8A847B", fontFamily: "var(--font-geist-mono)" }}>
+          <div style={{ fontSize: 12, color: "#525A56", fontFamily: "var(--font-geist-sans)" }}>
             Owed to households
           </div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: "#F3EFE8" }}>{fmt(target)}</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: "#18221E" }}>{fmt(target)}</div>
         </div>
         <div
           style={{

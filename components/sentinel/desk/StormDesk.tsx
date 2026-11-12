@@ -226,7 +226,7 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
             },
           },
           layers: [
-            { id: "space", type: "background", paint: { "background-color": "#050507" } },
+            { id: "space", type: "background", paint: { "background-color": hero ? "#F6F3EC" : "#050507" } },
             { id: "bluemarble", type: "raster", source: "bluemarble", paint: { "raster-saturation": 0.05, "raster-contrast": 0.06 } },
             {
               id: "esri", type: "raster", source: "esri", minzoom: 4.6,
@@ -252,9 +252,18 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
       map.on("load", () => {
         if (dead) return;
         try {
-          map.setSky({
+          map.setSky(hero ? {
+            // on the landing page the Earth sits on warm paper, like a plate in an atlas, with a soft daylight atmosphere
+            "sky-color": "#9CC3DD",
+            "horizon-color": "#E4EFF3",
+            "fog-color": "#F6F3EC",
+            "sky-horizon-blend": 0.6,
+            "horizon-fog-blend": 0.6,
+            "fog-ground-blend": 0.2,
+            "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 4.5, 0.9, 7, 0],
+          } as any : {
             "sky-color": "#16294d",
-            "horizon-color": "#ff9a5c",
+            "horizon-color": "#7FB0D6",
             "fog-color": "#0a0a0c",
             "sky-horizon-blend": 0.55,
             "horizon-fog-blend": 0.5,
@@ -276,14 +285,14 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
         map.addSource("fund-area", { type: "geojson", data: empty });
         map.addLayer({ id: "fund-area-line", type: "line", source: "fund-area", paint: { "line-color": "#E7E1D7", "line-width": 1.4, "line-dasharray": [3, 3], "line-opacity": 0.8 } });
         map.addSource("cone", { type: "geojson", data: empty });
-        map.addLayer({ id: "cone-fill", type: "fill", source: "cone", paint: { "fill-color": "#FF6B2C", "fill-opacity": 0.14 } });
+        map.addLayer({ id: "cone-fill", type: "fill", source: "cone", paint: { "fill-color": "#E5484D", "fill-opacity": 0.14 } });
         map.addLayer({ id: "cone-line", type: "line", source: "cone", paint: { "line-color": "#FF9CCB", "line-width": 1.4, "line-dasharray": [4, 3] } });
         map.addSource("track", { type: "geojson", data: empty });
-        map.addLayer({ id: "track-line", type: "line", source: "track", filter: ["==", ["get", "type"], "TRACK_LINE"], paint: { "line-color": "#FF6B2C", "line-width": 2.6 } });
+        map.addLayer({ id: "track-line", type: "line", source: "track", filter: ["==", ["get", "type"], "TRACK_LINE"], paint: { "line-color": "#E5484D", "line-width": 2.6 } });
         map.addLayer({ id: "track-points", type: "circle", source: "track", filter: ["==", ["get", "type"], "TRACK_POINT"], paint: { "circle-color": ["get", "color"], "circle-radius": 6, "circle-stroke-width": 2, "circle-stroke-color": "#fff" } });
         map.addSource("storms", { type: "geojson", data: empty });
-        map.addLayer({ id: "storms-halo", type: "circle", source: "storms", paint: { "circle-color": "#FF6B2C", "circle-opacity": 0.22, "circle-radius": 22, "circle-blur": 0.6 } });
-        map.addLayer({ id: "storms-dot", type: "circle", source: "storms", paint: { "circle-color": "#FF6B2C", "circle-radius": 6, "circle-stroke-width": 2, "circle-stroke-color": "#fff" } });
+        map.addLayer({ id: "storms-halo", type: "circle", source: "storms", paint: { "circle-color": "#E5484D", "circle-opacity": 0.22, "circle-radius": 22, "circle-blur": 0.6 } });
+        map.addLayer({ id: "storms-dot", type: "circle", source: "storms", paint: { "circle-color": "#E5484D", "circle-radius": 6, "circle-stroke-width": 2, "circle-stroke-color": "#fff" } });
         map.addSource("warnings", { type: "geojson", data: empty });
         map.addLayer({ id: "warnings-fill", type: "fill", source: "warnings", paint: { "fill-color": ["get", "color"], "fill-opacity": 0.16 } });
         map.addLayer({ id: "warnings-line", type: "line", source: "warnings", paint: { "line-color": ["get", "color"], "line-width": 1.8 } });
@@ -590,7 +599,7 @@ function StormDeskInner({ fund, alerts, clusters, nhcStorms = [], mode = "LIVE",
   const hasModel = grid?.state === "ok";
 
   return (
-    <section className={cn("relative overflow-hidden rounded-sm border border-white/[0.08] bg-black", panel && "h-full", className)} aria-label="Live weather globe">
+    <section className={cn("relative overflow-hidden rounded-lg border border-white/[0.08] bg-black", !hero && "theme-night", panel && "h-full", className)} aria-label="Live weather globe">
       <div className={cn("relative", hero ? "h-full min-h-[480px]" : panel ? "h-full min-h-[420px]" : "h-[80vh] min-h-[620px]")}>
         <div className="absolute inset-0">
           <div ref={host} style={{ width: "100%", height: "100%" }} />

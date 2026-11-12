@@ -1,10 +1,18 @@
 "use client";
 
 
-import { PageTitle } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/ui/primitives";
 import { I } from "@/components/icons";
+import { Tag } from "@/components/ui/Tag";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { RecipientProfileView } from "@/components/recipients/RecipientProfileView";
+
+// AG Grid loads with this page only.
+const HouseholdGrid = dynamic(() => import("@/components/recipients/HouseholdGrid").then((m) => m.HouseholdGrid), {
+  ssr: false,
+  loading: () => <div className="pane space-y-3 p-6" role="status" aria-label="Loading the directory"><div className="skeleton h-5 w-1/3" /><div className="skeleton h-[240px] w-full" /></div>,
+});
 
 export default function CoordinatorRecipientsPage() {
   const [recipients, setRecipients] = useState<any[]>([]);
@@ -99,61 +107,36 @@ export default function CoordinatorRecipientsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Editorial Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
-        <PageTitle
-          eyebrow="Households · enrolled residents"
-          icon={I.household}
-          tone="accent"
-          title="Every household,"
-          accent="verified and protected."
-          description="Who is enrolled, what was checked, and their priority. Personal details stay encrypted; residents can appeal any decision within 24 hours."
-        />
+      <PageHeader
+        eyebrow="Decide and pay · Households · personal details encrypted"
+        title="Every household,"
+        accent="known, checked and protected."
+        description="Who is enrolled, what was checked, and their priority. Personal details stay encrypted unless someone with a reason opens them, and that is logged. Residents can appeal any decision within 24 hours."
+      />
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 bg-surface-2 p-1.5 rounded-xl border border-line">
-          <button
-            onClick={() => setActiveTab("directory")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition ${
-              activeTab === "directory"
-                ? "bg-surface text-ink font-semibold shadow-xs"
-                : "text-ink-3 hover:text-ink"
-            }`}
-          >
-            Recipient Directory ({recipients.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("appeals")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
-              activeTab === "appeals"
-                ? "bg-surface text-ink font-semibold shadow-xs"
-                : "text-ink-3 hover:text-ink"
-            }`}
-          >
-            <span>Appeals Queue</span>
-            {appeals.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-sm text-[10px] bg-amber text-white font-mono">
-                {appeals.length}
-              </span>
-            )}
-          </button>
-        </div>
+      <div className="tabs" role="tablist" aria-label="Households views">
+        <button type="button" role="tab" aria-selected={activeTab === "directory"} className="tab" onClick={() => setActiveTab("directory")}>
+          Recipient Directory <span className="tab-count">{recipients.length}</span>
+        </button>
+        <button type="button" role="tab" aria-selected={activeTab === "appeals"} className="tab" onClick={() => setActiveTab("appeals")}>
+          Appeals Queue {appeals.length > 0 && <span className="tab-count">{appeals.length}</span>}
+        </button>
       </div>
 
       {activeTab === "directory" ? (
         <div className="space-y-4">
           {/* Filter & Search Bar */}
-          <div className="field-paper p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
-            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <div className="pane flex flex-col justify-between gap-4 p-4 lg:flex-row lg:items-center">
+            <div className="flex w-full flex-wrap items-center gap-2.5 lg:w-auto">
               {/* Search box */}
-              <div className="relative min-w-[240px]">
+              <div className="relative w-full sm:w-72">
                 <I.search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search resident, ID, address..."
-                  className="field-input pl-9 pr-3 py-1.5 text-xs w-full bg-surface"
+                  className="field-input has-icon !min-h-[36px] w-full !py-1.5 text-[13px]"
                 />
               </div>
 
@@ -161,7 +144,7 @@ export default function CoordinatorRecipientsPage() {
               <select
                 value={channelFilter}
                 onChange={(e) => setChannelFilter(e.target.value)}
-                className="field-input text-xs py-1.5 px-3 bg-surface"
+                className="field-input !min-h-[36px] !w-auto min-w-[11rem] !py-1.5 text-[13px]"
                 aria-label="Filter by payment channel"
               >
                 <option value="">All Payment Rails</option>
@@ -175,7 +158,7 @@ export default function CoordinatorRecipientsPage() {
               <select
                 value={displacedFilter}
                 onChange={(e) => setDisplacedFilter(e.target.value)}
-                className="field-input text-xs py-1.5 px-3 bg-surface"
+                className="field-input !min-h-[36px] !w-auto min-w-[11rem] !py-1.5 text-[13px]"
                 aria-label="Filter by residence status"
               >
                 <option value="">All Residences</option>
@@ -187,7 +170,7 @@ export default function CoordinatorRecipientsPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="field-input text-xs py-1.5 px-3 bg-surface"
+                className="field-input !min-h-[36px] !w-auto min-w-[11rem] !py-1.5 text-[13px]"
                 aria-label="Filter by intake status"
               >
                 <option value="">All Verification Statuses</option>
@@ -206,180 +189,74 @@ export default function CoordinatorRecipientsPage() {
                   onChange={(e) => setDecryptPII(e.target.checked)}
                   className="rounded border-line text-accent focus:ring-0 cursor-pointer"
                 />
-                <span className="flex items-center gap-1.5 font-mono text-[11px]">
+                <span className="flex items-center gap-1.5 text-[13px] font-medium">
                   {decryptPII ? (
                     <I.view className="w-3.5 h-3.5 text-accent" />
                   ) : (
                     <I.locked className="w-3.5 h-3.5 text-ink-3" />
                   )}
-                  Decrypt PII (Audit Logged)
+                  Show personal details (logged)
                 </span>
               </label>
             </div>
           </div>
 
           {error && (
-            <div className="note" data-tone="danger" role="alert"><span className="note-label">Directory Error</span>{error}</div>
+            <div className="note" data-tone="danger" role="alert"><span className="note-label">Couldn’t load the directory</span>{error}</div>
           )}
 
           {loading ? (
-            <div className="field-paper p-12 text-center text-xs text-ink-3">
-              Loading recipient directory from secure store...
-            </div>
+            <div className="pane space-y-3 p-6" role="status" aria-label="Loading"><div className="skeleton h-5 w-1/3" /><div className="skeleton h-5 w-2/3" /><div className="skeleton h-5 w-1/2" /></div>
           ) : filteredRecipients.length === 0 ? (
-            <div className="field-paper p-12 text-center text-xs text-ink-3">
-              No recipients match the current filter or search criteria.
+            <div className="pane p-10 text-center text-[14px] text-ink-2">
+              No households here yet. The live Sandbox view only lists households with stored PayPal payments; switch to <span className="font-semibold text-ink">Milton replay</span> at the top to see a full directory.
             </div>
           ) : (
-            <div className="field-paper overflow-hidden shadow-sm border border-line">
-              <table className="w-full text-left text-xs field-table">
-                <thead className="bg-surface-2 text-ink-2 font-mono uppercase tracking-wider text-[11px]">
-                  <tr>
-                    <th className="p-3.5">Recipient / Address</th>
-                    <th className="p-3.5">Payment Channel</th>
-                    <th className="p-3.5">Residence Evidence</th>
-                    <th className="p-3.5">Hazard Exposure</th>
-                    <th className="p-3.5">Need Priority Tier</th>
-                    <th className="p-3.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line text-ink">
-                  {filteredRecipients.map((h) => {
-                    const { fourChecks } = h;
-                    return (
-                      <tr key={h.id} className="hover:bg-surface-2/40 transition-colors">
-                        <td className="p-3.5 font-medium">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-ink">{h.name}</span>
-                            <span className="text-[10px] px-1.5 py-0.2 rounded font-mono bg-surface-2 text-ink-2">
-                              v{h.recipientVersion}
-                            </span>
-                            {h.isDisplaced && (
-                              <span className="field-badge-warning text-[10px] font-mono">
-                                Displaced
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-[11px] text-ink-3 block mt-0.5">{h.address}</span>
-                        </td>
-                        <td className="p-3.5">
-                          <span
-                            className={
-                              fourChecks.paymentChannel.status === "VERIFIED"
-                                ? "field-badge-evergreen font-mono text-[10px]"
-                                : "field-badge-neutral font-mono text-[10px]"
-                            }
-                          >
-                            {fourChecks.paymentChannel.label}
-                          </span>
-                          <span className="block text-[11px] text-ink-3 mt-1 font-mono">
-                            {h.receiver}
-                          </span>
-                        </td>
-                        <td className="p-3.5">
-                          <span className="field-badge-neutral font-mono text-[10px]">
-                            {fourChecks.residenceEvidence.label}
-                          </span>
-                          {fourChecks.residenceEvidence.disclaimer && (
-                            <span className="block text-[10px] text-amber italic mt-1">
-                              {fourChecks.residenceEvidence.disclaimer}
-                            </span>
-                          )}
-                        </td>
-                        <td className="p-3.5">
-                          <span
-                            className={
-                              fourChecks.exposure.status === "CONFIRMED"
-                                ? "field-badge-critical font-mono text-[10px]"
-                                : "field-badge-neutral font-mono text-[10px]"
-                            }
-                          >
-                            {fourChecks.exposure.label}
-                          </span>
-                        </td>
-                        <td className="p-3.5">
-                          <span className="field-badge-evergreen font-mono text-[10px]">
-                            {fourChecks.need.label}
-                          </span>
-                        </td>
-                        <td className="p-3.5 text-right">
-                          <button
-                            onClick={() => setSelectedRecipient(h)}
-                            className="field-btn field-btn-secondary text-xs py-1 px-3"
-                          >
-                            View Dossier
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <HouseholdGrid rows={filteredRecipients} onOpen={setSelectedRecipient} />
           )}
         </div>
       ) : (
         /* Appeals Review Queue */
         <div className="space-y-4">
-          <div className="field-paper p-5">
-            <h2 className="text-xl font-serif font-bold text-ink mb-1">
-              Auditable Community Appeals Queue (24-Hour SLA)
-            </h2>
-            <p className="text-xs text-ink-2">
-              Residents disputing hazard boundaries, priority tiers, or payment routing. Invariant: AI is strictly barred from adjudicating appeals; coordinator reviews are recorded in immutable audit logs.
+          <div>
+            <h2 className="text-title-2 text-ink">Appeals, answered within 24 hours</h2>
+            <p className="mt-1 max-w-3xl text-[13.5px] text-ink-2">
+              Residents disputing a warning boundary, their priority or how they are paid. A coordinator decides every appeal; the AI never does, and each review is logged.
             </p>
           </div>
 
           {appeals.length === 0 ? (
-            <div className="field-paper p-12 text-center text-xs text-ink-3">
-              No active resident appeals in the review queue.
-            </div>
+            <div className="pane p-10 text-center text-[14px] text-ink-2">No open appeals. When a resident appeals, it appears here with its 24-hour deadline.</div>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
+            <ul className="space-y-3">
               {appeals.map((a) => {
                 const deadline = new Date(a.slaDeadline);
                 const isBreached = Date.now() > deadline.getTime();
                 return (
-                  <div key={a.id} className="field-paper p-5 space-y-3">
-                    <div className="flex items-start justify-between flex-wrap gap-2">
+                  <li key={a.id} className="pane space-y-3 p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-ink font-mono">
-                            {a.caseReference}
-                          </span>
-                          <span className="field-badge-neutral text-[10px] font-mono">
-                            {a.category}
-                          </span>
-                          <span
-                            className={
-                              isBreached
-                                ? "field-badge-critical font-mono text-[10px]"
-                                : "field-badge-evergreen font-mono text-[10px]"
-                            }
-                          >
-                            SLA: {deadline.toLocaleTimeString()} ({isBreached ? "BREACHED" : "ON TIME"})
-                          </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-code text-[13px] font-semibold text-ink">{a.caseReference}</span>
+                          <Tag tone="neutral">{String(a.category).toLowerCase().replace(/_/g, " ")}</Tag>
+                          <Tag tone={isBreached ? "danger" : "delivered"}>{isBreached ? "Past the 24-hour deadline" : `Answer by ${deadline.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}</Tag>
                         </div>
-                        <p className="text-xs text-ink-3 mt-1 font-mono">Household ID: {a.householdId}</p>
+                        <p className="mt-1 text-[12.5px] text-ink-3">Household <span className="font-code">{a.householdId}</span></p>
                       </div>
-                      <span className="field-badge-neutral font-mono text-xs">
-                        {a.status}
-                      </span>
+                      <Tag tone="amber">{String(a.status).toLowerCase().replace(/_/g, " ")}</Tag>
                     </div>
-                    <p className="text-xs text-ink bg-canvas p-3 rounded-lg border border-line leading-relaxed">
-                      {a.explanation}
-                    </p>
-                  </div>
+                    <p className="border-l-2 border-line-strong pl-3 text-[14px] leading-relaxed text-ink-2">{a.explanation}</p>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           )}
         </div>
       )}
 
       {/* Selected Profile Modal */}
       {selectedRecipient && (
-        <div className="fixed inset-0 z-50 bg-ink/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/35 p-4">
           <RecipientProfileView
             household={selectedRecipient}
             onClose={() => setSelectedRecipient(null)}

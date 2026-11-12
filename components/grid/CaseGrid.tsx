@@ -116,7 +116,8 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
   const [groupBy, setGroupBy] = useState<GroupBy>("stage");
   const [find, setFind] = useState("");
   const [query, setQuery] = useState("");
-  const [reply, setReply] = useState("Quick commands (rule-based keyword matcher, not an AI model), for example “show unclaimed payments”. They filter and sort this grid only; they can’t change amounts or pay anyone.");
+  const [reply, setReply] = useState<string | null>(null);
+  const [showMap, setShowMap] = useState(false);
   const [zoneFilter, setZoneFilter] = useState<string | null>(null);
   const [focus, setFocus] = useState<{ lng: number; lat: number; key: string } | null>(null);
   const [feed, setFeed] = useState<{ state: "idle" | "running" | "done"; last?: string }>({ state: "idle" });
@@ -178,7 +179,7 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
       detailGridOptions: {
         columnDefs: [
           { field: "title", headerName: "Evidence", flex: 1.1, minWidth: 150, cellClass: "font-semibold text-ink" },
-          { field: "ref", headerName: "Reference", flex: 1.3, minWidth: 170, cellClass: "font-mono text-[12px] text-paypal" },
+          { field: "ref", headerName: "Reference", flex: 1.3, minWidth: 170, cellClass: "font-code text-[12px] text-ink-2", tooltipField: "ref" },
           { field: "provenance", headerName: "Source", width: 160, cellRenderer: ProvenanceCell },
           { field: "state", headerName: "State", width: 140, cellRenderer: EvidenceStateCell },
           { field: "detail", headerName: "What we know", flex: 3, minWidth: 320, cellClass: "text-ink-2", tooltipField: "detail" },
@@ -206,20 +207,6 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
         cellClass: "font-semibold text-ink",
       },
       {
-        headerName: "Case",
-        field: "caseRef",
-        width: 110,
-        sortable: false,
-        filter: false,
-        cellRenderer: (p: { value?: string }) =>
-          p.value ? (
-            <a href={`/console/cases/${encodeURIComponent(p.value)}`} className="text-[12.5px] font-medium text-accent-strong underline-offset-2 hover:underline" aria-label="Open case, investigate and recover">
-              Open ›
-            </a>
-          ) : null,
-      },
-      { headerName: "Priority", field: "priorityTier", width: 130, filter: "agSetColumnFilter", enableRowGroup: true, cellRenderer: TierCell },
-      {
         headerName: "PayPal status",
         field: "payoutStatus",
         width: 170,
@@ -242,27 +229,6 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
         cellRenderer: StageCell,
       },
       {
-        headerName: "Trail",
-        field: "trail",
-        width: 120,
-        sortable: false,
-        filter: false,
-        floatingFilter: false,
-        cellRenderer: "agSparklineCellRenderer",
-        cellRendererParams: {
-          sparklineOptions: {
-            type: "column",
-            padding: { top: 15, bottom: 15, left: 6, right: 6 },
-            paddingInner: 0.35,
-            paddingOuter: 0.1,
-            axis: { strokeWidth: 0 },
-            formatter: (p: { yValue: number }) => ({ fill: p.yValue >= 1 ? LANDFALL.delivered : "rgba(255,244,232,0.14)" }),
-            tooltip: { enabled: false },
-          },
-        },
-        headerTooltip: "Approved → Sent → Credited → Confirmed → Closed",
-      },
-      {
         headerName: "Amount",
         field: "amount",
         width: 140,
@@ -270,11 +236,9 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
         enableValue: true,
         filter: "agNumberColumnFilter",
         enableCellChangeFlash: true,
-        cellClass: "tabular font-semibold text-money",
+        cellClass: "tabular font-semibold text-ink",
         valueFormatter: (p: any) => (typeof p.value === "number" ? money2(p.value) : p.value ?? ""),
       },
-      { headerName: "Clock", field: "clock", width: 160, cellClass: "text-ink-2" },
-      { headerName: "Evidence", field: "evidenceText", width: 140, cellRenderer: EvidenceCell },
       {
         headerName: "Next permitted action",
         field: "nextAction",
@@ -285,10 +249,51 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
         tooltipValueGetter: (p: any) => p.data?._case?.nextAction.plain,
         tooltipComponent: CaseTooltip,
       },
+      { headerName: "Priority", field: "priorityTier", width: 130, filter: "agSetColumnFilter", enableRowGroup: true, cellRenderer: TierCell },
+      {
+        headerName: "Trail",
+        field: "trail",
+        width: 120,
+        sortable: false,
+        filter: false,
+        floatingFilter: false,
+        cellRenderer: "agSparklineCellRenderer",
+        cellRendererParams: {
+          sparklineOptions: {
+            type: "bar",
+            direction: "vertical",
+            padding: { top: 15, bottom: 15, left: 6, right: 6 },
+            axis: { strokeWidth: 0 },
+            itemStyler: (p: { yValue: number }) => ({ fill: p.yValue >= 1 ? LANDFALL.delivered : "rgba(24,34,30,0.14)" }),
+            tooltip: { enabled: false },
+          },
+        },
+        headerTooltip: "Approved → Sent → Credited → Confirmed → Closed",
+      },
+      { headerName: "Clock", field: "clock", width: 160, cellClass: "text-ink-2" },
+      { headerName: "Evidence", field: "evidenceText", width: 140, cellRenderer: EvidenceCell },
       { headerName: "Score", field: "priorityScore", width: 100, filter: "agNumberColumnFilter", initialSort: "desc", cellClass: "tabular text-ink-2" },
       { headerName: "Zone", field: "zone", flex: 1.3, minWidth: 190, filter: "agSetColumnFilter", enableRowGroup: true, cellClass: "text-ink-2" },
-      { headerName: "Paid via", field: "recipientPath", width: 120, filter: "agSetColumnFilter", enableRowGroup: true, cellClass: "text-paypal" },
-      { headerName: "Item", field: "itemId", width: 150, filter: "agTextColumnFilter", cellClass: "font-mono text-[12px] text-ink-3" },
+      { headerName: "Paid via", field: "recipientPath", width: 120, filter: "agSetColumnFilter", enableRowGroup: true, cellClass: "text-ink-2" },
+      { headerName: "PayPal item", field: "itemId", width: 170, filter: "agTextColumnFilter", cellClass: "font-code text-[12px] text-ink-3" },
+      {
+        headerName: "",
+        colId: "open",
+        field: "caseRef",
+        pinned: "right",
+        width: 128,
+        sortable: false,
+        filter: false,
+        floatingFilter: false,
+        resizable: false,
+        suppressHeaderMenuButton: true,
+        cellRenderer: (p: { value?: string }) =>
+          p.value ? (
+            <a href={`/console/cases/${encodeURIComponent(p.value)}`} className="inline-flex items-center gap-1 text-[13px] font-semibold text-ink underline decoration-ink-3/60 underline-offset-[3px] hover:decoration-accent" aria-label="Open this payment: evidence, AI investigation and recovery">
+              Open case
+            </a>
+          ) : null,
+      },
       { headerName: "Medical device", field: "hasMedicalDevice", hide: true, filter: "agTextColumnFilter" },
       { headerName: "Needs a person", field: "needsPerson", hide: true, filter: "agTextColumnFilter" },
       { headerName: "Action key", field: "nextActionKey", hide: true, filter: "agTextColumnFilter" },
@@ -296,12 +301,11 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
     [groupBy]
   );
 
-  const autoGroupColumnDef = useMemo<ColDef>(
-    () => ({ headerName: groupBy === "stage" ? "Delivery stage" : "PayPal status", minWidth: 260, flex: 1.4, cellRendererParams: { suppressCount: false } }),
-    [groupBy]
-  );
+  // Full-width group rows ("Credited by PayPal · 1"), so a grouped grid reads like a list with headings, not a second column.
+  const groupRowRendererParams = useMemo(() => ({ suppressCount: false }), []);
 
-  const defaultColDef = useMemo<ColDef>(() => ({ sortable: true, resizable: true, filter: true, floatingFilter: true, enableRowGroup: false }), []);
+  // No floating-filter row: filters live in each column menu and the Filters side panel, so the header stays quiet.
+  const defaultColDef = useMemo<ColDef>(() => ({ sortable: true, resizable: true, filter: true, floatingFilter: false, enableRowGroup: false }), []);
 
   const customChartThemes = useMemo(() => ({ landfall: chartTheme() as any }), []);
 
@@ -454,77 +458,67 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
   };
 
   return (
-    <section className="space-y-4 animate-field-fade" aria-label="Relief delivery cases">
-      <div className="glass overflow-hidden">
-        {/* title + controls */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
-          <div className="flex items-center gap-3">
-            <span className="icon-tile tone-accent"><I.household /></span>
-            <div>
-              <h2 className="font-sans text-[16px] font-semibold tracking-[-0.015em] text-ink" style={{ fontFamily: "var(--font-sans)" }}>Relief delivery cases</h2>
-              <p className="text-[12.5px] text-ink-3">AG Grid · drag a header to group · right-click for actions · expand a case for its evidence</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <SegmentedTabs<GroupBy>
-              ariaLabel="Group cases by"
-              size="sm"
-              value={groupBy}
-              onChange={(k) => { api?.forEachNode((n) => n.master && n.setExpanded(false)); setGroupBy(k); }}
-              tabs={[{ id: "stage", label: "By stage" }, { id: "status", label: "By status" }, { id: "none", label: "Flat" }]}
-            />
-            <Button variant="ghost" size="sm" iconOnly aria-label="Expand all groups" title="Expand all groups" onClick={() => setGroupsExpanded(true)}><I.expandAll className="h-4 w-4" /></Button>
-            <Button variant="ghost" size="sm" iconOnly aria-label="Collapse all groups" title="Collapse all groups" onClick={() => setGroupsExpanded(false)}><I.collapseAll className="h-4 w-4" /></Button>
-            <label className="relative">
-              <span className="sr-only">Find in grid</span>
-              <I.search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-3" />
-              <input value={find} onChange={(e) => setFind(e.target.value)} placeholder="Find in grid…" className="field-input h-9 w-44 rounded-full pl-8 text-[12.5px]" />
-            </label>
+    <section className="space-y-4" aria-label="Relief delivery cases">
+      <div className="pane overflow-hidden">
+        {/* 1 — view controls */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-3">
+          <SegmentedTabs<GroupBy>
+            ariaLabel="Group cases by"
+            size="sm"
+            value={groupBy}
+            onChange={(k) => { api?.forEachNode((n) => n.master && n.setExpanded(false)); setGroupBy(k); }}
+            tabs={[{ id: "stage", label: "By stage" }, { id: "status", label: "By status" }, { id: "none", label: "Flat" }]}
+          />
+          <Button variant="ghost" size="sm" iconOnly aria-label="Expand all groups" title="Expand all groups" onClick={() => setGroupsExpanded(true)}><I.expandAll className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="sm" iconOnly aria-label="Collapse all groups" title="Collapse all groups" onClick={() => setGroupsExpanded(false)}><I.collapseAll className="h-4 w-4" /></Button>
+          <label className="relative ml-1">
+            <span className="sr-only">Find in grid</span>
+            <I.search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-3" />
+            <input value={find} onChange={(e) => setFind(e.target.value)} placeholder="Find in grid…" className="field-input has-icon h-9 !min-h-0 w-44 !py-0 text-[13.5px]" />
+          </label>
+          <div className="ml-auto flex flex-wrap items-center gap-1.5">
             <Button variant="glass" size="sm" leading={<I.chart className="h-4 w-4" />} onClick={chartIt}>Chart $ by status</Button>
-            <Button variant="ghost" size="sm" leading={<I.download className="h-4 w-4" />} onClick={() => api?.exportDataAsCsv({ fileName: "landfall_relief_cases.csv" })}>CSV</Button>
-            <Button variant="ghost" size="sm" leading={<I.download className="h-4 w-4" />} onClick={() => api?.exportDataAsExcel({ fileName: "landfall_relief_cases.xlsx" })}>Excel</Button>
+            <Button variant={showMap ? "glass" : "ghost"} size="sm" leading={<I.globe className="h-4 w-4" />} onClick={() => setShowMap((v) => !v)} aria-pressed={showMap} data-testid="grid-map-toggle">{showMap ? "Hide map" : "Show map"}</Button>
+            <Button variant="ghost" size="sm" leading={<I.download className="h-4 w-4" />} onClick={() => api?.exportDataAsExcel({ fileName: "landfall_relief_cases.xlsx" })} title="Export to Excel (CSV is in the right-click menu)">Export</Button>
             <Button variant="ghost" size="sm" leading={<I.retry className="h-4 w-4" />} onClick={resetGrid}>Reset</Button>
           </div>
         </div>
 
-        {/* ask the grid + live feed */}
-        <div className="flex flex-col gap-3 border-b border-white/[0.06] bg-ai/[0.035] px-5 py-3.5 xl:flex-row xl:items-center">
-          <form onSubmit={(e) => { e.preventDefault(); runCommand(query); }} className="flex flex-1 items-center gap-2">
-            <span className="icon-tile icon-tile-sm tone-ai"><I.aiAdvisor /></span>
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Quick command: “credited but not confirmed”, “Zone A”…" className="field-input h-9 rounded-full text-[13px]" aria-label="Ask the grid" />
-            <Button type="submit" variant="signal" size="sm" iconOnly aria-label="Send"><I.bolt className="h-4 w-4" /></Button>
+        {/* 2 — quick filters (rule-based, never AI) */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-2.5">
+          <span className="mr-1 text-[12.5px] font-semibold text-ink-3">Show</span>
+          {GRID_PROMPTS.slice(0, 3).map((p) => (
+            <button key={p} type="button" onClick={() => runCommand(p)} className="rounded-full border border-line-strong px-3 py-1 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-ink-3 hover:bg-ink/[0.04] hover:text-ink">{p}</button>
+          ))}
+          <form onSubmit={(e) => { e.preventDefault(); runCommand(query); }} className="flex w-[220px] items-center gap-2">
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Or type: “Zone A”, “tier 1”" className="field-input h-9 !min-h-0 !py-0 text-[13.5px]" aria-label="Ask the grid" title="Rule-based keyword filters, not an AI model. They only filter and sort this grid." />
           </form>
-          <div className="flex flex-wrap gap-1.5">
-            {GRID_PROMPTS.slice(0, 3).map((p) => (
-              <button key={p} onClick={() => runCommand(p)} className="rounded-sm border border-white/10 bg-white/[0.03] px-3 py-1 text-[12px] text-ink-2 transition-colors hover:border-ai/40 hover:text-ink">{p}</button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2 xl:border-l xl:border-white/[0.08] xl:pl-4">
-            <Button variant={feed.state === "running" ? "glass" : "paypal"} size="sm" leading={<I.webhook className="h-4 w-4" />} onClick={startFeed} disabled={feed.state === "running"}>
-              {feed.state === "running" ? "Receiving events…" : feed.state === "done" ? "Replay feed again" : "Replay PayPal feed"}
-            </Button>
-          </div>
+          <Button variant="ghost" size="sm" className="ml-auto" leading={<I.webhook className="h-4 w-4" />} onClick={startFeed} disabled={feed.state === "running"} title="Replays recorded PayPal webhook events (synthetic) so you can watch cells update live">
+            {feed.state === "running" ? "Receiving events…" : feed.state === "done" ? "Replay again" : "Replay PayPal webhooks"}
+          </Button>
         </div>
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-white/[0.06] px-5 py-2.5 text-[12.5px] text-ink-2" data-testid="grid-agent-reply">
-          <Tag tone="ai">Read-only</Tag>
-          <span className="min-w-0 flex-1">{reply}</span>
-          {feed.state !== "idle" && <Tag tone="storm">Replay feed · synthetic events</Tag>}
-          {feed.last && <span className="font-mono text-[11px] text-ink-3">{feed.last}</span>}
-          {zoneFilter && (
-            <button onClick={() => filterToZone(null)} className="inline-flex items-center gap-1.5 rounded-sm border border-money/30 bg-money/10 px-2.5 py-1 text-[11.5px] text-money">
-              Filtered to {zoneFilter} <I.close className="h-3 w-3" />
-            </button>
-          )}
-        </p>
+        {(reply || feed.state !== "idle" || zoneFilter) && (
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-line bg-ink/[0.02] px-4 py-2.5 text-[13px] text-ink-2" data-testid="grid-agent-reply" aria-live="polite">
+            {reply && <span className="min-w-0 flex-1"><span className="font-semibold text-ink">Filter: </span>{reply}</span>}
+            {feed.state !== "idle" && <Tag tone="amber">Replayed webhooks · synthetic events</Tag>}
+            {feed.last && <span className="font-code text-[11.5px] text-ink-3">{feed.last}</span>}
+            {zoneFilter && (
+              <button onClick={() => filterToZone(null)} className="inline-flex items-center gap-1.5 rounded-full border border-line-strong px-2.5 py-1 text-[12px] text-ink">
+                Filtered to {zoneFilter} <I.close className="h-3 w-3" />
+              </button>
+            )}
+          </p>
+        )}
 
-        {/* grid + map */}
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="h-[640px] min-w-0">
+        {/* 3 — the grid (+ the map, on request) */}
+        <div className={`grid grid-cols-1 ${showMap ? "xl:grid-cols-[minmax(0,1fr)_400px]" : ""}`}>
+          <div className="h-[680px] min-w-0">
             <AgGridReact
               rowData={rowData}
               columnDefs={columnDefs}
               defaultColDef={defaultColDef}
-              autoGroupColumnDef={groupBy === "none" ? undefined : autoGroupColumnDef}
+              groupDisplayType="groupRows"
+              groupRowRendererParams={groupRowRendererParams}
               groupDefaultExpanded={groupBy === "none" ? 0 : 1}
               rowGroupPanelShow="always"
               theme={landfallGridTheme}
@@ -553,7 +547,8 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
             />
           </div>
 
-          <aside className="relative hidden h-[640px] border-l border-white/[0.06] xl:block" aria-label="Where the selected households are">
+          {showMap && (
+          <aside className="relative hidden h-[680px] border-l border-line xl:block" aria-label="Where the selected households are">
             <StormDesk
               variant="panel"
               className="!rounded-none !border-0"
@@ -574,14 +569,14 @@ export function CaseGrid({ cases, queue, openRef }: { cases: ReliefCase[]; queue
               Select a case and the globe flies to its zone. Click a cluster to filter the grid to that zone. Homes are clustered — no exact address is shown.
             </p>
           </aside>
+          )}
         </div>
       </div>
 
       {/* integrated chart */}
-      <div className={showChart ? "glass overflow-hidden" : "hidden"}>
-        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
-          <div className="flex items-center gap-2">
-            <span className="icon-tile icon-tile-sm tone-money"><I.chart /></span>
+      <div className={showChart ? "pane overflow-hidden" : "hidden"}>
+        <div className="flex items-center justify-between border-b border-line px-5 py-3">
+          <div className="flex items-center gap-2.5">
             <span className="text-[14px] font-semibold text-ink">Dollars by PayPal status</span>
             <Tag tone="neutral">AG integrated chart · {money(rowData.reduce((a, r) => a + r.amount, 0))} total</Tag>
           </div>

@@ -24,7 +24,7 @@ export function ExposureDistributionWidget({
 
   return (
     <div className="glass p-5">
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
+      <div className="flex items-center justify-between pb-3 border-b border-ink/[0.07]">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-amber0" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
@@ -53,7 +53,7 @@ export function ExposureDistributionWidget({
                   )}
                 </span>
               </div>
-              <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-white/[0.07]">
+              <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-ink/[0.07]">
                 <div
                   className={`h-full ${item.color} transition-all duration-500`}
                   style={{ width: `${pct}%` }}

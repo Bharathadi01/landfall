@@ -21,7 +21,7 @@ const ORGS = [
   ["other", "Other"],
 ] as const;
 
-const field = "mt-1 block w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2.5 text-[14px] text-ink";
+const field = "mt-1 block w-full rounded-lg border border-ink/10 bg-ink/[0.04] px-3 py-2.5 text-[14px] text-ink";
 
 /** Stakeholder feedback form. Nothing is shown publicly except how many real people have answered. */
 export default function ValidatePage() {

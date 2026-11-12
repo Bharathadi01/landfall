@@ -25,7 +25,7 @@ export function TreasuryWaterfallWidget(props: TreasuryWaterfallProps) {
 
   return (
     <div className="glass p-5">
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
+      <div className="flex items-center justify-between pb-3 border-b border-ink/[0.07]">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-delivered0" />
           <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-ink">
@@ -38,7 +38,7 @@ export function TreasuryWaterfallWidget(props: TreasuryWaterfallProps) {
       </div>
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
+        <div className="bg-ink/[0.04] p-3 rounded-lg border border-ink/[0.06]">
           <div className="text-[11px] text-ink-2 font-mono">Protected reserve</div>
           <div className="text-sm font-bold text-amber mt-0.5">
             {formatUsd(reserveProtectedCents)}
@@ -46,7 +46,7 @@ export function TreasuryWaterfallWidget(props: TreasuryWaterfallProps) {
           <div className="text-[10px] text-ink0 mt-0.5">Solvency firewall</div>
         </div>
 
-        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
+        <div className="bg-ink/[0.04] p-3 rounded-lg border border-ink/[0.06]">
           <div className="text-[11px] text-ink-2 font-mono">Fee Buffer</div>
           <div className="text-sm font-bold text-ink-2 mt-0.5">
             {formatUsd(feesReservedCents)}
@@ -54,7 +54,7 @@ export function TreasuryWaterfallWidget(props: TreasuryWaterfallProps) {
           <div className="text-[10px] text-ink0 mt-0.5">Billed per item, not reserved</div>
         </div>
 
-        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
+        <div className="bg-ink/[0.04] p-3 rounded-lg border border-ink/[0.06]">
           <div className="text-[11px] text-ink-2 font-mono">Tranche 1 budget</div>
           <div className="text-sm font-bold text-paypal mt-0.5">
             {formatUsd(allocatableCents)}
@@ -62,7 +62,7 @@ export function TreasuryWaterfallWidget(props: TreasuryWaterfallProps) {
           <div className="text-[10px] text-ink0 mt-0.5">Cash minus reserve, incl. already sent</div>
         </div>
 
-        <div className="bg-black/20 p-3 rounded-lg border border-white/[0.06]">
+        <div className="bg-ink/[0.04] p-3 rounded-lg border border-ink/[0.06]">
           <div className="text-[11px] text-ink-2 font-mono">Sent so far</div>
           <div className="text-sm font-bold text-delivered mt-0.5">
             {formatUsd(committedCents)}
@@ -77,7 +77,7 @@ export function TreasuryWaterfallWidget(props: TreasuryWaterfallProps) {
           <span>Capital Allocation Breakdown</span>
           <span>{Math.round((committedCents / totalCashCents) * 100)}% Deployed</span>
         </div>
-        <div className="h-3 w-full bg-surface rounded-full flex overflow-hidden border border-white/[0.07]">
+        <div className="h-3 w-full bg-surface rounded-full flex overflow-hidden border border-ink/[0.07]">
           <div
             className="bg-delivered0 h-full"
             style={{ width: `${(committedCents / totalCashCents) * 100}%` }}

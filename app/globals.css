@@ -22,19 +22,20 @@ body {
 }
 
 ::selection {
-  background: rgb(var(--c-accent) / 0.35);
+  background: rgb(var(--c-accent) / 0.18);
   color: rgb(var(--c-ink));
 }
 
-/* Backdrop: a faint warm vignette. No grid, no orbs — the globe and the glass carry the page. */
+/* Backdrop: warm paper with morning light. */
 .vignette {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  /* morning light: a faint sunrise warmth at the top of every page */
   background:
-    radial-gradient(1100px 620px at 50% -12%, rgb(var(--c-accent) / 0.07), transparent 65%),
-    radial-gradient(900px 600px at 105% 105%, rgb(var(--c-money) / 0.045), transparent 60%),
+    radial-gradient(1200px 560px at 30% -14%, rgb(var(--c-sun) / 0.10), transparent 62%),
+    radial-gradient(900px 520px at 100% 0%, rgb(var(--c-accent) / 0.05), transparent 60%),
     rgb(var(--c-canvas));
 }
 
@@ -49,3 +50,15 @@ body {
 .maplibregl-ctrl-icon { filter: invert(1) brightness(1.4); }
 .maplibregl-ctrl-attrib { background: rgb(0 0 0 / 0.45) !important; color: rgb(var(--c-ink-3)) !important; }
 .maplibregl-ctrl-attrib a { color: rgb(var(--c-ink-2)) !important; }
+
+
+/* ── LEGIBILITY FLOOR (light ground) ─────────────────────────
+ * Small arbitrary sizes written for the old dark theme are lifted one step, so no reading text falls below ~12.5px.
+ * Declared after Tailwind's utilities so it wins without !important. */
+.text-\[10px\], .text-\[10\.5px\] { font-size: 11.5px; }
+.text-\[11px\], .text-\[11\.5px\] { font-size: 12.5px; }
+.text-xs, .text-\[12px\] { font-size: 13px; }
+.text-\[12\.5px\] { font-size: 13.5px; }
+.text-\[13px\] { font-size: 14px; }
+.text-\[13\.5px\] { font-size: 14.5px; }
+.eyebrow { font-size: 13px; color: rgb(var(--c-ink-2)); }

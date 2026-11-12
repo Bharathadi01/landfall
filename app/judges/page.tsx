@@ -62,28 +62,28 @@ export default async function JudgesPage() {
       <ol className="mt-8 grid gap-4 md:grid-cols-3">
         {[
           { n: "1", t: "Sign in as a demo persona", d: "One click. Roles are enforced by the server on every request.", href: "/signin", cta: "Open sign-in" },
-          { n: "2", t: "Open a case", d: "Command Center → Cases. Open the unclaimed payment and press “Investigate with AI”.", href: "/console/war-room", cta: "Open Command Center" },
+          { n: "2", t: "Open a case", d: "Payments. Open an unclaimed payment and press “Investigate”: the AI reads PayPal’s own record and cites it.", href: "/console/payments", cta: "Open Payments" },
           { n: "3", t: "Be the resident", d: "Use a reference and code below on the resident page. Your answer appears to the coordinator.", href: "/r/enroll?tab=status", cta: "Open resident page" },
         ].map((s) => (
-          <li key={s.n} className="list-none"><GlassPane level={2}>
-            <div className="font-mono text-[11px] text-ink-3">STEP {s.n}</div>
+          <li key={s.n} className="pane flex list-none flex-col p-5">
+            <div className="text-[12.5px] font-semibold text-ink-3">Step {s.n}</div>
             <div className="mt-1 text-[16px] font-semibold tracking-[-0.02em] text-ink">{s.t}</div>
             <p className="mt-1 text-[13px] text-ink-2">{s.d}</p>
-            <div className="mt-4">
-              <Button href={s.href} variant="glass" size="sm" trailing={<I.arrowRight />}>{s.cta}</Button>
+            <div className="mt-auto pt-4">
+              <Button href={s.href} variant="glass" size="sm">{s.cta}</Button>
             </div>
-          </GlassPane></li>
+          </li>
         ))}
       </ol>
 
-      <h2 className="mt-12 text-title-3 text-ink">Resident test households</h2>
+      <h2 className="mt-12 text-title-2 text-ink">Resident test households</h2>
       <p className="mt-1 text-[13px] text-ink-3">Reference + 6-digit code. The code proves you are that household; the server returns only that household’s record.</p>
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]" tabIndex={0} role="region" aria-label="Resident test households, scrollable table">
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-ink/[0.08]" tabIndex={0} role="region" aria-label="Resident test households, scrollable table">
         <table className="w-full min-w-[640px] text-left text-[13px]">
-          <thead className="bg-white/[0.03] text-ink-3">
+          <thead className="bg-ink/[0.03] text-ink-3">
             <tr><th className="p-3 font-medium">Household</th><th className="p-3 font-medium">Reference</th><th className="p-3 font-medium">Code</th><th className="p-3 font-medium">What to try</th></tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.06]">
+          <tbody className="divide-y divide-ink/[0.06]">
             {featured.map((f) => (
               <tr key={f.hh}>
                 <td className="p-3 text-ink">{f.name}<div className="text-[11px] text-ink-3">{f.status}</div></td>
@@ -96,7 +96,7 @@ export default async function JudgesPage() {
         </table>
       </div>
 
-      <h2 className="mt-12 text-title-3 text-ink">Demo personas</h2>
+      <h2 className="mt-12 text-title-2 text-ink">Demo personas</h2>
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         {PERSONAS.map((p) => (
           <GlassPane key={p.id}>
@@ -109,19 +109,19 @@ export default async function JudgesPage() {
 
       {demoKeyEnabled() && (
         <section className="mt-12" aria-label="Approval PIN">
-          <h2 className="text-title-3 text-ink">Approving a payment (two people)</h2>
+          <h2 className="text-title-2 text-ink">Approving a payment (two people)</h2>
           <p className="mt-2 text-[14px] text-ink-2">
             Sign in as <b>Dana Ortiz</b> (coordinator), propose an action from a live case, approve it, then sign in as <b>Sam Patel</b> (finance) and approve it too.
             Each approval is a passkey if your device has one, otherwise the labelled <b>demo approval PIN</b>:{" "}
-            <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[13px]" data-testid="demo-pin-value">{demoPin()}</code>. The server records which one was used.
+            <code className="rounded bg-ink/10 px-1.5 py-0.5 font-mono text-[13px]" data-testid="demo-pin-value">{demoPin()}</code>. The server records which one was used.
           </p>
         </section>
       )}
 
-      <h2 className="mt-12 text-title-3 text-ink">What is real, and what is not</h2>
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/[0.08]" tabIndex={0} role="region" aria-label="What is real and what is not, scrollable table">
+      <h2 className="mt-12 text-title-2 text-ink">What is real, and what is not</h2>
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-ink/[0.08]" tabIndex={0} role="region" aria-label="What is real and what is not, scrollable table">
         <table className="w-full min-w-[640px] text-left text-[13px]">
-          <tbody className="divide-y divide-white/[0.06] text-ink-2">
+          <tbody className="divide-y divide-ink/[0.06] text-ink-2">
             {[
               ["REAL", "PayPal Sandbox payouts, statuses, transaction ids, fees (batch VTJG3SR5BY56C: $500 sent; 1 credited, 3 still unclaimed, and 1 cancelled through the two-person flow and returned by PayPal — see docs/LIVE_PROOF.md)."],
               ["REAL", "Groq model calls for the AI case officer, Watch Officer and Studio agent (the answer says which model, or that a labelled offline fallback answered)."],

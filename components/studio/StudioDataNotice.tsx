@@ -16,7 +16,7 @@ export function StudioDataNotice({ className = "" }: { className?: string }) {
     <div role="note" className={`note ${className}`} data-tone="amber" data-testid="studio-data-notice">
       <span className="note-label">Replay data</span>
       This workspace analyses the synthetic Milton replay dataset, so every widget has a complete evidence chain. Your real PayPal Sandbox payments are in{" "}
-      <Link href="/console/war-room" className="text-ink underline underline-offset-2">Command Center → Cases</Link>.
+      <Link href="/console/payments" className="text-ink underline underline-offset-2">Payments</Link>.
     </div>
   );
 }

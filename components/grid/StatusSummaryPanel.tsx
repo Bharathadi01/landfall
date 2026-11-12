@@ -34,7 +34,7 @@ export function StatusSummaryPanel(props: IStatusPanelParams) {
 
   const Item = ({ label, value, cls }: { label: string; value: string; cls: string }) => (
     <span className="inline-flex items-baseline gap-1.5">
-      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">{label}</span>
+      <span className="text-[12px] text-ink-3">{label}</span>
       <span className={`tabular text-[12.5px] font-semibold ${cls}`}>{value}</span>
     </span>
   );
@@ -43,8 +43,8 @@ export function StatusSummaryPanel(props: IStatusPanelParams) {
     <div className="flex flex-wrap items-center gap-x-5 gap-y-1 px-2" data-testid="grid-status-summary">
       <Item label="Showing" value={`${s.rows} cases · ${money2(s.total)}`} cls="text-ink" />
       <Item label="Credited by PayPal" value={money2(s.credited)} cls="text-paypal" />
-      <Item label="In limbo" value={money2(s.stuck)} cls="text-amber" />
-      <Item label="Not delivered" value={money2(s.failed)} cls="text-danger" />
+      <Item label="Waiting on someone" value={money2(s.stuck)} cls="text-amber" />
+      <Item label="Returned or failed" value={money2(s.failed)} cls="text-danger" />
     </div>
   );
 }

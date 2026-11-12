@@ -25,18 +25,23 @@ export function SessionChip() {
       <a href="/signin" className="text-[12.5px] font-medium text-accent-strong underline-offset-2 hover:underline">Sign in</a>
     );
   }
-  const label = me.role === "viewer" ? "Judge · read-only" : me.role === "finance" ? "Finance" : me.role === "coordinator" ? "Coordinator" : "Resident";
+  const role = me.role === "viewer" ? "Read-only" : me.role === "finance" ? "Finance" : me.role === "coordinator" ? "Coordinator" : "Resident";
+  const first = me.name.replace(/\s*\(.*\)$/, "").split(" ")[0];
   return (
     <div className="hidden items-center gap-3 lg:flex" data-testid="session-chip">
-      <span className="text-[13px] text-ink-2" title="Demo persona: a fictional person. The server enforces this role on every request.">
-        {me.name.split(" ")[0]} <span className="text-ink-3">· {label}</span>
+      <span className="flex items-center gap-2.5" title="Demo persona: a fictional person. The server enforces this role on every request.">
+        <span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-full border border-line-strong bg-surface-2 text-[12px] font-semibold text-ink">{first.slice(0, 1)}</span>
+        <span className="flex flex-col leading-tight">
+          <span className="text-[13px] font-semibold text-ink">{first}</span>
+          <span className="text-[11.5px] text-ink-3">{role} · demo</span>
+        </span>
       </span>
       <button
         type="button"
-        className="text-[12.5px] text-ink-3 underline-offset-2 hover:text-ink hover:underline"
+        className="inline-flex min-h-[32px] items-center rounded-md px-2 text-[12.5px] font-medium text-ink-3 transition-colors hover:bg-ink/5 hover:text-ink"
         onClick={async () => {
           await fetch("/api/auth/session", { method: "DELETE" });
-          window.location.assign("/signin");
+          window.location.assign("/");
         }}
       >
         Sign out

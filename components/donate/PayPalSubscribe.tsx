@@ -19,7 +19,7 @@ export function PayPalSubscribe({ onApproved, onError, onCancel }: { onApproved:
       .then((sdk) => {
         if (dead || !box.current) return;
         buttons = sdk.Buttons({
-          style: { layout: "vertical", shape: "rect", color: "black", label: "subscribe", height: 46, tagline: false },
+          style: { layout: "vertical", shape: "rect", color: "gold", label: "subscribe", height: 46, tagline: false },
           createSubscription: (_: unknown, actions: any) => actions.subscription.create({ plan_id: SUSTAINER_PLAN_ID }),
           onApprove: async (data: { subscriptionID: string }) => {
             const res = await fetch("/api/subscriptions/activate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subscriptionId: data.subscriptionID }) });

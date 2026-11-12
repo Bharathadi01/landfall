@@ -55,7 +55,7 @@ export function PayPalCheckout({
       .then((sdk) => {
         if (dead || !box.current) return;
         buttons = sdk.Buttons({
-          style: { layout: "vertical", shape: "rect", color: "black", label: "paypal", height: 46, tagline: false },
+          style: { layout: "vertical", shape: "rect", color: "gold", label: "paypal", height: 46, tagline: false },
           onClick: (_: unknown, actions: any) => {
             const v = Number(amountRef.current);
             if (!Number.isFinite(v) || v < 1) {

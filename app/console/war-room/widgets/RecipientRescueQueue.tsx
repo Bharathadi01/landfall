@@ -113,7 +113,7 @@ export function RecipientRescueQueue() {
 
   return (
     <div className="glass space-y-4 p-5">
-      <div className="flex flex-col justify-between gap-2 border-b border-white/[0.07] pb-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-2 border-b border-ink/[0.07] pb-3 sm:flex-row sm:items-center">
         <div>
           <span className="flex items-center gap-1.5 text-[15px] font-semibold tracking-[-0.015em] text-ink">
             <span className="h-2 w-2 rounded-full bg-danger" />
@@ -124,13 +124,13 @@ export function RecipientRescueQueue() {
         <span className="field-badge field-badge-ai">Read-only investigator</span>
       </div>
 
-      <div className="h-56 w-full overflow-hidden rounded-lg border border-white/[0.07]">
+      <div className="h-56 w-full overflow-hidden rounded-lg border border-ink/[0.07]">
         <AgGridReact theme={landfallDarkTheme} rowData={queueData} columnDefs={columnDefs} defaultColDef={{ resizable: true, sortable: true }} pagination={false} />
       </div>
 
       {selectedCase && investigation && (
         <div className="space-y-3 rounded-xl border border-ai/25 bg-ai/[0.05] p-4 text-xs">
-          <div className="flex flex-col justify-between gap-2 border-b border-white/[0.07] pb-2 sm:flex-row sm:items-center">
+          <div className="flex flex-col justify-between gap-2 border-b border-ink/[0.07] pb-2 sm:flex-row sm:items-center">
             <div>
               <span className="font-semibold text-ink">Investigation: {selectedCase.recipientName}</span>
               <span className="ml-2 font-mono text-[10.5px] text-ink-3">{selectedCase.caseId}</span>
@@ -141,7 +141,7 @@ export function RecipientRescueQueue() {
           </div>
 
           <div className="grid grid-cols-1 gap-3 text-[11.5px] md:grid-cols-2">
-            <div className="space-y-1 rounded border border-white/[0.07] bg-black/20 p-2.5">
+            <div className="space-y-1 rounded border border-ink/[0.07] bg-ink/[0.04] p-2.5">
               <span className="block font-semibold text-ink-2">Verified evidence facts</span>
               <ul className="list-inside list-disc space-y-0.5 text-ink-2">
                 {investigation.verified_facts.map((f, i) => (
@@ -149,7 +149,7 @@ export function RecipientRescueQueue() {
                 ))}
               </ul>
             </div>
-            <div className="space-y-1 rounded border border-white/[0.07] bg-black/20 p-2.5">
+            <div className="space-y-1 rounded border border-ink/[0.07] bg-ink/[0.04] p-2.5">
               <span className="block font-semibold text-amber">Root-cause hypotheses (not facts)</span>
               <ul className="list-inside list-disc space-y-0.5 text-ink-2">
                 {investigation.hypotheses.map((h, i) => (

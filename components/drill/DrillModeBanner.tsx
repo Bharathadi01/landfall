@@ -38,7 +38,7 @@ export function DrillModeBanner({
           </span>
           <button
             onClick={() => setDismissed(true)}
-            className="text-amber hover:text-white underline"
+            className="text-amber hover:text-ink underline"
           >
             Acknowledge
           </button>

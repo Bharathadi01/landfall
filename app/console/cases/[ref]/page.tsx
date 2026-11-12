@@ -32,47 +32,73 @@ export default function CasePage() {
     };
   }, [ref]);
 
-  if (c === undefined) return <p className="text-[13px] text-ink-3">Loading case…</p>;
+  if (c === undefined)
+    return (
+      <div className="space-y-4" role="status" aria-label="Loading the payment">
+        <div className="skeleton h-4 w-40" /><div className="skeleton h-10 w-2/3" /><div className="skeleton h-40 w-full" />
+      </div>
+    );
   if (c === null) {
     return (
-      <div className="space-y-3">
-        <p className="glass p-5 text-[14px] text-ink-2">We couldn’t find that case in the current data source{source ? ` (${source})` : ""}. Switch the source at the top of the page, or go back to the war room.</p>
-        <Link href="/console/war-room" className="text-accent-strong underline">Back to the war room</Link>
+      <div className="pane space-y-3 p-6">
+        <p className="text-[14.5px] text-ink-2">We couldn’t find that payment in the current data source{source ? ` (${source})` : ""}. Switch the data source at the top of the page, or go back to Payments.</p>
+        <Link href="/console/payments" className="link font-semibold">Back to Payments</Link>
       </div>
     );
   }
 
+  const live = c.origin === "SANDBOX_LIVE";
   return (
-    <div className="space-y-5">
-      <PageHeader eyebrow={c.origin === "SANDBOX_LIVE" ? "Live PayPal Sandbox" : "Milton replay"} title={`${c.resident} · ${money2(c.amountUsd)}`} description={c.nextAction.plain} />
-      <section className="glass space-y-3 p-4" aria-label="Where this payment is">
-        <div className="flex flex-wrap items-center gap-3">
-          <PayPalStatusBadge status={c.status} />
-          <StageDots c={c} />
-          {c.claimDaysLeft !== null && <span className="text-[13px] text-amber">{c.claimDaysLeft} day{c.claimDaysLeft === 1 ? "" : "s"} left in PayPal’s claim window</span>}
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow={`${live ? "Live PayPal Sandbox" : "Milton replay · synthetic"} · ${c.zone}`}
+        title={`${c.resident} · ${money2(c.amountUsd)}`}
+        description={<><span className="font-semibold text-ink">Next: </span>{c.nextAction.plain}</>}
+      />
+
+      <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        {/* the record */}
+        <div className="space-y-6">
+          <section className="pane p-5" aria-label="Where this payment is">
+            <div className="flex flex-wrap items-center gap-3">
+              <PayPalStatusBadge status={c.status} />
+              <StageDots c={c} />
+              {c.claimDaysLeft !== null && <span className="text-[13px] font-semibold text-amber">{c.claimDaysLeft} day{c.claimDaysLeft === 1 ? "" : "s"} left to claim at PayPal</span>}
+            </div>
+            <dl className="mt-4 grid grid-cols-1 gap-3 border-t border-line pt-4 text-[13px] sm:grid-cols-3">
+              <div><dt className="text-ink-3">PayPal item</dt><dd className="mt-0.5 truncate font-code text-[12.5px] text-ink">{c.itemId}</dd></div>
+              <div><dt className="text-ink-3">Batch</dt><dd className="mt-0.5 truncate font-code text-[12.5px] text-ink">{c.batchId}</dd></div>
+              <div><dt className="text-ink-3">Evidence</dt><dd className="mt-0.5 font-semibold text-ink">{c.evidenceCount.present} of {c.evidenceCount.applicable} present</dd></div>
+            </dl>
+          </section>
+
+          <section className="pane p-5" aria-labelledby="ev-h">
+            <h2 id="ev-h" className="text-title-2 text-ink">Evidence</h2>
+            <p className="mt-1 text-[13px] text-ink-3">Each fact says who reported it. Missing evidence is shown as missing, never assumed.</p>
+            <ul className="mt-3 divide-y divide-line">
+              {c.evidence.map((e) => (
+                <li key={e.key} className="flex flex-wrap items-start justify-between gap-3 py-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px] font-semibold text-ink">{e.title}</div>
+                    <div className="mt-0.5 text-[13px] text-ink-2">{e.detail}</div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <EvidenceState state={e.state} />
+                    <ProvenanceTag provenance={e.provenance} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
-        <p className="text-[12.5px] text-ink-3">PayPal item {c.itemId} · batch {c.batchId} · {c.evidenceCount.present} of {c.evidenceCount.applicable} pieces of evidence present</p>
-      </section>
-      <section className="glass p-4" aria-label="Evidence">
-        <h3 className="text-[15px] font-semibold text-ink">Evidence</h3>
-        <ul className="mt-3 divide-y divide-white/[0.06]">
-          {c.evidence.map((e) => (
-            <li key={e.key} className="flex flex-wrap items-start justify-between gap-3 py-2.5">
-              <div className="min-w-0">
-                <div className="text-[13.5px] font-medium text-ink">{e.title}</div>
-                <div className="text-[12.5px] text-ink-3">{e.detail}</div>
-              </div>
-              <div className="flex items-center gap-2">
-                <EvidenceState state={e.state} />
-                <ProvenanceTag provenance={e.provenance} />
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-      <CaseOfficerPanel caseRef={c.caseRef} />
-      <div className="glass p-4">
-        <RecoveryPanel c={c} me={me} />
+
+        {/* what you can do */}
+        <div className="space-y-6">
+          <CaseOfficerPanel caseRef={c.caseRef} />
+          <section className="pane p-5" aria-label="What can safely be done">
+            <RecoveryPanel c={c} me={me} />
+          </section>
+        </div>
       </div>
     </div>
   );

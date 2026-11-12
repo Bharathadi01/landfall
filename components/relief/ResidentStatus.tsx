@@ -254,7 +254,7 @@ export function ResidentStatus({ lang }: { lang: string }) {
         <div className="grid gap-2 sm:grid-cols-[1fr_11rem_auto]">
           <div className="relative">
             <I.search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
-            <input value={ref} onChange={(e) => setRef(e.target.value)} placeholder={c.placeholder} className="field-input pl-10" aria-label={c.placeholder} autoComplete="off" />
+            <input value={ref} onChange={(e) => setRef(e.target.value)} placeholder={c.placeholder} className="field-input has-icon" aria-label={c.placeholder} autoComplete="off" />
           </div>
           <input
             value={code}
@@ -291,7 +291,7 @@ export function ResidentStatus({ lang }: { lang: string }) {
           <ol className="grid grid-cols-5 gap-1.5" aria-label="Payment progress">
             {view.steps.map((s) => (
               <li key={s.key} className="space-y-2">
-                <span className={`block h-1.5 rounded-full ${s.reached ? (s.key === "CREDITED" ? "bg-paypal" : "bg-accent") : "bg-white/10"}`} />
+                <span className={`block h-1.5 rounded-full ${s.reached ? (s.key === "CREDITED" ? "bg-paypal" : "bg-accent") : "bg-ink/10"}`} />
                 <span className={`flex items-start gap-1 text-[11px] leading-tight ${s.reached ? "text-ink" : "text-ink-3"}`}>
                   {s.reached && <I.check className="mt-px h-3 w-3 shrink-0 text-accent-strong" strokeWidth={2.5} />}
                   {c.steps[s.key]}
@@ -332,10 +332,10 @@ export function ResidentStatus({ lang }: { lang: string }) {
                     </button>
                   </div>
                 ) : (
-                  <fieldset className="space-y-2.5 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                  <fieldset className="space-y-2.5 rounded-2xl border border-ink/10 bg-ink/[0.02] p-4">
                     <legend className="px-1 text-[13px] font-semibold text-ink">{c.problem}</legend>
                     {(Object.keys(c.reasons) as (keyof Copy["reasons"])[]).map((k) => (
-                      <label key={k} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-[14px] text-ink hover:bg-white/[0.04]">
+                      <label key={k} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-[14px] text-ink hover:bg-ink/[0.04]">
                         <input type="radio" name="reason" checked={reason === k} onChange={() => setReason(k)} />
                         {c.reasons[k]}
                       </label>

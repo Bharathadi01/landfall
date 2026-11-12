@@ -32,13 +32,13 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     const ctx = gsap.context(() => {
       const run = () => {
         const targets = gsap.utils
-          .toArray<HTMLElement>("[data-reveal]")
+          .toArray<HTMLElement>(".reveal-scope [data-reveal]")
           .filter((el) => !el.dataset.revealed);
         if (!targets.length) return;
         targets.forEach((el) => (el.dataset.revealed = "1"));
 
         ScrollTrigger.batch(targets, {
-          start: "top 94%",
+          start: "top 97%",
           once: true,
           onEnter: (batch) => {
             const scaleEls = batch.filter((el) => (el as HTMLElement).dataset.reveal === "scale");

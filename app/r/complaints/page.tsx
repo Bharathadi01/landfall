@@ -45,8 +45,8 @@ interface I18nComplaintsContent {
 
 const I18N_COMPLAINTS: Record<string, I18nComplaintsContent> = {
   en: {
-    title: "Community Appeals & Assistance Review",
-    subtitle: "Request an update to your assistance record, payment method, or priority tier.",
+    title: "Something wrong? Tell us.",
+    subtitle: "A person from the relief team reads every message and replies within 24 hours. You can also change how you are paid, or ask us to look at a decision again.",
     slaNotice: "Target initial coordinator review within 24 hours. Full resolution depends on provider verification.",
     tabSubmit: "Submit an Appeal",
     tabLookup: "Check Case Status",
@@ -330,7 +330,7 @@ export default function ComplaintsAppealsPage() {
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
-            className="field-input text-xs py-1.5 px-2.5 bg-surface font-medium"
+            className="field-input !w-auto min-w-[10.5rem] text-[13.5px] font-medium"
             aria-label="Select language"
           >
             <option value="en">English (EN)</option>
@@ -546,7 +546,7 @@ export default function ComplaintsAppealsPage() {
                 value={lookupId}
                 onChange={(e) => setLookupId(e.target.value)}
                 placeholder={t.lookupPlaceholder}
-                className="field-input pl-9 pr-3 py-2 text-xs w-full bg-surface"
+                className="field-input has-icon py-2 text-xs w-full bg-surface"
               />
             </div>
             <button

@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // A second local server (for example a verification run) can use its own build folder: NEXT_DIST_DIR=.next-verify
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {

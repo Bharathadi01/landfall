@@ -1,73 +1,44 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { I } from "@/components/icons";
 import { LandfallStudio } from "@/components/studio/LandfallStudio";
-import { StudioDataNotice } from "@/components/studio/StudioDataNotice";
-import { PageHeader, Chip } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/ui/primitives";
+import { Button } from "@/components/ui/Button";
 
-
+/**
+ * Analytics Studio (AG Studio). One primary action: ask the AI about the data. The board itself is the content; the only other thing a visitor
+ * needs to know is which data it shows, said once.
+ */
 export default function AnalyticsStudioPage() {
   const [mode, setMode] = useState<"view" | "edit">("view");
+  const aiOpen = mode === "edit";
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6">
       <PageHeader
-        eyebrow="Analytics Studio · AG Studio 3.1"
-        icon={I.chart}
-        tone="paypal"
+        eyebrow="Did it land? · Analytics Studio · built on AG Studio"
         title="Every relief dollar,"
         accent="explorable."
-        description="One live workspace over households, treasury and payouts. Filter by priority, ask the AI agent a question, or rearrange the board — nothing here can move money."
+        description="Click any chart to filter the whole board, switch pages with the tabs, or ask the AI a question in plain English. The AI can rearrange this board; it can never move money."
         actions={
-          <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1" role="tablist" aria-label="Studio mode">
-            {(
-              [
-                ["view", "Present", I.view],
-                ["edit", "Build with AI", I.design],
-              ] as const
-            ).map(([m, label, Icon]) => (
-              <button
-                key={m}
-                role="tab"
-                aria-selected={mode === m}
-                onClick={() => setMode(m)}
-                className={`flex items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-medium transition-all ${
-                  mode === m ? "bg-white/10 text-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.08)]" : "text-ink-3 hover:text-ink"
-                }`}
-              >
-                <Icon className="h-4 w-4" strokeWidth={1.75} />
-                {label}
-              </button>
-            ))}
-          </div>
+          aiOpen ? (
+            <Button variant="glass" onClick={() => setMode("view")} data-testid="studio-ai-close">Close the AI panel</Button>
+          ) : (
+            <Button variant="signal" onClick={() => setMode("edit")} data-testid="studio-ai-open" leading={<I.aiAdvisor className="h-4 w-4" />}>Ask the AI about this data</Button>
+          )
         }
       />
 
-      <StudioDataNotice />
+      <p className="note" data-tone="amber" data-testid="studio-data-line">
+        <span className="note-label">Replay data</span>A fictional Hurricane Milton (Oct 2024) fund, so every chart has a full evidence chain. Your real PayPal Sandbox payments are in{" "}
+        <Link href="/console/payments" className="link font-semibold">Payments</Link>.
+        {aiOpen && <> The AI panel is open on the left: type a question and press Enter.</>}
+      </p>
 
-
-      <div className="glass-strong relative overflow-hidden p-2 sm:p-3" data-reveal="scale">
-        <div className="flex items-center justify-between gap-3 px-2 pb-3 pt-1">
-          <div className="flex items-center gap-2">
-            <span className="flex gap-1.5" aria-hidden>
-              <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
-              <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
-              <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
-            </span>
-            <span className="ml-2 text-[12.5px] font-medium text-ink-2">Hurricane Milton · Relief board</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Chip tone="ai">
-              <I.readOnly className="h-3 w-3" /> AI read-only
-            </Chip>
-            <Chip tone="amber">Replay · Oct 2024</Chip>
-            <Chip tone="neutral">Synthetic data</Chip>
-          </div>
-        </div>
-        <div className="h-[900px] w-full overflow-hidden rounded-sm border border-white/[0.06] bg-canvas/60">
-          <LandfallStudio mode={mode} />
-        </div>
+      <div className="pane h-[900px] w-full overflow-hidden !bg-canvas">
+        <LandfallStudio mode={mode} />
       </div>
     </div>
   );
